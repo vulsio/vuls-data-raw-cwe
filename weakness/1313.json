@@ -1,0 +1,172 @@
+{
+  "id": "1313",
+  "name": "Hardware Allows Activation of Test or Debug Logic at Runtime",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "During runtime, the hardware allows for test or debug logic (feature) to be activated, which allows for changing the state of the hardware. This feature can alter the intended behavior of the system and allow for alteration and leakage of sensitive data by an adversary.",
+  "extended_description": "\n\t\t\t\t<xhtml:p>An adversary can take advantage of test or debug logic that is made accessible through the hardware during normal operation to modify the intended behavior of the system. For example, an accessible Test/debug mode may allow read/write access to any system data. Using error injection (a common test/debug feature) during a transmit/receive operation on a bus, data may be modified to produce an unintended message. Similarly, confidentiality could be compromised by such features allowing access to secrets.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "Such issues could be introduced during hardware architecture and design and identified later during Testing or System Configuration phases."
+      ]
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "Such issues could be introduced during implementation and identified later during Testing or System Configuration phases."
+      ]
+    },
+    {
+      "phase": "Integration",
+      "note": [
+        "Such issues could be introduced during integration and identified later during Testing or System configuration phases."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability"
+      ],
+      "impact": [
+        "Modify Memory",
+        "Read Memory",
+        "DoS: Crash, Exit, or Restart",
+        "DoS: Instability",
+        "DoS: Resource Consumption (CPU)",
+        "DoS: Resource Consumption (Memory)",
+        "DoS: Resource Consumption (Other)",
+        "Execute Unauthorized Code or Commands",
+        "Gain Privileges or Assume Identity",
+        "Bypass Protection Mechanism",
+        "Alter Execution Logic",
+        "Quality Degradation",
+        "Unexpected State",
+        "Reduce Performance",
+        "Reduce Reliability"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Insert restrictions on when the hardware's test or debug features can be activated. For example, during normal operating modes, the hardware's privileged modes that allow access to such features cannot be activated. Configuring the hardware to only enter a test or debug mode within a window of opportunity such as during boot or configuration stage. The result is disablement of such test/debug features and associated modes during normal runtime operations."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Insert restrictions on when the hardware's test or debug features can be activated. For example, during normal operating modes, the hardware's privileged modes that allow access to such features cannot be activated. Configuring the hardware to only enter a test or debug mode within a window of opportunity such as during boot or configuration stage. The result is disablement of such test/debug features and associated modes during normal runtime operations."
+      ]
+    },
+    {
+      "phase": [
+        "Integration"
+      ],
+      "description": [
+        "Insert restrictions on when the hardware's test or debug features can be activated. For example, during normal operating modes, the hardware's privileged modes that allow access to such features cannot be activated. Configuring the hardware to only enter a test or debug mode within a window of opportunity such as during boot or configuration stage. The result is disablement of such test/debug features and associated modes during normal runtime operations."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-33150",
+      "description": "Hardware processor allows activation of test or debug logic at runtime.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-33150"
+    },
+    {
+      "reference": "CVE-2021-0146",
+      "description": "Processor allows the activation of test or debug logic at runtime, allowing escalation of privileges",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-0146"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Brent Sherman",
+      "submission_organization": "Accellera IP Security Assurance (IPSA) Working Group",
+      "submission_date": "2020-08-06"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Hareesh Khattri",
+        "contribution_organization": "Intel Corporation",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "contributed to observed example"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "121"
+  ]
+}

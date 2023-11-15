@@ -1,0 +1,558 @@
+{
+  "id": "319",
+  "name": "Cleartext Transmission of Sensitive Information",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product transmits sensitive or security-critical data in cleartext in a communication channel that can be sniffed by unauthorized actors.",
+  "extended_description": "\n\t <xhtml:p>Many communication channels can be \"sniffed\" (monitored) by adversaries during data transmission. For example, in networking, packets can traverse many intermediary nodes from the source to the destination, whether across the internet, an internal network, the cloud, etc. Some actors might have privileged access to a network interface or any link along the channel, such as a router, but they might not be authorized to collect the underlying data. As a result, network traffic could be sniffed by adversaries, spilling security-critical data.</xhtml:p>\n\t <xhtml:p>Applicable communication channels are not limited to software products. Applicable channels include hardware-specific technologies such as internal hardware networks and external debug channels, supporting remote JTAG debugging. When mitigations are not applied to combat adversaries within the product's threat model, this weakness significantly lowers the difficulty of exploitation by such adversaries.</xhtml:p>\n\t <xhtml:p>When full communications are recorded or logged, such as with a packet dump, an adversary could attempt to obtain the dump long after the transmission has occurred and try to \"sniff\" the cleartext from the recorded communications in the dump itself. Even if the information is encoded in a way that is not human-readable, certain techniques could determine which encoding is being used, then decode the information.\n</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "311",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "311",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Cloud Computing",
+        "prevalence": "Undetermined"
+      },
+      {
+        "class": "Mobile",
+        "prevalence": "Undetermined"
+      },
+      {
+        "class": "ICS/OT",
+        "prevalence": "Often"
+      },
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      },
+      {
+        "prevalence": "Often",
+        "name": "Test/Debug Hardware"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "OMISSION: This weakness is caused by missing a security tactic during the architecture and design phase."
+      ]
+    },
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "For hardware, this may be introduced when design does not plan for an attacker having physical access while a legitimate user is remotely operating the device."
+      ]
+    },
+    {
+      "phase": "Operation"
+    },
+    {
+      "phase": "System Configuration"
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Application Data",
+        "Modify Files or Directories"
+      ],
+      "note": "Anyone can read the information by gaining access to the channel being used for communication."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Before transmitting, encrypt the data using reliable, confidentiality-protecting cryptographic protocols."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "When using web applications with SSL, use SSL for the entire session from login to logout, not just for the initial login page."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "When designing hardware platforms, ensure that approved encryption algorithms (such as those recommended by NIST) protect paths from security critical data to trusted user applications."
+      ]
+    },
+    {
+      "phase": [
+        "Testing"
+      ],
+      "description": [
+        "Use tools and techniques that require manual (human) analysis, such as penetration testing, threat modeling, and interactive tools that allow the tester to record and modify an active session. These may be more effective than strictly automated techniques. This is especially the case with weaknesses that are related to design and business rules."
+      ]
+    },
+    {
+      "phase": [
+        "Operation"
+      ],
+      "description": [
+        "Configure servers to use encrypted channels for communication, which may include SSL or other secure protocols."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-42",
+      "text": "\n               <Intro_Text>The following code attempts to establish a connection to a site to communicate sensitive information.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">URL u = new URL(\"http://www.secret.example.org/\");<xhtml:br/>HttpURLConnection hu = (HttpURLConnection) u.openConnection();<xhtml:br/>hu.setRequestMethod(\"PUT\");<xhtml:br/>hu.connect();<xhtml:br/>OutputStream os = hu.getOutputStream();<xhtml:br/>hu.disconnect();</xhtml:div>}<xhtml:br/>catch (IOException e) {<xhtml:div style=\"margin-left:1em;\">\n                           <xhtml:i>//...</xhtml:i>\n                           <xhtml:br/>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Though a connection is successfully made, the connection is unencrypted and it is possible that all sensitive data sent to or received from the server will be read by unintended actors.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-153",
+      "text": "\n\t      <Intro_Text>In 2022, the OT:ICEFALL study examined products by 10 different Operational Technology (OT) vendors. The researchers reported 56 vulnerabilities and said that the products were \"insecure by design\" [REF-1283]. If exploited, these vulnerabilities often allowed adversaries to change how the products operated, ranging from denial of service to changing the code that the products executed. Since these products were often used in industries such as power, electrical, water, and others, there could even be safety implications.</Intro_Text>\n\t      <Body_Text>Multiple vendors used cleartext transmission of sensitive information in their OT products.</Body_Text>\n\t    "
+    },
+    {
+      "text": "\n\t    <Intro_Text>A TAP accessible register is read/written by a JTAG based tool, for internal use by authorized users. However, an adversary can connect a probing device and collect the values from the unencrypted channel connecting the JTAG interface to the authorized user, if no additional protections are employed.</Intro_Text>\n\t    "
+    },
+    {
+      "text": "\n               <Intro_Text>The following Azure CLI command lists the properties of a particular storage account:</Intro_Text>\n               <Example_Code Nature=\"Informative\" Language=\"Shell\">\n                  <xhtml:div>az storage account show -g {ResourceGroupName} -n {StorageAccountName}</xhtml:div>\n               </Example_Code>\n\t       <Body_Text>The JSON result might be:</Body_Text>\n\t       <Example_Code Nature=\"Bad\" Language=\"JSON\">\n\t\t <xhtml:div>\n\t\t   {<xhtml:br/>\n\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t     \"name\": \"{StorageAccountName}\",<xhtml:br/>\n\t\t     \"enableHttpsTrafficOnly\": false,<xhtml:br/>\n\t\t     \"type\": \"Microsoft.Storage/storageAccounts\"<xhtml:br/>\n\t\t   </xhtml:div>\n\t\t   }\n\t\t </xhtml:div>\n\t       </Example_Code>\n\t       <Body_Text>The enableHttpsTrafficOnly value is set to false, because the default setting for Secure transfer is set to Disabled. This allows cloud storage resources to successfully connect and transfer data without the use of encryption (e.g., HTTP, SMB 2.1, SMB 3.0, etc.).</Body_Text>\n\t       <Body_Text>Azure's storage accounts can be configured to only accept requests from secure connections made over HTTPS. The secure transfer setting can be enabled using Azure's Portal (GUI) or programmatically by setting the enableHttpsTrafficOnly property to True on the storage account, such as:</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Shell\">\n                  <xhtml:div>az storage account update -g {ResourceGroupName} -n {StorageAccountName} --https-only true</xhtml:div>\n               </Example_Code>\n\t       <Body_Text>The change can be confirmed from the result by verifying that the enableHttpsTrafficOnly value is true:</Body_Text>\n\t       <Example_Code Nature=\"Good\" Language=\"JSON\">\n\t\t <xhtml:div>\n\t\t   {<xhtml:br/>\n\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t     \"name\": \"{StorageAccountName}\",<xhtml:br/>\n\t\t     \"enableHttpsTrafficOnly\": true,<xhtml:br/>\n\t\t     \"type\": \"Microsoft.Storage/storageAccounts\"<xhtml:br/>\n\t\t   </xhtml:div>\n\t\t   }\n\t\t </xhtml:div>\n\t       </Example_Code>\n\t       <Body_Text>\n\t       <xhtml:p>Note: to enable secure transfer using Azure's Portal instead of the command line:</xhtml:p>\n\t\t <xhtml:ul>\n\t\t   <xhtml:li>1. Open the Create storage account pane in the Azure portal.</xhtml:li>\n\t\t   <xhtml:li>2. In the Advanced page, select the Enable secure transfer checkbox.</xhtml:li>\n\t\t </xhtml:ul>\n\t     </Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2022-29519",
+      "description": "Programmable Logic Controller (PLC) sends sensitive information in plaintext, including passwords and session tokens.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-29519"
+    },
+    {
+      "reference": "CVE-2022-30312",
+      "description": "Building Controller uses a protocol that transmits authentication credentials in plaintext.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-30312"
+    },
+    {
+      "reference": "CVE-2022-31204",
+      "description": "Programmable Logic Controller (PLC) sends password in plaintext.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-31204"
+    },
+    {
+      "reference": "CVE-2002-1949",
+      "description": "Passwords transmitted in cleartext.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1949"
+    },
+    {
+      "reference": "CVE-2008-4122",
+      "description": "Chain: Use of HTTPS cookie without \"secure\" flag causes it to be transmitted across unencrypted HTTP.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4122"
+    },
+    {
+      "reference": "CVE-2008-3289",
+      "description": "Product sends password hash in cleartext in violation of intended policy.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-3289"
+    },
+    {
+      "reference": "CVE-2008-4390",
+      "description": "Remote management feature sends sensitive information including passwords in cleartext.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4390"
+    },
+    {
+      "reference": "CVE-2007-5626",
+      "description": "Backup routine sends password in cleartext in email.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-5626"
+    },
+    {
+      "reference": "CVE-2004-1852",
+      "description": "Product transmits Blowfish encryption key in cleartext.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1852"
+    },
+    {
+      "reference": "CVE-2008-0374",
+      "description": "Printer sends configuration information, including administrative password, in cleartext.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-0374"
+    },
+    {
+      "reference": "CVE-2007-4961",
+      "description": "Chain: cleartext transmission of the MD5 hash of password enables attacks against a server that is susceptible to replay (CWE-294).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4961"
+    },
+    {
+      "reference": "CVE-2007-4786",
+      "description": "Product sends passwords in cleartext to a log server.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4786"
+    },
+    {
+      "reference": "CVE-2005-3140",
+      "description": "Product sends file with cleartext passwords in e-mail message intended for diagnostic purposes.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3140"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-271",
+      "author": [
+        "OWASP"
+      ],
+      "title": "Top 10 2007-Insecure Communications",
+      "url": "http://www.owasp.org/index.php/Top_10_2007-A9",
+      "publication_year": "2007"
+    },
+    {
+      "section": "Chapter 9, \"Protecting Secret Data\" Page 299",
+      "reference_id": "REF-7",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc"
+      ],
+      "title": "Writing Secure Code",
+      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+      "publication_year": "2002",
+      "publication_month": "--12",
+      "publication_day": "---04",
+      "publisher": "Microsoft Press",
+      "edition": "2nd Edition"
+    },
+    {
+      "section": "\"Sin 22: Failing to Protect Network Traffic.\" Page 337",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    },
+    {
+      "reference_id": "REF-172",
+      "author": [
+        "Chris Wysopal"
+      ],
+      "title": "Mobile App Top 10 List",
+      "url": "https://www.veracode.com/blog/2010/12/mobile-app-top-10-list",
+      "publication_year": "2010",
+      "publication_month": "--12",
+      "publication_day": "---13",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1283",
+      "author": [
+        "Forescout Vedere Labs"
+      ],
+      "title": "OT:ICEFALL: The legacy of \"insecure by design\" and its implications for certifications and risk management",
+      "url": "https://www.forescout.com/resources/ot-icefall-report/",
+      "publication_year": "2022",
+      "publication_month": "--06",
+      "publication_day": "---20"
+    },
+    {
+      "section": "Sections 3.1 and 3.10",
+      "reference_id": "REF-1307",
+      "author": [
+        "Center for Internet Security"
+      ],
+      "title": "CIS Microsoft Azure Foundations Benchmark version 1.5.0",
+      "url": "https://www.cisecurity.org/benchmark/azure",
+      "publication_year": "2022",
+      "publication_month": "--08",
+      "publication_day": "---16",
+      "url_date": "2023-01-19"
+    },
+    {
+      "reference_id": "REF-1309",
+      "author": [
+        "Microsoft"
+      ],
+      "title": "Require secure transfer to ensure secure connections",
+      "url": "https://learn.microsoft.com/en-us/azure/storage/common/storage-require-secure-transfer",
+      "publication_year": "2022",
+      "publication_month": "--07",
+      "publication_day": "---24",
+      "url_date": "2023-01-24"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-01-12",
+        "modification_comment": "updated Common_Consequences, Description, Likelihood_of_Exploit, Name, Observed_Examples, Potential_Mitigations, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Observed_Examples, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Demonstrative_Examples, References, Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-02-21",
+        "modification_comment": "updated Applicable_Platforms, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-07-17",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-02-18",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-05-03",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Likelihood_of_Exploit, Modes_of_Introduction, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-01-23",
+        "modification_comment": "updated Abstraction "
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated References, Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Applicable_Platforms, Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Observed_Examples, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Maintenance_Notes, Modes_of_Introduction, Potential_Mitigations, References, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Description, Mapping_Notes, Relationships"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Plaintext Transmission of Sensitive Information",
+        "date": "2009-01-12"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Accellera IP Security Assurance (IPSA) Working Group",
+        "contribution_organization": "Accellera Systems Initiative",
+        "contribution_date": "2023-01-24",
+        "contribution_comment": "Submitted original contents of CWE-1324 and reviewed its integration into this entry."
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-11",
+      "method": "Black Box",
+      "description": "\n                  <xhtml:p>Use monitoring tools that examine the software's process as it interacts with the operating system and the network. This technique is useful in cases when source code is unavailable, if the software was not developed by you, or if you want to verify that the build phase did not introduce any new weaknesses. Examples include debuggers that directly attach to the running process; system-call tracing utilities such as truss (Solaris) and strace (Linux); system activity monitors such as FileMon, RegMon, Process Monitor, and other Sysinternals utilities (Windows); and sniffers and protocol analyzers that monitor network traffic.</xhtml:p>\n                  <xhtml:p>Attach the monitor to the process, trigger the feature that sends the data, and look for the presence or absence of common cryptographic functions in the call tree. Monitor the network and determine if the data packets contain readable commands. Tools exist for detecting if certain encodings are in use. If the traffic contains high entropy, this might indicate the usage of encryption.</xhtml:p>\n               "
+    },
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Plaintext Transmission of Sensitive Information"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Do not rely on the default automatic signature verification provided by URLClassLoader and java.util.jar",
+      "entry_id": "SEC06-J"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Sign then seal sensitive objects before sending them outside a trust boundary",
+      "entry_id": "SER02-J"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Exposed Data",
+      "entry_id": "SFP23"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SR 4.1",
+      "entry_id": "Part 3-3"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 4.1B",
+      "entry_id": "Part 4-2"
+    }
+  ],
+  "related_attack_patterns": [
+    "102",
+    "117",
+    "383",
+    "477",
+    "65"
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "The Taxonomy_Mappings to ISA/IEC 62443 were added in CWE 4.10, but they are still under review and might change in future CWE versions. These draft mappings were performed by members of the \"Mapping CWE to 62443\" subgroup of the CWE-CAPEC ICS/OT Special Interest Group (SIG), and their work is incomplete as of CWE 4.10. The mappings are included to facilitate discussion and review by the broader ICS/OT community, and they are likely to change in future CWE versions."
+    }
+  ]
+}

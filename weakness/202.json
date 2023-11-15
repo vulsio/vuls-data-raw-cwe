@@ -1,0 +1,191 @@
+{
+  "id": "202",
+  "name": "Exposure of Sensitive Information Through Data Queries",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "When trying to keep information confidential, an attacker can often infer some of the information by using statistics.",
+  "extended_description": "In situations where data should not be tied to individual users, but a large number of users should be able to make queries that \"scrub\" the identity of users, it may be possible to get information about a user -- e.g., by specifying search terms that are known to be unique to that user.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1230",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Files or Directories",
+        "Read Application Data"
+      ],
+      "note": "Sensitive information may possibly be leaked through data queries accidentally."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "This is a complex topic. See the book Translucent Databases for a good discussion of best practices."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>See the book Translucent Databases for examples.</Intro_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2022-41935",
+      "description": "Wiki product allows an adversary to discover filenames via a series of queries starting with one letter and then iteratively extending the match.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-41935"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Description, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-02-21",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-05-03",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Maintenance_Notes, Name, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Information Leak Through Data Queries",
+        "date": "2008-04-11"
+      },
+      {
+        "text": "Privacy Leak through Data Queries",
+        "date": "2011-03-29"
+      },
+      {
+        "text": "Exposure of Sensitive Data Through Data Queries",
+        "date": "2020-02-24"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Accidental leaking of sensitive information through data queries"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "\n               <xhtml:p>The relationship between CWE-202 and CWE-612 needs to be investigated more closely, as they may be different descriptions of the same kind of problem.  CWE-202 is also being considered for deprecation, as it is not clearly described and may have been misunderstood by CWE users.  It could be argued that this issue is better covered by CAPEC; an attacker can utilize their data-query privileges to perform this kind of operation, and if the attacker should not be allowed to perform the operation - or if the sensitive data should not have been made accessible at all - then that is more appropriately classified as a separate CWE related to authorization (see the parent, CWE-1230).</xhtml:p>\n\t    "
+    }
+  ]
+}

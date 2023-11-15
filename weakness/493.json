@@ -1,0 +1,202 @@
+{
+  "id": "493",
+  "name": "Critical Public Variable Without Final Modifier",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product has a critical public variable that is not final, which allows the variable to be modified to contain unexpected values.",
+  "extended_description": "If a field is non-final and public, it can be changed once the value is set by any function that has access to the class which contains the field. This could lead to a vulnerability if other parts of the program make assumptions about the contents of that field.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "668",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "Java"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C++"
+      }
+    ]
+  },
+  "background_details": [
+    "Mobile code, such as a Java Applet, is code that is transmitted across a network and executed on a remote machine. Because mobile code developers have little if any control of the environment in which their code will execute, special security concerns become relevant. One of the biggest environmental threats results from the risk that the mobile code will run side-by-side with other, potentially malicious, mobile code. Because all of the popular web browsers execute code from multiple sources together in the same JVM, many of the security guidelines for mobile code are focused on preventing manipulation of your objects' state and behavior by adversaries who have access to the same virtual machine where your program is running.",
+    "Final provides security by only allowing non-mutable objects to be changed after being set. However, only objects which are not extended can be made final."
+  ],
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Application Data"
+      ],
+      "note": "The object could potentially be tampered with."
+    },
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Application Data"
+      ],
+      "note": "The object could potentially allow the object to be read."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Declare all public fields as final when possible, especially if it is used to maintain internal state of an Applet or of classes used by an Applet. If a field must be public, then perform all appropriate sanity checks before accessing the field from your code."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>Suppose this WidgetData class is used for an e-commerce web site. The programmer attempts to prevent price-tampering attacks by setting the price of the widget using the constructor.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public final class WidgetData extends Applet {<xhtml:div style=\"margin-left:1em;\">public float price;<xhtml:br/>...<xhtml:br/>public WidgetData(...) {<xhtml:div style=\"margin-left:1em;\">this.price = LookupPrice(\"MyWidgetType\");</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The price field is not final. Even though the value is set by the constructor, it could be modified by anybody that has access to an instance of WidgetData.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>Assume the following code is intended to provide the location of a configuration file that controls execution of the application.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>public string configPath = \"/etc/application/config.dat\";</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public String configPath = new String(\"/etc/application/config.dat\");</xhtml:div>\n               </Example_Code>\n               <Body_Text>While this field is readable from any function, and thus might allow an information leak of a pathname, a more serious problem is that it can be changed by any function.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-6",
+      "author": [
+        "Katrina Tsipenyuk",
+        "Brian Chess",
+        "Gary McGraw"
+      ],
+      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+      "publication_year": "2005",
+      "publication_month": "--11",
+      "publication_day": "---07",
+      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+      "publisher": "NIST"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "7 Pernicious Kingdoms",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Description, Likelihood_of_Exploit, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Background_Details, Demonstrative_Examples, Description, Other_Notes, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Background_Details, Demonstrative_Examples, Description, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Mobile Code: Non-final Public Field",
+        "date": "2008-04-11"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "7 Pernicious Kingdoms",
+      "entry_name": "Mobile Code: Non-Final Public Field"
+    },
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Failure to provide confidentiality for stored data"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Do not use public static nonfinal variables",
+      "entry_id": "OBJ10-J"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Unexpected access points",
+      "entry_id": "SFP28"
+    }
+  ]
+}

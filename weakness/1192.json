@@ -1,0 +1,100 @@
+{
+  "id": "1192",
+  "name": "System-on-Chip (SoC) Using Components without Unique, Immutable Identifiers",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The System-on-Chip (SoC) does not have unique, immutable identifiers for each of its components.",
+  "extended_description": "\n\t   <xhtml:p>A System-on-Chip (SoC) comprises several components (IP) with varied\n           trust requirements. It is required that each IP is identified\n           uniquely and should distinguish itself from other entities in\n           the SoC without any ambiguity. The unique secured identity is\n           required for various purposes. Most of the time the identity is used\n           to route a transaction or perform certain actions, including \n           resetting, retrieving a sensitive information, and acting upon or on\n           behalf of something else.</xhtml:p>\n           <xhtml:p>There are several variants of this weakness:</xhtml:p>\n            <xhtml:ul>\n\t      <xhtml:li>A \"missing\" identifier is when the SoC does not define\n\t      any mechanism to uniquely identify the IP.</xhtml:li>\n\t      <xhtml:li>An \"insufficient\" identifier might provide\n\t      some defenses - for example, against the most common\n\t      attacks - but it does not protect against everything\n\t      that is intended.</xhtml:li>\n\t      <xhtml:li>A \"misconfigured\" mechanism occurs when a mechanism\n              is available but not implemented correctly.</xhtml:li>\n\t      <xhtml:li>An \"ignored\" identifier occurs when the SoC/IP has not applied\n\t      any policies or does not act upon the identifier securely.</xhtml:li>\n            </xhtml:ul>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "657",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism"
+      ],
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>\n                    Every identity generated in the SoC should be unique and\n                    immutable in hardware. The actions that an IP is trusted or\n                    not trusted should be clearly defined, implemented,\n                    configured, and tested. If the definition is implemented via a\n                    policy, then the policy should be immutable or protected with\n                    clear authentication and authorization.\n                  </xhtml:p>\n                "
+      ],
+      "strategy": "Separation of Privilege"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2019-10-15"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "113"
+  ]
+}

@@ -1,0 +1,337 @@
+{
+  "id": "123",
+  "name": "Write-what-where Condition",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "Any condition where the attacker has the ability to write an arbitrary value to an arbitrary location, often as the result of a buffer overflow.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "787",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "119",
+      "view_id": "1305",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "119",
+      "view_id": "1340",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "C"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C++"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Availability",
+        "Access Control"
+      ],
+      "impact": [
+        "Modify Memory",
+        "Execute Unauthorized Code or Commands",
+        "Gain Privileges or Assume Identity",
+        "DoS: Crash, Exit, or Restart",
+        "Bypass Protection Mechanism"
+      ],
+      "note": "Clearly, write-what-where conditions can be used to write data to areas of memory outside the scope of a policy. Also, they almost invariably can be used to execute arbitrary code, which is usually outside the scope of a program's implicit security policy. If the attacker can overwrite a pointer's worth of memory (usually 32 or 64 bits), they can redirect a function pointer to their own malicious code. Even when the attacker can only modify a single byte arbitrary code execution can be possible. Sometimes this is because the same problem can be exploited repeatedly to the same effect. Other times it is because the attacker can overwrite security-critical application-specific data -- such as a flag indicating whether the user is an administrator."
+    },
+    {
+      "scope": [
+        "Integrity",
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart",
+        "Modify Memory"
+      ],
+      "note": "Many memory accesses can lead to program termination, such as when writing to addresses that are invalid for the current process."
+    },
+    {
+      "scope": [
+        "Access Control",
+        "Other"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism",
+        "Other"
+      ],
+      "note": "When the consequence is arbitrary code execution, this can often be used to subvert any other security service."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Use a language that provides appropriate memory abstractions."
+      ],
+      "strategy": "Language Selection"
+    },
+    {
+      "phase": [
+        "Operation"
+      ],
+      "description": [
+        "Use OS-level preventative functionality integrated after the fact. Not a complete solution."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The classic example of a write-what-where condition occurs when the accounting information for memory allocations is overwritten in a particular fashion. Here is an example of potentially vulnerable code:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define BUFSIZE 256<xhtml:br/>int main(int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">char *buf1 = (char *) malloc(BUFSIZE);<xhtml:br/>char *buf2 = (char *) malloc(BUFSIZE);<xhtml:br/>strcpy(buf1, argv[1]);<xhtml:br/>free(buf2);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Vulnerability in this case is dependent on memory layout. The call to strcpy() can be used to write past the end of buf1, and, with a typical layout, can overwrite the accounting information that the system keeps for buf2 when it is allocated. Note that if the allocation header for buf2 can be overwritten, buf2 itself can be overwritten as well.</Body_Text>\n               <Body_Text>The allocation header will generally keep a linked list of memory \"chunks\". Particularly, there may be a \"previous\" chunk and a \"next\" chunk. Here, the previous chunk for buf2 will probably be buf1, and the next chunk may be null. When the free() occurs, most memory allocators will rewrite the linked list using data from buf2. Particularly, the \"next\" chunk for buf1 will be updated and the \"previous\" chunk for any subsequent chunk will be updated. The attacker can insert a memory address for the \"next\" chunk and a value to write into that memory address for the \"previous\" chunk.</Body_Text>\n               <Body_Text>This could be used to overwrite a function pointer that gets dereferenced later, replacing it with a memory address that the attacker has legitimate access to, where they have placed malicious code, resulting in arbitrary code execution.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2022-21668",
+      "description": "Chain: Python library does not limit the resources used to process images that specify a very large number of bands (CWE-1284), leading to excessive memory consumption (CWE-789) or an integer overflow (CWE-190).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-21668"
+    },
+    {
+      "reference": "CVE-2022-0545",
+      "description": "Chain: 3D renderer has an integer overflow (CWE-190) leading to write-what-where condition (CWE-123) using a crafted image.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-0545"
+    }
+  ],
+  "references": [
+    {
+      "section": "\"Sin 5: Buffer Overruns.\" Page 89",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    },
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Common_Consequences, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-01-12",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-02-21",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Causal_Nature, Common_Consequences, Demonstrative_Examples, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-09-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Resultant"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Write-what-where condition"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Do not form or use out-of-bounds pointers or array subscripts",
+      "entry_id": "ARR30-C",
+      "mapping_fit": "Imprecise"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Guarantee that library functions do not form invalid pointers",
+      "entry_id": "ARR38-C",
+      "mapping_fit": "Imprecise"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Guarantee that storage for strings has sufficient space for character data and the null terminator",
+      "entry_id": "STR31-C",
+      "mapping_fit": "Imprecise"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Do not pass a non-null-terminated character sequence to a library function that expects a string",
+      "entry_id": "STR32-C",
+      "mapping_fit": "Imprecise"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Faulty Buffer Access",
+      "entry_id": "SFP8"
+    }
+  ]
+}

@@ -1,0 +1,448 @@
+{
+  "id": "74",
+  "name": "Improper Neutralization of Special Elements in Output Used by a Downstream Component ('Injection')",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product constructs all or part of a command, data structure, or record using externally-influenced input from an upstream component, but it does not neutralize or incorrectly neutralizes special elements that could modify how it is parsed or interpreted when it is sent to a downstream component.",
+  "extended_description": "Software or other automated logic has certain assumptions about what constitutes data and control respectively. It is the lack of verification of these assumptions for user-controlled input that leads to injection problems. Injection problems encompass a wide variety of issues -- all mitigated in very different ways and usually attempted in order to alter the control flow of the process. For this reason, the most effective way to discuss these weaknesses is to note the distinct features that classify them as injection weaknesses. The most important issue to note is that all injection problems share one thing in common -- i.e., they allow for the injection of control plane data into the user-controlled data plane. This means that the execution of the process may be altered by sending code in through legitimate data channels, using no other mechanism. While buffer overflows, and many other flaws, involve the use of some further issue to gain execution, injection problems need only for the data to be parsed.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "707",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Application Data"
+      ],
+      "note": "Many injection attacks involve the disclosure of important information -- in terms of both data sensitivity and usefulness in further exploitation."
+    },
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism"
+      ],
+      "note": "In some cases, injectable code controls authentication; this may lead to a remote vulnerability."
+    },
+    {
+      "scope": [
+        "Other"
+      ],
+      "impact": [
+        "Alter Execution Logic"
+      ],
+      "note": "Injection attacks are characterized by the ability to significantly change the flow of a given process, and in some cases, to the execution of arbitrary code."
+    },
+    {
+      "scope": [
+        "Integrity",
+        "Other"
+      ],
+      "impact": [
+        "Other"
+      ],
+      "note": "Data injection attacks lead to loss of data integrity in nearly all cases as the control-plane data injected is always incidental to data recall or writing."
+    },
+    {
+      "scope": [
+        "Non-Repudiation"
+      ],
+      "impact": [
+        "Hide Activities"
+      ],
+      "note": "Often the actions performed by injected control code are unlogged."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Requirements"
+      ],
+      "description": [
+        "Programming languages and supporting technologies might be chosen which are not subject to these issues."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Utilize an appropriate mix of allowlist and denylist parsing to filter control-plane syntax from all input."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-151",
+      "text": "\n               <Intro_Text>This example code intends to take the name of a user and list the contents of that user's home directory. It is subject to the first variant of OS command injection.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$userName = $_POST[\"user\"];<xhtml:br/>$command = 'ls -l /home/' . $userName;<xhtml:br/>system($command);</xhtml:div>\n               </Example_Code>\n               <Body_Text>The $userName variable is not checked for malicious input. An attacker could set the $userName variable to an arbitrary OS command such as:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>;rm -rf /</xhtml:div>\n               </Example_Code>\n               <Body_Text>Which would result in $command being:</Body_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>ls -l /home/;rm -rf /</xhtml:div>\n               </Example_Code>\n               <Body_Text>Since the semi-colon is a command separator in Unix, the OS would first execute the ls command, then the rm command, deleting the entire file system.</Body_Text>\n               <Body_Text>Also note that this example code is vulnerable to Path Traversal (CWE-22) and Untrusted Search Path (CWE-426) attacks.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-150",
+      "text": "\n               <Intro_Text>Consider the following program. It intends to perform an \"ls -l\" on an input filename. The validate_name() subroutine performs validation on the input to make sure that only alphanumeric and \"-\" characters are allowed, which avoids path traversal (CWE-22) and OS command injection (CWE-78) weaknesses. Only filenames like \"abc\" or \"d-e-f\" are intended to be allowed.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>\n\t\t\t\t\tmy $arg = GetArgument(\"filename\");<xhtml:br/>\n\t\t\t\t\tdo_listing($arg);<xhtml:br/>\n\t\t\t\t\t<xhtml:br/>\n\n\t\t\t\t\tsub do_listing {<xhtml:br/>\n\t\t\t\t\t<xhtml:div>\n\t\t\t\t\t\tmy($fname) = @_;<xhtml:br/>\n\t\t\t\t\t\tif (! validate_name($fname)) {<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div>\n\t\t\t\t\t\t\tprint \"Error: name is not well-formed!\\n\";<xhtml:br/>\n\t\t\t\t\t\t\treturn;<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t}<xhtml:br/>\n\t\t\t\t\t\t<xhtml:i># build command</xhtml:i><xhtml:br/>\n\t\t\t\t\t\tmy $cmd = \"/bin/ls -l $fname\";<xhtml:br/>\n\t\t\t\t\t\tsystem($cmd);<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t}\n\t\t\t\t\t<xhtml:br/><xhtml:br/>\n\t\t\t\t\tsub validate_name {<xhtml:br/>\n\t\t\t\t\t<xhtml:div>\n\t\t\t\t\t\tmy($name) = @_;<xhtml:br/>\n\t\t\t\t\t\tif ($name =~ /^[\\w\\-]+$/) {<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div>\n\t\t\t\t\t\t\treturn(1);<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t}<xhtml:br/>\n\t\t\t\t\t\telse {<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div>\n\t\t\t\t\t\t\treturn(0);<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t}<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t}\n\t\t\t\t  </xhtml:div>\n               </Example_Code>\n\n               <Body_Text><xhtml:p>However, validate_name() alows\n               filenames that begin with a \"-\". An adversary could\n               supply a filename like \"-aR\", producing the \"ls -l -aR\"\n               command (CWE-88), thereby getting a full recursive\n               listing of the entire directory and all of its\n               sub-directories.</xhtml:p>\n\n\t\t\t   <xhtml:p>There are a couple possible mitigations for this\n\t\t\t   weakness. One would be to refactor the code to avoid\n\t\t\t   using system() altogether, instead relying on internal\n\t\t\t   functions.</xhtml:p>\n\n\t\t\t   <xhtml:p>Another option could be to add a \"--\" argument\n\t\t\t   to the ls command, such as \"ls -l --\", so that any\n\t\t\t   remaining arguments are treated as filenames, causing\n\t\t\t   any leading \"-\" to be treated as part of a filename\n\t\t\t   instead of another option.</xhtml:p>\n\n\t\t\t   <xhtml:p>Another fix might be to change the regular expression used in validate_name to force the first character of the filename to be a letter or number, such as:</xhtml:p>\n\t\t\t   </Body_Text>\n\t\t\t   <Example_Code Nature=\"Good\" Language=\"Perl\">\n\t\t\t   \t <xhtml:div>\n\t\t\t\t   if ($name =~ /^\\w[\\w\\-]+$/) ...\n\t\t\t\t </xhtml:div>\n\t\t\t   </Example_Code>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2022-36069",
+      "description": "Python-based dependency management tool avoids OS command injection  when generating Git commands but allows  injection of optional arguments with input beginning with a dash, potentially allowing for code execution.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-36069"
+    },
+    {
+      "reference": "CVE-1999-0067",
+      "description": "Canonical example of OS command injection. CGI program does not neutralize \"|\" metacharacter when invoking a phonebook program.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0067"
+    },
+    {
+      "reference": "CVE-2022-1509",
+      "description": "injection of sed script syntax (\"sed injection\")",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-1509"
+    },
+    {
+      "reference": "CVE-2020-9054",
+      "description": "Chain: improper input validation (CWE-20) in username parameter, leading to OS command injection (CWE-78), as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-9054"
+    },
+    {
+      "reference": "CVE-2021-44228",
+      "description": "Product does not neutralize ${xyz} style expressions, allowing remote code execution. (log4shell vulnerability)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-44228"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_organization": "Veracode",
+        "modification_date": "2008-08-15",
+        "modification_comment": "Suggested OWASP Top Ten 2004 mapping"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Description, Relationships, Other_Notes, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-01-12",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Name, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-07-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Description, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Description, Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Common_Consequences, Relationship_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-02-18",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-05-03",
+        "modification_comment": "updated Potential_Mitigations, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Causal_Nature, Likelihood_of_Exploit, Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationship_Notes, Relationships, Theoretical_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Injection",
+        "date": "2008-04-11"
+      },
+      {
+        "text": "Failure to Sanitize Data into a Different Plane (aka 'Injection')",
+        "date": "2009-05-27"
+      },
+      {
+        "text": "Failure to Sanitize Data into a Different Plane ('Injection')",
+        "date": "2010-06-21"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Injection problem ('data' used as something else)"
+    },
+    {
+      "taxonomy_name": "OWASP Top Ten 2004",
+      "entry_name": "Injection Flaws",
+      "entry_id": "A6",
+      "mapping_fit": "CWE More Specific"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Tainted input to command",
+      "entry_id": "SFP24"
+    }
+  ],
+  "related_attack_patterns": [
+    "10",
+    "101",
+    "105",
+    "108",
+    "120",
+    "13",
+    "135",
+    "14",
+    "24",
+    "250",
+    "267",
+    "273",
+    "28",
+    "3",
+    "34",
+    "42",
+    "43",
+    "45",
+    "46",
+    "47",
+    "51",
+    "52",
+    "53",
+    "6",
+    "64",
+    "67",
+    "7",
+    "71",
+    "72",
+    "76",
+    "78",
+    "79",
+    "8",
+    "80",
+    "83",
+    "84",
+    "9"
+  ],
+  "notes": [
+    {
+      "type": "Theoretical",
+      "text": "Many people treat injection only as an input validation problem (CWE-20) because many people do not distinguish between the consequence/attack (injection) and the protection mechanism that prevents the attack from succeeding. However, input validation is only one potential protection mechanism (output encoding is another), and there is a chaining relationship between improper input validation and the improper enforcement of the structure of messages to other components. Other issues not directly related to input validation, such as race conditions, could similarly impact message structure."
+    }
+  ]
+}

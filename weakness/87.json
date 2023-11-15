@@ -1,0 +1,255 @@
+{
+  "id": "87",
+  "name": "Improper Neutralization of Alternate XSS Syntax",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product does not neutralize or incorrectly neutralizes user-controlled input for alternate script syntax.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "79",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability"
+      ],
+      "impact": [
+        "Read Application Data",
+        "Execute Unauthorized Code or Commands"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Resolve all input to absolute or canonical representations before processing."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Carefully check each input parameter against a rigorous positive specification (allowlist) defining the specific characters and format allowed. All input should be neutralized, not just parameters that the user is supposed to specify, but all data in the request, including tag attributes, hidden fields, cookies, headers, the URL itself, and so forth. A common mistake that leads to continuing XSS vulnerabilities is to validate only fields that are expected to be redisplayed by the site. We often encounter data from the request that is reflected by the application server or the application that the development team did not anticipate. Also, a field that is not currently reflected may be used by a future developer. Therefore, validating ALL parts of the HTTP request is recommended."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-30.1",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Use and specify an output encoding that can be handled by the downstream component that is reading the output. Common encodings include ISO-8859-1, UTF-7, and UTF-8. When an encoding is not specified, a downstream component may choose a different encoding, either by assuming a default encoding or automatically inferring which encoding is being used, which can be erroneous. When the encodings are inconsistent, the downstream component might treat some character or byte sequences as special, even if they are not special in the original encoding. Attackers might then be able to exploit this discrepancy and conduct injection attacks; they even might be able to bypass protection mechanisms that assume the original encoding is also being used by the downstream component.</xhtml:p>\n                  <xhtml:p>The problem of inconsistent output encodings often arises in web pages. If an encoding is not specified in an HTTP header, web browsers often guess about which encoding is being used. This can open up the browser to subtle XSS attacks.</xhtml:p>\n               "
+      ],
+      "strategy": "Output Encoding"
+    },
+    {
+      "mitigation_id": "MIT-43",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "With Struts, write all data from form beans with the bean's filter attribute set to true."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-31",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "To help mitigate XSS attacks against the user's session cookie, set the session cookie to be HttpOnly. In browsers that support the HttpOnly feature (such as more recent versions of Internet Explorer and Firefox), this attribute can prevent the user's session cookie from being accessible to malicious client-side scripts that use document.cookie. This is not a complete solution, since HttpOnly is not supported by all browsers. More importantly, XMLHTTPRequest and other powerful browser technologies provide read access to HTTP headers, including the Set-Cookie header in which the HttpOnly flag is set."
+      ],
+      "effectiveness": "Defense in Depth",
+      "strategy": "Attack Surface Reduction"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-141",
+      "text": "\n               <Intro_Text>In the following example, an XSS neutralization method intends to replace script tags in user-supplied input with a safe equivalent:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public String preventXSS(String input, String mask) {<xhtml:div style=\"margin-left:1em;\">return input.replaceAll(\"script\", mask);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code only works when the \"script\" tag is in all lower-case, forming an incomplete denylist (CWE-184). Equivalent tags such as \"SCRIPT\" or \"ScRiPt\" will not be neutralized by this method, allowing an XSS attack.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2002-0738",
+      "description": "XSS using \"&={script}\".",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0738"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Sean Eidemiller",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "added/updated demonstrative examples"
+      },
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Name, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-07-27",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Demonstrative_Examples, Description, Name, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-05-03",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Alternate XSS Syntax",
+        "date": "2008-09-09"
+      },
+      {
+        "text": "Failure to Sanitize Alternate XSS Syntax",
+        "date": "2010-06-21"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Alternate XSS syntax"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Tainted input to command",
+      "entry_id": "SFP24"
+    }
+  ],
+  "related_attack_patterns": [
+    "199"
+  ]
+}

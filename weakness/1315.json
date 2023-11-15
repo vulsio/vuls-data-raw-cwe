@@ -1,0 +1,148 @@
+{
+  "id": "1315",
+  "name": "Improper Setting of Bus Controlling Capability in Fabric End-point",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The bus controller enables bits in the fabric end-point to allow responder devices to control transactions on the fabric.",
+  "extended_description": "\n\t\t\t\t<xhtml:p>To support reusability, certain fabric interfaces and end points provide a configurable register bit that allows IP blocks connected to the controller to access other peripherals connected to the fabric. This allows the end point to be used with devices that function as a controller or responder. If this bit is set by default in hardware, or if firmware incorrectly sets it later, a device intended to be a responder on a fabric is now capable of controlling transactions to other devices and might compromise system security.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    },
+    {
+      "phase": "System Configuration"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Modify Memory",
+        "Read Memory",
+        "Bypass Protection Mechanism"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "For responder devices, the register bit in the fabric end-point that enables the bus controlling capability must be set to 0 by default. This bit should not be set during secure-boot flows. Also, writes to this register must be access-protected to prevent malicious modifications to obtain bus-controlling capability."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "For responder devices, the register bit in the fabric end-point that enables the bus controlling capability must be set to 0 by default. This bit should not be set during secure-boot flows. Also, writes to this register must be access-protected to prevent malicious modifications to obtain bus-controlling capability."
+      ]
+    },
+    {
+      "phase": [
+        "System Configuration"
+      ],
+      "description": [
+        "For responder devices, the register bit in the fabric end-point that enables the bus controlling capability must be set to 0 by default. This bit should not be set during secure-boot flows. Also, writes to this register must be access-protected to prevent malicious modifications to obtain bus-controlling capability."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>A typical, phone platform consists of the main, compute core or CPU, a DRAM-memory chip, an audio codec, a baseband modem, a power-management-integrated circuit (\"PMIC\"), a connectivity (WiFi and Bluetooth) modem, and several other analog/RF components. The main CPU is the only component that can control transactions, and all the other components are responder-only devices. All the components implement a PCIe end-point to interface with the rest of the platform. The responder devices should have the bus-control-enable bit in the PCIe-end-point register set to 0 in hardware to prevent the devices from controlling transactions to the CPU or other peripherals.</Intro_Text>\n\t\t\t\t\t<Body_Text>The audio-codec chip does not have the bus-controller-enable-register bit hardcoded to 0.  There is no platform-firmware flow to verify that the bus-controller-enable bit is set to 0 in all responders.</Body_Text>\n\t\t\t\t\t<Body_Text>Audio codec can now master transactions to the CPU and other platform components. Potentially, it can modify assets in other platform components to subvert system security. </Body_Text>\n\t\t\t\t\t<Body_Text>Platform firmware includes a flow to check the configuration of bus-controller-enable bit in all responder devices. If this register bit is set on any of the responders, platform firmware sets it to 0. Ideally, the default value of this register bit should be hardcoded to 0 in RTL. It should also have access control to prevent untrusted entities from setting this bit to become bus controllers.</Body_Text>\n\t\t\t\t"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1135",
+      "author": [
+        "Benoit Morgan, Eric Alata, Vincent Nicomette, Mohamed Kaaniche"
+      ],
+      "title": "Bypassing IOMMU Protection against I/O Attacks",
+      "url": "https://hal.archives-ouvertes.fr/hal-01419962/document",
+      "publication_year": "2016"
+    },
+    {
+      "reference_id": "REF-1136",
+      "author": [
+        "Colin L. Rothwell"
+      ],
+      "title": "Exploitation from malicious PCI Express peripherals",
+      "url": "https://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-934.pdf",
+      "publication_year": "2019"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati K. Manna",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-05-19"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "1",
+    "180"
+  ]
+}

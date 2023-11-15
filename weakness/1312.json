@@ -1,0 +1,154 @@
+{
+  "id": "1312",
+  "name": "Missing Protection for Mirrored Regions in On-Chip Fabric Firewall",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The firewall in an on-chip fabric protects the main addressed region, but it does not protect any mirrored memory or memory-mapped-IO (MMIO) regions.",
+  "extended_description": "\n\t\t\t\t<xhtml:p>Few fabrics mirror memory and address ranges, where mirrored regions contain copies of the original data. This redundancy is used to achieve fault tolerance. Whatever protections the fabric firewall implements for the original region should also apply to the mirrored regions. If not, an attacker could bypass existing read/write protections by reading from/writing to the mirrored regions to leak or corrupt the original data.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "1251",
+      "view_id": "1194"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Access Control"
+      ],
+      "impact": [
+        "Modify Memory",
+        "Read Memory",
+        "Bypass Protection Mechanism"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "The fabric firewall should apply the same protections as the original region to the mirrored regions."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "The fabric firewall should apply the same protections as the original region to the mirrored regions."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>A memory-controller IP block is connected to the on-chip fabric in a System on Chip (SoC).  The memory controller is configured to divide the memory into four parts: one original and three mirrored regions inside the memory. The upper two bits of the address indicate which region is being addressed. 00 indicates the original region and 01, 10, and 11 are used to address the mirrored regions. All four regions operate in a lock-step manner and are always synchronized. The firewall in the on-chip fabric is programmed to protect the assets in the memory.</Intro_Text>\n\t\t\t\t\t<Body_Text>The firewall only protects the original range but not the mirrored regions.</Body_Text>\n\t\t\t\t\t<Body_Text>The attacker (as an unprivileged user) sends a write transaction to the mirrored region. The mirrored region has an address with the upper two bits set to \"10\" and the remaining bits of the address pointing to an asset. The firewall does not block this write transaction. Once the write is successful, contents in the protected-memory region are also updated. Thus, the attacker can bypass existing, memory protections.</Body_Text>\n\t\t\t\t\t<Body_Text>Firewall should protect mirrored regions.</Body_Text>\n\t\t\t\t"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1134",
+      "author": [
+        "Taku Izumi, Fujitsu Limited"
+      ],
+      "title": "Address Range Memory Mirroring",
+      "url": "https://www.fujitsu.com/jp/documents/products/software/os/linux/catalog/LinuxConJapan2016-Izumi.pdf",
+      "publication_year": "2016"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati K. Manna",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-06-01"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "method": "Manual Dynamic Analysis",
+      "description": "Using an external debugger, send write transactions to mirrored regions to test if original, write-protected regions are modified. Similarly, send read transactions to mirrored regions to test if the original, read-protected signals can be read.",
+      "effectiveness": "High"
+    }
+  ],
+  "related_attack_patterns": [
+    "456",
+    "679"
+  ]
+}

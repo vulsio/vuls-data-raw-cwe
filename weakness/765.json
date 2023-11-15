@@ -1,0 +1,134 @@
+{
+  "id": "765",
+  "name": "Multiple Unlocks of a Critical Resource",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product unlocks a critical resource more times than intended, leading to an unexpected state in the system.",
+  "extended_description": "When the product is operating in a concurrent environment and repeatedly unlocks a critical resource, the consequences will vary based on the type of lock, the lock's implementation, and the resource being protected. In some situations such as with semaphores, the resources are pooled and extra calls to unlock will increase the count for the number of available resources, likely resulting in a crash or unpredictable behavior when the system nears capacity.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "667",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "675",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {},
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability",
+        "Integrity"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart",
+        "Modify Memory",
+        "Unexpected State"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "When locking and unlocking a resource, try to be sure that all control paths through the code in which the resource is locked one or more times correspond to exactly as many unlocks. If the product acquires a lock and then determines it is not able to perform its intended behavior, be sure to release the lock(s) before waiting for conditions to improve. Reacquire the lock(s) before trying again."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2009-0935",
+      "description": "Attacker provides invalid address to a memory-reading function, causing a mutex to be unlocked twice",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0935"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2009-03-03"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Multiple locks/unlocks",
+      "entry_id": "SFP21"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "An alternate way to think about this weakness is as an imbalance between the number of locks / unlocks in the control flow. Over the course of execution, if each lock call is not followed by a subsequent call to unlock in a reasonable amount of time, then system performance may be degraded or at least operating at less than peak levels if there is competition for the locks. This entry may need to be modified to reflect these concepts in the future."
+    }
+  ]
+}

@@ -1,0 +1,318 @@
+{
+  "id": "776",
+  "name": "Improper Restriction of Recursive Entity References in DTDs ('XML Entity Expansion')",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product uses XML documents and allows their structure to be defined with a Document Type Definition (DTD), but it does not properly control the number of recursive definitions of entities.",
+  "extended_description": "If the DTD contains a large number of nested or recursive entities, this can lead to explosive growth of data when parsed, causing a denial of service.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "674",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "674",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "405",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "XML"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Resource Consumption (Other)"
+      ],
+      "note": "If parsed, recursive entity references allow the attacker to expand data exponentially, quickly consuming all system resources."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Operation"
+      ],
+      "description": [
+        "If possible, prohibit the use of DTDs or use an XML parser that limits the expansion of recursive DTD entities."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Before parsing XML files with associated DTDs, scan for recursive entity declarations and do not continue parsing potentially explosive content."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-53",
+      "text": "\n               <Intro_Text>The DTD and the very brief XML below illustrate what is meant by an XML bomb. The ZERO entity contains one character, the letter A. The choice of entity name ZERO is being used to indicate length equivalent to that exponent on two, that is, the length of ZERO is 2^0. Similarly, ONE refers to ZERO twice, therefore the XML parser will expand ONE to a length of 2, or 2^1. Ultimately, we reach entity THIRTYTWO, which will expand to 2^32 characters in length, or 4 GB, probably consuming far more data than expected.</Intro_Text>\n               <Example_Code Nature=\"Attack\" Language=\"XML\">\n                  <xhtml:div>&lt;?xml version=\"1.0\"?&gt;<xhtml:br/>&lt;!DOCTYPE MaliciousDTD [<xhtml:br/>&lt;!ENTITY ZERO \"A\"&gt;<xhtml:br/>&lt;!ENTITY ONE \"&amp;ZERO;&amp;ZERO;\"&gt;<xhtml:br/>&lt;!ENTITY TWO \"&amp;ONE;&amp;ONE;\"&gt;<xhtml:br/>...<xhtml:br/>&lt;!ENTITY THIRTYTWO \"&amp;THIRTYONE;&amp;THIRTYONE;\"&gt;<xhtml:br/>]&gt;<xhtml:br/>&lt;data&gt;&amp;THIRTYTWO;&lt;/data&gt;</xhtml:div>\n               </Example_Code>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2008-3281",
+      "description": "XEE in XML-parsing library.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-3281"
+    },
+    {
+      "reference": "CVE-2011-3288",
+      "description": "XML bomb / XEE in enterprise communication product.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2011-3288"
+    },
+    {
+      "reference": "CVE-2011-1755",
+      "description": "\"Billion laughs\" attack in XMPP server daemon.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2011-1755"
+    },
+    {
+      "reference": "CVE-2009-1955",
+      "description": "XML bomb in web server module",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1955"
+    },
+    {
+      "reference": "CVE-2003-1564",
+      "description": "Parsing library allows XML bomb",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-1564"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-676",
+      "author": [
+        "Amit Klein"
+      ],
+      "title": "Multiple vendors XML parser (and SOAP/WebServices server) Denial of Service attack using DTD",
+      "url": "https://seclists.org/fulldisclosure/2002/Dec/229",
+      "publication_year": "2002",
+      "publication_month": "--12",
+      "publication_day": "---16",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-677",
+      "author": [
+        "Rami Jaamour"
+      ],
+      "title": "XML security: Preventing XML bombs",
+      "url": "http://searchsoftwarequality.techtarget.com/expert/KnowledgebaseAnswer/0,289625,sid92_gci1168442,00.html?asrc=SS_CLA_302%20%20558&psrc=CLT_92#",
+      "publication_year": "2006",
+      "publication_month": "--02",
+      "publication_day": "---22"
+    },
+    {
+      "reference_id": "REF-678",
+      "author": [
+        "Didier Stevens"
+      ],
+      "title": "Dismantling an XML-Bomb",
+      "url": "https://blog.didierstevens.com/2008/09/23/dismantling-an-xml-bomb/",
+      "publication_year": "2008",
+      "publication_month": "--09",
+      "publication_day": "---23",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-679",
+      "author": [
+        "Robert Auger"
+      ],
+      "title": "XML Entity Expansion",
+      "url": "http://projects.webappsec.org/w/page/13247002/XML%20Entity%20Expansion",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-680",
+      "author": [
+        "Elliotte Rusty Harold"
+      ],
+      "title": "Tip: Configure SAX parsers for secure processing",
+      "url": "https://web.archive.org/web/20101005080451/http://www.ibm.com/developerworks/xml/library/x-tipcfsx.html",
+      "publication_year": "2005",
+      "publication_month": "--05",
+      "publication_day": "---27",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-500",
+      "author": [
+        "Bryan Sullivan"
+      ],
+      "title": "XML Denial of Service Attacks and Defenses",
+      "url": "https://learn.microsoft.com/en-us/archive/msdn-magazine/2009/november/xml-denial-of-service-attacks-and-defenses",
+      "publication_year": "2009",
+      "publication_month": "--09",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-682",
+      "author": [
+        "Blaise Doughan"
+      ],
+      "title": "Preventing Entity Expansion Attacks in JAXB",
+      "url": "http://blog.bdoughan.com/2011/03/preventing-entity-expansion-attacks-in.html",
+      "publication_year": "2011",
+      "publication_month": "--03",
+      "publication_day": "---11",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2009-06-30"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-02-21",
+        "modification_comment": "updated Alternate_Terms, Applicable_Platforms, Description, Name, Observed_Examples, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Likelihood_of_Exploit, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Applicable_Platforms, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Unrestricted Recursive Entity References in DTDs ('XML Bomb')",
+        "date": "2013-02-21"
+      }
+    ]
+  },
+  "alternate_terms": [
+    {
+      "term": "XEE",
+      "description": "XEE is the acronym commonly used for XML Entity Expansion."
+    },
+    {
+      "term": "Billion Laughs Attack"
+    },
+    {
+      "term": "XML Bomb",
+      "description": "While the \"XML Bomb\" term was used in the early years of knowledge of this issue, the XEE term seems to be more commonly used."
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "WASC",
+      "entry_name": "XML Entity Expansion",
+      "entry_id": "44"
+    }
+  ],
+  "related_attack_patterns": [
+    "197"
+  ]
+}

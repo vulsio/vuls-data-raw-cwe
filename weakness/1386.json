@@ -1,0 +1,200 @@
+{
+  "id": "1386",
+  "name": "Insecure Operation on Windows Junction / Mount Point",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product opens a file or directory, but it does not properly prevent the name from being associated with a junction or mount point to a destination that is outside of the intended control sphere.",
+  "extended_description": "\n\t\t\t  <xhtml:p>Depending on the intended action\n\t\t\t  being performed, this could allow an\n\t\t\t  attacker to cause the product to read,\n\t\t\t  write, delete, or otherwise operate on\n\t\t\t  unauthorized files.</xhtml:p>\n\t\t\t  <xhtml:p>In Windows, NTFS5 allows for file\n\t\t\t  system objects called reparse points.\n\t\t\t  Applications can create a hard link from one\n\t\t\t  directory to another directory, called a\n\t\t\t  junction point. They can also create a\n\t\t\t  mapping from a directory to a drive letter,\n\t\t\t  called a mount point. If a file is used by a\n\t\t\t  privileged program, but it can be replaced\n\t\t\t  with a hard link to a sensitive file (e.g.,\n\t\t\t  AUTOEXEC.BAT), an attacker could excalate\n\t\t\t  privileges. When the process opens the file,\n\t\t\t  the attacker can assume the privileges of\n\t\t\t  that process, tricking the privileged\n\t\t\t  process to read, modify, or delete the\n\t\t\t  sensitive file, preventing the program from\n\t\t\t  accurately processing data. Note that one\n\t\t\t  can also point to registries and\n\t\t\t  semaphores.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "59",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Windows",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation",
+      "note": [
+        "The developer might not consider that when a program in Windows operates with different permissions than the executing user, the use of links, mount points, and junctions might cause the program to access files or directories that are outside of the intended storage location."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Files or Directories"
+      ],
+      "note": "Read arbitrary files by replacing a user-controlled folder with a mount point and additional hard links."
+    },
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Files or Directories"
+      ],
+      "note": "Modify an arbitrary file by replacing the rollback files in installer directories, as they can have the installer execute those rollbacks."
+    },
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "Modify Files or Directories"
+      ],
+      "note": "Even if there is no control of contents, an arbitrary file delete or overwrite (when running as SYSTEM or admin) can be used for a permanent system denial-of-service, e.g. by deleting a startup configuration file that prevents the service from starting."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "When designing software that will have different rights than the executer, the software should check that files that it is interacting with are not improper hard links or mount points.  One way to do this in Windows is to use the functionality embedded in the following command: \"dir /al /s /b\" or, in PowerShell, use LinkType as a filter. In addition, some software uses authentication via signing to ensure that the file is the correct one to use. Make checks atomic with the file action, otherwise a TOCTOU weakness (CWE-367) can be introduced."
+      ],
+      "strategy": "Separation of Privilege"
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-26426",
+      "description": "Privileged service allows attackers to delete unauthorized files using a directory junction, leading to arbitrary code execution as SYSTEM.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-26426"
+    },
+    {
+      "reference": "CVE-2020-0863",
+      "description": "By creating a mount point and hard links, an attacker can abuse a service to allow users arbitrary file read permissions.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-0863"
+    },
+    {
+      "reference": "CVE-2019-1161",
+      "description": "Chain: race condition (CWE-362) in anti-malware product allows deletion of files by creating a junction (CWE-1386) and using hard links during the time window in which a temporary file is created and deleted.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-1161"
+    },
+    {
+      "reference": "CVE-2014-0568",
+      "description": "Escape from sandbox for document reader by using a mountpoint [REF-1264]",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2014-0568"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1262",
+      "author": [
+        "Eran Shimony"
+      ],
+      "title": "Follow the Link: Exploiting Symbolic Links with Ease",
+      "url": "https://www.cyberark.com/resources/threat-research-blog/follow-the-link-exploiting-symbolic-links-with-ease",
+      "publication_year": "2019",
+      "publication_month": "--10",
+      "publication_day": "---03"
+    },
+    {
+      "reference_id": "REF-1264",
+      "author": [
+        "James Forshaw"
+      ],
+      "title": "Windows 10^H^H Symbolic Link Mitigations",
+      "url": "https://googleprojectzero.blogspot.com/2015/08/windows-10hh-symbolic-link-mitigations.html",
+      "publication_year": "2015",
+      "publication_month": "--08",
+      "publication_day": "---25"
+    },
+    {
+      "reference_id": "REF-1265",
+      "title": "Symbolic testing tools",
+      "url": "https://github.com/googleprojectzero/symboliclink-testing-tools"
+    },
+    {
+      "reference_id": "REF-1266",
+      "author": [
+        "Shubham Dubey"
+      ],
+      "title": "Understanding and Exploiting Symbolic links in Windows - Symlink Attack EOP",
+      "url": "https://nixhacker.com/understanding-and-exploiting-symbolic-link-in-windows/",
+      "publication_year": "2020",
+      "publication_month": "--04",
+      "publication_day": "---16"
+    },
+    {
+      "reference_id": "REF-1267",
+      "author": [
+        "Simon Zuckerbraun"
+      ],
+      "title": "Abusing Arbitrary File Deletes to Escalate Privilege and Other Great Tricks",
+      "url": "https://www.zerodayinitiative.com/blog/2022/3/16/abusing-arbitrary-file-deletes-to-escalate-privilege-and-other-great-tricks",
+      "publication_year": "2022",
+      "publication_month": "--03",
+      "publication_day": "---17"
+    },
+    {
+      "reference_id": "REF-1271",
+      "author": [
+        "Clément Lavoillotte"
+      ],
+      "title": "Abusing privileged file operations",
+      "url": "https://troopers.de/troopers19/agenda/7af9hw/",
+      "publication_year": "2019",
+      "publication_month": "--03",
+      "publication_day": "---20"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2022-06-07"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "notes": [
+    {
+      "type": "Terminology",
+      "text": "Symbolic links, hard links, junctions, and mount points can be confusing terminology, as there are differences in how they operate between UNIX-based systems and Windows, and there are interactions between them."
+    },
+    {
+      "type": "Maintenance",
+      "text": "This entry is still under development and will continue to see updates and content improvements."
+    }
+  ]
+}

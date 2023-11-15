@@ -1,0 +1,292 @@
+{
+  "id": "407",
+  "name": "Inefficient Algorithmic Complexity",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "An algorithm in a product has an inefficient worst-case computational complexity that may be detrimental to system performance and can be triggered by an attacker, typically using crafted manipulations that ensure that the worst case is being reached.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "405",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Low",
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Resource Consumption (CPU)",
+        "DoS: Resource Consumption (Memory)",
+        "DoS: Resource Consumption (Other)"
+      ],
+      "note": "The typical consequence is CPU consumption, but memory consumption and consumption of other resources can also occur."
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-158",
+      "text": "\n             <Intro_Text>This example attempts to check if an input string is a \"sentence\" [REF-1164].</Intro_Text>\n             <Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n               var test_string = \"Bad characters: $@#\";<xhtml:br/>\n               var bad_pattern  = /^(\\w+\\s?)*$/i;<xhtml:br/>\n               var result = test_string.search(bad_pattern);\n             </Example_Code>\n             <Body_Text><xhtml:p>The regular expression has a vulnerable backtracking clause inside (\\w+\\s?)*$ which can be triggered to cause a Denial of Service by processing particular phrases.</xhtml:p>\n\t     <xhtml:p>To fix the backtracking problem, backtracking is removed with the ?= portion of the expression which changes it to a lookahead and the \\2 which prevents the backtracking. The modified example is:</xhtml:p></Body_Text>\n             <Example_Code Nature=\"Good\" Language=\"JavaScript\">\n               var test_string = \"Bad characters: $@#\";<xhtml:br/>\n               var good_pattern  = /^((?=(\\w+))\\2\\s?)*$/i;<xhtml:br/>\n               var result = test_string.search(good_pattern);\n             </Example_Code>\n             <Body_Text>Note that [REF-1164] has a more thorough (and lengthy) explanation of everything going on within the RegEx.</Body_Text>\n\t   "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-32617",
+      "description": "C++ library for image metadata has \"quadratic complexity\" issue with unnecessarily repetitive parsing each time an invalid character is encountered",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-32617"
+    },
+    {
+      "reference": "CVE-2020-10735",
+      "description": "Python has \"quadratic complexity\" issue when converting string to int with many digits in unexpected bases",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-10735"
+    },
+    {
+      "reference": "CVE-2020-5243",
+      "description": "server allows ReDOS with crafted User-Agent strings, due to overlapping capture groups that cause excessive backtracking.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-5243"
+    },
+    {
+      "reference": "CVE-2014-1474",
+      "description": "Perl-based email address parser has \"quadratic complexity\" issue via a string that does not contain a valid address",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2014-1474"
+    },
+    {
+      "reference": "CVE-2003-0244",
+      "description": "CPU consumption via inputs that cause many hash table collisions.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0244"
+    },
+    {
+      "reference": "CVE-2003-0364",
+      "description": "CPU consumption via inputs that cause many hash table collisions.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0364"
+    },
+    {
+      "reference": "CVE-2002-1203",
+      "description": "Product performs unnecessary processing before dropping an invalid packet.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1203"
+    },
+    {
+      "reference": "CVE-2001-1501",
+      "description": "CPU and memory consumption using many wildcards.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1501"
+    },
+    {
+      "reference": "CVE-2004-2527",
+      "description": "Product allows attackers to cause multiple copies of a program to be loaded more quickly than the program can detect that other copies are running, then exit. This type of error should probably have its own category, where teardown takes more time than initialization.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2527"
+    },
+    {
+      "reference": "CVE-2006-6931",
+      "description": "Network monitoring system allows remote attackers to cause a denial of service (CPU consumption and detection outage) via crafted network traffic, aka a \"backtracking attack.\"",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-6931"
+    },
+    {
+      "reference": "CVE-2006-3380",
+      "description": "Wiki allows remote attackers to cause a denial of service (CPU consumption) by performing a diff between large, crafted pages that trigger the worst case algorithmic complexity.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-3380"
+    },
+    {
+      "reference": "CVE-2006-3379",
+      "description": "Wiki allows remote attackers to cause a denial of service (CPU consumption) by performing a diff between large, crafted pages that trigger the worst case algorithmic complexity.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-3379"
+    },
+    {
+      "reference": "CVE-2005-2506",
+      "description": "OS allows attackers to cause a denial of service (CPU consumption) via crafted Gregorian dates.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2506"
+    },
+    {
+      "reference": "CVE-2005-1792",
+      "description": "Memory leak by performing actions faster than the software can clear them.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1792"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-395",
+      "author": [
+        "Scott A. Crosby",
+        "Dan S. Wallach"
+      ],
+      "title": "Algorithmic Complexity Attacks",
+      "url": "https://www.usenix.org/legacy/events/sec03/tech/full_papers/crosby/crosby.pdf",
+      "publication_year": "2003",
+      "publication_month": "--08",
+      "publication": "Proceedings of the 12th USENIX Security Symposium"
+    },
+    {
+      "reference_id": "REF-1164",
+      "author": [
+        "Ilya Kantor"
+      ],
+      "title": "Catastrophic backtracking",
+      "url": "https://javascript.info/regexp-catastrophic-backtracking",
+      "publication_year": "2020",
+      "publication_month": "--12",
+      "publication_day": "---13"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-07-27",
+        "modification_comment": "updated Functional_Areas, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-12-28",
+        "modification_comment": "updated Applicable_Platforms, Likelihood_of_Exploit"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Likelihood_of_Exploit"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Name, Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Alternate_Terms, Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Algorithmic Complexity",
+        "date": "2019-06-20"
+      }
+    ]
+  },
+  "alternate_terms": [
+    {
+      "term": "Quadratic Complexity",
+      "description": "Used when the algorithmic complexity is related to the square of the number of inputs (N^2)"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Algorithmic Complexity"
+    }
+  ],
+  "functional_areas": [
+    "Cryptography"
+  ]
+}

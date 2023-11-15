@@ -1,0 +1,206 @@
+{
+  "id": "785",
+  "name": "Use of Path Manipulation Function without Maximum-sized Buffer",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product invokes a function for normalizing paths or file names, but it provides an output buffer that is smaller than the maximum possible size, such as PATH_MAX.",
+  "extended_description": "Passing an inadequately-sized output buffer to a path manipulation function can result in a buffer overflow. Such functions include realpath(), readlink(), PathAppend(), and others.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "676",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "120",
+      "view_id": "1000"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "20",
+      "view_id": "700",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "C"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C++"
+      }
+    ]
+  },
+  "background_details": [
+    "Windows provides a large number of utility functions that manipulate buffers containing filenames. In most cases, the result is returned in a buffer that is passed in as input. (Usually the filename is modified in place.) Most functions require the buffer to be at least MAX_PATH bytes in length, but you should check the documentation for each function individually. If the buffer is not large enough to store the result of the manipulation, a buffer overflow can occur."
+  ],
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Availability"
+      ],
+      "impact": [
+        "Modify Memory",
+        "Execute Unauthorized Code or Commands",
+        "DoS: Crash, Exit, or Restart"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Always specify output buffers large enough to handle the maximum-size possible result from path manipulation functions."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>In this example the function creates a directory named \"output\\&lt;name&gt;\" in the current directory and returns a heap-allocated copy of its name.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char *createOutputDirectory(char *name) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char outputDirectoryName[128];<xhtml:br/>if (getCurrentDirectory(128, outputDirectoryName) == 0) {<xhtml:div style=\"margin-left:1em;\">return null;</xhtml:div>}<xhtml:br/>if (!PathAppend(outputDirectoryName, \"output\")) {<xhtml:div style=\"margin-left:1em;\">return null;</xhtml:div>}<xhtml:br/>if (!PathAppend(outputDirectoryName, name)) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>return null;</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>if (SHCreateDirectoryEx(NULL, outputDirectoryName, NULL) != ERROR_SUCCESS) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>return null;</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return StrDup(outputDirectoryName);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>For most values of the current directory and the name parameter, this function will work properly. However, if the name parameter is particularly long, then the second call to PathAppend() could overflow the outputDirectoryName buffer, which is smaller than MAX_PATH bytes.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-6",
+      "author": [
+        "Katrina Tsipenyuk",
+        "Brian Chess",
+        "Gary McGraw"
+      ],
+      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+      "publication_year": "2005",
+      "publication_month": "--11",
+      "publication_day": "---07",
+      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+      "publisher": "NIST"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "7 Pernicious Kingdoms",
+      "submission_date": "2009-07-27",
+      "submission_comment": "Note: this date reflects when the entry was first published. Draft versions of this entry were provided to members of the CWE community and modified before initial publication."
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_organization": "KDM Analytics",
+        "modification_date": "2008-08-01",
+        "modification_comment": "added/updated white box definitions"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "KDM Analytics",
+        "modification_date": "2009-07-17",
+        "modification_comment": "Improved the White_Box_Definition"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Affected_Resources, Demonstrative_Examples, Relationships, White_Box_Definitions"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "7 Pernicious Kingdoms",
+      "entry_name": "Often Misused: File System"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Faulty String Expansion",
+      "entry_id": "SFP9"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "This entry is at a much lower level of abstraction than most entries because it is function-specific. It also has significant overlap with other entries that can vary depending on the perspective. For example, incorrect usage could trigger either a stack-based overflow (CWE-121) or a heap-based overflow (CWE-122). The CWE team has not decided how to handle such entries."
+    }
+  ],
+  "affected_resources": [
+    "Memory",
+    "File or Directory"
+  ]
+}

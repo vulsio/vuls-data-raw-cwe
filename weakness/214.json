@@ -1,0 +1,223 @@
+{
+  "id": "214",
+  "name": "Invocation of Process Using Visible Sensitive Information",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "A process is invoked with sensitive command-line arguments, environment variables, or other elements that can be seen by other processes on the operating system.",
+  "extended_description": "Many operating systems allow a user to list information about processes that are owned by other users. Other users could see information such as command line arguments or environment variable settings. When this data contains sensitive information such as credentials, it might allow other users to launch an attack against the product or related resources.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "497",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Application Data"
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>In the example below, the password for a keystore file is read from a system property.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String keystorePass = System.getProperty(\"javax.net.ssl.keyStorePassword\");<xhtml:br/>if (keystorePass == null) {<xhtml:div style=\"margin-left:1em;\">System.err.println(\"ERROR: Keystore password not specified.\");<xhtml:br/>System.exit(-1);</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the property is defined on the command line when the program is invoked (using the -D... syntax), the password may be displayed in the OS process list.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2005-1387",
+      "description": "password passed on command line",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1387"
+    },
+    {
+      "reference": "CVE-2005-2291",
+      "description": "password passed on command line",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2291"
+    },
+    {
+      "reference": "CVE-2001-1565",
+      "description": "username/password on command line allows local users to view via \"ps\" or other process listing programs",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1565"
+    },
+    {
+      "reference": "CVE-2004-1948",
+      "description": "Username/password on command line allows local users to view via \"ps\" or other process listing programs.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1948"
+    },
+    {
+      "reference": "CVE-1999-1270",
+      "description": "PGP passphrase provided as command line argument.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1270"
+    },
+    {
+      "reference": "CVE-2004-1058",
+      "description": "Kernel race condition allows reading of environment variables of a process that is still spawning.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1058"
+    },
+    {
+      "reference": "CVE-2021-32638",
+      "description": "Code analysis product passes access tokens as a command-line parameter or through an environment variable, making them visible to other processes via the ps command.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-32638"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Sean Eidemiller",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "added/updated demonstrative examples"
+      },
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Demonstrative_Examples, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Description, Name, Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description, Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Process Information Leak to Other Processes",
+        "date": "2008-04-11"
+      },
+      {
+        "text": "Process Environment Information Leak",
+        "date": "2011-03-29"
+      },
+      {
+        "text": "Information Exposure Through Process Environment",
+        "date": "2020-02-24"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Process information infoleak to other processes"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Exposed Data",
+      "entry_id": "SFP23"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Research Gap",
+      "text": "Under-studied, especially environment variables."
+    }
+  ],
+  "affected_resources": [
+    "System Process"
+  ]
+}

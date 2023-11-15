@@ -1,0 +1,176 @@
+{
+  "id": "1351",
+  "name": "Improper Handling of Hardware Behavior in Exceptionally Cold Environments",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "A hardware device, or the firmware running on it, is\n                missing or has incorrect protection features to maintain\n                goals of security primitives when the device is cooled below\n                standard operating temperatures.",
+  "extended_description": "\n                <xhtml:p>The hardware designer may improperly anticipate\n                    hardware behavior when exposed to exceptionally cold\n                    conditions. As a result they may introduce a weakness by not\n                    accounting for the modified behavior of critical components\n                    when in extreme environments.</xhtml:p>\n                <xhtml:p>An example of a change in behavior is that power loss\n                    won't clear/reset any volatile state when cooled below\n                    standard operating temperatures. This may result in\n                    a weakness when the starting state of the volatile memory is\n                    being relied upon for a security decision. For example, a\n                    Physical Unclonable Function (PUF) may be supplied as a\n                    security primitive to improve confidentiality,\n                    authenticity, and integrity guarantees. However, when the\n                    PUF is paired with DRAM, SRAM, or another temperature\n                    sensitive entropy source, the system designer may introduce\n                    weakness by failing to account for the chosen entropy\n                    source's behavior at exceptionally low temperatures. In the\n                    case of DRAM and SRAM, when power is cycled at low\n                    temperatures, the device will not contain the bitwise\n                    biasing caused by inconsistencies in manufacturing and will\n                    instead contain the data from previous boot. Should the PUF\n                    primitive be used in a cryptographic construction which\n                    does not account for full adversary control of PUF seed\n                    data, weakness would arise.</xhtml:p>\n                <xhtml:p>This weakness does not cover \"Cold Boot Attacks\"\n                    wherein RAM or other external storage is super cooled and\n                    read externally by an attacker.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1384",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Embedded",
+        "prevalence": "Undetermined"
+      },
+      {
+        "class": "Microcomputer",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Authentication"
+      ],
+      "impact": [
+        "Varies by Context",
+        "Unexpected State"
+      ],
+      "note": "Consequences of this weakness are highly contextual.",
+      "likelihood": "Low"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "The system should account for security primitive behavior when cooled outside standard temperatures."
+      ]
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1181",
+      "author": [
+        "Nikolaos Athanasios Anagnostopoulos",
+        "Tolga Arul",
+        "Markus Rosenstihl",
+        "André Schaller",
+        "Sebastian Gabmeyer",
+        "Stefan Katzenbeisser"
+      ],
+      "title": "Low-Temperature Data Remnanence Attacks Against Intrinsic SRAM PUFs",
+      "url": "https://ieeexplore.ieee.org/abstract/document/8491873/",
+      "publication_year": "2018",
+      "publication_month": "--10",
+      "publication_day": "---15"
+    },
+    {
+      "reference_id": "REF-1182",
+      "author": [
+        "Yuan Cao",
+        "Yunyi Guo",
+        "Benyu Liu",
+        "Wei Ge",
+        "Min Zhu",
+        "Chip-Hong Chang"
+      ],
+      "title": "A Fully Digital Physical Unclonable Function Based Temperature Sensor for Secure Remote Sensing",
+      "url": "https://ieeexplore.ieee.org/abstract/document/8487347/",
+      "publication_year": "2018",
+      "publication_month": "--10",
+      "publication_day": "---11"
+    },
+    {
+      "reference_id": "REF-1183",
+      "author": [
+        " Urbi Chatterjee",
+        " Soumi Chatterjee",
+        " Debdeep Mukhopadhyay",
+        " Rajat Subhra Chakraborty"
+      ],
+      "title": "Machine Learning Assisted PUF Calibration for Trustworthy Proof of Sensor Data in IoT",
+      "url": "https://dl.acm.org/doi/abs/10.1145/3393628",
+      "publication_year": "2020",
+      "publication_month": "--06",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Paul A. Wortman",
+      "submission_organization": "Wells Fargo",
+      "submission_date": "2020-10-23"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated References, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "624",
+    "625"
+  ]
+}

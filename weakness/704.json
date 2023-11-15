@@ -1,0 +1,266 @@
+{
+  "id": "704",
+  "name": "Incorrect Type Conversion or Cast",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product does not correctly convert an object, resource, or structure from one type to a different type.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "664",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Often",
+        "name": "C"
+      },
+      {
+        "prevalence": "Often",
+        "name": "C++"
+      },
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Other"
+      ],
+      "impact": [
+        "Other"
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-74",
+      "text": "\n               <Intro_Text>In this example, depending on the return value of accecssmainframe(), the variable amount can hold a negative value when it is returned. Because the function is declared to return an unsigned value, amount will be implicitly cast to an unsigned number.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned int readdata () {<xhtml:div style=\"margin-left:1em;\">int amount = 0;<xhtml:br/>...<xhtml:br/>amount = accessmainframe();<xhtml:br/>...<xhtml:br/>return amount;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the return value of accessmainframe() is -1, then the return value of readdata() will be 4,294,967,295 on a system that uses 32-bit integers.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-188",
+      "text": "\n              <Intro_Text>The following code uses a union to support the representation of different types of messages. It formats messages differently, depending on their type.</Intro_Text>\n              <Example_Code Nature=\"Bad\" Language=\"C\">\n                <xhtml:div>#define NAME_TYPE 1<xhtml:br/>#define ID_TYPE 2<xhtml:br/>\n                <xhtml:br/>struct MessageBuffer<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">int msgType;<xhtml:br/>union {<xhtml:div style=\"margin-left:1em;\">char *name;<xhtml:br/>int nameID;</xhtml:div>};</xhtml:div>};<xhtml:br/>\n                <xhtml:br/>\n                <xhtml:br/>int main (int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">\n                <xhtml:div>struct MessageBuffer buf;<xhtml:br/>char *defaultMessage = \"Hello World\";<xhtml:br/>\n                <xhtml:br/>buf.msgType = NAME_TYPE;<xhtml:br/>buf.name = defaultMessage;<xhtml:br/>printf(\"Pointer of buf.name is %p\\n\", buf.name);<xhtml:br/>\n                <xhtml:i>/* This particular value for nameID is used to make the code architecture-independent. If coming from untrusted input, it could be any value. */</xhtml:i>\n                <xhtml:br/>\n                <xhtml:br/>buf.nameID = (int)(defaultMessage + 1);<xhtml:br/>printf(\"Pointer of buf.name is now %p\\n\", buf.name);<xhtml:br/>if (buf.msgType == NAME_TYPE) {<xhtml:div style=\"margin-left:1em;\">printf(\"Message: %s\\n\", buf.name);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">printf(\"Message: Use ID %d\\n\", buf.nameID);</xhtml:div>}</xhtml:div>\n                </xhtml:div>}</xhtml:div>\n              </Example_Code>\n              <Body_Text>The code intends to process the message as a NAME_TYPE, and sets the default message to \"Hello World.\" However, since both buf.name and buf.nameID are part of the same union, they can act as aliases for the same memory location, depending on memory layout after compilation.</Body_Text>\n              <Body_Text>As a result, modification of buf.nameID - an int - can effectively modify the pointer that is stored in buf.name - a string.</Body_Text>\n              <Body_Text>Execution of the program might generate output such as:</Body_Text>\n              <Body_Text>\n                <xhtml:div>\n                  <xhtml:div>Pointer of name is 10830</xhtml:div>\n                  <xhtml:div>Pointer of name is now 10831</xhtml:div>\n                  <xhtml:div>Message: ello World</xhtml:div>\n                </xhtml:div>\n              </Body_Text>\n              <Body_Text>Notice how the pointer for buf.name was changed, even though buf.name was not explicitly modified.</Body_Text>\n              <Body_Text>In this case, the first \"H\" character of the message is omitted. However, if an attacker is able to fully control the value of buf.nameID, then buf.name could contain an arbitrary pointer, leading to out-of-bounds reads or writes.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-43537",
+      "description": "Chain: in a web browser, an unsigned 64-bit integer is foribly cast to a 32-bit integer (CWE-681) and potentially leading to an integer overflow (CWE-190). If an integer overflow occurs, this can cause heap memory corruption (CWE-122)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-43537"
+    },
+    {
+      "reference": "CVE-2022-3979",
+      "description": "Chain: data visualization program written in PHP uses the \"!=\" operator instead of the type-strict \"!==\" operator (CWE-480) when validating hash values, potentially leading to an incorrect type conversion (CWE-704)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-3979"
+    }
+  ],
+  "references": [
+    {
+      "section": "ASCRM-CWE-704",
+      "reference_id": "REF-961",
+      "author": [
+        "Object Management Group (OMG)"
+      ],
+      "title": "Automated Source Code Reliability Measure (ASCRM)",
+      "url": "http://www.omg.org/spec/ASCRM/1.0/",
+      "publication_year": "2016",
+      "publication_month": "--01"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2008-09-09",
+      "submission_comment": "Note: this date reflects when the entry was first published. Draft versions of this entry were provided to members of the CWE community and modified between Draft 9 and 1.0."
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-13",
+      "method": "Fuzzing",
+      "description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Do not cast away a const qualification",
+      "entry_id": "EXP05-C"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Do not access a variable through a pointer of an incompatible type",
+      "entry_id": "EXP39-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Ensure that integer conversions do not result in lost or misinterpreted data",
+      "entry_id": "INT31-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Converting a pointer to integer or integer to pointer",
+      "entry_id": "INT36-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Cast characters to unsigned types before converting to larger integer sizes",
+      "entry_id": "STR34-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Arguments to character handling functions must be representable as an unsigned char",
+      "entry_id": "STR37-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Glitch in computation",
+      "entry_id": "SFP1"
+    },
+    {
+      "taxonomy_name": "OMG ASCRM",
+      "entry_id": "ASCRM-CWE-704"
+    }
+  ]
+}

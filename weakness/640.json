@@ -1,0 +1,297 @@
+{
+  "id": "640",
+  "name": "Weak Password Recovery Mechanism for Forgotten Password",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product contains a mechanism for users to recover or change their passwords without knowing the original password, but the mechanism is weak.",
+  "extended_description": "\n            <xhtml:p>It is common for an application to have a mechanism that provides a means for a user to gain access to their account in the event they forget their password. Very often the password recovery mechanism is weak, which has the effect of making it more likely that it would be possible for a person other than the legitimate system user to gain access to that user's account. Weak password recovery schemes completely undermine a strong password authentication scheme.</xhtml:p>\n            <xhtml:p>This weakness may be that the security question is too easy to guess or find an answer to (e.g. because the question is too common, or the answers can be found using social media). Or there might be an implementation weakness in the password recovery mechanism code that may for instance trick the system into e-mailing the new password to an e-mail account other than that of the user. There might be no throttling done on the rate of password resets so that a legitimate user can be denied service by an attacker if an attacker tries to recover their password in a rapid succession. The system may send the original password to the user rather than generating a new temporary password. In summary, password recovery functionality, if not carefully designed and implemented can often become the system's weakest link that can be misused in a way that would allow an attacker to gain unauthorized access to the system.</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1390",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "287",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
+      ]
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "An attacker could gain unauthorized access to the system by retrieving legitimate user's authentication credentials."
+    },
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Resource Consumption (Other)"
+      ],
+      "note": "An attacker could deny service to legitimate system users by launching a brute force attack on the password recovery mechanism using user ids of legitimate users."
+    },
+    {
+      "scope": [
+        "Integrity",
+        "Other"
+      ],
+      "impact": [
+        "Other"
+      ],
+      "note": "The system's security functionality is turned against the system by the attacker."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Make sure that all input supplied by the user to the password recovery mechanism is thoroughly filtered and validated."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Do not use standard weak security questions and use several security questions."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Make sure that there is throttling on the number of incorrect answers to a security question. Disable the password recovery functionality after a certain (small) number of incorrect guesses."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Require that the user properly answers the security question prior to resetting their password and sending the new password to the e-mail address of record."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Never allow the user to control what e-mail address the new password will be sent to in the password recovery mechanism."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Assign a new temporary password rather than revealing the original password."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>A famous example of this type of weakness being exploited is the eBay attack. eBay always displays the user id of the highest bidder. In the final minutes of the auction, one of the bidders could try to log in as the highest bidder three times. After three incorrect log in attempts, eBay password throttling would kick in and lock out the highest bidder's account for some time. An attacker could then make their own bid and their victim would not have a chance to place the counter bid because they would be locked out. Thus an attacker could win the auction.</Intro_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "section": "\"Sin 19: Use of Weak Password-Based Systems.\" Page 279",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Evgeny Lebanidze",
+      "submission_organization": "Cigital",
+      "submission_date": "2008-01-30"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Description, Maintenance_Notes, Name, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Enabling_Factors_for_Exploitation, Modes_of_Introduction, Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Weak Password Recovery Mechanism",
+        "date": "2008-09-09"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "WASC",
+      "entry_name": "Insufficient Password Recovery",
+      "entry_id": "49"
+    }
+  ],
+  "related_attack_patterns": [
+    "50"
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "This entry might be reclassified as a category or \"loose composite,\" since it lists multiple specific errors that can make the mechanism weak. However, under view 1000, it could be a weakness under protection mechanism failure, although it is different from most PMF issues since it is related to a feature that is designed to bypass a protection mechanism (specifically, the lack of knowledge of a password)."
+    },
+    {
+      "type": "Maintenance",
+      "text": "This entry probably needs to be split; see extended description."
+    }
+  ]
+}

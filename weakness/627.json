@@ -1,0 +1,239 @@
+{
+  "id": "627",
+  "name": "Dynamic Variable Evaluation",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "In a language where the user can influence the name of a variable at runtime, if the variable names are not controlled, an attacker can read or write to arbitrary variables, or access arbitrary functions.",
+  "extended_description": "The resultant vulnerabilities depend on the behavior of the application, both at the crossover point and in any control/data flow that is reachable by the related variables or functions.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "914",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "183",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "PHP"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Perl"
+      }
+    ]
+  },
+  "background_details": [
+    "Many interpreted languages support the use of a \"$$varname\" construct to set a variable whose name is specified by the $varname variable. In PHP, these are referred to as \"variable variables.\" Functions might also be invoked using similar syntax, such as $$funcname(arg1, arg2)."
+  ],
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability"
+      ],
+      "impact": [
+        "Modify Application Data",
+        "Execute Unauthorized Code or Commands"
+      ],
+      "note": "An attacker could gain unauthorized access to internal program variables and execute arbitrary code."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Refactor the code to avoid dynamic variable evaluation whenever possible."
+      ],
+      "strategy": "Refactoring"
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use only allowlists of acceptable variable or function names."
+      ],
+      "strategy": "Input Validation"
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "For function names, ensure that you are only calling functions that accept the proper number of arguments, to avoid unexpected null arguments."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2009-0422",
+      "description": "Chain: Dynamic variable evaluation allows resultant remote file inclusion and path traversal.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0422"
+    },
+    {
+      "reference": "CVE-2007-2431",
+      "description": "Chain: dynamic variable evaluation in PHP program used to modify critical, unexpected $_SERVER variable for resultant XSS.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-2431"
+    },
+    {
+      "reference": "CVE-2006-4904",
+      "description": "Chain: dynamic variable evaluation in PHP program used to conduct remote file inclusion.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4904"
+    },
+    {
+      "reference": "CVE-2006-4019",
+      "description": "Dynamic variable evaluation in mail program allows reading and modifying attachments and preferences of other users.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4019"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-517",
+      "author": [
+        "Steve Christey"
+      ],
+      "title": "Dynamic Evaluation Vulnerabilities in PHP applications",
+      "url": "https://seclists.org/fulldisclosure/2006/May/35",
+      "publication_year": "2006",
+      "publication_month": "--05",
+      "publication_day": "---03",
+      "publication": "Full-Disclosure",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-518",
+      "author": [
+        "Shaun Clowes"
+      ],
+      "title": "A Study In Scarlet: Exploiting Common Vulnerabilities in PHP Applications",
+      "url": "https://securereality.com.au/study-in-scarlett/",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2007-05-07"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Background_Details, Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-02-21",
+        "modification_comment": "updated Common_Consequences, Observed_Examples, Potential_Mitigations, Relationships, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "alternate_terms": [
+    {
+      "term": "Dynamic evaluation"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Research Gap",
+      "text": "Under-studied, probably under-reported. Few researchers look for this issue; most public reports are for PHP, although other languages are affected. This issue is likely to grow in PHP as developers begin to implement functionality in place of register_globals."
+    }
+  ]
+}

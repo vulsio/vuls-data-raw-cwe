@@ -1,0 +1,237 @@
+{
+  "id": "562",
+  "name": "Return of Stack Variable Address",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "A function returns the address of a stack variable, which will cause unintended program behavior, typically in the form of a crash.",
+  "extended_description": "Because local variables are allocated on the stack, when a program returns a pointer to a local variable, it is returning a stack address. A subsequent function call is likely to re-use this same stack address, thereby overwriting the value of the pointer, which no longer corresponds to the same variable since a function's stack frame is invalidated when it returns. At best this will cause the value of the pointer to change unexpectedly. In many cases it causes the program to crash the next time the pointer is dereferenced.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "758",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "672",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "825",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "C"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C++"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability",
+        "Integrity",
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Memory",
+        "Modify Memory",
+        "Execute Unauthorized Code or Commands",
+        "DoS: Crash, Exit, or Restart"
+      ],
+      "note": "If the returned stack buffer address is dereferenced after the return, then an attacker may be able to modify or read memory, depending on how the address is used.  If the address is used for reading, then the address itself may be exposed, or the contents that the address points to.  If the address is used for writing, this can lead to a crash and possibly code execution."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Testing"
+      ],
+      "description": [
+        "Use static analysis tools to spot return of the address of a stack variable."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following function returns a stack address.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char* getName() {<xhtml:div style=\"margin-left:1em;\">char name[STR_MAX];<xhtml:br/>fillInName(name);<xhtml:br/>return name;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Anonymous Tool Vendor (under NDA)",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-09-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Description, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Stack Address Returned",
+        "date": "2008-04-11"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Indirect"
+    },
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-13",
+      "method": "Fuzzing",
+      "description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
+      "effectiveness": "High"
+    },
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Declare objects with appropriate storage durations",
+      "entry_id": "DCL30-C",
+      "mapping_fit": "CWE More Specific"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Do not call putenv() with a pointer to an automatic variable as the argument",
+      "entry_id": "POS34-C"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Glitch in computation",
+      "entry_id": "SFP1"
+    }
+  ]
+}

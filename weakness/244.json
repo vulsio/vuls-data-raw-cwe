@@ -1,0 +1,215 @@
+{
+  "id": "244",
+  "name": "Improper Clearing of Heap Memory Before Release ('Heap Inspection')",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "Using realloc() to resize buffers that store sensitive information can leave the sensitive information exposed to attack, because it is not removed from memory.",
+  "extended_description": "When sensitive data such as a password or an encryption key is not removed from memory, it could be exposed to an attacker using a \"heap inspection\" attack that reads the sensitive data using memory dumps or other methods. The realloc() function is commonly used to increase the size of a block of allocated memory. This operation often requires copying the contents of the old memory block into a new and larger block. This operation leaves the contents of the original block intact but inaccessible to the program, preventing the program from being able to scrub sensitive data from memory. If an attacker can later examine the contents of a memory dump, the sensitive data could be exposed.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "226",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "669",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "C"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C++"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Other"
+      ],
+      "impact": [
+        "Read Memory",
+        "Other"
+      ],
+      "note": "Be careful using vfork() and fork() in security sensitive code. The process state will not be cleaned up and will contain traces of data from past use."
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-148",
+      "text": "\n               <Intro_Text>The following code calls realloc() on a buffer containing sensitive data:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>cleartext_buffer = get_secret();...<xhtml:br/>cleartext_buffer = realloc(cleartext_buffer, 1024);<xhtml:br/>...<xhtml:br/>scrub_memory(cleartext_buffer, 1024);</xhtml:div>\n               </Example_Code>\n               <Body_Text>There is an attempt to scrub the sensitive data from memory, but realloc() is used, so it could return a pointer to a different part of memory. The memory that was originally allocated for cleartext_buffer could still contain an uncleared copy of the data.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-6",
+      "author": [
+        "Katrina Tsipenyuk",
+        "Brian Chess",
+        "Gary McGraw"
+      ],
+      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+      "publication_year": "2005",
+      "publication_month": "--11",
+      "publication_day": "---07",
+      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+      "publisher": "NIST"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "7 Pernicious Kingdoms",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_organization": "KDM Analytics",
+        "modification_date": "2008-08-01",
+        "modification_comment": "added/updated white box definitions"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Name, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Demonstrative_Examples, Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Common_Consequences, Description, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings, White_Box_Definitions"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Heap Inspection",
+        "date": "2008-04-11"
+      },
+      {
+        "text": "Failure to Clear Heap Memory Before Release",
+        "date": "2008-09-09"
+      },
+      {
+        "text": "Failure to Clear Heap Memory Before Release (aka 'Heap Inspection')",
+        "date": "2009-05-27"
+      },
+      {
+        "text": "Failure to Clear Heap Memory Before Release ('Heap Inspection')",
+        "date": "2010-12-13"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "7 Pernicious Kingdoms",
+      "entry_name": "Heap Inspection"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Clear sensitive information stored in reusable resources returned for reuse",
+      "entry_id": "MEM03-C"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Exposed Data",
+      "entry_id": "SFP23"
+    }
+  ],
+  "affected_resources": [
+    "Memory"
+  ]
+}

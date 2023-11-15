@@ -1,0 +1,213 @@
+{
+  "id": "684",
+  "name": "Incorrect Provision of Specified Functionality",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The code does not function according to its published specifications, potentially leading to incorrect usage.",
+  "extended_description": "When providing functionality to an external party, it is important that the product behaves in accordance with the details specified. When requirements of nuances are not documented, the functionality may produce unintended behaviors for the caller, possibly leading to an exploitable state.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "710",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {},
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Other"
+      ],
+      "impact": [
+        "Quality Degradation"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Ensure that your code strictly conforms to specifications."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-185",
+      "text": "\n               <Intro_Text>In the following snippet from a doPost() servlet method, the server returns \"200 OK\" (default) even if an error occurs.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>// Something that may throw an exception.</xhtml:i>\n                           <xhtml:br/>...</xhtml:div>\n                     </xhtml:div>} catch (Throwable t) {<xhtml:div style=\"margin-left:1em;\">logger.error(\"Caught: \" + t.toString());<xhtml:br/>return;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-186",
+      "text": "\n               <Intro_Text>In the following example, an HTTP 404 status code is returned in the event of an IOException encountered in a Java servlet. A 404 code is typically meant to indicate a non-existent resource and would be somewhat misleading in this case.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>// something that might throw IOException</xhtml:i>\n                           <xhtml:br/>...</xhtml:div>\n                     </xhtml:div>} catch (IOException ioe) {<xhtml:div style=\"margin-left:1em;\">response.sendError(SC_NOT_FOUND);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2002-1446",
+      "description": "Error checking routine in PKCS#11 library returns \"OK\" status even when invalid signature is detected, allowing spoofed messages.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1446"
+    },
+    {
+      "reference": "CVE-2001-1559",
+      "description": "Chain: System call returns wrong value (CWE-393), leading to a resultant NULL dereference (CWE-476).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1559"
+    },
+    {
+      "reference": "CVE-2003-0187",
+      "description": "Program uses large timeouts on unconfirmed connections resulting from inconsistency in linked lists implementations.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0187"
+    },
+    {
+      "reference": "CVE-1999-1446",
+      "description": "UI inconsistency; visited URLs list not cleared when \"Clear History\" option is selected.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1446"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2008-04-11"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Description, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Description, Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-02-18",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Failure to Provide Specified Functionality",
+        "date": "2011-03-29"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Indirect"
+    },
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Do not replace secure functions with less secure functions",
+      "entry_id": "PRE09-C"
+    }
+  ]
+}

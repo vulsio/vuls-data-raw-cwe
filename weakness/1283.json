@@ -1,0 +1,150 @@
+{
+  "id": "1283",
+  "name": "Mutable Attestation or Measurement Reporting Data",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The register contents used for attestation or measurement reporting data to verify boot flow are modifiable by an adversary.",
+  "extended_description": "\n            <xhtml:p>A System-on-Chip (SoC) implements secure boot or verified boot. During this boot flow, the SoC often measures the code that it authenticates. The measurement is usually done by calculating the one-way hash of the code binary and extending it to the previous hash. The hashing algorithm should be a Secure One-Way hash function. The final hash, i.e., the value obtained after the completion of the boot flow, serves as the measurement data used in reporting or in attestation. The calculated hash is often stored in registers that can later be read by the party of interest to determine tampering of the boot flow. A common weakness is that the contents in these registers are modifiable by an adversary, thus spoofing the measurement.</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "Such issues can be introduced during hardware architecture or design and can be identified later during Testing or System Configuration phases."
+      ]
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "If the access-controls which protecting the reporting registers are misconfigured during implementation, this weakness can arise."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Memory",
+        "Read Application Data"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                 <xhtml:p>Measurement data should be stored in registers that are read-only or otherwise have access controls that prevent modification by an untrusted agent.</xhtml:p>\n               "
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The SoC extends the hash and stores the results in registers. Without protection, an adversary can write their chosen hash values to these registers. Thus, the attacker controls the reported results.</Intro_Text>   \n                <Body_Text>\n                    <xhtml:p>To prevent the above scenario, the registers should have one or more of the following properties:</xhtml:p>\n                    <xhtml:ul>\n                        <xhtml:li>Should be Read-Only with respect to an adversary</xhtml:li>\n                        <xhtml:li>Cannot be extended or modifiable either directly or indirectly (using a trusted agent as proxy) by an adversary</xhtml:li>\n                        <xhtml:li>Should have appropriate access controls or protections</xhtml:li>\n                    </xhtml:ul>\n                 </Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1107",
+      "author": [
+        "Intel Corporation"
+      ],
+      "title": "PCIe Device Measurement Requirements",
+      "url": "https://www.intel.com/content/dam/www/public/us/en/documents/reference-guides/pcie-device-security-enhancements.pdf",
+      "publication_year": "2018",
+      "publication_month": "--09"
+    },
+    {
+      "reference_id": "REF-1131",
+      "author": [
+        "John Butterworth",
+        "Cory Kallenberg",
+        "Xeno Kovah"
+      ],
+      "title": "BIOS Chronomancy: Fixing the Core Root of Trust for Measurement",
+      "url": "https://media.blackhat.com/us-13/US-13-Butterworth-BIOS-Security-Slides.pdf",
+      "publication_year": "2013",
+      "publication_month": "--07",
+      "publication_day": "---31"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-04-25"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated References, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "680"
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "This entry is still in development and will continue to see updates and content improvements."
+    }
+  ]
+}

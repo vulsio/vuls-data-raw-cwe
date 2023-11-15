@@ -1,0 +1,203 @@
+{
+  "id": "109",
+  "name": "Struts: Validator Turned Off",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "Automatic filtering via a Struts bean has been turned off, which disables the Struts Validator and custom validation logic. This exposes the application to other weaknesses related to insufficient input validation.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1173",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "20",
+      "view_id": "700",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "Java"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Ensure that an action form mapping enables validation. Set the validate field to true."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>This mapping defines an action for a download form:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;action path=\"/download\"<xhtml:br/>type=\"com.website.d2.action.DownloadAction\"<xhtml:br/>name=\"downloadForm\"<xhtml:br/>scope=\"request\"<xhtml:br/>input=\".download\"<xhtml:br/>validate=\"false\"&gt;<xhtml:br/>&lt;/action&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>This mapping has disabled validation. Disabling validation exposes this action to numerous types of attacks.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-6",
+      "author": [
+        "Katrina Tsipenyuk",
+        "Brian Chess",
+        "Gary McGraw"
+      ],
+      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+      "publication_year": "2005",
+      "publication_month": "--11",
+      "publication_day": "---07",
+      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+      "publisher": "NIST"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "7 Pernicious Kingdoms",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-07-27",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-07-17",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Demonstrative_Examples, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Causal_Nature, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "7 Pernicious Kingdoms",
+      "entry_name": "Struts: Validator Turned Off"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Tainted input to command",
+      "entry_id": "SFP24"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Other",
+      "text": "The Action Form mapping in the demonstrative example disables the form's validate() method. The Struts bean: write tag automatically encodes special HTML characters, replacing a &lt; with \"&amp;lt;\" and a &gt; with \"&amp;gt;\". This action can be disabled by specifying filter=\"false\" as an attribute of the tag to disable specified JSP pages. However, being disabled makes these pages susceptible to cross-site scripting attacks. An attacker may be able to insert malicious scripts as user input to write to these JSP pages."
+    }
+  ]
+}

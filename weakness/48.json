@@ -1,0 +1,160 @@
+{
+  "id": "48",
+  "name": "Path Equivalence: 'file name' (Internal Whitespace)",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product accepts path input in the form of internal space ('file(SPACE)name') without appropriate validation, which can lead to ambiguous path resolution and allow an attacker to traverse the file system to unintended locations or access arbitrary files.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "41",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity"
+      ],
+      "impact": [
+        "Read Files or Directories",
+        "Modify Files or Directories"
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2000-0293",
+      "description": "Filenames with spaces allow arbitrary file deletion when the product does not properly quote them; some overlap with path traversal.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0293"
+    },
+    {
+      "reference": "CVE-2001-1567",
+      "description": "\"+\" characters in query string converted to spaces before sensitive file/extension (internal space), leading to bypass of access restrictions to the file.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1567"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Applicable_Platforms, Other_Notes, Relationship_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Path Issue - Internal Space - file(SPACE)name",
+        "date": "2008-04-11"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "file(SPACE)name (internal space)"
+    },
+    {
+      "taxonomy_name": "OWASP Top Ten 2004",
+      "entry_name": "Denial of Service",
+      "entry_id": "A9",
+      "mapping_fit": "CWE More Specific"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Path Traversal",
+      "entry_id": "SFP16"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "This weakness is likely to overlap quoting problems, e.g. the \"Program Files\" unquoted search path (CWE-428). It also could be an equivalence issue if filtering removes all extraneous spaces."
+    },
+    {
+      "type": "Relationship",
+      "text": "Whitespace can be a factor in other weaknesses not directly related to equivalence. It can also be used to spoof icons or hide files with dangerous names (see icon manipulation and visual truncation in CWE-451)."
+    }
+  ]
+}

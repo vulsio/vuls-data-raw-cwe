@@ -1,0 +1,300 @@
+{
+  "id": "656",
+  "name": "Reliance on Security Through Obscurity",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product uses a protection mechanism whose strength depends heavily on its obscurity, such that knowledge of its algorithms or key data is sufficient to defeat the mechanism.",
+  "extended_description": "This reliance on \"security through obscurity\" can produce resultant weaknesses if an attacker is able to reverse engineer the inner workings of the mechanism. Note that obscurity can be one small part of defense in depth, since it can create more work for an attacker; however, it is a significant risk if used as the primary means of protection.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "657",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "693",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "259",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "321",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "472",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability",
+        "Other"
+      ],
+      "impact": [
+        "Other"
+      ],
+      "note": "The security mechanism can be bypassed easily."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Always consider whether knowledge of your code or design is sufficient to break it. Reverse engineering is a highly successful discipline, and financially feasible for motivated adversaries. Black-box techniques are established for binary analysis of executables that use obfuscation, runtime analysis of proprietary protocols, inferring file formats, and others."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "When available, use publicly-vetted algorithms and procedures, as these are more likely to undergo more extensive security analysis and testing. This is especially the case with encryption and authentication."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-168",
+      "text": "\n               <Intro_Text>The design of TCP relies on the secrecy of Initial Sequence Numbers (ISNs), as originally covered in CVE-1999-0077 [REF-542]. If ISNs can be guessed (due to predictability, CWE-330) or sniffed (due to lack of encryption during transmission, CWE-312), then an attacker can hijack or spoof connections. Many TCP implementations have had variations of this problem over the years, including CVE-2004-0641, CVE-2002-1463, CVE-2001-0751, CVE-2001-0328, CVE-2001-0288, CVE-2001-0163, CVE-2001-0162, CVE-2000-0916, and CVE-2000-0328.</Intro_Text>\n         <References>\n                  <Reference External_Reference_ID=\"REF-542\"/>\n               </References>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2006-6588",
+      "description": "Reliance on hidden form fields in a web application. Many web application vulnerabilities exist because the developer did not consider that \"hidden\" form fields can be processed using a modified client.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-6588"
+    },
+    {
+      "reference": "CVE-2006-7142",
+      "description": "Hard-coded cryptographic key stored in executable program.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-7142"
+    },
+    {
+      "reference": "CVE-2005-4002",
+      "description": "Hard-coded cryptographic key stored in executable program.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-4002"
+    },
+    {
+      "reference": "CVE-2006-4068",
+      "description": "Hard-coded hashed values for username and password contained in client-side script, allowing brute-force offline attacks.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4068"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-196",
+      "author": [
+        "Jerome H. Saltzer",
+        "Michael D. Schroeder"
+      ],
+      "title": "The Protection of Information in Computer Systems",
+      "url": "http://web.mit.edu/Saltzer/www/publications/protection/",
+      "publication_year": "1975",
+      "publication_month": "--09",
+      "publication": "Proceedings of the IEEE 63"
+    },
+    {
+      "reference_id": "REF-544",
+      "author": [
+        "Sean Barnum",
+        "Michael Gegick"
+      ],
+      "title": "Never Assuming that Your Secrets Are Safe",
+      "url": "https://web.archive.org/web/20220126060054/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/never-assuming-that-your-secrets-are-safe",
+      "publication_year": "2005",
+      "publication_month": "--09",
+      "publication_day": "---14",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-542",
+      "author": [
+        "Jon Postel, Editor"
+      ],
+      "title": "RFC: 793, TRANSMISSION CONTROL PROTOCOL",
+      "url": "https://www.ietf.org/rfc/rfc0793.txt",
+      "publication_year": "1981",
+      "publication_month": "--09",
+      "publisher": "Information Sciences Institute",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Pascal Meunier",
+      "submission_organization": "Purdue University",
+      "submission_date": "2008-01-18"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Description, Relationships, Other_Notes, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-01-12",
+        "modification_comment": "updated Description, Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Other_Notes, Relationship_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Causal_Nature, Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Demonstrative_Examples, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Demonstrative_Examples, References, Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Design Principle Violation: Reliance on Security through Obscurity",
+        "date": "2009-01-12"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "alternate_terms": [
+    {
+      "term": "Never Assuming your secrets are safe"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "Note that there is a close relationship between this weakness and CWE-603 (Use of Client-Side Authentication). If developers do not believe that a user can reverse engineer a client, then they are more likely to choose client-side authentication in the belief that it is safe."
+    }
+  ]
+}

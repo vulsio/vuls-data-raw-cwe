@@ -1,0 +1,158 @@
+{
+  "id": "1304",
+  "name": "Improperly Preserved Integrity of Hardware Configuration State During a Power Save/Restore Operation",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product performs a power save/restore\n            operation, but it does not ensure that the integrity of\n            the configuration state is maintained and/or verified between\n\t    the beginning and ending of the operation.",
+  "extended_description": "\n                <xhtml:p>Before powering down, the Intellectual\n                Property (IP) saves current state (S) to persistent\n                storage such as flash or always-on memory in order to\n                optimize the restore operation.  During this process,\n                an attacker with access to the persistent storage may\n                alter (S) to a configuration that could potentially\n                modify privileges, disable protections, and/or cause\n                damage to the hardware. If the IP does not validate\n                the configuration state stored in persistent memory,\n                upon regaining power or becoming operational again,\n                the IP could be compromised through the activation of\n                an unwanted/harmful configuration.\n                </xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "345",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "1271",
+      "view_id": "1194"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "Weakness introduced via missing internal integrity guarantees during power save/restore"
+      ]
+    },
+    {
+      "phase": "Integration",
+      "note": [
+        "Weakness introduced via missing external integrity verification during power save/restore"
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity"
+      ],
+      "impact": [
+        "DoS: Instability",
+        "DoS: Crash, Exit, or Restart",
+        "DoS: Resource Consumption (Other)",
+        "Gain Privileges or Assume Identity",
+        "Bypass Protection Mechanism",
+        "Alter Execution Logic",
+        "Quality Degradation",
+        "Unexpected State",
+        "Reduce Maintainability",
+        "Reduce Performance",
+        "Reduce Reliability"
+      ],
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Inside the IP, incorporate integrity checking\n                        on the configuration state via a cryptographic\n                        hash. The hash can be protected inside the IP such as\n                        by storing it in internal registers which never lose\n                        power. Before powering down, the IP performs a hash of\n                        the configuration and saves it in these persistent\n                        registers. Upon restore, the IP performs a hash of the\n                        saved configuration and compares it with the\n                        saved hash. If they do not match, then the IP should\n                        not trust the configuration."
+      ]
+    },
+    {
+      "phase": [
+        "Integration"
+      ],
+      "description": [
+        "Outside the IP, incorporate integrity checking\n                        of the configuration state via a trusted agent. Before\n                        powering down, the trusted agent performs a hash of the\n                        configuration and saves the hash in persistent storage.\n                        Upon restore, the IP requests the trusted agent\n                        validate its current configuration. If the\n                        configuration hash is invalid, then the IP should not\n                        trust the configuration.\n                    "
+      ]
+    },
+    {
+      "phase": [
+        "Integration"
+      ],
+      "description": [
+        "Outside the IP, incorporate a protected\n                        environment that prevents undetected modification of\n                        the configuration state by untrusted agents. Before\n                        powering down, a trusted agent saves the IP's\n                        configuration state in this protected location that\n                        only it is privileged to. Upon restore, the trusted\n                        agent loads the saved state into the IP.\n                    "
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n                    <Intro_Text>The following pseudo code demonstrates the\n                        power save/restore workflow which may lead to weakness\n                        through a lack of validation of the config state after\n                        restore.\n                    </Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"C\">\n\t\t\t\t\t\tvoid save_config_state()<xhtml:br/>\n\t\t\t\t\t\t{<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\tvoid* cfg;<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\t\tcfg = get_config_state();<xhtml:br/>\n\t\t\t\t\t\t\tsave_config_state(cfg);<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\t\tgo_to_sleep();<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t}<xhtml:br/>\n\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\tvoid restore_config_state()<xhtml:br/>\n\t\t\t\t\t\t{<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\tvoid* cfg;<xhtml:br/>\n\t\t\t\t\t\t\tcfg = get_config_file();<xhtml:br/>\n\t\t\t\t\t\t\tload_config_file(cfg);<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t}<xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>The following pseudo-code is the proper workflow for the integrity checking mitigation:</Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"C\">\n\t\t\t\t\t\tvoid save_config_state()<xhtml:br/>\n\t\t\t\t\t\t{<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\tvoid* cfg;<xhtml:br/>\n\t\t\t\t\t\t\tvoid* sha;<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\t\tcfg = get_config_state();<xhtml:br/>\n\t\t\t\t\t\t\tsave_config_state(cfg);<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\t\t// save hash(cfg) to trusted location<xhtml:br/>\n\t\t\t\t\t\t\tsha = get_hash_of_config_state(cfg);<xhtml:br/>\n\t\t\t\t\t\t\tsave_hash(sha); <xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\t\tgo_to_sleep();<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t}<xhtml:br/>\n\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\tvoid restore_config_state()<xhtml:br/>\n\t\t\t\t\t\t{<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\tvoid* cfg;<xhtml:br/>\n\t\t\t\t\t\t\tvoid* sha_1, sha_2;<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\t\tcfg = get_config_file();<xhtml:br/>\n\t\t\t\t\t\t\t// restore hash of config from trusted memory<xhtml:br/>\n\t\t\t\t\t\t\tsha_1 = get_persisted_sha_value();<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\t\tsha_2 = get_hash_of_config_state(cfg);<xhtml:br/>\n\t\t\t\t\t\t\tif (sha_1 != sha_2)<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tassert_error_and_halt();<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\t\tload_config_file(cfg);<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t}<xhtml:br/>\n                    </Example_Code>\n                    <Body_Text>It must be noted that in the previous example of\n                        good pseudo code, the memory (where the hash of the\n                        config state is stored) must be trustworthy while the\n                        hardware is between the power save and restore states.\n                    </Body_Text>\n\t\t\t\t"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_organization": "Accellera Systems Initiative",
+      "submission_date": "2020-07-16"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Functional_Areas"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "176"
+  ],
+  "functional_areas": [
+    "Power"
+  ]
+}

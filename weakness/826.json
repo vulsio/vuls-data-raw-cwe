@@ -1,0 +1,115 @@
+{
+  "id": "826",
+  "name": "Premature Release of Resource During Expected Lifetime",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product releases a resource that is still intended to be used by itself or another actor.",
+  "extended_description": "\n            <xhtml:p>This weakness focuses on errors in which the product should not release a resource, but performs the release anyway. This is different than a weakness in which the product releases a resource at the appropriate time, but it maintains a reference to the resource, which it later accesses. For this weakness, the resource should still be valid upon the subsequent access.</xhtml:p>\n            <xhtml:p>When a product releases a resource that is still being used, it is possible that operations will still be taken on this resource, which may have been repurposed in the meantime, leading to issues similar to CWE-825. Consequences may include denial of service, information exposure, or code execution.</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "666",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "672",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {},
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Application Data",
+        "Read Memory"
+      ],
+      "note": "If the released resource is subsequently reused or reallocated, then a read operation on the original resource might access sensitive data that is associated with a different user or entity."
+    },
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart"
+      ],
+      "note": "When the resource is released, the software might modify some of its structure, or close associated channels (such as a file descriptor). When the software later accesses the resource as if it is valid, the resource might not be in an expected state, leading to resultant errors that may lead to a crash."
+    },
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Availability"
+      ],
+      "impact": [
+        "Execute Unauthorized Code or Commands",
+        "Modify Application Data",
+        "Modify Memory"
+      ],
+      "note": "When the resource is released, the software might modify some of its structure. This might affect logic in the sections of code that still assume the resource is active. If the released resource is related to memory and is used in a function call, or points to unexpected data in a write operation, then code execution may be possible upon subsequent accesses."
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2009-3547",
+      "description": "Chain: race condition (CWE-362) might allow resource to be released before operating on it, leading to NULL dereference (CWE-476)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-3547"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2010-09-22"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Description, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Common_Consequences, Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ]
+  },
+  "notes": [
+    {
+      "type": "Research Gap",
+      "text": "Under-studied and under-reported as of September 2010. This weakness has been reported in high-visibility software, although the focus has been primarily on memory allocation and de-allocation. There are very few examples of this weakness that are not directly related to memory management, although such weaknesses are likely to occur in real-world software for other types of resources."
+    }
+  ]
+}

@@ -1,0 +1,293 @@
+{
+  "id": "643",
+  "name": "Improper Neutralization of Data within XPath Expressions ('XPath Injection')",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product uses external input to dynamically construct an XPath expression used to retrieve data from an XML database, but it does not neutralize or incorrectly neutralizes that input. This allows an attacker to control the structure of the query.",
+  "extended_description": "The net effect is that the attacker will have control over the information selected from the XML database and may use that ability to control application flow, modify logic, retrieve unauthorized data, or bypass important checks (e.g. authentication).",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "943",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "91",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism"
+      ],
+      "note": "Controlling application flow (e.g. bypassing authentication)."
+    },
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Application Data"
+      ],
+      "note": "The attacker could read restricted XML content."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use parameterized XPath queries (e.g. using XQuery). This will help ensure separation between data plane and control plane."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Properly validate user input. Reject data where appropriate, filter where appropriate and escape where appropriate. Make sure input that will be used in XPath queries is safe in that context."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>Consider the following simple XML document that stores authentication information and a snippet of Java code that uses XPath query to retrieve authentication information:</Intro_Text>\n               <Example_Code Nature=\"Informative\" Language=\"XML\">\n                  <xhtml:div>&lt;users&gt;<xhtml:div style=\"margin-left:1em;\">&lt;user&gt;<xhtml:div style=\"margin-left:1em;\">&lt;login&gt;john&lt;/login&gt;<xhtml:br/>&lt;password&gt;abracadabra&lt;/password&gt;<xhtml:br/>&lt;home_dir&gt;/home/john&lt;/home_dir&gt;</xhtml:div>&lt;/user&gt;<xhtml:br/>&lt;user&gt;<xhtml:div style=\"margin-left:1em;\">&lt;login&gt;cbc&lt;/login&gt;<xhtml:br/>&lt;password&gt;1mgr8&lt;/password&gt;<xhtml:br/>&lt;home_dir&gt;/home/cbc&lt;/home_dir&gt;</xhtml:div>&lt;/user&gt;</xhtml:div>&lt;/users&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>The Java code used to retrieve the home directory based on the provided credentials is:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>XPath xpath = XPathFactory.newInstance().newXPath();<xhtml:br/>XPathExpression xlogin = xpath.compile(\"//users/user[login/text()='\" + login.getUserName() + \"' and password/text() = '\" + login.getPassword() + \"']/home_dir/text()\");<xhtml:br/>Document d = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(\"db.xml\"));<xhtml:br/>String homedir = xlogin.evaluate(d);</xhtml:div>\n               </Example_Code>\n               <Body_Text>Assume that user \"john\" wishes to leverage XPath Injection and login without a valid password. By providing a username \"john\" and password \"' or ''='\" the XPath expression now becomes</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>//users/user[login/text()='john' or ''='' and password/text() = '' or ''='']/home_dir/text()</xhtml:div>\n               </Example_Code>\n               <Body_Text>which, of course, lets user \"john\" login without a valid password, thus bypassing authentication.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-531",
+      "author": [
+        "Web Application Security Consortium"
+      ],
+      "title": "XPath Injection",
+      "url": "http://projects.webappsec.org/w/page/13247005/XPath%20Injection",
+      "url_date": "2023-04-07"
+    },
+    {
+      "section": "Chapter 17, \"XPath Injection\", Page 1070",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Evgeny Lebanidze",
+      "submission_organization": "Cigital",
+      "submission_date": "2008-01-30"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description, Name, References, Relationship_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Description, Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Enabling_Factors_for_Exploitation"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Enabling_Factors_for_Exploitation, Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Unsafe Treatment of XPath Input",
+        "date": "2008-10-14"
+      },
+      {
+        "text": "Failure to Sanitize Data within XPath Expressions (aka 'XPath injection')",
+        "date": "2009-05-27"
+      },
+      {
+        "text": "Failure to Sanitize Data within XPath Expressions ('XPath injection')",
+        "date": "2010-04-05"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "WASC",
+      "entry_name": "XPath Injection",
+      "entry_id": "39"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Tainted input to command",
+      "entry_id": "SFP24"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "This weakness is similar to other weaknesses that enable injection style attacks, such as SQL injection, command injection and LDAP injection. The main difference is that the target of attack here is the XML database."
+    }
+  ]
+}

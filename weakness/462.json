@@ -1,0 +1,185 @@
+{
+  "id": "462",
+  "name": "Duplicate Key in Associative List (Alist)",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "Duplicate keys in associative lists can lead to non-unique keys being mistaken for an error.",
+  "extended_description": "A duplicate key entry -- if the alist is designed properly -- could be used as a constant time replace function. However, duplicate key entries could be inserted by mistake. Because of this ambiguity, duplicate key entries in an association list are not recommended and should not be allowed.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "694",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "C"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C++"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Java"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C#"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Low",
+  "common_consequences": [
+    {
+      "scope": [
+        "Other"
+      ],
+      "impact": [
+        "Quality Degradation",
+        "Varies by Context"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Use a hash table instead of an alist."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Use an alist which checks the uniqueness of hash keys with each entry before inserting the entry."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following code adds data to a list and then attempts to sort the data.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>alist = []<xhtml:br/>while (foo()): #now assume there is a string data with a key basename<xhtml:div style=\"margin-left:1em;\">queue.append(basename,data)<xhtml:br/>queue.sort()</xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>Since basename is not necessarily unique, this may not sort how one would like it to be.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Demonstrative_Examples, Description, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Time_of_Introduction, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Duplicate key in associative list (alist)"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Beware of multiple environment variables with the same effective name",
+      "entry_id": "ENV02-C"
+    }
+  ]
+}

@@ -1,0 +1,251 @@
+{
+  "id": "521",
+  "name": "Weak Password Requirements",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product does not require that users should have strong passwords, which makes it easier for attackers to compromise user accounts.",
+  "extended_description": "Authentication mechanisms often rely on a memorized secret (also known as a password) to provide an assertion of identity for a user of a system. It is therefore important that this password be of sufficient complexity and impractical for an adversary to guess. The specific requirements around how complex a password needs to be depends on the type of system being protected. Selecting the correct password requirements and enforcing them through implementation are critical to the overall success of the authentication mechanism.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1391",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "287",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
+      ]
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "Not enforcing the password policy stated in a products design can allow users to create passwords that do not provide the necessary level of protection."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "An attacker could easily guess user passwords and gain access user accounts."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                 <xhtml:p>A product's design should require adherance to an appropriate password policy. Specific password requirements depend strongly on contextual factors, but it is recommended to contain the following attributes:</xhtml:p>\n                 <xhtml:ul>\n                   <xhtml:li>Enforcement of a minimum and maximum length</xhtml:li>\n                   <xhtml:li>Restrictions against password reuse</xhtml:li>\n                   <xhtml:li>Restrictions against using common passwords</xhtml:li>\n                   <xhtml:li>Restrictions against using contextual string in the password (e.g., user id, app name)</xhtml:li>\n                 </xhtml:ul>\n                 <xhtml:p>Depending on the threat model, the password policy may include several additional attributes.</xhtml:p>\n                 <xhtml:ul>\n                   <xhtml:li>Complex passwords requiring mixed character sets (alpha, numeric, special, mixed case)\n                     <xhtml:ul>\n                       <xhtml:li>Increasing the range of characters makes the password harder to crack and may be appropriate for systems relying on single factor authentication.</xhtml:li>\n                       <xhtml:li>Unfortunately, a complex password may be difficult to memorize, encouraging a user to select a short password or to incorrectly manage the password (write it down).</xhtml:li>\n                       <xhtml:li>Another disadvantage of this approach is that it often does not result in a significant increases in overal password complexity due to people's predictable usage of various symbols.</xhtml:li>\n                     </xhtml:ul>\n                   </xhtml:li>\n                   <xhtml:li>Large Minimum Length (encouraging passphrases instead of passwords)\n                     <xhtml:ul>\n                       <xhtml:li>Increasing the number of characters makes the password harder to crack and may be appropriate for systems relying on single factor authentication.</xhtml:li>\n                       <xhtml:li>A disadvantage of this approach is that selecting a good passphrase is not easy and poor passwords can still be generated. Some prompting may be needed to encourage long un-predictable passwords.</xhtml:li>\n                     </xhtml:ul>\n                   </xhtml:li>\n                   <xhtml:li>Randomly Chosen Secrets\n                     <xhtml:ul>\n                       <xhtml:li>Generating a password for the user can help make sure that length and complexity requirements are met, and can result in secure passwords being used.</xhtml:li>\n                       <xhtml:li>A disadvantage of this approach is that the resulting password or passpharse may be too difficult to memorize, encouraging them to be written down.</xhtml:li>\n                     </xhtml:ul>\n                   </xhtml:li>\n                   <xhtml:li>Password Expiration\n                     <xhtml:ul>\n                       <xhtml:li>Requiring a periodic password change can reduce the time window that an adversary has to crack a password, while also limiting the damage caused by password exposures at other locations.</xhtml:li>\n\t\t\t\t\t   <xhtml:li>Password expiration may be a good mitigating technique when long complex passwords are not desired.</xhtml:li>\n                     </xhtml:ul>\n                   </xhtml:li>\n                 </xhtml:ul>\n                 <xhtml:p>See NIST 800-63B [REF-1053] for further information on password requirements.</xhtml:p>\n               "
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Consider a second\n                 authentication factor beyond the password, which prevents the\n                 password from being a single point of failure. See CWE-308 for\n                 further information."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Consider implementing a password complexity meter to inform users when a chosen password meets the required attributes."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2020-4574",
+      "description": "key server application does not require strong passwords",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-4574"
+    }
+  ],
+  "references": [
+    {
+      "section": "\"Sin 19: Use of Weak Password-Based Systems.\" Page 279",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    },
+    {
+      "section": "Sections: 5.1.1, 10.2.1, and Appendix A",
+      "reference_id": "REF-1053",
+      "author": [
+        "NIST"
+      ],
+      "title": "Digital Identity Guidelines (SP 800-63B)",
+      "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63b.pdf",
+      "publication_year": "2017",
+      "publication_month": "--06",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Anonymous Tool Vendor (under NDA)",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_organization": "Veracode",
+        "modification_date": "2008-08-15",
+        "modification_comment": "Suggested OWASP Top Ten 2004 mapping"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Description, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Potential_Mitigations, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Modes_of_Introduction, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Applicable_Platforms, Description, Modes_of_Introduction, Potential_Mitigations, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Observed_Examples, Potential_Mitigations, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "OWASP Top Ten 2004",
+      "entry_name": "Broken Authentication and Session Management",
+      "entry_id": "A3",
+      "mapping_fit": "CWE More Specific"
+    }
+  ],
+  "related_attack_patterns": [
+    "112",
+    "16",
+    "49",
+    "509",
+    "55",
+    "555",
+    "561",
+    "565",
+    "70"
+  ]
+}

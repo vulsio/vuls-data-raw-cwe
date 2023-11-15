@@ -1,0 +1,198 @@
+{
+  "id": "315",
+  "name": "Cleartext Storage of Sensitive Information in a Cookie",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product stores sensitive information in cleartext in a cookie.",
+  "extended_description": "Attackers can use widely-available tools to view the cookie and read the sensitive information. Even if the information is encoded in a way that is not human-readable, certain techniques could determine which encoding is being used, then decode the information.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "312",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "OMISSION: This weakness is caused by missing a security tactic during the architecture and design phase."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Application Data"
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-44",
+      "text": "\n               <Intro_Text>The following code excerpt stores a plaintext user account ID in a browser cookie.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>response.addCookie( new Cookie(\"userAccountID\", acctID);</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because the account ID is in plaintext, the user's account information is exposed if their computer is compromised by an attacker.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2002-1800",
+      "description": "Admin password in cleartext in a cookie.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1800"
+    },
+    {
+      "reference": "CVE-2001-1537",
+      "description": "Default configuration has cleartext usernames/passwords in cookie.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1537"
+    },
+    {
+      "reference": "CVE-2001-1536",
+      "description": "Usernames/passwords in cleartext in cookies.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1536"
+    },
+    {
+      "reference": "CVE-2005-2160",
+      "description": "Authentication information stored in cleartext in a cookie.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2160"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Sean Eidemiller",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "added/updated demonstrative examples"
+      },
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Demonstrative_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-07-17",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Name, Observed_Examples, Potential_Mitigations, Terminology_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Demonstrative_Examples, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Plaintext Storage in Cookie",
+        "date": "2008-04-11"
+      },
+      {
+        "text": "Plaintext Storage in a Cookie",
+        "date": "2013-07-17"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Plaintext Storage in Cookie"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Exposed Data",
+      "entry_id": "SFP23"
+    }
+  ],
+  "related_attack_patterns": [
+    "31",
+    "37",
+    "39",
+    "74"
+  ],
+  "notes": [
+    {
+      "type": "Terminology",
+      "text": "Different people use \"cleartext\" and \"plaintext\" to mean the same thing: the lack of encryption. However, within cryptography, these have more precise meanings. Plaintext is the information just before it is fed into a cryptographic algorithm, including already-encrypted text. Cleartext is any information that is unencrypted, although it might be in an encoded form that is not easily human-readable (such as base64 encoding)."
+    }
+  ]
+}

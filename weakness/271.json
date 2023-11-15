@@ -1,0 +1,309 @@
+{
+  "id": "271",
+  "name": "Privilege Dropping / Lowering Errors",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product does not drop privileges before passing control of a resource to an actor that does not have those privileges.",
+  "extended_description": "In some contexts, a system executing with elevated permissions will hand off a process/file/etc. to another process or user. If the privileges of an entity are not reduced, then elevated privileges are spread throughout a system and possibly to an attacker.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "269",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "If privileges are not dropped, neither are access rights of the user. Often these rights can be prevented from being dropped."
+    },
+    {
+      "scope": [
+        "Access Control",
+        "Non-Repudiation"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity",
+        "Hide Activities"
+      ],
+      "note": "If privileges are not dropped, in some cases the system may record actions as the user which is being impersonated rather than the impersonator."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "mitigation_id": "MIT-46",
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Compartmentalize the system to have \"safe\" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.</xhtml:p>\n                  <xhtml:p>Ensure that appropriate compartmentalization is built into the system design, and the compartmentalization allows for and reinforces privilege separation functionality. Architects and designers should rely on the principle of least privilege to decide the appropriate time to use privileges and the time to drop privileges.</xhtml:p>\n               "
+      ],
+      "strategy": "Separation of Privilege"
+    },
+    {
+      "mitigation_id": "MIT-1",
+      "phase": [
+        "Architecture and Design",
+        "Operation"
+      ],
+      "description": [
+        "Very carefully manage the setting, management, and handling of privileges. Explicitly manage trust zones in the software."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-49",
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Consider following the principle of separation of privilege. Require multiple conditions to be met before permitting access to a system resource."
+      ],
+      "strategy": "Separation of Privilege"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-98",
+      "text": "\n               <Intro_Text>The following code calls chroot() to restrict the application to a subset of the filesystem below APP_HOME in order to prevent an attacker from using the program to gain unauthorized access to files located elsewhere. The code then opens a file specified by the user and processes the contents of the file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>chroot(APP_HOME);<xhtml:br/>chdir(\"/\");<xhtml:br/>FILE* data = fopen(argv[1], \"r+\");<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>Constraining the process inside the application's home directory before opening any files is a valuable security measure. However, the absence of a call to setuid() with some non-zero value means the application is continuing to operate with unnecessary root privileges. Any successful exploit carried out by an attacker against the application can now result in a privilege escalation attack because any malicious operations will be performed with the privileges of the superuser. If the application drops to the privilege level of a non-root user, the potential for damage is substantially reduced.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2000-1213",
+      "description": "Program does not drop privileges after acquiring the raw socket.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-1213"
+    },
+    {
+      "reference": "CVE-2001-0559",
+      "description": "Setuid program does not drop privileges after a parsing error occurs, then calls another program to handle the error.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0559"
+    },
+    {
+      "reference": "CVE-2001-0787",
+      "description": "Does not drop privileges in related groups when lowering privileges.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0787"
+    },
+    {
+      "reference": "CVE-2002-0080",
+      "description": "Does not drop privileges in related groups when lowering privileges.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0080"
+    },
+    {
+      "reference": "CVE-2001-1029",
+      "description": "Does not drop privileges before determining access to certain files.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1029"
+    },
+    {
+      "reference": "CVE-1999-0813",
+      "description": "Finger daemon does not drop privileges when executing programs on behalf of the user being fingered.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0813"
+    },
+    {
+      "reference": "CVE-1999-1326",
+      "description": "FTP server does not drop privileges if a connection is aborted during file transfer.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1326"
+    },
+    {
+      "reference": "CVE-2000-0172",
+      "description": "Program only uses seteuid to drop privileges.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0172"
+    },
+    {
+      "reference": "CVE-2004-2504",
+      "description": "Windows program running as SYSTEM does not drop privileges before executing other programs (many others like this, especially involving the Help facility).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2504"
+    },
+    {
+      "reference": "CVE-2004-0213",
+      "description": "Utility Manager launches winhlp32.exe while running with raised privileges, which allows local users to gain system privileges.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0213"
+    },
+    {
+      "reference": "CVE-2004-0806",
+      "description": "Setuid program does not drop privileges before executing program specified in an environment variable.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0806"
+    },
+    {
+      "reference": "CVE-2004-0828",
+      "description": "Setuid program does not drop privileges before processing file specified on command line.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0828"
+    },
+    {
+      "reference": "CVE-2004-2070",
+      "description": "Service on Windows does not drop privileges before using \"view file\" option, allowing code execution.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2070"
+    }
+  ],
+  "references": [
+    {
+      "section": "\"Sin 16: Executing Code With Too Much Privilege.\" Page 243",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    },
+    {
+      "section": "Chapter 9, \"Dropping Privileges Permanently\", Page 479",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Description, Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description, Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-12-28",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Observed_Examples, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Causal_Nature, Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Privilege Dropping / Lowering Errors"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "CWE-271, CWE-272, and CWE-250 are all closely related and possibly overlapping. CWE-271 is probably better suited as a category."
+    }
+  ]
+}

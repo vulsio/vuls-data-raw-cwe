@@ -1,0 +1,216 @@
+{
+  "id": "609",
+  "name": "Double-Checked Locking",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product uses double-checked locking to access a resource without the overhead of explicit synchronization, but the locking is insufficient.",
+  "extended_description": "Double-checked locking refers to the situation where a programmer checks to see if a resource has been initialized, grabs a lock, checks again to see if the resource has been initialized, and then performs the initialization if it has not occurred yet. This should not be done, as it is not guaranteed to work in all languages and on all architectures. In summary, other threads may not be operating inside the synchronous block and are not guaranteed to see the operations execute in the same order as they would appear inside the synchronous block.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "667",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "367",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "Java"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Other"
+      ],
+      "impact": [
+        "Modify Application Data",
+        "Alter Execution Logic"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "While double-checked locking can be achieved in some languages, it is inherently flawed in Java before 1.5, and cannot be achieved without compromising platform independence. Before Java 1.5, only use of the synchronized keyword is known to work. Beginning in Java 1.5, use of the \"volatile\" keyword allows double-checked locking to work successfully, although there is some debate as to whether it achieves sufficient performance gains. See references."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-70",
+      "text": "\n               <Intro_Text>It may seem that the following bit of code achieves thread safety while avoiding unnecessary synchronization...</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>if (helper == null) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>synchronized (this) {<xhtml:div style=\"margin-left:1em;\">if (helper == null) {<xhtml:div style=\"margin-left:1em;\">helper = new Helper();</xhtml:div>}</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>return helper;</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer wants to guarantee that only one Helper() object is ever allocated, but does not want to pay the cost of synchronization every time this code is called.</Body_Text>\n               <Body_Text>Suppose that helper is not initialized. Then, thread A sees that helper==null and enters the synchronized block and begins to execute:</Body_Text>\n               <Example_Code Nature=\"Bad\">\n                  <xhtml:div>helper = new Helper();</xhtml:div>\n               </Example_Code>\n               <Body_Text>If a second thread, thread B, takes over in the middle of this call and helper has not finished running the constructor, then thread B may make calls on helper while its fields hold incorrect values.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-490",
+      "author": [
+        "David Bacon et al"
+      ],
+      "title": "The \"Double-Checked Locking is Broken\" Declaration",
+      "url": "http://www.cs.umd.edu/~pugh/java/memoryModel/DoubleCheckedLocking.html"
+    },
+    {
+      "reference_id": "REF-491",
+      "author": [
+        "Jeremy Manson and Brian Goetz"
+      ],
+      "title": "JSR 133 (Java Memory Model) FAQ",
+      "url": "http://www.cs.umd.edu/~pugh/java/memoryModel/jsr-133-faq.html#dcl"
+    },
+    {
+      "section": "Chapter 13, \"Threading Vulnerabilities\", Page 815",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Anonymous Tool Vendor (under NDA)",
+      "submission_date": "2007-05-07"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Context_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Description, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-01-12",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Demonstrative_Examples, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Double Checked Locking",
+        "date": "2008-04-11"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Do not use incorrect forms of the double-checked locking idiom",
+      "entry_id": "LCK10-J"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Missing Lock",
+      "entry_id": "SFP19"
+    }
+  ]
+}

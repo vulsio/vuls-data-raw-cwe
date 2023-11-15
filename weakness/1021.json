@@ -1,0 +1,235 @@
+{
+  "id": "1021",
+  "name": "Improper Restriction of Rendered UI Layers or Frames",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The web application does not restrict or incorrectly restricts frame objects or UI layers that belong to another application or domain, which can lead to user confusion about which interface the user is interacting with.",
+  "extended_description": "A web application is expected to place restrictions on whether it is allowed to be rendered within frames, iframes, objects, embed or applet elements. Without the restrictions, users can be tricked into interacting with the application when they were not intending to.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "441",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "610",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "451",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "technology": [
+      {
+        "class": "Web Based",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity",
+        "Bypass Protection Mechanism",
+        "Read Application Data",
+        "Modify Application Data"
+      ],
+      "note": "An attacker can trick a user into performing actions that are masked and hidden from the user's view. The impact varies widely, depending on the functionality of the underlying application. For example, in a social media application, clickjacking could be used to trik the user into changing privacy settings."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "\n                  <xhtml:p>The use of X-Frame-Options allows developers of web content to restrict the usage of their application within the form of overlays, frames, or iFrames. The developer can indicate from which domains can frame the content.</xhtml:p>\n                  <xhtml:p>The concept of X-Frame-Options is well documented, but implementation of this protection mechanism is in development to cover gaps. There is a need for allowing frames from multiple domains.</xhtml:p>\n               "
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "\n                  <xhtml:p>A developer can use a \"frame-breaker\" script in each page that should not be framed. This is very helpful for legacy browsers that do not support X-Frame-Options security feature previously mentioned.</xhtml:p>\n                  <xhtml:p>It is also important to note that this tactic has been circumvented or bypassed. Improper usage of frames can persist in the web application through nested frames. The \"frame-breaking\" script does not intuitively account for multiple nested frames that can be presented to the user.</xhtml:p>\n               "
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "This defense-in-depth technique can be used to prevent the improper usage of frames in web applications. It prioritizes the valid sources of data to be loaded into the application through the usage of declarative policies. Based on which implementation of Content Security Policy is in use, the developer should use the \"frame-ancestors\" directive or the \"frame-src\" directive to mitigate this weakness. Both directives allow for the placement of restrictions when it comes to allowing embedded content."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2017-7440",
+      "description": "E-mail preview feature in a desktop application allows clickjacking attacks via a crafted e-mail message",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2017-7440"
+    },
+    {
+      "reference": "CVE-2017-5697",
+      "description": "Hardware/firmware product has insufficient clickjacking protection in its web user interface",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2017-5697"
+    },
+    {
+      "reference": "CVE-2017-4015",
+      "description": "Clickjacking in data-loss prevention product via HTTP response header.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2017-4015"
+    },
+    {
+      "reference": "CVE-2016-2496",
+      "description": "Tapjacking in permission dialog for mobile OS allows access of private storage using a partially-overlapping window.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2016-2496"
+    },
+    {
+      "reference": "CVE-2015-1241",
+      "description": "Tapjacking in web browser related to page navigation and touch/gesture events.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2015-1241"
+    },
+    {
+      "reference": "CVE-2017-0492",
+      "description": "System UI in mobile OS allows a malicious application to create a UI overlay of the entire screen to gain privileges.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2017-0492"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-35",
+      "author": [
+        "Andrew Horton"
+      ],
+      "title": "Clickjacking For Shells",
+      "url": "https://www.exploit-db.com/docs/17881.pdf"
+    },
+    {
+      "reference_id": "REF-36",
+      "author": [
+        "OWASP"
+      ],
+      "title": "Clickjacking - OWASP",
+      "url": "https://owasp.org/www-community/attacks/Clickjacking",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-37",
+      "author": [
+        "Internet Security"
+      ],
+      "title": "SecTheory",
+      "url": "https://www.sectheory.com/clickjacking.htm",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-38",
+      "author": [
+        "W3C"
+      ],
+      "title": "Content Security Policy Level 3",
+      "url": "https://w3c.github.io/webappsec-csp/"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2017-08-01"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Applicable_Platforms, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "alternate_terms": [
+    {
+      "term": "Clickjacking"
+    },
+    {
+      "term": "UI Redress Attack"
+    },
+    {
+      "term": "Tapjacking",
+      "description": "\"Tapjacking\" is similar to clickjacking, except it is used for mobile applications in which the user \"taps\" the application instead of performing a mouse click."
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "related_attack_patterns": [
+    "103",
+    "181",
+    "222",
+    "504",
+    "506",
+    "587",
+    "654"
+  ]
+}

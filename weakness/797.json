@@ -1,0 +1,98 @@
+{
+  "id": "797",
+  "name": "Only Filtering Special Elements at an Absolute Position",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product receives data from an upstream component, but only accounts for special elements at an absolute position (e.g. \"byte number 10\"), thereby missing remaining special elements that may exist before sending it to a downstream component.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "795",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {},
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Unexpected State"
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-4",
+      "text": "\n               <Intro_Text>The following code takes untrusted input and uses a substring function to filter a 3-character \"../\" element located at the 0-index position of the input string. It then appends this result to the /home/user/ directory and attempts to read the file in the final resulting path.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>my $Username = GetUntrustedInput();<xhtml:br/>if (substr($Username, 0, 3) eq '../') {<xhtml:div style=\"margin-left:1em;\">$Username = substr($Username, 3);</xhtml:div>}<xhtml:br/>my $filename = \"/home/user/\" . $Username;<xhtml:br/>ReadAndSendFile($filename);</xhtml:div>\n               </Example_Code>\n               <Body_Text>Since the if function is only looking for a substring of \"../\" between the 0 and 2 position, it only removes that specific \"../\" element. So an input value such as:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>../../../etc/passwd</xhtml:div>\n               </Example_Code>\n               <Body_Text>will have the first \"../\" filtered, resulting in:</Body_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>../../etc/passwd</xhtml:div>\n               </Example_Code>\n               <Body_Text>This value is then concatenated with the /home/user/ directory:</Body_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>/home/user/../../etc/passwd</xhtml:div>\n               </Example_Code>\n               <Body_Text>which causes the /etc/passwd file to be retrieved once the operating system has resolved the ../ sequences in the pathname. This leads to relative path traversal (CWE-22).</Body_Text>\n            "
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2009-12-04"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  }
+}

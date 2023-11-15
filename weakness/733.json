@@ -1,0 +1,178 @@
+{
+  "id": "733",
+  "name": "Compiler Optimization Removal or Modification of Security-critical Code",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The developer builds a security-critical protection mechanism into the software, but the compiler optimizes the program such that the mechanism is removed or modified.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1038",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Often",
+        "name": "C"
+      },
+      {
+        "prevalence": "Often",
+        "name": "C++"
+      },
+      {
+        "class": "Compiled",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control",
+        "Other"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism",
+        "Other"
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2008-1685",
+      "description": "C compiler optimization, as allowed by specifications, removes code that is used to perform checks to detect integer overflows.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-1685"
+    },
+    {
+      "reference": "CVE-2019-1010006",
+      "description": "Chain: compiler optimization (CWE-733) removes or modifies code used to detect integer overflow (CWE-190), allowing out-of-bounds write (CWE-787).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-1010006"
+    }
+  ],
+  "references": [
+    {
+      "section": "Chapter 9, \"A Compiler Optimization Caveat\" Page 322",
+      "reference_id": "REF-7",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc"
+      ],
+      "title": "Writing Secure Code",
+      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+      "publication_year": "2002",
+      "publication_month": "--12",
+      "publication_day": "---04",
+      "publisher": "Microsoft Press",
+      "edition": "2nd Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2008-10-01",
+      "submission_comment": "new weakness-focused entry for Research view closes the gap between 14 and 435."
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Detection_Factors"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Applicable_Platforms, Observed_Examples, Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "method": "Black Box",
+      "description": "This specific weakness is impossible to detect using black box methods. While an analyst could examine memory to see that it has not been scrubbed, an analysis of the executable would not be successful. This is because the compiler has already removed the relevant code. Only the source code shows whether the programmer intended to clear the memory or not, so this weakness is indistinguishable from others."
+    },
+    {
+      "method": "White Box",
+      "description": "This weakness is only detectable using white box methods (see black box detection factor). Careful analysis is required to determine if the code is likely to be removed by the compiler."
+    }
+  ],
+  "related_attack_patterns": [
+    "10",
+    "24",
+    "46",
+    "8",
+    "9"
+  ]
+}

@@ -1,0 +1,187 @@
+{
+  "id": "1257",
+  "name": "Improper Access Control Applied to Mirrored or Aliased Memory Regions",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "Aliased or mirrored memory regions in hardware designs may have inconsistent read/write permissions enforced by the hardware. A possible result is that an untrusted agent is blocked from accessing a memory region but is not blocked from accessing the corresponding aliased memory region.\n\t\t\t",
+  "extended_description": "\n\t\t\t\t<xhtml:p>Hardware product designs often need to implement memory protection features that enable privileged software to define isolated memory regions and access control (read/write) policies. Isolated memory regions can be defined on different memory spaces in a design (e.g. system physical address, virtual address, memory mapped IO).</xhtml:p>\n\t\t\t\t<xhtml:p>Each memory cell should be mapped and assigned a system address that the core software can use to read/write to that memory. It is possible to map the same memory cell to multiple system addresses such that read/write to any of the aliased system addresses would be decoded to the same memory cell.</xhtml:p>\n\t\t\t\t<xhtml:p>This is commonly done in hardware designs for redundancy and simplifying address decoding logic. If one of the memory regions is corrupted or faulty, then that hardware can switch to using the data in the mirrored memory region. Memory aliases can also be created in the system address map if the address decoder unit ignores higher order address bits when mapping a smaller address region into the full system address.</xhtml:p>\n\t\t\t\t<xhtml:p>A common security weakness that can exist in such memory mapping is that aliased memory regions could have different read/write access protections enforced by the hardware such that an untrusted agent is blocked from accessing a memory address but is not blocked from accessing the corresponding aliased memory address. Such inconsistency can then be used to bypass the access protection of the primary memory block and read or modify the protected memory.</xhtml:p>\n\t\t\t\t<xhtml:p>An untrusted agent could also possibly create memory aliases in the system address map for malicious purposes if it is able to change the mapping of an address region or modify memory region sizes.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "119",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "prevalence": "Undetermined",
+        "name": "Memory Hardware"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Processor Hardware"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Microcontroller Hardware"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Network on Chip Hardware"
+      },
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Memory"
+      ],
+      "likelihood": "High"
+    },
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Memory"
+      ],
+      "likelihood": "High"
+    },
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Instability"
+      ],
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "The checks should be applied for consistency access rights between primary memory regions and any mirrored or aliased memory regions. If different memory protection units (MPU) are protecting the aliased regions, their protected range definitions and policies should be synchronized."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "The controls that allow enabling memory aliases or changing the size of mapped memory regions should only be programmable by trusted software components."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>\n\t\t\t\t\t\t<xhtml:p>In a System-on-a-Chip (SoC) design the system fabric uses 16 bit addresses. An IP unit (Unit_A) has 4 kilobyte of internal memory which is mapped into a 16 kilobyte address range in the system fabric address map.</xhtml:p>\n\t\t\t\t\t\t<xhtml:table>\n\t\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t\t<xhtml:td>\n\t\t\t\t\t\t\t\t\tSystem Address\n\t\t\t\t\t\t\t\t</xhtml:td>\n\t\t\t\t\t\t\t\t<xhtml:td>\n\t\t\t\t\t\t\t\t\tMapped to\n\t\t\t\t\t\t\t\t</xhtml:td>\n\t\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t\t<xhtml:td>\n\t\t\t\t\t\t\t\t\t0x0000 - 0x3FFF\n\t\t\t\t\t\t\t\t</xhtml:td>\n\t\t\t\t\t\t\t\t<xhtml:td>\n\t\t\t\t\t\t\t\t\tUnit_A  registers : 0x0000 - 0x0FFF\n\t\t\t\t\t\t\t\t</xhtml:td>\n\t\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t\t<xhtml:td>\n\t\t\t\t\t\t\t\t\t0x4000 - 0xFFFF\n\t\t\t\t\t\t\t\t</xhtml:td>\n\t\t\t\t\t\t\t\t<xhtml:td>\n\t\t\t\t\t\t\t\t\tOther IPs &amp; Memory\n\t\t\t\t\t\t\t\t</xhtml:td>\n\t\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t</xhtml:table>\n\t\t\t\t\t\t<xhtml:p>\n\t\t\t\t\t\t\tTo protect the register controls in Unit_A unprivileged software is blocked from accessing addresses between 0x0000 - 0x0FFF.\n\t\t\t\t\t\t</xhtml:p>\n\t\t\t\t\t\t<xhtml:p>\n\t\t\t\t\t\t\tThe address decoder of Unit_A masks off the higher order address bits and decodes only the lower 12 bits for computing the offset into the 4 kilobyte internal memory space.\n\t\t\t\t\t\t</xhtml:p>\n\t\t\t\t\t</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Other\">\n\t\t\t\t\t\t<xhtml:p>In this design  the aliased memory address ranges are these:</xhtml:p>\n\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\t<xhtml:p>0x0000 - 0x0FFF</xhtml:p>\n\t\t\t\t\t\t<xhtml:p>0x1000 - 0x1FFF</xhtml:p>\n\t\t\t\t\t\t<xhtml:p>0x2000 - 0x2FFF</xhtml:p>\n\t\t\t\t\t\t<xhtml:p>0x3000 - 0x3FFF</xhtml:p>\n\t\t\t\t\t\t<xhtml:p>\n\t\t\t\t\t\t\tThe same register can be accessed using four different addresses: 0x0000, 0x1000, 0x2000, 0x3000.\n\t\t\t\t\t\t</xhtml:p>\n\t\t\t\t\t\t<xhtml:p>\n\t\t\t\t\t\t\tThe system address filter only blocks access to range 0x0000 - 0x0FFF and does not block access to the aliased addresses in 0x1000 - 0x3FFF range. Thus, untrusted software can leverage the aliased memory addresses to bypass the memory protection.\n\t\t\t\t\t\t</xhtml:p>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Other\">\n\t\t\t\t\t\t<xhtml:p>\n\t\t\t\t\t\t\tIn this design the aliased memory addresses (0x1000 - 0x3FFF) could be blocked from all system software access since they are not used by software.\n\t\t\t\t\t\t</xhtml:p>\n\t\t\t\t\t\t<xhtml:p>\n\t\t\t\t\t\t\tAlternately, the MPU logic can be changed to apply the memory protection policies to the full address range mapped to Unit_A (0x0000 - 0x3FFF).\n\t\t\t\t\t\t</xhtml:p>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-04-29"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Demonstrative_Examples, Description, Modes_of_Introduction, Potential_Mitigations, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Applicable_Platforms, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "456",
+    "679"
+  ]
+}

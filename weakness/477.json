@@ -1,0 +1,283 @@
+{
+  "id": "477",
+  "name": "Use of Obsolete Function",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The code uses deprecated or obsolete functions, which suggests that the code has not been actively reviewed or maintained.",
+  "extended_description": "\n            <xhtml:p>As programming languages evolve, functions occasionally become obsolete due to:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>Advances in the language</xhtml:li>\n                  <xhtml:li>Improved understanding of how operations should be performed effectively and securely</xhtml:li>\n                  <xhtml:li>Changes in the conventions that govern certain operations</xhtml:li>\n               </xhtml:ul>\n            <xhtml:p>Functions that are removed are usually replaced by newer counterparts that perform the same task in some different and hopefully improved way.</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "710",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Other"
+      ],
+      "impact": [
+        "Quality Degradation"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Refer to the documentation for the obsolete function in order to determine why it is deprecated or obsolete and to learn about alternative ways to achieve the same functionality."
+      ]
+    },
+    {
+      "phase": [
+        "Requirements"
+      ],
+      "description": [
+        "Consider seriously the security implications of using an obsolete function. Consider using alternate functions."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following code uses the deprecated function getpw() to verify that a plaintext password matches a user's encrypted password. If the password is valid, the function sets result to 1; otherwise it is set to 0.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>...<xhtml:br/>getpw(uid, pwdline);<xhtml:br/>for (i=0; i&lt;3; i++){<xhtml:div style=\"margin-left:1em;\">cryptpw=strtok(pwdline, \":\");<xhtml:br/>pwdline=0;</xhtml:div>}<xhtml:br/>result = strcmp(crypt(plainpw,cryptpw), cryptpw) == 0;<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>Although the code often behaves correctly, using the getpw() function can be problematic from a security standpoint, because it can overflow the buffer passed to its second parameter. Because of this vulnerability, getpw() has been supplanted by getpwuid(), which performs the same lookup as getpw() but returns a pointer to a statically-allocated structure to mitigate the risk. Not all functions are deprecated or replaced because they pose a security risk. However, the presence of an obsolete function often indicates that the surrounding code has been neglected and may be in a state of disrepair. Software security has not been a priority, or even a consideration, for very long. If the program uses deprecated or obsolete functions, it raises the probability that there are security problems lurking nearby.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>In the following code, the programmer assumes that the system always has a property named \"cmd\" defined. If an attacker can control the program's environment so that \"cmd\" is not defined, the program throws a null pointer exception when it attempts to call the \"Trim()\" method.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String cmd = null;<xhtml:br/>...<xhtml:br/>cmd = Environment.GetEnvironmentVariable(\"cmd\");<xhtml:br/>cmd = cmd.Trim();</xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>The following code constructs a string object from an array of bytes and a value that specifies the top 8 bits of each 16-bit Unicode character.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>...<xhtml:br/>String name = new String(nameBytes, highByte);<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>In this example, the constructor may not correctly convert bytes to characters depending upon which charset is used to encode the string represented by nameBytes. Due to the evolution of the charsets used to encode strings, this constructor was deprecated and replaced by a constructor that accepts as one of its parameters the name of the charset used to encode the bytes for conversion.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-6",
+      "author": [
+        "Katrina Tsipenyuk",
+        "Brian Chess",
+        "Gary McGraw"
+      ],
+      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+      "publication_year": "2005",
+      "publication_month": "--11",
+      "publication_day": "---07",
+      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+      "publisher": "NIST"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "7 Pernicious Kingdoms",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-07-27",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Description, Other_Notes, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Detection_Factors, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Name, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Obsolete",
+        "date": "2008-01-30"
+      },
+      {
+        "text": "Use of Obsolete Functions",
+        "date": "2017-11-08"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Indirect"
+    }
+  ],
+  "detection_methods": [
+    {
+      "method": "Automated Static Analysis - Binary or Bytecode",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode Quality Analysis</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Manual Static Analysis - Binary or Bytecode",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Dynamic Analysis with Manual Results Interpretation",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Debugger</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Manual Static Analysis - Source Code",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Automated Static Analysis - Source Code",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source Code Quality Analyzer</xhtml:li>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Automated Static Analysis",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Origin Analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Architecture or Design Review",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "7 Pernicious Kingdoms",
+      "entry_name": "Obsolete"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Use of an improper API",
+      "entry_id": "SFP3"
+    },
+    {
+      "taxonomy_name": "SEI CERT Perl Coding Standard",
+      "entry_name": "Do not import deprecated modules",
+      "entry_id": "DCL30-PL",
+      "mapping_fit": "CWE More Specific"
+    },
+    {
+      "taxonomy_name": "SEI CERT Perl Coding Standard",
+      "entry_name": "Do not use deprecated or obsolete functions or modules",
+      "entry_id": "EXP30-PL",
+      "mapping_fit": "CWE More Specific"
+    }
+  ]
+}

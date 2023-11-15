@@ -1,0 +1,469 @@
+{
+  "id": "426",
+  "name": "Untrusted Search Path",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Stable",
+  "description": "The product searches for critical resources using an externally-supplied search path that can point to resources that are not under the product's direct control.",
+  "extended_description": "\n            <xhtml:p>This might allow attackers to execute their own programs, access unauthorized data files, or modify configuration in unexpected ways. If the product uses a search path to locate critical resources such as programs, then an attacker could modify that search path to point to a malicious program, which the targeted product would then execute. The problem extends to any type of critical resource that the product trusts.</xhtml:p>\n            <xhtml:p>Some of the most common variants of untrusted search path are:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>In various UNIX and Linux-based systems, the PATH environment variable may be consulted to locate executable programs, and LD_PRELOAD may be used to locate a separate library.</xhtml:li>\n                  <xhtml:li>In various Microsoft-based systems, the PATH environment variable is consulted to locate a DLL, if the DLL is not found in other paths that appear earlier in the search order.</xhtml:li>\n               </xhtml:ul>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "642",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "668",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "673",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "427",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "428",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Availability",
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity",
+        "Execute Unauthorized Code or Commands"
+      ],
+      "note": "There is the potential for arbitrary code execution with privileges of the vulnerable program."
+    },
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart"
+      ],
+      "note": "The program could be redirected to the wrong files, potentially triggering a crash or hang when the targeted file is too large or does not have the expected format."
+    },
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Files or Directories"
+      ],
+      "note": "The program could send the output of unauthorized files to the attacker."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "Hard-code the search path to a set of known-safe values (such as system directories), or only allow them to be specified by the administrator in a configuration file. Do not allow these settings to be modified by an external party. Be careful to avoid related weaknesses such as CWE-426 and CWE-428."
+      ],
+      "strategy": "Attack Surface Reduction"
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "When invoking other programs, specify those programs using fully-qualified pathnames. While this is an effective approach, code that uses fully-qualified pathnames might not be portable to other systems that do not use the same pathnames. The portability can be improved by locating the full-qualified paths in a centralized, easily-modifiable location within the source code, and having the code refer to these paths."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Remove or restrict all environment settings before invoking other programs. This includes the PATH environment variable, LD_LIBRARY_PATH, and other settings that identify the location of code libraries, and any application-specific search paths."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Check your search path before use and remove any elements that are likely to be unsafe, such as the current working directory or a temporary files directory."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use other functions that require explicit paths. Making use of any of the other readily available functions that require explicit paths is a safe way to avoid this problem. For example, system() in C does not require a full path since the shell can take care of it, while execl() and execv() require a full path."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-67",
+      "text": "\n               <Intro_Text>This program is intended to execute a command that lists the contents of a restricted directory, then performs other actions. Assume that it runs with setuid privileges in order to bypass the permissions check by the operating system.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define DIR \"/restricted/directory\"<xhtml:br/>\n                     <xhtml:br/>char cmd[500];<xhtml:br/>sprintf(cmd, \"ls -l %480s\", DIR);<xhtml:br/>\n                     <xhtml:i>/* Raise privileges to those needed for accessing DIR. */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>RaisePrivileges(...);<xhtml:br/>system(cmd);<xhtml:br/>DropPrivileges(...);<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code may look harmless at first, since both the directory and the command are set to fixed values that the attacker can't control. The attacker can only see the contents for DIR, which is the intended program behavior. Finally, the programmer is also careful to limit the code that executes with raised privileges.</Body_Text>\n               <Body_Text>However, because the program does not modify the PATH environment variable, the following attack would work:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:ul>\n                     <xhtml:li>The user sets the PATH to reference a directory under the attacker's control, such as \"/my/dir/\".</xhtml:li>\n                     <xhtml:li>The attacker creates a malicious program called \"ls\", and puts that program in /my/dir</xhtml:li>\n                     <xhtml:li>The user executes the program.</xhtml:li>\n                     <xhtml:li>When system() is executed, the shell consults the PATH to find the ls program</xhtml:li>\n                     <xhtml:li>The program finds the attacker's malicious program, \"/my/dir/ls\". It doesn't find \"/bin/ls\" because PATH does not contain \"/bin/\".</xhtml:li>\n                     <xhtml:li>The program executes the attacker's malicious program with the raised privileges.</xhtml:li>\n                  </xhtml:ul>\n               </Example_Code>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-68",
+      "text": "\n               <Intro_Text>This code prints all of the running processes belonging to the current user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>//assume getCurrentUser() returns a username that is guaranteed to be alphanumeric (avoiding CWE-78)</xhtml:i>\n                     <xhtml:br/>$userName = getCurrentUser();<xhtml:br/>$command = 'ps aux | grep ' . $userName;<xhtml:br/>system($command);</xhtml:div>\n               </Example_Code>\n               <Body_Text>If invoked by an unauthorized web user, it is providing a web page of potentially sensitive information on the underlying system, such as command-line arguments (CWE-497). This program is also potentially vulnerable to a PATH based attack (CWE-426), as an attacker may be able to create malicious versions of the ps or grep commands. While the program does not explicitly raise privileges to run the system commands, the PHP interpreter may by default be running with higher privileges than users.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-29",
+      "text": "\n               <Intro_Text>The following code is from a web application that allows users access to an interface through which they can update their password on the system. In this environment, user passwords can be managed using the Network Information System (NIS), which is commonly used on UNIX systems. When performing NIS updates, part of the process for updating passwords is to run a make command in the /var/yp directory. Performing NIS updates requires extra privileges.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>...<xhtml:br/>System.Runtime.getRuntime().exec(\"make\");<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The problem here is that the program does not specify an absolute path for make and does not clean its environment prior to executing the call to Runtime.exec(). If an attacker can modify the $PATH variable to point to a malicious binary called make and cause the program to be executed in their environment, then the malicious binary will be loaded instead of the one intended. Because of the nature of the application, it runs with the privileges necessary to perform system operations, which means the attacker's make will now be run with these privileges, possibly giving the attacker complete control of the system.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-1999-1120",
+      "description": "Application relies on its PATH environment variable to find and execute program.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1120"
+    },
+    {
+      "reference": "CVE-2008-1810",
+      "description": "Database application relies on its PATH environment variable to find and execute program.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-1810"
+    },
+    {
+      "reference": "CVE-2007-2027",
+      "description": "Chain: untrusted search path enabling resultant format string by loading malicious internationalization messages.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-2027"
+    },
+    {
+      "reference": "CVE-2008-3485",
+      "description": "Untrusted search path using malicious .EXE in Windows environment.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-3485"
+    },
+    {
+      "reference": "CVE-2008-2613",
+      "description": "setuid program allows compromise using path that finds and loads a malicious library.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2613"
+    },
+    {
+      "reference": "CVE-2008-1319",
+      "description": "Server allows client to specify the search path, which can be modified to point to a program that the client has uploaded.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-1319"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    },
+    {
+      "section": "Chapter 10, Process Attributes, page 603",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    },
+    {
+      "section": "Chapter 8, \"Canonical Representation Issues.\" Page 229",
+      "reference_id": "REF-176",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc"
+      ],
+      "title": "Writing Secure Code",
+      "publication_year": "2001",
+      "publication_month": "--11",
+      "publication_day": "---13",
+      "publisher": "Microsoft Press",
+      "edition": "1st Edition"
+    },
+    {
+      "section": "Chapter 12, \"Trust Management and Input Validation.\" Pages 317-320",
+      "reference_id": "REF-207",
+      "author": [
+        "John Viega",
+        "Gary McGraw"
+      ],
+      "title": "Building Secure Software: How to Avoid Security Problems the Right Way",
+      "publication_year": "2002",
+      "publisher": "Addison-Wesley",
+      "edition": "1st Edition"
+    },
+    {
+      "section": "Chapter 11, \"Don't Trust the PATH - Use Full Path Names\" Page 385",
+      "reference_id": "REF-7",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc"
+      ],
+      "title": "Writing Secure Code",
+      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+      "publication_year": "2002",
+      "publication_month": "--12",
+      "publication_day": "---04",
+      "publisher": "Microsoft Press",
+      "edition": "2nd Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-01-12",
+        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Description, Observed_Examples, Potential_Mitigations, Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-12-28",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Detection_Factors, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-09-27",
+        "modification_comment": "updated Description, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Demonstrative_Examples, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-02-18",
+        "modification_comment": "updated Demonstrative_Examples, Detection_Factors, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Demonstrative_Examples, Modes_of_Introduction, References, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated Demonstrative_Examples, References, Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-09-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Research_Gaps"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "alternate_terms": [
+    {
+      "term": "Untrusted Path"
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-11",
+      "method": "Black Box",
+      "description": "\n                  <xhtml:p>Use monitoring tools that examine the software's process as it interacts with the operating system and the network. This technique is useful in cases when source code is unavailable, if the software was not developed by you, or if you want to verify that the build phase did not introduce any new weaknesses. Examples include debuggers that directly attach to the running process; system-call tracing utilities such as truss (Solaris) and strace (Linux); system activity monitors such as FileMon, RegMon, Process Monitor, and other Sysinternals utilities (Windows); and sniffers and protocol analyzers that monitor network traffic.</xhtml:p>\n                  <xhtml:p>Attach the monitor to the process and look for library functions and system calls that suggest when a search path is being used. One pattern is when the program performs multiple accesses of the same file but in different directories, with repeated failures until the proper filename is found. Library calls such as getenv() or their equivalent can be checked to see if any path-related variables are being accessed.</xhtml:p>\n               "
+    },
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Manual Analysis",
+      "description": "Use tools and techniques that require manual (human) analysis, such as penetration testing, threat modeling, and interactive tools that allow the tester to record and modify an active session. These may be more effective than strictly automated techniques. This is especially the case with weaknesses that are related to design and business rules."
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Untrusted Search Path"
+    },
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Relative path library search"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Sanitize the environment when invoking external programs",
+      "entry_id": "ENV03-C"
+    }
+  ],
+  "related_attack_patterns": [
+    "38"
+  ],
+  "affected_resources": [
+    "System Process"
+  ],
+  "functional_areas": [
+    "Program Invocation",
+    "Code Libraries"
+  ]
+}

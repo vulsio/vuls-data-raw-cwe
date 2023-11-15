@@ -1,0 +1,184 @@
+{
+  "id": "771",
+  "name": "Missing Reference to Active Allocated Resource",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product does not properly maintain a reference to a resource that has been allocated, which prevents the resource from being reclaimed.",
+  "extended_description": "This does not necessarily apply in languages or frameworks that automatically perform garbage collection, since the removal of all references may act as a signal that the resource is ready to be reclaimed.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "400",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {},
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Resource Consumption (Other)"
+      ],
+      "note": "An attacker that can influence the allocation of resources that are not properly maintained could deplete the available resource pool and prevent all other processes from accessing the same type of resource."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "mitigation_id": "MIT-47",
+      "phase": [
+        "Operation",
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Use resource-limiting settings provided by the operating system or environment. For example, when managing system resources in POSIX, setrlimit() can be used to set limits for certain types of resources, and getrlimit() can determine how many resources are available. However, these functions are not available on all operating systems.</xhtml:p>\n                  <xhtml:p>When the current levels get close to the maximum that is defined for the application (see CWE-770), then limit the allocation of further resources to privileged users; alternately, begin releasing resources for less-privileged users. While this mitigation may protect the system from attack, it will not necessarily stop attackers from adversely impacting other users.</xhtml:p>\n                  <xhtml:p>Ensure that the application performs the appropriate error checks and error handling in case resources become unavailable (CWE-703).</xhtml:p>\n               "
+      ],
+      "strategy": "Resource Limitation"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2009-05-13"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-07-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Likelihood_of_Exploit, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Common_Consequences, Maintenance_Notes, Relationships, Theoretical_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
+        "contribution_date": "2023-04-25",
+        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Close files when they are no longer needed",
+      "entry_id": "FIO42-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Free dynamically allocated memory when no longer needed",
+      "entry_id": "MEM31-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Failure to Release Resource",
+      "entry_id": "SFP14"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SR 7.2",
+      "entry_id": "Part 3-3"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SVV-1",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 7.2",
+      "entry_id": "Part 4-2"
+    }
+  ]
+}

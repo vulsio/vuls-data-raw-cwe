@@ -1,0 +1,168 @@
+{
+  "id": "408",
+  "name": "Incorrect Behavior Order: Early Amplification",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product allows an entity to perform a legitimate but expensive operation before authentication or authorization has taken place.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "405",
+      "view_id": "1000"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "696",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Amplification",
+        "DoS: Crash, Exit, or Restart",
+        "DoS: Resource Consumption (CPU)",
+        "DoS: Resource Consumption (Memory)"
+      ],
+      "note": "System resources, CPU and memory, can be quickly consumed. This can lead to poor system performance or system crash."
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-157",
+      "text": "\n               <Intro_Text>This data prints the contents of a specified file requested by a user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function printFile($username,$filename){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>//read file into string</xhtml:i>\n                           <xhtml:br/>$file = file_get_contents($filename);<xhtml:br/>if ($file &amp;&amp; isOwnerOf($username,$filename)){<xhtml:div style=\"margin-left:1em;\">echo $file;<xhtml:br/>return true;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">echo 'You are not authorized to view this file';</xhtml:div>}<xhtml:br/>return false;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code first reads a specified file into memory, then prints the file if the user is authorized to see its contents. The read of the file into memory may be resource intensive and is unnecessary if the user is not allowed to see the file anyway.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2004-2458",
+      "description": "Tool creates directories before authenticating user.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2458"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Other_Notes, Relationship_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Demonstrative_Examples, Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Early Amplification",
+        "date": "2008-04-11"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Early Amplification"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "Overlaps authentication errors."
+    }
+  ]
+}

@@ -1,0 +1,162 @@
+{
+  "id": "1328",
+  "name": "Security Version Number Mutable to Older Versions",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "Security-version number in hardware is mutable, resulting in the ability to downgrade (roll-back) the boot firmware to vulnerable code versions.",
+  "extended_description": "\n\t\t\t\t<xhtml:p>A System-on-Chip (SoC) implements secure boot or verified boot. It might support a security version number, which prevents downgrading the current firmware to a vulnerable version. Once downgraded to a previous version, an adversary can launch exploits on the SoC and thus compromise the security of the SoC. These downgrade attacks are also referred to as roll-back attacks.</xhtml:p>\n\t\t\t\t<xhtml:p>The security version number must be stored securely and persistently across power-on resets. A common weakness is that the security version number is modifiable by an adversary, allowing roll-back or downgrade attacks or, under certain circumstances, preventing upgrades (i.e. Denial-of-Service on upgrades). In both cases, the SoC is in a vulnerable state.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "285",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "757",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "prevalence": "Undetermined",
+        "name": "Security Hardware"
+      },
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "Such issues could be introduced during hardware architecture and design, and can be identified later during testing or system configuration phases."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Authentication",
+        "Authorization"
+      ],
+      "impact": [
+        "Other"
+      ],
+      "note": "Impact includes roll-back or downgrade to a vulnerable version of the firmware or DoS (prevent upgrades).",
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "When architecting the system, security version data should be designated for storage in registers that are either read-only or have access controls that prevent modification by an untrusted agent."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "During implementation and test, security version data should be demonstrated to be read-only and access controls should be validated."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>A new version of firmware is signed with a security version number higher than the previous version. During the firmware update process the SoC checks for the security version number and upgrades the SoC firmware with the latest version. This security version number is stored in persistent memory upon successful upgrade for use across power-on resets. </Intro_Text>\n\t\t\t\t\t<Body_Text>In general, if the security version number is mutable, the implementation is vulnerable. A mutable security version number allows an adversary to change the security version to a lower value to allow roll-back or to a higher value to prevent future upgrades. </Body_Text>\n\t\t\t\t\t<Body_Text>The security version number should be stored in immutable hardware such as fuses, and the writes to these fuses should be highly access-controlled with appropriate authentication and authorization protections.</Body_Text>\n\t\t\t\t"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-04-25"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "method": "Automated Dynamic Analysis",
+      "description": "Mutability of stored security version numbers and programming with older firmware images should be part of automated testing.",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Architecture or Design Review",
+      "description": "Anti-roll-back features should be reviewed as part of Architecture or Design review.",
+      "effectiveness": "High"
+    }
+  ],
+  "related_attack_patterns": [
+    "176"
+  ]
+}

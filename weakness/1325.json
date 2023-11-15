@@ -1,0 +1,141 @@
+{
+  "id": "1325",
+  "name": "Improperly Controlled Sequential Memory Allocation",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product manages a group of objects or resources and performs a separate memory allocation for each object, but it does not properly limit the total amount of memory that is consumed by all of the combined objects.",
+  "extended_description": "\n\t\t\t  <xhtml:p>While the product might limit the amount of memory that is allocated in a single operation for a single object (such as a malloc of an array), if an attacker can cause multiple objects to be allocated in separate operations, then this might cause higher total memory consumption than the developer intended, leading to a denial of service.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "770",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "789",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "476",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "C"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C++"
+      },
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Resource Consumption (Memory)"
+      ],
+      "note": "Not controlling memory allocation can result in a request for too much system memory, possibly leading to a crash of the application due to out-of-memory conditions, or the consumption of a large amount of memory on the system."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Ensure multiple allocations of the same kind of object are properly tracked - possibly across multiple sessions, requests, or messages. Define an appropriate strategy for handling requests that exceed the limit, and consider supporting a configuration option so that the administrator can extend the amount of memory to be used if necessary."
+      ]
+    },
+    {
+      "phase": [
+        "Operation"
+      ],
+      "description": [
+        "Run the program using system-provided resource limits for memory. This might still cause the program to crash or exit, but the impact to the rest of the system will be minimized."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>This example contains a small allocation of stack memory. When the program was first constructed, the number of times this memory was allocated was probably inconsequential and presented no problem. Over time, as the number of objects in the database grow, the number of allocations will grow - eventually consuming the available stack, i.e. \"stack exhaustion.\" An attacker who is able to add elements to the database could cause stack exhaustion more rapidly than assumed by the developer.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"C\">\n\t\t\t\t\t<xhtml:div>\n\t\t\t\t\t  <xhtml:i>// Gets the size from the number of objects in a database, which over time can conceivably get very large</xhtml:i><xhtml:br/>\n\t\t\t\t\t  int end_limit = get_nmbr_obj_from_db();<xhtml:br/>\n\t\t\t\t\t  int i;<xhtml:br/>\n\t\t\t\t\t  int *base = NULL;<xhtml:br/>\n\t\t\t\t\t  int *p =base;<xhtml:br/>\n\t\t\t\t\t  for (i = 0; i &lt; end_limit; i++)<xhtml:br/>\n\t\t\t\t\t  {<xhtml:br/>\n\t\t\t\t\t    <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t      *p = alloca(sizeof(int *)); <xhtml:i>// Allocate memory on the stack</xhtml:i><xhtml:br/>\n\t\t\t\t\t      p = *p; <xhtml:i>// // Point to the next location to be saved</xhtml:i><xhtml:br/>\n\t\t\t\t\t    </xhtml:div>\n\t\t\t\t\t    }<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>Since this uses alloca(), it allocates memory directly on the stack.  If end_limit is large enough, then the stack can be entirely consumed.</Body_Text>\n\t\t\t\t"
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2020-36049",
+      "description": "JavaScript-based packet decoder uses concatenation of many small strings, causing out-of-memory (OOM) condition",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-36049"
+    },
+    {
+      "reference": "CVE-2019-20176",
+      "description": "Product allocates a new buffer on the stack for each file in a directory, allowing stack exhaustion",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-20176"
+    },
+    {
+      "reference": "CVE-2013-1591",
+      "description": "Chain: an integer overflow (CWE-190) in the image size calculation causes an infinite loop (CWE-835) which sequentially allocates buffers without limits (CWE-1325) until the stack is full.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2013-1591"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2020-12-07"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "alternate_terms": [
+    {
+      "term": "Stack Exhaustion",
+      "description": "When a weakness allocates excessive memory on the stack, it is often described as \"stack exhaustion,\" which is a technical impact of the weakness. This technical impact is often encountered as a consequence of CWE-789 and/or CWE-1325."
+    }
+  ],
+  "related_attack_patterns": [
+    "130"
+  ]
+}

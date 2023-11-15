@@ -1,0 +1,179 @@
+{
+  "id": "293",
+  "name": "Using Referer Field for Authentication",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The referer field in HTTP requests can be easily modified and, as such, is not a valid means of message integrity checking.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "290",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "background_details": [
+    "The referer field in HTML requests can be simply modified by malicious users, rendering it useless as a means of checking the validity of the request in question."
+  ],
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
+      ]
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "Actions, which may not be authorized otherwise, can be carried out as if they were validated by the server referred to."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "In order to usefully check if a given action is authorized, some means of strong authentication and method protection must be used. Use other means of authorization that cannot be simply spoofed. Possibilities include a username/password or certificate."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following code samples check a packet's referer in order to decide whether or not an inbound request is from a trusted host.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>String trustedReferer = \"http://www.example.com/\"<xhtml:br/>while(true){<xhtml:div style=\"margin-left:1em;\">n = read(newsock, buffer, BUFSIZE);<xhtml:br/>requestPacket = processPacket(buffer, n);<xhtml:br/>if (requestPacket.referer == trustedReferer){<xhtml:div style=\"margin-left:1em;\">openNewSecureSession(requestPacket);</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>boolean processConnectionRequest(HttpServletRequest request){<xhtml:div style=\"margin-left:1em;\">String referer = request.getHeader(\"referer\")<xhtml:br/>String trustedReferer = \"http://www.example.com/\"<xhtml:br/>if(referer.equals(trustedReferer)){<xhtml:div style=\"margin-left:1em;\">openPrivilegedConnection(request);<xhtml:br/>return true;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">sendPrivilegeError(request);<xhtml:br/>return false;</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>These examples check if a request is from a trusted referer before responding to a request, but the code only verifies the referer name as stored in the request packet. An attacker can spoof the referer, thus impersonating a trusted client.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "section": "Chapter 17, \"Referer Request Header\", Page 1030",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    },
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Alternate_Terms, Background_Details, Common_Consequences, Relationships, Relevant_Properties, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships, Relevant_Properties"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "alternate_terms": [
+    {
+      "term": "referrer",
+      "description": "While the proper spelling might be regarded as \"referrer,\" the HTTP RFCs and their implementations use \"referer,\" so this is regarded as the correct spelling."
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Using referrer field for authentication"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Faulty endpoint authentication",
+      "entry_id": "SFP29"
+    }
+  ]
+}

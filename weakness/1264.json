@@ -1,0 +1,152 @@
+{
+  "id": "1264",
+  "name": "Hardware Logic with Insecure De-Synchronization between Control and Data Channels",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The hardware logic for error handling and security checks can incorrectly forward data before the security check is complete.",
+  "extended_description": "\n            <xhtml:p>Many high-performance on-chip bus protocols and processor data-paths employ separate channels for control and data to increase parallelism and maximize throughput. Bugs in the hardware logic that handle errors and security checks can make it possible for data to be forwarded before the completion of the security checks. If the data can propagate to a location in the hardware observable to an attacker, loss of data confidentiality can occur. 'Meltdown' is a concrete example of how de-synchronization between data and permissions checking logic can violate confidentiality requirements. Data loaded from a page marked as privileged was returned to the cpu regardless of current privilege level for performance reasons. The assumption was that the cpu could later remove all traces of this data during the handling of the illegal memory access exception, but this assumption was proven false as traces of the secret data were not removed from the microarchitectural state.</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "821",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "1037",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "The weakness can be introduced in the data transfer or bus protocol itself or in the implementation."
+      ]
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Memory",
+        "Read Application Data"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                 <xhtml:p>Thoroughly verify the data routing logic to ensure that any error handling or security checks effectively block illegal dataflows.</xhtml:p>\n               "
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>There are several standard on-chip bus protocols used in modern SoCs to allow communication between components. There are a wide variety of commercially available hardware IP implementing the interconnect logic for these protocols. A bus connects components which initiate/request communications such as processors and DMA controllers (bus masters) with peripherals which respond to requests. In a typical system, the privilege level or security designation of the bus master along with the intended functionality of each peripheral determine the security policy specifying which specific bus masters can access specific peripherals.  This security policy (commonly referred to as a bus firewall) can be enforced using separate IP/logic from the actual interconnect responsible for the data routing.</Intro_Text>\n                <Example_Code Nature=\"Bad\" Language=\"Other\">The firewall and data routing logic becomes de-synchronized due to a hardware logic bug allowing components that should not be allowed to communicate to share data. For example, consider an SoC with two processors. One is being used as a root of trust and can access a cryptographic key storage peripheral. The other processor (application cpu) may run potentially untrusted code and should not access the key store. If the application cpu can issue a read request to the key store which is not blocked due to de-synchronization of data routing and the bus firewall, disclosure of cryptographic keys is possible.</Example_Code>\n                <Example_Code Nature=\"Good\" Language=\"Other\">All data is correctly buffered inside the interconnect until the firewall has determined that the endpoint is allowed to receive the data.</Example_Code>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2017-5754",
+      "description": "Systems with microprocessors utilizing speculative execution and indirect branch prediction may allow unauthorized disclosure of information to an attacker with local user access via a side-channel analysis of the data cache.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2017-5754"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Nicole Fern",
+      "submission_organization": "Tortuga Logic",
+      "submission_date": "2020-05-22"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Description, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "related_attack_patterns": [
+    "233",
+    "663"
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "As of CWE 4.9, members of the CWE Hardware SIG are closely analyzing this entry and others to improve CWE's coverage of transient execution weaknesses, which include issues related to Spectre, Meltdown, and other attacks. Additional investigation may include other weaknesses related to microarchitectural state. As a result, this entry might change significantly in CWE 4.10."
+    }
+  ]
+}

@@ -1,0 +1,305 @@
+{
+  "id": "212",
+  "name": "Improper Removal of Sensitive Information Before Storage or Transfer",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product stores, transfers, or shares a resource that contains sensitive information, but it does not properly remove that information before the product makes the resource available to unauthorized actors.",
+  "extended_description": "\n            <xhtml:p>Resources that may contain sensitive data include documents, packets, messages, databases, etc. While this data may be useful to an individual user or small set of users who share the resource, it may need to be removed before the resource can be shared outside of the trusted group. The process of removal is sometimes called cleansing or scrubbing.</xhtml:p>\n            <xhtml:p>For example, a product for editing documents might not remove sensitive data such as reviewer comments or the local pathname where the document is stored. Or, a proxy might not remove an internal IP address from headers before making an outgoing request to an Internet site.</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "669",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "669",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "201",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Files or Directories",
+        "Read Application Data"
+      ],
+      "note": "Sensitive data may be exposed to an unauthorized actor in another control sphere. This may have a wide range of secondary consequences which will depend on what data is exposed. One possibility is the exposure of system data allowing an attacker to craft a specific, more effective attack."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Requirements"
+      ],
+      "description": [
+        "Clearly specify which information should be regarded as private or sensitive, and require that the product offers functionality that allows the user to cleanse the sensitive information from the resource before it is published or exported to other parties."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-46",
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Compartmentalize the system to have \"safe\" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.</xhtml:p>\n                  <xhtml:p>Ensure that appropriate compartmentalization is built into the system design, and the compartmentalization allows for and reinforces privilege separation functionality. Architects and designers should rely on the principle of least privilege to decide the appropriate time to use privileges and the time to drop privileges.</xhtml:p>\n               "
+      ],
+      "strategy": "Separation of Privilege"
+    },
+    {
+      "mitigation_id": "MIT-33",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use naming conventions and strong types to make it easier to spot when sensitive data is being used. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible."
+      ],
+      "effectiveness": "Defense in Depth",
+      "effectiveness_notes": "This makes it easier to spot places in the code where data is being used that is unencrypted.",
+      "strategy": "Attack Surface Reduction"
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Avoid errors related to improper resource shutdown or release (CWE-404), which may leave the sensitive data within the resource if it is in an incomplete state."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>This code either generates a public HTML user information page or a JSON response containing the same user information.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>// API flag, output JSON if set</xhtml:i>\n                     <xhtml:br/>$json = $_GET['json']<xhtml:br/>$username = $_GET['user']<xhtml:br/>if(!$json)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>$record = getUserRecord($username);<xhtml:br/>foreach($record as $fieldName =&gt; $fieldValue)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if($fieldName == \"email_address\") {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// skip displaying user emails</xhtml:i>\n                                       <xhtml:br/>continue;</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">writeToHtmlPage($fieldName,$fieldValue);</xhtml:div>}</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>else<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">$record = getUserRecord($username);<xhtml:br/>echo json_encode($record);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer is careful to not display the user's e-mail address when displaying the public HTML page. However, the e-mail address is not removed from the JSON response, exposing the user's e-mail address.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2005-0406",
+      "description": "Some image editors modify a JPEG image, but the original EXIF thumbnail image is left intact within the JPEG. (Also an interaction error).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0406"
+    },
+    {
+      "reference": "CVE-2002-0704",
+      "description": "NAT feature in firewall leaks internal IP addresses in ICMP error messages.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0704"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Description, Other_Notes, Relationship_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-12-28",
+        "modification_comment": "updated Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Description, Name, Observed_Examples, Potential_Mitigations, Relationship_Notes, Relationships, Terminology_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-09-27",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Demonstrative_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Description, Name, Relationships, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Cross-boundary Cleansing Information Leak",
+        "date": "2009-12-28"
+      },
+      {
+        "text": "Improper Cross-boundary Cleansing",
+        "date": "2010-02-16"
+      },
+      {
+        "text": "Improper Cross-boundary Removal of Sensitive Data",
+        "date": "2020-02-24"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    },
+    {
+      "ordinality": "Resultant"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Cross-Boundary Cleansing Infoleak"
+    }
+  ],
+  "related_attack_patterns": [
+    "168"
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "This entry is intended to be different from resultant information leaks, including those that occur from improper buffer initialization and reuse, improper encryption, interaction errors, and multiple interpretation errors. This entry could be regarded as a privacy leak, depending on the type of information that is leaked."
+    },
+    {
+      "type": "Relationship",
+      "text": "There is a close association between CWE-226 and CWE-212. The difference is partially that of perspective. CWE-226 is geared towards the final stage of the resource lifecycle, in which the resource is deleted, eliminated, expired, or otherwise released for reuse. Technically, this involves a transfer to a different control sphere, in which the original contents of the resource are no longer relevant. CWE-212, however, is intended for sensitive data in resources that are intentionally shared with others, so they are still active. This distinction is useful from the perspective of the CWE research view (CWE-1000)."
+    },
+    {
+      "type": "Terminology",
+      "text": "The terms \"cleansing\" and \"scrubbing\" have multiple uses within computing. In information security, these are used for the removal of sensitive data, but they are also used for the modification of incoming/outgoing data so that it conforms to specifications."
+    }
+  ]
+}

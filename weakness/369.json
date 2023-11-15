@@ -1,0 +1,266 @@
+{
+  "id": "369",
+  "name": "Divide By Zero",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product divides a value by zero.",
+  "extended_description": "This weakness typically occurs when an unexpected value is provided to the product, or if an error occurs that is not properly detected. It frequently occurs in calculations involving physical dimensions such as size, length, width, and height.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "682",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "682",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "682",
+      "view_id": "1305",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "682",
+      "view_id": "1340",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {},
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart"
+      ],
+      "note": "A Divide by Zero results in a crash."
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following Java example contains a function to compute an average but does not validate that the input value used as the denominator is not zero. This will create an exception for attempting to divide by zero. If this error is not handled by Java exception handling, unexpected results can occur.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public int computeAverageResponseTime (int totalTime, int numRequests) {<xhtml:div style=\"margin-left:1em;\">return totalTime / numRequests;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>By validating the input value used as the denominator the following code will ensure that a divide by zero error will not cause unexpected results. The following Java code example will validate the input value, output an error message, and throw an exception.</Body_Text>\n               <Example_Code Nature=\"Good\">\n                  <xhtml:div>public int computeAverageResponseTime (int totalTime, int numRequests) throws ArithmeticException {<xhtml:div style=\"margin-left:1em;\">if (numRequests == 0) {<xhtml:div style=\"margin-left:1em;\">System.out.println(\"Division by zero attempted!\");<xhtml:br/>throw ArithmeticException;</xhtml:div>}<xhtml:br/>return totalTime / numRequests;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>The following C/C++ example contains a function that divides two numeric values without verifying that the input value used as the denominator is not zero. This will create an error for attempting to divide by zero, if this error is not caught by the error handling capabilities of the language, unexpected results can occur.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>double divide(double x, double y){<xhtml:div style=\"margin-left:1em;\">return x/y;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>By validating the input value used as the denominator the following code will ensure that a divide by zero error will not cause unexpected results. If the method is called and a zero is passed as the second argument a DivideByZero error will be thrown and should be caught by the calling block with an output message indicating the error.</Body_Text>\n               <Example_Code Nature=\"Good\">\n                  <xhtml:div>const int DivideByZero = 10;<xhtml:br/>double divide(double x, double y){<xhtml:div style=\"margin-left:1em;\">if ( 0 == y ){<xhtml:div style=\"margin-left:1em;\">throw DivideByZero;</xhtml:div>}<xhtml:br/>return x/y;</xhtml:div>}<xhtml:br/>...<xhtml:br/>try{<xhtml:div style=\"margin-left:1em;\">divide(10, 0);</xhtml:div>}<xhtml:br/>catch( int i ){<xhtml:div style=\"margin-left:1em;\">if(i==DivideByZero) {<xhtml:div style=\"margin-left:1em;\">cerr&lt;&lt;\"Divide by zero error\";</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <References>\n                  <Reference External_Reference_ID=\"REF-371\"/>\n               </References>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>The following C# example contains a function that divides two numeric values without verifying that the input value used as the denominator is not zero. This will create an error for attempting to divide by zero, if this error is not caught by the error handling capabilities of the language, unexpected results can occur.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C#\">\n                  <xhtml:div>int Division(int x, int y){<xhtml:div style=\"margin-left:1em;\">return (x / y);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The method can be modified to raise, catch and handle the DivideByZeroException if the input value used as the denominator is zero.</Body_Text>\n               <Example_Code Nature=\"Good\">\n                  <xhtml:div>int SafeDivision(int x, int y){<xhtml:div style=\"margin-left:1em;\">try{<xhtml:div style=\"margin-left:1em;\">return (x / y);</xhtml:div>}<xhtml:br/>catch (System.DivideByZeroException dbz){<xhtml:div style=\"margin-left:1em;\">System.Console.WriteLine(\"Division by zero attempted!\");<xhtml:br/>return 0;</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <References>\n                  <Reference External_Reference_ID=\"REF-372\"/>\n               </References>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2007-3268",
+      "description": "Invalid size value leads to divide by zero.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-3268"
+    },
+    {
+      "reference": "CVE-2007-2723",
+      "description": "\"Empty\" content triggers divide by zero.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-2723"
+    },
+    {
+      "reference": "CVE-2007-2237",
+      "description": "Height value of 0 triggers divide by zero.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-2237"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-371",
+      "author": [
+        "Alex Allain"
+      ],
+      "title": "Handling Errors Exceptionally Well in C++",
+      "url": "https://www.cprogramming.com/tutorial/exceptions.html",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-372",
+      "author": [
+        "Microsoft"
+      ],
+      "title": "Exceptions and Exception Handling (C# Programming Guide)",
+      "url": "https://msdn.microsoft.com/pl-pl/library/ms173160(v=vs.100).aspx"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Community",
+      "submission_date": "2008-04-11",
+      "submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
+    },
+    "modification": [
+      {
+        "modification_name": "Sean Eidemiller",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "added/updated demonstrative examples"
+      },
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Description, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Demonstrative_Examples, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Demonstrative_Examples, Detection_Factors, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    },
+    {
+      "detection_method_id": "DM-13",
+      "method": "Fuzzing",
+      "description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "OWASP Top Ten 2004",
+      "entry_name": "Denial of Service",
+      "entry_id": "A9",
+      "mapping_fit": "CWE More Specific"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Detect and handle floating point errors",
+      "entry_id": "FLP03-C"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Ensure that division and remainder operations do not result in divide-by-zero errors",
+      "entry_id": "INT33-C",
+      "mapping_fit": "Exact"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Ensure that division and modulo operations do not result in divide-by-zero errors",
+      "entry_id": "NUM02-J"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Glitch in computation",
+      "entry_id": "SFP1"
+    }
+  ]
+}

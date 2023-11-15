@@ -1,0 +1,220 @@
+{
+  "id": "822",
+  "name": "Untrusted Pointer Dereference",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product obtains a value from an untrusted source, converts this value to a pointer, and dereferences the resulting pointer.",
+  "extended_description": "\n            <xhtml:p>An attacker can supply a pointer for memory locations that the product is not expecting. If the pointer is dereferenced for a write operation, the attack might allow modification of critical state variables, cause a crash, or execute code. If the dereferencing operation is for a read, then the attack might allow reading of sensitive data, cause a crash, or set a variable to an unexpected value (since the value will be read from an unexpected memory location).</xhtml:p>\n            <xhtml:p>There are several variants of this weakness, including but not necessarily limited to:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>The untrusted value is directly invoked as a function call.</xhtml:li>\n                  <xhtml:li>In OS kernels or drivers where there is a boundary between \"userland\" and privileged memory spaces, an untrusted pointer might enter through an API or system call (see CWE-781 for one such example).</xhtml:li>\n                  <xhtml:li>Inadvertently accepting the value from an untrusted control sphere when it did not have to be accepted as input at all. This might occur when the code was originally developed to be run by a single user in a non-networked environment, and the code is then ported to or otherwise exposed to a networked environment.</xhtml:li>\n               </xhtml:ul>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "119",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "119",
+      "view_id": "1305",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "119",
+      "view_id": "1340",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "125",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "787",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {},
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Memory"
+      ],
+      "note": "If the untrusted pointer is used in a read operation, an attacker might be able to read sensitive portions of memory."
+    },
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart"
+      ],
+      "note": "If the untrusted pointer references a memory location that is not accessible to the product, or points to a location that is \"malformed\" or larger than expected by a read or write operation, the application may terminate unexpectedly."
+    },
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Availability"
+      ],
+      "impact": [
+        "Execute Unauthorized Code or Commands",
+        "Modify Memory"
+      ],
+      "note": "If the untrusted pointer is used in a function call, or points to unexpected data in a write operation, then code execution may be possible."
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2007-5655",
+      "description": "message-passing framework interprets values in packets as pointers, causing a crash.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-5655"
+    },
+    {
+      "reference": "CVE-2010-2299",
+      "description": "labeled as a \"type confusion\" issue, also referred to as a \"stale pointer.\" However, the bug ID says \"contents are simply interpreted as a pointer... renderer ordinarily doesn't supply this pointer directly\". The \"handle\" in the untrusted area is replaced in one function, but not another - thus also, effectively, exposure to wrong sphere (CWE-668).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-2299"
+    },
+    {
+      "reference": "CVE-2009-1719",
+      "description": "Untrusted dereference using undocumented constructor.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1719"
+    },
+    {
+      "reference": "CVE-2009-1250",
+      "description": "An error code is incorrectly checked and interpreted as a pointer, leading to a crash.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1250"
+    },
+    {
+      "reference": "CVE-2009-0311",
+      "description": "An untrusted value is obtained from a packet and directly called as a function pointer, leading to code execution.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0311"
+    },
+    {
+      "reference": "CVE-2010-1818",
+      "description": "Undocumented attribute in multimedia software allows \"unmarshaling\" of an untrusted pointer.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-1818"
+    },
+    {
+      "reference": "CVE-2010-3189",
+      "description": "ActiveX control for security software accepts a parameter that is assumed to be an initialized pointer.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-3189"
+    },
+    {
+      "reference": "CVE-2010-1253",
+      "description": "Spreadsheet software treats certain record values that lead to \"user-controlled pointer\" (might be untrusted offset, not untrusted pointer).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-1253"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2010-09-22"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Research_Gaps"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Common_Consequences, Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "129"
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "There are close relationships between incorrect pointer dereferences and other weaknesses related to buffer operations. There may not be sufficient community agreement regarding these relationships. Further study is needed to determine when these relationships are chains, composites, perspective/layering, or other types of relationships. As of September 2010, most of the relationships are being captured as chains."
+    },
+    {
+      "type": "Terminology",
+      "text": "Many weaknesses related to pointer dereferences fall under the general term of \"memory corruption\" or \"memory safety.\" As of September 2010, there is no commonly-used terminology that covers the lower-level variants."
+    }
+  ]
+}

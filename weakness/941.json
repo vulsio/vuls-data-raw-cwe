@@ -1,0 +1,137 @@
+{
+  "id": "941",
+  "name": "Incorrectly Specified Destination in a Communication Channel",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product creates a communication channel to initiate an outgoing request to an actor, but it does not correctly specify the intended destination for that actor.",
+  "extended_description": "\n            <xhtml:p>Attackers at the destination may be able to spoof trusted servers to steal data or cause a denial of service.</xhtml:p>\n            <xhtml:p>There are at least two distinct weaknesses that can cause the product to communicate with an unintended destination:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>If the product allows an attacker to control which destination is specified, then the attacker can cause it to connect to an untrusted or malicious destination. For example, because UDP is a connectionless protocol, UDP packets can be spoofed by specifying a false source address in the packet; when the server receives the packet and sends a reply, it will specify a destination by using the source of the incoming packet - i.e., the false source. The server can then be tricked into sending traffic to the wrong host, which is effective for hiding the real source of an attack and for conducting a distributed denial of service (DDoS). As another example, server-side request forgery (SSRF) and XML External Entity (XXE) can be used to trick a server into making outgoing requests to hosts that cannot be directly accessed by the attacker due to firewall restrictions.</xhtml:li>\n                  <xhtml:li>If the product incorrectly specifies the destination, then an attacker who can control this destination might be able to spoof trusted servers. While the most common occurrence is likely due to misconfiguration by an administrator, this can be resultant from other weaknesses. For example, the product might incorrectly parse an e-mail or IP address and send sensitive data to an unintended destination. As another example, an Android application may use a \"sticky broadcast\" to communicate with a receiver for a particular application, but since sticky broadcasts can be processed by *any* receiver, this can allow a malicious application to access restricted data that was only intended for a different application.</xhtml:li>\n               </xhtml:ul>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "923",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "406",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Mobile",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-113",
+      "text": "\n               <Intro_Text>This code listens on a port for DNS requests and sends the result to the requesting address.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)<xhtml:br/>sock.bind( (UDP_IP,UDP_PORT) )<xhtml:br/>while true:<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>data = sock.recvfrom(1024)<xhtml:br/>if not data:<xhtml:div style=\"margin-left:1em;\">break</xhtml:div>\n                           <xhtml:br/>(requestIP, nameToResolve) = parseUDPpacket(data)<xhtml:br/>record = resolveName(nameToResolve)<xhtml:br/>sendResponse(requestIP,record)</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>This code sends a DNS record to a requesting IP address. UDP allows the source IP address to be easily changed ('spoofed'), thus allowing an attacker to redirect responses to a target, which may be then be overwhelmed by the network traffic.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2013-5211",
+      "description": "composite: NTP feature generates large responses (high amplification factor) with spoofed UDP source addresses.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2013-5211"
+    },
+    {
+      "reference": "CVE-1999-0513",
+      "description": "Classic \"Smurf\" attack, using spoofed ICMP packets to broadcast addresses.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0513"
+    },
+    {
+      "reference": "CVE-1999-1379",
+      "description": "DNS query with spoofed source address causes more traffic to be returned to spoofed address than was sent by the attacker.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1379"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-941",
+      "author": [
+        "US-CERT"
+      ],
+      "title": "UDP-based Amplification Attacks",
+      "url": "https://www.us-cert.gov/ncas/alerts/TA14-017A",
+      "publication_year": "2014",
+      "publication_month": "--01",
+      "publication_day": "---17"
+    },
+    {
+      "reference_id": "REF-942",
+      "author": [
+        "Fortify"
+      ],
+      "title": "Android Bad Practices: Sticky Broadcast",
+      "url": "https://www.hpe.com/us/en/solutions/infrastructure-security.html?jumpid=va_wnmstr1ug6_aid-510326901",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2014-02-13"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Modes_of_Introduction, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Applicable_Platforms, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  }
+}

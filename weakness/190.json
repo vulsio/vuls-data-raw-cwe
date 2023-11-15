@@ -1,0 +1,733 @@
+{
+  "id": "190",
+  "name": "Integer Overflow or Wraparound",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Stable",
+  "description": "The product performs a calculation that can produce an integer overflow or wraparound, when the logic assumes that the resulting value will always be larger than the original value. This can introduce other weaknesses when the calculation is used for resource management or execution control.",
+  "extended_description": "An integer overflow or wraparound occurs when an integer value is incremented to a value that is too large to store in the associated representation. When this occurs, the value may wrap to become a very small or negative number. While this may be intended behavior in circumstances that rely on wrapping, it can have security consequences if the wrap is unexpected. This is especially the case if the integer overflow can be triggered using user-supplied inputs. This becomes security-critical when the result is used to control looping, make a security decision, or determine the offset or size in behaviors such as memory allocation, copying, concatenation, etc.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "682",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "682",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "20",
+      "view_id": "700",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "119",
+      "view_id": "1000",
+      "chain_id": "680"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart",
+        "DoS: Resource Consumption (CPU)",
+        "DoS: Resource Consumption (Memory)",
+        "DoS: Instability"
+      ],
+      "note": "This weakness will generally lead to undefined behavior and therefore crashes. In the case of overflows involving loop index variables, the likelihood of infinite loops is also high."
+    },
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Memory"
+      ],
+      "note": "If the value in question is important to data (as opposed to flow), simple data corruption has occurred. Also, if the wrap around results in other conditions such as buffer overflows, further memory corruption may occur."
+    },
+    {
+      "scope": [
+        "Confidentiality",
+        "Availability",
+        "Access Control"
+      ],
+      "impact": [
+        "Execute Unauthorized Code or Commands",
+        "Bypass Protection Mechanism"
+      ],
+      "note": "This weakness can sometimes trigger buffer overflows which can be used to execute arbitrary code. This is usually outside the scope of a program's implicit security policy."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Requirements"
+      ],
+      "description": [
+        "Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-3",
+      "phase": [
+        "Requirements"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>If possible, choose a language or compiler that performs automatic bounds checking.</xhtml:p>\n               "
+      ],
+      "strategy": "Language Selection"
+    },
+    {
+      "mitigation_id": "MIT-4",
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>Use libraries or frameworks that make it easier to handle numbers without unexpected consequences.</xhtml:p>\n                  <xhtml:p>Examples include safe integer handling packages such as SafeInt (C++) or IntegerLib (C or C++). [REF-106]</xhtml:p>\n               "
+      ],
+      "strategy": "Libraries or Frameworks"
+    },
+    {
+      "mitigation_id": "MIT-8",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Perform input validation on any numeric input by ensuring that it is within the expected range. Enforce that the input meets both the minimum and maximum requirements for the expected range.</xhtml:p>\n                  <xhtml:p>Use unsigned integers where possible. This makes it easier to perform validation for integer overflows. When signed integers are required, ensure that the range check includes minimum values as well as maximum values.</xhtml:p>\n               "
+      ],
+      "strategy": "Input Validation"
+    },
+    {
+      "mitigation_id": "MIT-36",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Understand the programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Pay close attention to byte size discrepancies, precision, signed/unsigned distinctions, truncation, conversion and casting between types, \"not-a-number\" calculations, and how the language handles numbers that are too large or too small for its underlying representation. [REF-7]</xhtml:p>\n                  <xhtml:p>Also be careful to account for 32-bit, 64-bit, and other potential differences that may affect the numeric representation.</xhtml:p>\n               "
+      ]
+    },
+    {
+      "mitigation_id": "MIT-15",
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side, in order to avoid CWE-602. Attackers can bypass the client-side checks by modifying values after the checks have been performed, or by changing the client to remove the client-side checks entirely. Then, these modified values would be submitted to the server."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-26",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Examine compiler warnings closely and eliminate problems with potential security implications, such as signed / unsigned mismatch in memory operations, or use of uninitialized variables. Even if the weakness is rarely exploitable, a single failure may lead to the compromise of the entire system."
+      ],
+      "strategy": "Compilation or Build Hardening"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-33",
+      "text": "\n               <Intro_Text>The following image processing code allocates a table for images.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>img_t table_ptr; /*struct containing img data, 10kB each*/<xhtml:br/>int num_imgs;<xhtml:br/>...<xhtml:br/>num_imgs = get_num_imgs();<xhtml:br/>table_ptr = (img_t*)malloc(sizeof(img_t)*num_imgs);<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code intends to allocate a table of size num_imgs, however as num_imgs grows large, the calculation determining the size of the list will eventually overflow (CWE-190). This will result in a very small list to be allocated instead. If the subsequent code operates on the list as if it were num_imgs long, it may result in many types of out-of-bounds problems (CWE-119).</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>The following code excerpt from OpenSSH 3.3 demonstrates a classic case of integer overflow:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>nresp = packet_get_int();<xhtml:br/>if (nresp &gt; 0) {<xhtml:div style=\"margin-left:1em;\">response = xmalloc(nresp*sizeof(char*));<xhtml:br/>for (i = 0; i &lt; nresp; i++) response[i] = packet_get_string(NULL);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If nresp has the value 1073741824 and sizeof(char*) has its typical value of 4, then the result of the operation nresp*sizeof(char*) overflows, and the argument to xmalloc() will be 0. Most malloc() implementations will happily allocate a 0-byte buffer, causing the subsequent loop iterations to overflow the heap buffer response.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>Integer overflows can be complicated and difficult to detect. The following example is an attempt to show how an integer overflow may lead to undefined looping behavior:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>short int bytesRec = 0;<xhtml:br/>char buf[SOMEBIGNUM];<xhtml:br/>\n                     <xhtml:br/>while(bytesRec &lt; MAXGET) {<xhtml:div style=\"margin-left:1em;\">bytesRec += getFromInput(buf+bytesRec);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In the above case, it is entirely possible that bytesRec may overflow, continuously creating a lower number than MAXGET and also overwriting the first MAXGET-1 bytes of buf.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>In this example the method determineFirstQuarterRevenue is used to determine the first quarter revenue for an accounting/business application. The method retrieves the monthly sales totals for the first three months of the year, calculates the first quarter sales totals from the monthly sales totals, calculates the first quarter revenue based on the first quarter sales, and finally saves the first quarter revenue results to the database.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define JAN 1<xhtml:br/>#define FEB 2<xhtml:br/>#define MAR 3<xhtml:br/>\n                     <xhtml:br/>short getMonthlySales(int month) {...}<xhtml:br/>\n                     <xhtml:br/>float calculateRevenueForQuarter(short quarterSold) {...}<xhtml:br/>\n                     <xhtml:br/>int determineFirstQuarterRevenue() {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>// Variable for sales revenue for the quarter</xhtml:i>\n                           <xhtml:br/>float quarterRevenue = 0.0f;<xhtml:br/>\n                           <xhtml:br/>short JanSold = getMonthlySales(JAN); /* Get sales in January */<xhtml:br/>short FebSold = getMonthlySales(FEB); /* Get sales in February */<xhtml:br/>short MarSold = getMonthlySales(MAR); /* Get sales in March */<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// Calculate quarterly total</xhtml:i>\n                           <xhtml:br/>short quarterSold = JanSold + FebSold + MarSold;<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// Calculate the total revenue for the quarter</xhtml:i>\n                           <xhtml:br/>quarterRevenue = calculateRevenueForQuarter(quarterSold);<xhtml:br/>\n                           <xhtml:br/>saveFirstQuarterRevenue(quarterRevenue);<xhtml:br/>\n                           <xhtml:br/>return 0;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, in this example the primitive type short int is used for both the monthly and the quarterly sales variables. In C the short int primitive type has a maximum value of 32768. This creates a potential integer overflow if the value for the three monthly sales adds up to more than the maximum value for the short int primitive type. An integer overflow can lead to data corruption, unexpected behavior, infinite loops and system crashes. To correct the situation the appropriate primitive type should be used, as in the example below, and/or provide some validation mechanism to ensure that the maximum value for the primitive type is not exceeded.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>...<xhtml:br/>float calculateRevenueForQuarter(long quarterSold) {...}<xhtml:br/>\n                     <xhtml:br/>int determineFirstQuarterRevenue() {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>...<xhtml:br/>\n                           <xhtml:i>// Calculate quarterly total</xhtml:i>\n                           <xhtml:br/>long quarterSold = JanSold + FebSold + MarSold;<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// Calculate the total revenue for the quarter</xhtml:i>\n                           <xhtml:br/>quarterRevenue = calculateRevenueForQuarter(quarterSold);<xhtml:br/>\n                           <xhtml:br/>...</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Note that an integer overflow could also occur if the quarterSold variable has a primitive type long but the method calculateRevenueForQuarter has a parameter of type short.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-43537",
+      "description": "Chain: in a web browser, an unsigned 64-bit integer is foribly cast to a 32-bit integer (CWE-681) and potentially leading to an integer overflow (CWE-190). If an integer overflow occurs, this can cause heap memory corruption (CWE-122)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-43537"
+    },
+    {
+      "reference": "CVE-2022-21668",
+      "description": "Chain: Python library does not limit the resources used to process images that specify a very large number of bands (CWE-1284), leading to excessive memory consumption (CWE-789) or an integer overflow (CWE-190).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-21668"
+    },
+    {
+      "reference": "CVE-2022-0545",
+      "description": "Chain: 3D renderer has an integer overflow (CWE-190) leading to write-what-where condition (CWE-123) using a crafted image.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-0545"
+    },
+    {
+      "reference": "CVE-2021-30860",
+      "description": "Chain: improper input validation (CWE-20) leads to integer overflow (CWE-190) in mobile OS, as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-30860"
+    },
+    {
+      "reference": "CVE-2021-30663",
+      "description": "Chain: improper input validation (CWE-20) leads to integer overflow (CWE-190) in mobile OS, as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-30663"
+    },
+    {
+      "reference": "CVE-2018-10887",
+      "description": "Chain: unexpected sign extension (CWE-194) leads to integer overflow (CWE-190), causing an out-of-bounds read (CWE-125)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2018-10887"
+    },
+    {
+      "reference": "CVE-2019-1010006",
+      "description": "Chain: compiler optimization (CWE-733) removes or modifies code used to detect integer overflow (CWE-190), allowing out-of-bounds write (CWE-787).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-1010006"
+    },
+    {
+      "reference": "CVE-2010-1866",
+      "description": "Chain: integer overflow (CWE-190) causes a negative signed value, which later bypasses a maximum-only check (CWE-839), leading to heap-based buffer overflow (CWE-122).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-1866"
+    },
+    {
+      "reference": "CVE-2010-2753",
+      "description": "Chain: integer overflow leads to use-after-free",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-2753"
+    },
+    {
+      "reference": "CVE-2005-1513",
+      "description": "Chain: integer overflow in securely-coded mail program leads to buffer overflow. In 2005, this was regarded as unrealistic to exploit, but in 2020, it was rediscovered to be easier to exploit due to evolutions of the technology.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1513"
+    },
+    {
+      "reference": "CVE-2002-0391",
+      "description": "Integer overflow via a large number of arguments.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0391"
+    },
+    {
+      "reference": "CVE-2002-0639",
+      "description": "Integer overflow in OpenSSH as listed in the demonstrative examples.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0639"
+    },
+    {
+      "reference": "CVE-2005-1141",
+      "description": "Image with large width and height leads to integer overflow.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1141"
+    },
+    {
+      "reference": "CVE-2005-0102",
+      "description": "Length value of -1 leads to allocation of 0 bytes and resultant heap overflow.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0102"
+    },
+    {
+      "reference": "CVE-2004-2013",
+      "description": "Length value of -1 leads to allocation of 0 bytes and resultant heap overflow.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2013"
+    },
+    {
+      "reference": "CVE-2017-1000121",
+      "description": "chain: unchecked message size metadata allows integer overflow (CWE-190) leading to buffer overflow (CWE-119).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2017-1000121"
+    },
+    {
+      "reference": "CVE-2013-1591",
+      "description": "Chain: an integer overflow (CWE-190) in the image size calculation causes an infinite loop (CWE-835) which sequentially allocates buffers without limits (CWE-1325) until the stack is full.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2013-1591"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-145",
+      "author": [
+        "Yves Younan"
+      ],
+      "title": "An overview of common programming security vulnerabilities and possible solutions",
+      "url": "http://fort-knox.org/thesis.pdf",
+      "publication_year": "2003",
+      "publication_month": "--08",
+      "publication": "Student thesis section 5.4.3"
+    },
+    {
+      "reference_id": "REF-146",
+      "author": [
+        "blexim"
+      ],
+      "title": "Basic Integer Overflows",
+      "url": "http://www.phrack.org/issues.html?issue=60&id=10#article",
+      "publication": "Phrack - Issue 60, Chapter 10"
+    },
+    {
+      "section": "Chapter 20, \"Integer Overflows\" Page 620",
+      "reference_id": "REF-7",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc"
+      ],
+      "title": "Writing Secure Code",
+      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+      "publication_year": "2002",
+      "publication_month": "--12",
+      "publication_day": "---04",
+      "publisher": "Microsoft Press",
+      "edition": "2nd Edition"
+    },
+    {
+      "section": "\"Sin 7: Integer Overflows.\" Page 119",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    },
+    {
+      "reference_id": "REF-106",
+      "author": [
+        "David LeBlanc",
+        "Niels Dekker"
+      ],
+      "title": "SafeInt",
+      "url": "http://safeint.codeplex.com/"
+    },
+    {
+      "reference_id": "REF-150",
+      "author": [
+        "Johannes Ullrich"
+      ],
+      "title": "Top 25 Series - Rank 17 - Integer Overflow Or Wraparound",
+      "url": "http://software-security.sans.org/blog/2010/03/18/top-25-series-rank-17-integer-overflow-or-wraparound",
+      "publication_year": "2010",
+      "publication_month": "--03",
+      "publication_day": "---18",
+      "publisher": "SANS Software Security Institute"
+    },
+    {
+      "section": "Chapter 6, \"Signed Integer Boundaries\", Page 220",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Relationships, Relationship_Notes, Taxonomy_Mappings, Terminology_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Common_Consequences, Description, Potential_Mitigations, Terminology_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-01-12",
+        "modification_comment": "updated Description, Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Applicable_Platforms, Detection_Factors, Functional_Areas, Observed_Examples, Potential_Mitigations, References, Related_Attack_Patterns, Relationships, Taxonomy_Mappings, Terminology_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Demonstrative_Examples, Detection_Factors, Potential_Mitigations, References, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Common_Consequences, Potential_Mitigations, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-09-27",
+        "modification_comment": "updated Observed_Examples, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Potential_Mitigations, References, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-07-17",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Detection_Factors, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Functional_Areas, Observed_Examples, References, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-09-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description, Detection_Factors"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Integer Overflow (Wrap or Wraparound)",
+        "date": "2009-01-12"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
+        "contribution_date": "2023-04-25",
+        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-1",
+      "method": "Automated Static Analysis",
+      "description": "This weakness can often be detected using automated static analysis tools. Many modern tools use data flow analysis or constraint-based techniques to minimize the number of false positives.",
+      "effectiveness": "High"
+    },
+    {
+      "detection_method_id": "DM-2",
+      "method": "Black Box",
+      "description": "Sometimes, evidence of this weakness can be detected using dynamic tools and techniques that interact with the product using large test suites with many diverse inputs, such as fuzz testing (fuzzing), robustness testing, and fault injection. The product's operation may slow down, but it should not become unstable, crash, or generate incorrect results.",
+      "effectiveness": "Moderate",
+      "effectiveness_notes": "Without visibility into the code, black box methods may not be able to sufficiently distinguish this weakness from others, requiring follow-up manual methods to diagnose the underlying problem."
+    },
+    {
+      "detection_method_id": "DM-7",
+      "method": "Manual Analysis",
+      "description": "\n                  <xhtml:p>This weakness can be detected using tools and techniques that require manual (human) analysis, such as penetration testing, threat modeling, and interactive tools that allow the tester to record and modify an active session.</xhtml:p>\n                  <xhtml:p>Specifically, manual static analysis is useful for evaluating the correctness of allocation calculations. This can be useful for detecting overflow conditions (CWE-190) or similar weaknesses that might have serious security impacts on the program.</xhtml:p>\n               ",
+      "effectiveness": "High",
+      "effectiveness_notes": "These may be more effective than strictly automated techniques. This is especially the case with weaknesses that are related to design and business rules."
+    },
+    {
+      "method": "Automated Static Analysis - Binary or Bytecode",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                           <xhtml:li>Binary Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Dynamic Analysis with Manual Results Interpretation",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Manual Static Analysis - Source Code",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Automated Static Analysis - Source Code",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Architecture or Design Review",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Integer overflow (wrap or wraparound)"
+    },
+    {
+      "taxonomy_name": "7 Pernicious Kingdoms",
+      "entry_name": "Integer Overflow"
+    },
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Integer overflow"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Evaluate integer expressions in a larger size before comparing or assigning to that size",
+      "entry_id": "INT18-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Ensure that unsigned integer operations do not wrap",
+      "entry_id": "INT30-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Ensure that operations on signed integers do not result in overflow",
+      "entry_id": "INT32-C",
+      "mapping_fit": "Imprecise"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Evaluate integer expressions in a larger size before comparing or assigning to that size",
+      "entry_id": "INT35-C"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Ensure that the arguments to calloc(), when multiplied, do not wrap",
+      "entry_id": "MEM07-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Allocate sufficient memory for an object",
+      "entry_id": "MEM35-C"
+    },
+    {
+      "taxonomy_name": "WASC",
+      "entry_name": "Integer Overflows",
+      "entry_id": "3"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Glitch in computation",
+      "entry_id": "SFP1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SR 3.5",
+      "entry_id": "Part 3-3"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SR 7.2",
+      "entry_id": "Part 3-3"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SR-2",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SI-2",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SVV-1",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SVV-3",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 3.5",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 7.2",
+      "entry_id": "Part 4-2"
+    }
+  ],
+  "related_attack_patterns": [
+    "92"
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "Integer overflows can be primary to buffer overflows."
+    },
+    {
+      "type": "Terminology",
+      "text": "\"Integer overflow\" is sometimes used to cover several types of errors, including signedness errors, or buffer overflows that involve manipulation of integer data types instead of characters. Part of the confusion results from the fact that 0xffffffff is -1 in a signed context. Other confusion also arises because of the role that integer overflows have in chains."
+    }
+  ],
+  "functional_areas": [
+    "Number Processing",
+    "Memory Management",
+    "Counters"
+  ]
+}

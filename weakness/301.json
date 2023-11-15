@@ -1,0 +1,205 @@
+{
+  "id": "301",
+  "name": "Reflection Attack in an Authentication Protocol",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "Simple authentication protocols are subject to reflection attacks if a malicious user can use the target machine to impersonate a trusted user.",
+  "extended_description": "\n\t\t   <xhtml:p>A mutual authentication protocol requires each party to respond to a random challenge by the other party by encrypting it with a pre-shared key. Often, however, such protocols employ the same pre-shared key for communication with a number of different entities. A malicious user or an attacker can easily compromise this protocol without possessing the correct key by employing a reflection attack on the protocol.</xhtml:p>\n            <xhtml:p>Reflection attacks capitalize on mutual authentication schemes in order to trick the target into revealing the secret shared between it and another valid user. In a basic mutual-authentication scheme, a secret is known to both the valid user and the server; this allows them to authenticate. In order that they may verify this shared secret without sending it plainly over the wire, they utilize a Diffie-Hellman-style scheme in which they each pick a value, then request the hash of that value as keyed by the shared secret. In a reflection attack, the attacker claims to be a valid user and requests the hash of a random value from the server. When the server returns this value and requests its own value to be hashed, the attacker opens another connection to the server. This time, the hash requested by the attacker is the value which the server requested in the first connection. When the server returns this hashed value, it is used in the first connection, authenticating the attacker successfully as the impersonated valid user.</xhtml:p>\n\t\t ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1390",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "327",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
+      ]
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "The primary result of reflection attacks is successful authentication with a target machine -- as an impersonated user."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Use different keys for the initiator and responder or of a different type of challenge for the initiator and responder."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Let the initiator prove its identity before proceeding."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned char *simple_digest(char *alg,char *buf,unsigned int len, int *olen) {<xhtml:div style=\"margin-left:1em;\">const EVP_MD *m;<xhtml:br/>EVP_MD_CTX ctx;<xhtml:br/>unsigned char *ret;<xhtml:br/>OpenSSL_add_all_digests();<xhtml:br/>if (!(m = EVP_get_digestbyname(alg))) return NULL;<xhtml:br/>if (!(ret = (unsigned char*)malloc(EVP_MAX_MD_SIZE))) return NULL;<xhtml:br/>EVP_DigestInit(&amp;ctx, m);<xhtml:br/>EVP_DigestUpdate(&amp;ctx,buf,len);<xhtml:br/>EVP_DigestFinal(&amp;ctx,ret,olen);<xhtml:br/>return ret;</xhtml:div>}<xhtml:br/>unsigned char *generate_password_and_cmd(char *password_and_cmd) {<xhtml:div style=\"margin-left:1em;\">simple_digest(\"sha1\",password,strlen(password_and_cmd)<xhtml:br/>...<xhtml:br/>);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String command = new String(\"some cmd to execute &amp; the password\") MessageDigest encer = MessageDigest.getInstance(\"SHA\");<xhtml:br/>encer.update(command.getBytes(\"UTF-8\"));<xhtml:br/>byte[] digest = encer.digest();</xhtml:div>\n               </Example_Code>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2005-3435",
+      "description": "product authentication succeeds if user-provided MD5 hash matches the hash in its database; this can be subjected to replay attacks.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3435"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    },
+    {
+      "section": "Chapter 2, \"Insufficient Validation\", Page 38",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Description, Maintenance_Notes, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Observed_Examples, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Description, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Reflection attack in an auth protocol"
+    },
+    {
+      "taxonomy_name": "OWASP Top Ten 2007",
+      "entry_name": "Broken Authentication and Session Management",
+      "entry_id": "A7",
+      "mapping_fit": "CWE More Specific"
+    }
+  ],
+  "related_attack_patterns": [
+    "90"
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "The term \"reflection\" is used in multiple ways within CWE and the community, so its usage should be reviewed."
+    }
+  ]
+}

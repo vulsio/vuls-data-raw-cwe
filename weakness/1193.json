@@ -1,0 +1,94 @@
+{
+  "id": "1193",
+  "name": "Power-On of Untrusted Execution Core Before Enabling Fabric Access Control",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product enables components that contain untrusted firmware before memory and fabric access controls have been enabled.",
+  "extended_description": "\n\t  <xhtml:p>\n\t   After initial reset, System-on-Chip (SoC) fabric access controls and other\n           security features need to be programmed by trusted firmware as part\n           of the boot sequence. If untrusted IPs or peripheral microcontrollers\n\t   are enabled first, then the untrusted component can master\n           transactions on the hardware bus and target memory or other assets to\n           compromise the SoC boot firmware.</xhtml:p>",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "696",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {},
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism"
+      ],
+      "note": "An untrusted component can master transactions on the HW bus and target memory or other assets to compromise the SoC boot firmware.",
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>The boot sequence should enable fabric access controls and memory protections before enabling third-party hardware IPs and peripheral microcontrollers that use untrusted firmware.</xhtml:p>\n                "
+      ]
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1130",
+      "author": [
+        "Mark Ermolov, Positive Technologies"
+      ],
+      "title": "Intel x86 Root of Trust: loss of trust",
+      "url": "https://blog.ptsecurity.com/2020/03/intelx86-root-of-trust-loss-of-trust.html",
+      "publication_year": "2020",
+      "publication_month": "--03",
+      "publication_day": "---05"
+    },
+    {
+      "reference_id": "REF-1042",
+      "author": [
+        "Maximillian Dornseif"
+      ],
+      "title": "Owned by an iPod",
+      "url": "https://web.archive.org/web/20060505224959/https://pacsec.jp/psj04/psj04-dornseif-e.ppt",
+      "publication_year": "2004",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2019-10-15"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated References, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "1",
+    "180"
+  ]
+}

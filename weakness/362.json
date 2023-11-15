@@ -1,0 +1,714 @@
+{
+  "id": "362",
+  "name": "Concurrent Execution using Shared Resource with Improper Synchronization ('Race Condition')",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product contains a code sequence that can run concurrently with other code, and the code sequence requires temporary, exclusive access to a shared resource, but a timing window exists in which the shared resource can be modified by another code sequence that is operating concurrently.",
+  "extended_description": "\n            <xhtml:p>This can have security implications when the expected synchronization is in security-critical code, such as recording whether a user is authenticated or modifying important state information that should not be influenced by an outsider.</xhtml:p>\n            <xhtml:p>A race condition occurs within concurrent environments, and is effectively a property of a code sequence. Depending on the context, a code sequence may be in the form of a function call, a small number of instructions, a series of program invocations, etc.</xhtml:p>\n            <xhtml:p>A race condition violates these properties, which are closely related:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>Exclusivity - the code sequence is given exclusive access to the shared resource, i.e., no other code sequence can modify properties of the shared resource before the original sequence has completed execution.</xhtml:li>\n                  <xhtml:li>Atomicity - the code sequence is behaviorally atomic, i.e., no other thread or process can concurrently execute the same sequence of instructions (or a subset) against the same resource.</xhtml:li>\n               </xhtml:ul>\n            <xhtml:p>A race condition exists when an \"interfering code sequence\" can still access the shared resource, violating exclusivity. Programmers may assume that certain code sequences execute too quickly to be affected by an interfering code sequence; when they are not, this violates atomicity. For example, the single \"x++\" statement may appear atomic at the code layer, but it is actually non-atomic at the instruction layer, since it involves a read (the original value of x), followed by a computation (x+1), followed by a write (save the result to x).</xhtml:p>\n            <xhtml:p>The interfering code sequence could be \"trusted\" or \"untrusted.\" A trusted interfering code sequence occurs within the product; it cannot be modified by the attacker, and it can only be invoked indirectly. An untrusted interfering code sequence can be authored directly by the attacker, and typically it is external to the vulnerable product.</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "691",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Sometimes",
+        "name": "C"
+      },
+      {
+        "prevalence": "Sometimes",
+        "name": "C++"
+      },
+      {
+        "prevalence": "Sometimes",
+        "name": "Java"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Mobile",
+        "prevalence": "Undetermined"
+      },
+      {
+        "class": "ICS/OT",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Resource Consumption (CPU)",
+        "DoS: Resource Consumption (Memory)",
+        "DoS: Resource Consumption (Other)"
+      ],
+      "note": "When a race condition makes it possible to bypass a resource cleanup routine or trigger multiple initialization routines, it may lead to resource exhaustion (CWE-400)."
+    },
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart",
+        "DoS: Instability"
+      ],
+      "note": "When a race condition allows multiple control flows to access a resource simultaneously, it might lead the product(s) into unexpected states, possibly resulting in a crash."
+    },
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity"
+      ],
+      "impact": [
+        "Read Files or Directories",
+        "Read Application Data"
+      ],
+      "note": "When a race condition is combined with predictable resource names and loose permissions, it may be possible for an attacker to overwrite or access confidential data (CWE-59)."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "In languages that support it, use synchronization primitives. Only wrap these around critical code to minimize the impact on performance."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Use thread-safe capabilities such as the data access abstraction in Spring."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Minimize the usage of shared resources in order to remove as much complexity as possible from the control flow and to reduce the likelihood of unexpected conditions occurring.</xhtml:p>\n                  <xhtml:p>Additionally, this will minimize the amount of synchronization necessary and may even help to reduce the likelihood of a denial of service where an attacker may be able to repeatedly trigger a critical section (CWE-400).</xhtml:p>\n               "
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "When using multithreading and operating on shared variables, only use thread-safe functions."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use atomic operations on shared variables. Be wary of innocent-looking constructs such as \"x++\". This may appear atomic at the code layer, but it is actually non-atomic at the instruction layer, since it involves a read, followed by a computation, followed by a write."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use a mutex if available, but be sure to avoid related weaknesses such as CWE-412."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Avoid double-checked locking (CWE-609) and other implementation errors that arise when trying to avoid the overhead of synchronization."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Disable interrupts or signals over critical parts of the code, but also make sure that the code does not go into a large or infinite loop."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use the volatile type modifier for critical variables to avoid unexpected compiler optimization or reordering. This does not necessarily solve the synchronization problem, but it can help."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-17",
+      "phase": [
+        "Architecture and Design",
+        "Operation"
+      ],
+      "description": [
+        "Run your code using the lowest privileges that are required to accomplish the necessary tasks [REF-76]. If possible, create isolated accounts with limited privileges that are only used for a single task. That way, a successful attack will not immediately give the attacker access to the rest of the software or its environment. For example, database applications rarely need to run as the database administrator, especially in day-to-day operations."
+      ],
+      "strategy": "Environment Hardening"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>This code could be used in an e-commerce application that supports transfers between accounts. It takes the total amount of the transfer, sends it to the new account, and deducts the amount from the original account.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>$transfer_amount = GetTransferAmount();<xhtml:br/>$balance = GetBalanceFromDatabase();<xhtml:br/>\n                     <xhtml:br/>if ($transfer_amount &lt; 0) {<xhtml:div style=\"margin-left:1em;\">FatalError(\"Bad Transfer Amount\");</xhtml:div>}<xhtml:br/>$newbalance = $balance - $transfer_amount;<xhtml:br/>if (($balance - $transfer_amount) &lt; 0) {<xhtml:div style=\"margin-left:1em;\">FatalError(\"Insufficient Funds\");</xhtml:div>}<xhtml:br/>SendNewBalanceToDatabase($newbalance);<xhtml:br/>NotifyUser(\"Transfer of $transfer_amount succeeded.\");<xhtml:br/>NotifyUser(\"New balance: $newbalance\");</xhtml:div>\n               </Example_Code>\n               <Body_Text>A race condition could occur between the calls to GetBalanceFromDatabase() and SendNewBalanceToDatabase().</Body_Text>\n               <Body_Text>Suppose the balance is initially 100.00. An attack could be constructed as follows:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"Other\">\n                  <xhtml:div>In the following pseudocode, the attacker makes two simultaneous calls of the program, CALLER-1 and CALLER-2. Both callers are for the same user account.<xhtml:br/>CALLER-1 (the attacker) is associated with PROGRAM-1 (the instance that handles CALLER-1). CALLER-2 is associated with PROGRAM-2.<xhtml:br/>CALLER-1 makes a transfer request of 80.00.<xhtml:br/>PROGRAM-1 calls GetBalanceFromDatabase and sets $balance to 100.00<xhtml:br/>PROGRAM-1 calculates $newbalance as 20.00, then calls SendNewBalanceToDatabase().<xhtml:br/>Due to high server load, the PROGRAM-1 call to SendNewBalanceToDatabase() encounters a delay.<xhtml:br/>CALLER-2 makes a transfer request of 1.00.<xhtml:br/>PROGRAM-2 calls GetBalanceFromDatabase() and sets $balance to 100.00. This happens because the previous PROGRAM-1 request was not processed yet.<xhtml:br/>PROGRAM-2 determines the new balance as 99.00.<xhtml:br/>After the initial delay, PROGRAM-1 commits its balance to the database, setting it to 20.00.<xhtml:br/>PROGRAM-2 sends a request to update the database, setting the balance to 99.00</xhtml:div>\n               </Example_Code>\n               <Body_Text>At this stage, the attacker should have a balance of 19.00 (due to 81.00 worth of transfers), but the balance is 99.00, as recorded in the database.</Body_Text>\n               <Body_Text>To prevent this weakness, the programmer has several options, including using a lock to prevent multiple simultaneous requests to the web application, or using a synchronization mechanism that includes all the code between GetBalanceFromDatabase() and SendNewBalanceToDatabase().</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-24",
+      "text": "\n               <Intro_Text>The following function attempts to acquire a lock in order to perform operations on a shared resource.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void f(pthread_mutex_t *mutex) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>pthread_mutex_lock(mutex);<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* access shared resource */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:br/>pthread_mutex_unlock(mutex);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the code does not check the value returned by pthread_mutex_lock() for errors. If pthread_mutex_lock() cannot acquire the mutex for any reason, the function may introduce a race condition into the program and result in undefined behavior.</Body_Text>\n               <Body_Text>In order to avoid data races, correctly written programs must check the result of thread synchronization functions and appropriately handle all errors, either by attempting to recover from them or reporting them to higher levels.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>int f(pthread_mutex_t *mutex) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int result;<xhtml:br/>\n                           <xhtml:br/>result = pthread_mutex_lock(mutex);<xhtml:br/>if (0 != result)<xhtml:div style=\"margin-left:1em;\">return result;</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* access shared resource */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:br/>return pthread_mutex_unlock(mutex);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-132",
+      "text": "\n\t       <Intro_Text>Suppose a processor's Memory Management Unit (MMU) has 5 other shadow MMUs to distribute its workload for its various cores. Each MMU has the start address and end address of \"accessible\" memory. Any time this accessible range changes (as per the processor's boot status), the main MMU sends an update message to all the shadow MMUs.</Intro_Text>\n\t       <Body_Text>Suppose the interconnect fabric does not prioritize such \"update\" packets over other general traffic packets. This introduces a race condition. If an attacker can flood the target with enough messages so that some of those attack packets reach the target before the new access ranges gets updated, then the attacker can leverage this scenario.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2022-29527",
+      "description": "Go application for cloud management creates a world-writable sudoers file that allows local attackers to inject sudo rules and escalate privileges to root by winning a race condition.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-29527"
+    },
+    {
+      "reference": "CVE-2021-1782",
+      "description": "Chain: improper locking (CWE-667) leads to race condition (CWE-362), as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-1782"
+    },
+    {
+      "reference": "CVE-2021-0920",
+      "description": "Chain: mobile platform race condition (CWE-362) leading to use-after-free (CWE-416), as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-0920"
+    },
+    {
+      "reference": "CVE-2020-6819",
+      "description": "Chain: race condition (CWE-362) leads to use-after-free (CWE-416), as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-6819"
+    },
+    {
+      "reference": "CVE-2019-18827",
+      "description": "chain: JTAG interface is not disabled (CWE-1191) during ROM code execution, introducing a race condition (CWE-362) to extract encryption keys",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-18827"
+    },
+    {
+      "reference": "CVE-2019-1161",
+      "description": "Chain: race condition (CWE-362) in anti-malware product allows deletion of files by creating a junction (CWE-1386) and using hard links during the time window in which a temporary file is created and deleted.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-1161"
+    },
+    {
+      "reference": "CVE-2015-1743",
+      "description": "TOCTOU in sandbox process allows installation of untrusted browser add-ons by replacing a file after it has been verified, but before it is executed",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2015-1743"
+    },
+    {
+      "reference": "CVE-2014-8273",
+      "description": "Chain: chipset has a race condition (CWE-362) between when an interrupt handler detects an attempt to write-enable the BIOS (in violation of the lock bit), and when the handler resets the write-enable bit back to 0, allowing attackers to issue BIOS writes during the timing window [REF-1237].",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2014-8273"
+    },
+    {
+      "reference": "CVE-2008-5044",
+      "description": "Race condition leading to a crash by calling a hook removal procedure while other activities are occurring at the same time.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-5044"
+    },
+    {
+      "reference": "CVE-2008-2958",
+      "description": "chain: time-of-check time-of-use (TOCTOU) race condition in program allows bypass of protection mechanism that was designed to prevent symlink attacks.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2958"
+    },
+    {
+      "reference": "CVE-2008-1570",
+      "description": "chain: time-of-check time-of-use (TOCTOU) race condition in program allows bypass of protection mechanism that was designed to prevent symlink attacks.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-1570"
+    },
+    {
+      "reference": "CVE-2008-0058",
+      "description": "Unsynchronized caching operation enables a race condition that causes messages to be sent to a deallocated object.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-0058"
+    },
+    {
+      "reference": "CVE-2008-0379",
+      "description": "Race condition during initialization triggers a buffer overflow.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-0379"
+    },
+    {
+      "reference": "CVE-2007-6599",
+      "description": "Daemon crash by quickly performing operations and undoing them, which eventually leads to an operation that does not acquire a lock.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-6599"
+    },
+    {
+      "reference": "CVE-2007-6180",
+      "description": "chain: race condition triggers NULL pointer dereference",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-6180"
+    },
+    {
+      "reference": "CVE-2007-5794",
+      "description": "Race condition in library function could cause data to be sent to the wrong process.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-5794"
+    },
+    {
+      "reference": "CVE-2007-3970",
+      "description": "Race condition in file parser leads to heap corruption.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-3970"
+    },
+    {
+      "reference": "CVE-2008-5021",
+      "description": "chain: race condition allows attacker to access an object while it is still being initialized, causing software to access uninitialized memory.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-5021"
+    },
+    {
+      "reference": "CVE-2009-4895",
+      "description": "chain: race condition for an argument value, possibly resulting in NULL dereference",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-4895"
+    },
+    {
+      "reference": "CVE-2009-3547",
+      "description": "chain: race condition might allow resource to be released before operating on it, leading to NULL dereference",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-3547"
+    },
+    {
+      "reference": "CVE-2006-5051",
+      "description": "Chain: Signal handler contains too much functionality (CWE-828), introducing a race condition (CWE-362) that leads to a double free (CWE-415).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-5051"
+    }
+  ],
+  "references": [
+    {
+      "section": "\"Sin 13: Race Conditions.\" Page 205",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    },
+    {
+      "reference_id": "REF-349",
+      "author": [
+        "Andrei Alexandrescu"
+      ],
+      "title": "volatile - Multithreaded Programmer's Best Friend",
+      "url": "https://drdobbs.com/cpp/volatile-the-multithreaded-programmers-b/184403766",
+      "publication_year": "2008",
+      "publication_month": "--02",
+      "publication_day": "---01",
+      "publication": "Dr. Dobb's",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-350",
+      "author": [
+        "Steven Devijver"
+      ],
+      "title": "Thread-safe webapps using Spring",
+      "url": "https://web.archive.org/web/20170609174845/http://www.javalobby.org/articles/thread-safe/index.jsp",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-351",
+      "author": [
+        "David Wheeler"
+      ],
+      "title": "Prevent race conditions",
+      "url": "https://www.ida.liu.se/~TDDC90/literature/papers/SP-race-conditions.pdf",
+      "publication_year": "2007",
+      "publication_month": "--10",
+      "publication_day": "---04",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-352",
+      "author": [
+        "Matt Bishop"
+      ],
+      "title": "Race Conditions, Files, and Security Flaws; or the Tortoise and the Hare Redux",
+      "url": "https://seclab.cs.ucdavis.edu/projects/vulnerabilities/scriv/ucd-ecs-95-08.pdf",
+      "publication_year": "1995",
+      "publication_month": "--09",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-353",
+      "author": [
+        "David Wheeler"
+      ],
+      "title": "Secure Programming for Linux and Unix HOWTO",
+      "url": "https://dwheeler.com/secure-programs/Secure-Programs-HOWTO/avoid-race.html",
+      "publication_year": "2003",
+      "publication_month": "--03",
+      "publication_day": "---03",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-354",
+      "author": [
+        "Blake Watts"
+      ],
+      "title": "Discovering and Exploiting Named Pipe Security Flaws for Fun and Profit",
+      "url": "https://www.blakewatts.com/blog/discovering-and-exploiting-named-pipe-security-flaws-for-fun-and-profit",
+      "publication_year": "2002",
+      "publication_month": "--04",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-355",
+      "author": [
+        "Roberto Paleari",
+        "Davide Marrone",
+        "Danilo Bruschi",
+        "Mattia Monga"
+      ],
+      "title": "On Race Vulnerabilities in Web Applications",
+      "url": "http://security.dico.unimi.it/~roberto/pubs/dimva08-web.pdf"
+    },
+    {
+      "reference_id": "REF-356",
+      "title": "Avoiding Race Conditions and Insecure File Operations",
+      "url": "https://web.archive.org/web/20081010155022/http://developer.apple.com/documentation/Security/Conceptual/SecureCodingGuide/Articles/RaceConditions.html",
+      "publication": "Apple Developer Connection",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-357",
+      "author": [
+        "Johannes Ullrich"
+      ],
+      "title": "Top 25 Series - Rank 25 - Race Conditions",
+      "url": "https://web.archive.org/web/20100530231203/http://blogs.sans.org:80/appsecstreetfighter/2010/03/26/top-25-series-rank-25-race-conditions/",
+      "publication_year": "2010",
+      "publication_month": "--03",
+      "publication_day": "---26",
+      "publisher": "SANS Software Security Institute",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-76",
+      "author": [
+        "Sean Barnum",
+        "Michael Gegick"
+      ],
+      "title": "Least Privilege",
+      "url": "https://web.archive.org/web/20211209014121/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/least-privilege",
+      "publication_year": "2005",
+      "publication_month": "--09",
+      "publication_day": "---14",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1237",
+      "author": [
+        "CERT Coordination Center"
+      ],
+      "title": "Intel BIOS locking mechanism contains race condition that enables write protection bypass",
+      "url": "https://www.kb.cert.org/vuls/id/766164/",
+      "publication_year": "2015",
+      "publication_month": "--01",
+      "publication_day": "---05"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-01-12",
+        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Description, Likelihood_of_Exploit, Maintenance_Notes, Observed_Examples, Potential_Mitigations, References, Relationships, Research_Gaps"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Detection_Factors, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Detection_Factors, Potential_Mitigations, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-09-27",
+        "modification_comment": "updated Observed_Examples, Potential_Mitigations, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Name, Potential_Mitigations, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Potential_Mitigations, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Demonstrative_Examples, References, Research_Gaps, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Observed_Examples, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Observed_Examples, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes, Relationships"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Race Conditions",
+        "date": "2008-04-11"
+      },
+      {
+        "text": "Race Condition",
+        "date": "2010-12-13"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Martin Sebor",
+        "contribution_organization": "Cisco Systems, Inc.",
+        "contribution_date": "2010-04-30",
+        "contribution_comment": "Provided Demonstrative Example"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "method": "Black Box",
+      "description": "Black box methods may be able to identify evidence of race conditions via methods such as multiple simultaneous connections, which may cause the software to become instable or crash. However, race conditions with very narrow timing windows would not be detectable."
+    },
+    {
+      "method": "White Box",
+      "description": "Common idioms are detectable in white box analysis, such as time-of-check-time-of-use (TOCTOU) file operations (CWE-367), or double-checked locking (CWE-609)."
+    },
+    {
+      "detection_method_id": "DM-2",
+      "method": "Automated Dynamic Analysis",
+      "description": "\n                  <xhtml:p>This weakness can be detected using dynamic tools and techniques that interact with the software using large test suites with many diverse inputs, such as fuzz testing (fuzzing), robustness testing, and fault injection. The software's operation may slow down, but it should not become unstable, crash, or generate incorrect results.</xhtml:p>\n                  <xhtml:p>Race conditions may be detected with a stress-test by calling the software simultaneously from a large number of threads or processes, and look for evidence of any unexpected behavior.</xhtml:p>\n                  <xhtml:p>Insert breakpoints or delays in between relevant code statements to artificially expand the race window so that it will be easier to detect.</xhtml:p>\n               ",
+      "effectiveness": "Moderate"
+    },
+    {
+      "method": "Automated Static Analysis - Binary or Bytecode",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Dynamic Analysis with Automated Results Interpretation",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Dynamic Analysis with Manual Results Interpretation",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Monitored Virtual Environment - run potentially malicious code in sandbox / wrapper / virtual machine, see if it does anything suspicious</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Manual Static Analysis - Source Code",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Automated Static Analysis - Source Code",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Architecture or Design Review",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Race Conditions"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Do not assume that a group of calls to independently atomic methods is atomic",
+      "entry_id": "VNA03-J"
+    }
+  ],
+  "related_attack_patterns": [
+    "26",
+    "29"
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "The relationship between race conditions and synchronization problems (CWE-662) needs to be further developed. They are not necessarily two perspectives of the same core concept, since synchronization is only one technique for avoiding race conditions, and synchronization can be used for other purposes besides race condition prevention."
+    },
+    {
+      "type": "Research Gap",
+      "text": "Race conditions in web applications are under-studied and probably under-reported. However, in 2008 there has been growing interest in this area."
+    },
+    {
+      "type": "Research Gap",
+      "text": "Much of the focus of race condition research has been in Time-of-check Time-of-use (TOCTOU) variants (CWE-367), but many race conditions are related to synchronization problems that do not necessarily require a time-of-check."
+    },
+    {
+      "type": "Research Gap",
+      "text": "From a classification/taxonomy perspective, the relationships between concurrency and program state need closer investigation and may be useful in organizing related issues."
+    }
+  ]
+}

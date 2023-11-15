@@ -1,0 +1,183 @@
+{
+  "id": "1274",
+  "name": "Improper Access Control for Volatile Memory Containing Boot Code",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Stable",
+  "description": "The product conducts a secure-boot process that transfers bootloader code from Non-Volatile Memory (NVM) into Volatile Memory (VM), but it does not have sufficient access control or other protections for the Volatile Memory.",
+  "extended_description": "\n\t\t\t  <xhtml:p>Adversaries could bypass the secure-boot process and execute their own untrusted, malicious boot code.</xhtml:p>\n\t\t\t  <xhtml:p>As a part of a secure-boot process, the read-only-memory (ROM) code for a System-on-Chip (SoC) or other system fetches bootloader code from Non-Volatile Memory (NVM) and stores the code in Volatile Memory (VM), such as dynamic, random-access memory (DRAM) or static, random-access memory (SRAM). The NVM is usually external to the SoC, while the VM is internal to the SoC. As the code is transferred from NVM to VM, it is authenticated by the SoC's ROM code.</xhtml:p>\n\t\t\t  <xhtml:p>If the volatile-memory-region protections or access controls are insufficient to prevent modifications from an adversary or untrusted agent, the secure boot may be bypassed or replaced with the execution of an adversary's code.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "This weakness can be introduced during hardware architecture or design but can be identified later during testing."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control",
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Memory",
+        "Execute Unauthorized Code or Commands",
+        "Gain Privileges or Assume Identity"
+      ],
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Ensure that the design of volatile-memory protections is enough to prevent modification from an adversary or untrusted code."
+      ]
+    },
+    {
+      "phase": [
+        "Testing"
+      ],
+      "description": [
+        "Test the volatile-memory protections to ensure they are safe from modification or untrusted code."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>A typical SoC secure boot's flow includes fetching the next piece of code (i.e., the boot loader) from NVM (e.g., serial, peripheral interface (SPI) flash), and transferring it to DRAM/SRAM volatile, internal memory, which is more efficient.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\">The volatile-memory protections or access controls are insufficient.</Example_Code>\n\t\t\t\t\t<Body_Text>The memory from where the boot loader executes can be modified by an adversary.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\">A good architecture should define appropriate protections or access controls to prevent modification by an adversary or untrusted agent, once the bootloader is authenticated.</Example_Code>\n\t\t\t\t"
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2019-2267",
+      "description": "Locked memory regions may be modified through other interfaces in a secure-boot-loader image due to improper access control.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-2267"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-04-25"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Demonstrative_Examples, Description, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Detection_Factors, Maintenance_Notes, Name, Observed_Examples, Potential_Mitigations, Relationships, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Insufficient Protections on the Volatile Memory Containing Boot Code",
+        "date": "2021-10-28"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Feedback",
+        "contribution_name": "Narasimha Kumar V Mangipudi",
+        "contribution_organization": "Lattice Semiconductor",
+        "contribution_date": "2021-10-20",
+        "contribution_comment": "suggested content improvements"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Hareesh Khattri",
+        "contribution_organization": "Intel Corporation",
+        "contribution_date": "2021-10-22",
+        "contribution_comment": "provided detection method"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "method": "Manual Analysis",
+      "description": "Ensure the volatile memory is lockable or has locks. Ensure the volatile memory is locked for writes from untrusted agents or adversaries. Try modifying the volatile memory from an untrusted agent, and ensure these writes are dropped.\n\t\t\t     ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Manual Analysis",
+      "description": "\n\t\t\t      <xhtml:p>Analyze the device using the following steps:</xhtml:p>\n\t\t\t      <xhtml:ul>\n\t\t\t\t<xhtml:li>1) Identify all fabric master agents that are active during system Boot Flow when initial code is loaded from Non-volatile storage to volatile memory.</xhtml:li>\n\t\t\t\t<xhtml:li>2) Identify the volatile memory regions that are used for storing loaded system executable program.</xhtml:li>\n\t\t\t\t<xhtml:li>3) During system boot, test programming the identified memory regions in step 2 from all the masters identified in step 1.</xhtml:li>\n\t\t\t      </xhtml:ul>\n\t\t\t      <xhtml:p>Only trusted masters should be allowed to write to the memory regions. For example, pluggable device peripherals should not have write access to program load memory regions.</xhtml:p>\n\t\t\t    ",
+      "effectiveness": "Moderate"
+    }
+  ],
+  "related_attack_patterns": [
+    "456",
+    "679"
+  ]
+}

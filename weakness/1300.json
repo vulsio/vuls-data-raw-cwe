@@ -1,0 +1,545 @@
+{
+  "id": "1300",
+  "name": "Improper Protection of Physical Side Channels",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Stable",
+  "description": "The device does not contain sufficient protection\n\tmechanisms to prevent physical side channels from exposing\n\tsensitive information due to patterns in physically observable\n\tphenomena such as variations in power consumption,\n\telectromagnetic emissions (EME), or acoustic emissions.",
+  "extended_description": "\n\t  <xhtml:p>An adversary could monitor and measure physical\n\t  phenomena to detect patterns and make inferences, even if it\n\t  is not possible to extract the information in the digital\n\t  domain.</xhtml:p>\n\t  <xhtml:p>Physical side channels have been well-studied for\n\t  decades in the context of breaking implementations of\n\t  cryptographic algorithms or other attacks against security\n\t  features. These side channels may be easily observed by an\n\t  adversary with physical access to the device, or using a\n\t  tool that is in close proximity.  If the adversary can\n\t  monitor hardware operation and correlate its data processing\n\t  with power, EME, and acoustic measurements, the adversary\n\t  might be able to recover of secret keys and data.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "203",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "203",
+      "view_id": "1194",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Memory",
+        "Read Application Data"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Apply blinding or masking techniques to implementations of cryptographic algorithms."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Add shielding or tamper-resistant protections to the device to increase the difficulty of obtaining measurements of the side-channel."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t    <Intro_Text>Consider a device that checks a\n\t\t    passcode to unlock the screen.</Intro_Text>\n\t\t    <Example_Code Nature=\"Bad\">As each character of\n\t\t    the PIN number is entered, a correct character\n\t\t    exhibits one current pulse shape while an\n\t\t    incorrect character exhibits a different current\n\t\t    pulse shape.</Example_Code>\n\t\t    <Body_Text>PIN numbers used to unlock a cell phone\n\t\t    should not exhibit any characteristics about\n\t\t    themselves. This creates a side channel. An\n\t\t    attacker could monitor the pulses using an\n\t\t    oscilloscope or other method. Once the first\n\t\t    character is correctly guessed (based on the\n\t\t    oscilloscope readings), they can then move to the\n\t\t    next character, which is much more efficient than\n\t\t    the brute force method of guessing every possible\n\t\t    sequence of characters.</Body_Text>\n\t\t    <Example_Code Nature=\"Good\">Rather than comparing\n\t\t    each character to the correct PIN value as it is\n\t\t    entered, the device could accumulate the PIN in a\n\t\t    register, and do the comparison all at once at the\n\t\t    end. Alternatively, the components for the\n\t\t    comparison could be modified so that the current\n\t\t    pulse shape is the same regardless of the\n\t\t    correctness of the entered\n\t\t    character.</Example_Code>\n\t\t  "
+    },
+    {
+      "text": "\n\t\t\t<Intro_Text>Consider the device vulnerability CVE-2021-3011, which affects certain microcontrollers [REF-1221]. The Google Titan Security Key is used for two-factor authentication using cryptographic algorithms. The device uses an internal secret key for this purpose and exchanges information based on this key for the authentication. If this internal secret key and the encryption algorithm were known to an adversary, the key function could be duplicated, allowing the adversary to masquerade as the legitimate user.</Intro_Text>\n\t\t\t<Example_Code Nature=\"Bad\">The local method of extracting the secret key consists of plugging the key into a USB port and using electromagnetic (EM) sniffing tools and computers.</Example_Code>\n\t\t\t<Example_Code Nature=\"Good\">Several solutions could have been considered by the manufacturer. For example, the manufacturer could shield the circuitry in the key or add randomized delays, indirect calculations with random values involved, or randomly ordered calculations to make extraction much more difficult or a combination of these techniques.</Example_Code>\n\t\t  "
+    },
+    {
+      "text": "\n\t\t  \t<Intro_Text>The code snippet provided here is part of the modular exponentiation module found in the HACK@DAC'21 Openpiton System-on-Chip (SoC), specifically within the RSA peripheral [REF-1368]. Modular exponentiation, denoted as \"a^b mod n,\" is a crucial operation in the RSA public/private key encryption. In RSA encryption, where 'c' represents ciphertext, 'm' stands for a message, and 'd' corresponds to the private key, the decryption process is carried out using this modular exponentiation as follows: m = c^d mod n, where 'n' is the result of multiplying two large prime numbers.</Intro_Text>\n\t\t  \t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t...<xhtml:br/>\n\t\t\t\tmodule mod_exp<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t`UPDATE: begin<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\tif (exponent_reg != 'd0) begin<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t<xhtml:b>if (exponent_reg[0])</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t<xhtml:b>result_reg &lt;= result_next;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\tbase_reg &lt;= base_next;<xhtml:br/>\n\t\t\t\t\t\t\texponent_reg &lt;= exponent_next;<xhtml:br/>\n\t\t\t\t\t\t\tstate &lt;= `UPDATE;<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\tendmodule<xhtml:br/>\n\t\t\t</Example_Code>\n\t\t  \t<Body_Text>The vulnerable code shows a buggy implementation of binary exponentiation where it updates the result register (result_reg) only when the corresponding exponent bit (exponent_reg[0]) is set to 1. However, when this exponent bit is 0, the output register is not updated. It's important to note that this implementation introduces a physical power side-channel vulnerability within the RSA core. This vulnerability could expose the private exponent to a determined physical attacker. Such exposure of the private exponent could lead to a complete compromise of the private key.</Body_Text>\n\t\t\t<Body_Text>To address mitigation requirements, the developer can develop the module by minimizing dependency on conditions, particularly those reliant on secret keys. In situations where branching is unavoidable, developers can implement masking mechanisms to obfuscate the power consumption patterns exhibited by the module (see good code example). Additionally, certain algorithms, such as the Karatsuba algorithm, can be implemented as illustrative examples of side-channel resistant algorithms, as they necessitate only a limited number of branch conditions [REF-1369].</Body_Text>\n\t\t  \t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t...<xhtml:br/>\n\t\t\t\tmodule mod_exp<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t`UPDATE: begin<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\tif (exponent_reg != 'd0) begin<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t<xhtml:b>if (exponent_reg[0]) begin</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t<xhtml:b>result_reg &lt;= result_next;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t<xhtml:b>end else begin</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t<xhtml:b>mask_reg &lt;= result_next;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t<xhtml:b>end</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\tbase_reg &lt;= base_next;<xhtml:br/>\n\t\t\t\t\t\t\texponent_reg &lt;= exponent_next;<xhtml:br/>\n\t\t\t\t\t\t\tstate &lt;= `UPDATE;<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\tendmodule<xhtml:br/>\n\t\t\t</Example_Code>\n\t\t  "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2022-35888",
+      "description": "Power side-channels leak secret information from processor",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-35888"
+    },
+    {
+      "reference": "CVE-2021-3011",
+      "description": "electromagnetic-wave side-channel in security-related microcontrollers allows extraction of private key",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-3011"
+    },
+    {
+      "reference": "CVE-2019-14353",
+      "description": "Crypto hardware wallet's power consumption relates to total number of pixels illuminated, creating a side channel in the USB connection that allows attackers to determine secrets displayed such as PIN numbers and passwords",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-14353"
+    },
+    {
+      "reference": "CVE-2020-27211",
+      "description": "Chain: microcontroller system-on-chip contains uses a register value stored in flash to set product protection state on the memory bus but does not contain protection against fault injection (CWE-1319), which leads to an incorrect initialization of the memory bus (CWE-1419) leading the product to be in an unprotected state.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-27211"
+    },
+    {
+      "reference": "CVE-2013-4576",
+      "description": "message encryption software uses certain instruction sequences that allows RSA key extraction using a chosen-ciphertext attack and acoustic cryptanalysis",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2013-4576"
+    },
+    {
+      "reference": "CVE-2020-28368",
+      "description": "virtualization product allows recovery of AES keys from the guest OS using a side channel attack against a power/energy monitoring interface.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-28368"
+    },
+    {
+      "reference": "CVE-2019-18673",
+      "description": "power consumption varies based on number of pixels being illuminated in a display, allowing reading of secrets such as the PIN by using the USB interface to measure power consumption",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-18673"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1117",
+      "author": [
+        "Paul Kocher",
+        "Joshua Jaffe",
+        "Benjamin Jun"
+      ],
+      "title": "Introduction to differential power analysis and related attacks",
+      "url": "https://www.rambus.com/wp-content/uploads/2015/08/DPATechInfo.pdf",
+      "publication_year": "1998"
+    },
+    {
+      "reference_id": "REF-1118",
+      "author": [
+        "Dakshi Agrawal",
+        "Bruce Archambeault",
+        "Josyula R. Rao",
+        "Pankaj Rohatgi"
+      ],
+      "title": "The EM Side-Channel(s)",
+      "url": "https://link.springer.com/content/pdf/10.1007/3-540-36400-5_4.pdf",
+      "publication_year": "2007",
+      "publication_month": "--08",
+      "publication_day": "---24",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1119",
+      "author": [
+        "Daniel Genkin",
+        "Adi Shamir",
+        "Eran Tromer"
+      ],
+      "title": "RSA key extraction via low-bandwidth acoustic cryptanalysis",
+      "url": "https://www.iacr.org/archive/crypto2014/86160149/86160149.pdf",
+      "publication_year": "2014",
+      "publication_month": "--06",
+      "publication_day": "---13"
+    },
+    {
+      "reference_id": "REF-1120",
+      "author": [
+        "Colin O'Flynn"
+      ],
+      "title": "Power Analysis for Cheapskates",
+      "url": "https://media.blackhat.com/eu-13/briefings/OFlynn/bh-eu-13-for-cheapstakes-oflynn-wp.pdf",
+      "publication_year": "2013",
+      "publication_month": "--01",
+      "publication_day": "---24"
+    },
+    {
+      "reference_id": "REF-1055",
+      "author": [
+        "Peter Gutmann"
+      ],
+      "title": "Data Remanence in Semiconductor Devices",
+      "url": "https://www.usenix.org/legacy/events/sec01/full_papers/gutmann/gutmann.pdf",
+      "publication_year": "2001",
+      "publication_month": "--08",
+      "publication": "10th USENIX Security Symposium"
+    },
+    {
+      "reference_id": "REF-1218",
+      "author": [
+        "Graham Cluley"
+      ],
+      "title": "This Black Box Can Brute Force Crack iPhone PIN Passcodes",
+      "url": "https://www.intego.com/mac-security-blog/iphone-pin-pass-code/",
+      "publication_year": "2015",
+      "publication_month": "--03",
+      "publication_day": "---16",
+      "publication": "The Mac Security Blog"
+    },
+    {
+      "reference_id": "REF-1221",
+      "author": [
+        "Victor Lomne",
+        "Thomas Roche"
+      ],
+      "title": "A Side Journey to Titan",
+      "url": "https://web.archive.org/web/20210107182441/https://ninjalab.io/wp-content/uploads/2021/01/a_side_journey_to_titan.pdf",
+      "publication_year": "2021",
+      "publication_month": "--01",
+      "publication_day": "---07",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1228",
+      "author": [
+        "Gilbert Goodwill",
+        "Benjamin Jun",
+        "Josh Jaffe",
+        "Pankaj Rohatgi"
+      ],
+      "title": "A testing methodology for side-channel resistance validation",
+      "url": "https://csrc.nist.gov/csrc/media/events/non-invasive-attack-testing-workshop/documents/08_goodwill.pdf",
+      "publication_year": "2011"
+    },
+    {
+      "reference_id": "REF-1229",
+      "author": [
+        "ISO/IEC"
+      ],
+      "title": "ISO/IEC 17825:2016: Testing methods for the mitigation of non-invasive attack classes against cryptographic modules",
+      "url": "https://www.iso.org/standard/60612.html",
+      "publication_year": "2016"
+    },
+    {
+      "reference_id": "REF-1230",
+      "author": [
+        "Cryptography Research Inc."
+      ],
+      "title": "Test Vector Leakage Assessment (TVLA) Derived Test Requirements (DTR) with AES",
+      "url": "https://www.rambus.com/wp-content/uploads/2015/08/TVLA-DTR-with-AES.pdf",
+      "publication_year": "2015",
+      "publication_month": "--08"
+    },
+    {
+      "section": "pp. 305-319",
+      "reference_id": "REF-1231",
+      "author": [
+        "Danilo Šijaˇci´",
+        "Josep Balasch",
+        "Bohan Yang",
+        "Santosh Ghosh",
+        "Ingrid Verbauwhede"
+      ],
+      "title": "Towards efficient and automated side-channel evaluations at design time",
+      "url": "https://www.esat.kuleuven.be/cosic/publications/article-3204.pdf",
+      "publication_year": "2020",
+      "publication": "Journal of Cryptographic Engineering, 10(4)"
+    },
+    {
+      "section": "pp. 123-130",
+      "reference_id": "REF-1232",
+      "author": [
+        "Amit Kumar",
+        "Cody Scarborough",
+        "Ali Yilmaz",
+        "Michael Orshansky"
+      ],
+      "title": "Efficient simulation of EM side-channel attack resilience",
+      "url": "https://dl.acm.org/doi/pdf/10.5555/3199700.3199717",
+      "publication_year": "2017",
+      "publication": "IEEE/ACM International Conference on Computer-Aided Design (ICCAD)",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1233",
+      "author": [
+        "Yuan Yao",
+        "Tuna Tufan",
+        "Tarun Kathuria",
+        "Baris Ege",
+        "Ulkuhan Guler",
+        "Patrick Schaumont"
+      ],
+      "title": "Pre-silicon Architecture Correlation Analysis (PACA): Identifying and Mitigating the Source of Side-channel Leakage at Gate-level",
+      "url": "https://eprint.iacr.org/2021/530.pdf",
+      "publication_year": "2021",
+      "publication_month": "--04",
+      "publication_day": "---21",
+      "publisher": "IACR Cryptology ePrint Archive"
+    },
+    {
+      "reference_id": "REF-1234",
+      "author": [
+        "Elisabeth Oswald",
+        "Thomas Popp",
+        "Stefan Mangard"
+      ],
+      "title": "Power Analysis Attacks - Revealing the Secrets of Smart Cards",
+      "url": "https://link.springer.com/book/10.1007/978-0-387-38162-6",
+      "publication_year": "2007",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1235",
+      "author": [
+        "David Oswald",
+        "Bastian Richter",
+        "Christof Paar"
+      ],
+      "title": "Side-Channel Attacks on the Yubikey 2 One-Time Password Generator",
+      "url": "https://www.emsec.ruhr-uni-bochum.de/media/crypto/veroeffentlichungen/2014/02/04/paper_yubikey_sca.pdf",
+      "publication_year": "2013",
+      "publication_month": "--06",
+      "publication_day": "---14"
+    },
+    {
+      "reference_id": "REF-1239",
+      "author": [
+        "François-Xavier Standaert"
+      ],
+      "title": "How (not) to Use Welch's T-test in Side-Channel Security Evaluations",
+      "url": "https://eprint.iacr.org/2017/138.pdf",
+      "publication_year": "2017",
+      "publication_month": "--02",
+      "publication_day": "---15",
+      "publisher": "IACR Cryptology ePrint Archive"
+    },
+    {
+      "reference_id": "REF-1240",
+      "author": [
+        "Carolyn Whitnall",
+        "Elisabeth Oswald"
+      ],
+      "title": "A Critical Analysis of ISO 17825 ('Testing methods for the mitigation of non-invasive attack classes against cryptographic modules')",
+      "url": "https://eprint.iacr.org/2019/1013.pdf",
+      "publication_year": "2019",
+      "publication_month": "--09",
+      "publication_day": "---10",
+      "publisher": "IACR Cryptology ePrint Archive"
+    },
+    {
+      "reference_id": "REF-1285",
+      "author": [
+        "Texas Instruments"
+      ],
+      "title": "Physical Security Attacks Against Silicon Devices",
+      "url": "https://www.ti.com/lit/an/swra739/swra739.pdf?ts=1644234570420",
+      "publication_year": "2022",
+      "publication_month": "--01",
+      "publication_day": "---31"
+    },
+    {
+      "section": "1.2 / 5",
+      "reference_id": "REF-1286",
+      "author": [
+        "Lennert Wouters",
+        "Benedikt Gierlichs",
+        "Bart Preneel"
+      ],
+      "title": "On The Susceptibility of Texas Instruments SimpleLink Platform Microcontrollers to Non-Invasive Physical Attacks",
+      "url": "https://eprint.iacr.org/2022/328.pdf",
+      "publication_year": "2022",
+      "publication_month": "--03",
+      "publication_day": "---14"
+    },
+    {
+      "reference_id": "REF-1368",
+      "title": "mod_exp.v",
+      "url": "https://github.com/HACK-EVENT/hackatdac21/blob/b9ecdf6068445d76d6bee692d163fededf7a9d9b/piton/design/chip/tile/ariane/src/rsa/mod_exp.v#L46:L47",
+      "publication_year": "2021",
+      "url_date": "2023-07-15"
+    },
+    {
+      "reference_id": "REF-1369",
+      "title": "Fix CWE-1300",
+      "url": "https://github.com/HACK-EVENT/hackatdac21/blob/37e42f724c14b8e4cc8f6e13462c12a492778219/piton/design/chip/tile/ariane/src/rsa/mod_exp.v#L47:L51",
+      "publication_year": "2021",
+      "url_date": "2023-09-29"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Nicole Fern",
+      "submission_organization": "Tortuga Logic",
+      "submission_date": "2020-05-29"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Functional_Areas, Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Demonstrative_Examples, Description, Detection_Factors, Maintenance_Notes, Name, Observed_Examples, References, Relationships, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, References"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Improper Protection Against Physical Side Channels",
+        "date": "2021-10-28"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Anders Nordstrom, Alric Althoff",
+        "contribution_organization": "Tortuga Logic",
+        "contribution_date": "2021-10-11",
+        "contribution_comment": "Provided detection methods, observed examples, and references"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Nicole Fern",
+        "contribution_organization": "Riscure",
+        "contribution_date": "2021-10-13",
+        "contribution_comment": "Provided detection methods, observed examples, and references"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Chen Chen",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Rahul Kande",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Jeyavijayan Rajendran",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Shaza Zeitoni",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Mohamadreza Rostami",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Ahmad-Reza Sadeghi",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    },
+    {
+      "ordinality": "Resultant"
+    }
+  ],
+  "detection_methods": [
+    {
+      "method": "Manual Analysis",
+      "description": "Perform a set of leakage detection tests such as the procedure outlined in the Test Vector Leakage Assessment (TVLA) test requirements for AES [REF-1230].  TVLA is the basis for the ISO standard 17825 [REF-1229]. A separate methodology is provided by [REF-1228]. Note that sole reliance on this method might not yield expected results [REF-1239] [REF-1240].",
+      "effectiveness": "Moderate"
+    },
+    {
+      "method": "Manual Analysis",
+      "description": "\n\t\t\t\t  <xhtml:p>Post-silicon, perform full side-channel attacks (penetration testing) covering as many known leakage models as possible against test code.</xhtml:p>",
+      "effectiveness": "Moderate"
+    },
+    {
+      "method": "Manual Analysis",
+      "description": "\n\t\t\t\t  <xhtml:p>Pre-silicon - while the aforementioned TVLA methods can be performed post-silicon, models of device power consumption or other physical emanations can be built from information present at various stages of the hardware design process before fabrication. TVLA or known side-channel attacks can be applied to these simulated traces and countermeasures applied before tape-out.  Academic research in this field includes [REF-1231] [REF-1232] [REF-1233].</xhtml:p>",
+      "effectiveness": "Moderate"
+    }
+  ],
+  "related_attack_patterns": [
+    "189",
+    "699"
+  ],
+  "functional_areas": [
+    "Power"
+  ]
+}

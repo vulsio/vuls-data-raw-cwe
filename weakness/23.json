@@ -1,0 +1,508 @@
+{
+  "id": "23",
+  "name": "Relative Path Traversal",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product uses external input to construct a pathname that should be within a restricted directory, but it does not properly neutralize sequences such as \"..\" that can resolve to a location that is outside of that directory.",
+  "extended_description": "This allows attackers to traverse the file system to access files or directories that are outside of the restricted directory.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "22",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "22",
+      "view_id": "1305",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "22",
+      "view_id": "1340",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Availability"
+      ],
+      "impact": [
+        "Execute Unauthorized Code or Commands"
+      ],
+      "note": "The attacker may be able to create or overwrite critical files that are used to execute code, such as programs or libraries."
+    },
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Files or Directories"
+      ],
+      "note": "The attacker may be able to overwrite or create critical files, such as programs, libraries, or important data. If the targeted file is used for a security mechanism, then the attacker may be able to bypass that mechanism. For example, appending a new account at the end of a password file may allow an attacker to bypass authentication."
+    },
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Files or Directories"
+      ],
+      "note": "The attacker may be able read the contents of unexpected files and expose sensitive data. If the targeted file is used for a security mechanism, then the attacker may be able to bypass that mechanism. For example, by reading a password file, the attacker could conduct brute force password guessing attacks in order to break into an account on the system."
+    },
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart"
+      ],
+      "note": "The attacker may be able to overwrite, delete, or corrupt unexpected critical files such as programs, libraries, or important data. This may prevent the product from working at all and in the case of a protection mechanisms such as authentication, it has the potential to lockout every user of the product."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "mitigation_id": "MIT-5.1",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n                  <xhtml:p>When validating filenames, use stringent allowlists that limit the character set to be used. If feasible, only allow a single \".\" character in the filename to avoid weaknesses such as CWE-23, and exclude directory separators such as \"/\" to avoid CWE-36. Use a list of allowable file extensions, which will help to avoid CWE-434.</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on a filtering mechanism that removes potentially dangerous characters. This is equivalent to a denylist, which may be incomplete (CWE-184). For example, filtering \"/\" is insufficient protection if the filesystem also supports the use of \"\\\" as a directory separator. Another possible error could occur when the filtering is applied in a way that still produces dangerous data (CWE-182). For example, if \"../\" sequences are removed from the \".../...//\" string in a sequential fashion, two instances of \"../\" would be removed from the original string, but the remaining characters would still form the \"../\" string.</xhtml:p>\n               "
+      ],
+      "strategy": "Input Validation"
+    },
+    {
+      "mitigation_id": "MIT-20.1",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Inputs should be decoded and canonicalized to the application's current internal representation before being validated (CWE-180). Make sure that the application does not decode the same input twice (CWE-174). Such errors could be used to bypass allowlist validation schemes by introducing dangerous inputs after they have been checked.</xhtml:p>\n                  <xhtml:p>Use a built-in path canonicalization function (such as realpath() in C) that produces the canonical version of the pathname, which effectively removes \"..\" sequences and symbolic links (CWE-23, CWE-59). This includes:</xhtml:p>\n                     <xhtml:ul>\n                        <xhtml:li>realpath() in C</xhtml:li>\n                        <xhtml:li>getCanonicalPath() in Java</xhtml:li>\n                        <xhtml:li>GetFullPath() in ASP.NET</xhtml:li>\n                        <xhtml:li>realpath() or abs_path() in Perl</xhtml:li>\n                        <xhtml:li>realpath() in PHP</xhtml:li>\n                     </xhtml:ul>\n               "
+      ],
+      "strategy": "Input Validation"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following URLs are vulnerable to this attack:</Intro_Text>\n               <Example_Code Nature=\"Bad\">\n                  <xhtml:div>http://example.com.br/get-files.jsp?file=report.pdf<xhtml:br/>http://example.com.br/get-page.php?home=aaa.html<xhtml:br/>http://example.com.br/some-page.asp?page=index.html</xhtml:div>\n               </Example_Code>\n               <Body_Text>A simple way to execute this attack is like this:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>http://example.com.br/get-files?file=../../../../somedir/somefile<xhtml:br/>http://example.com.br/../../../../etc/shadow<xhtml:br/>http://example.com.br/get-files?file=../../../../etc/passwd</xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-27",
+      "text": "\n               <Intro_Text>The following code could be for a social networking application in which each user's profile information is stored in a separate file. All files are stored in a single directory.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>my $dataPath = \"/users/cwe/profiles\";<xhtml:br/>my $username = param(\"user\");<xhtml:br/>my $profilePath = $dataPath . \"/\" . $username;<xhtml:br/>\n                     <xhtml:br/>open(my $fh, \"&lt;\", $profilePath) || ExitError(\"profile read error: $profilePath\");<xhtml:br/>print \"&lt;ul&gt;\\n\";<xhtml:br/>while (&lt;$fh&gt;) {<xhtml:div style=\"margin-left:1em;\">print \"&lt;li&gt;$_&lt;/li&gt;\\n\";</xhtml:div>}<xhtml:br/>print \"&lt;/ul&gt;\\n\";</xhtml:div>\n               </Example_Code>\n               <Body_Text>While the programmer intends to access files such as \"/users/cwe/profiles/alice\" or \"/users/cwe/profiles/bob\", there is no verification of the incoming user parameter. An attacker could provide a string such as:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>../../../etc/passwd</xhtml:div>\n               </Example_Code>\n               <Body_Text>The program would generate a profile pathname like this:</Body_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>/users/cwe/profiles/../../../etc/passwd</xhtml:div>\n               </Example_Code>\n               <Body_Text>When the file is opened, the operating system resolves the \"../\" during path canonicalization and actually accesses this file:</Body_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>/etc/passwd</xhtml:div>\n               </Example_Code>\n               <Body_Text>As a result, the attacker could read the entire text of the password file.</Body_Text>\n               <Body_Text>Notice how this code also contains an error message information leak (CWE-209) if the user parameter does not produce a file that exists: the full pathname is provided. Because of the lack of output encoding of the file that is retrieved, there might also be a cross-site scripting problem (CWE-79) if profile contains any HTML, but other code would need to be examined.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-22",
+      "text": "\n               <Intro_Text>The following code demonstrates the unrestricted upload of a file with a Java servlet and a path traversal vulnerability. The action attribute of an HTML form is sending the upload file request to the Java servlet.</Intro_Text>\n               <Example_Code Nature=\"Good\" Language=\"HTML\">\n                  <xhtml:div>&lt;form action=\"FileUploadServlet\" method=\"post\" enctype=\"multipart/form-data\"&gt;<xhtml:br/>\n                     <xhtml:br/>Choose a file to upload:<xhtml:br/>&lt;input type=\"file\" name=\"filename\"/&gt;<xhtml:br/>&lt;br/&gt;<xhtml:br/>&lt;input type=\"submit\" name=\"submit\" value=\"Submit\"/&gt;<xhtml:br/>\n                     <xhtml:br/>&lt;/form&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>When submitted the Java servlet's doPost method will receive the request, extract the name of the file from the Http request header, read the file contents from the request and output the file to the local upload directory.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class FileUploadServlet extends HttpServlet {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>...<xhtml:br/>\n                           <xhtml:br/>protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>response.setContentType(\"text/html\");<xhtml:br/>PrintWriter out = response.getWriter();<xhtml:br/>String contentType = request.getContentType();<xhtml:br/>\n                                 <xhtml:br/>// the starting position of the boundary header<xhtml:br/>int ind = contentType.indexOf(\"boundary=\");<xhtml:br/>String boundary = contentType.substring(ind+9);<xhtml:br/>\n                                 <xhtml:br/>String pLine = new String();<xhtml:br/>String uploadLocation = new String(UPLOAD_DIRECTORY_STRING); //Constant value<xhtml:br/>\n                                 <xhtml:br/>// verify that content type is multipart form data<xhtml:br/>if (contentType != null &amp;&amp; contentType.indexOf(\"multipart/form-data\") != -1) {<xhtml:br/>\n                                 <xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>// extract the filename from the Http header<xhtml:br/>BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));<xhtml:br/>...<xhtml:br/>pLine = br.readLine();<xhtml:br/>String filename = pLine.substring(pLine.lastIndexOf(\"\\\\\"), pLine.lastIndexOf(\"\\\"\"));<xhtml:br/>...<xhtml:br/>\n                                       <xhtml:br/>// output the file to the local upload directory<xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">\n                                          <xhtml:div>BufferedWriter bw = new BufferedWriter(new FileWriter(uploadLocation+filename, true));<xhtml:br/>for (String line; (line=br.readLine())!=null; ) {<xhtml:div style=\"margin-left:1em;\">if (line.indexOf(boundary) == -1) {<xhtml:div style=\"margin-left:1em;\">bw.write(line);<xhtml:br/>bw.newLine();<xhtml:br/>bw.flush();</xhtml:div>}</xhtml:div>} //end of for loop<xhtml:br/>bw.close();</xhtml:div>\n                                       </xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:br/>} catch (IOException ex) {...}<xhtml:br/>// output successful upload response HTML page</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>// output unsuccessful upload response HTML page<xhtml:br/>else<xhtml:br/>{...}</xhtml:div>\n                           </xhtml:div>}<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>\n                        </xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code does not perform a check on the type of the file being uploaded (CWE-434). This could allow an attacker to upload any executable file or other file with malicious code.</Body_Text>\n               <Body_Text>Additionally, the creation of the BufferedWriter object is subject to relative path traversal (CWE-23). Since the code does not check the filename that is provided in the header, an attacker can use \"../\" sequences to write to files outside of the intended directory. Depending on the executing environment, the attacker may be able to specify arbitrary files to write to, leading to a wide variety of consequences, from code execution, XSS (CWE-79), or system crash.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2022-45918",
+      "description": "Chain: a learning management tool debugger uses external input to locate previous session logs (CWE-73) and does not properly validate the given path (CWE-20), allowing for filesystem path traversal using \"../\" sequences (CWE-24)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-45918"
+    },
+    {
+      "reference": "CVE-2019-20916",
+      "description": "Python package manager does not correctly restrict the filename specified in a Content-Disposition header, allowing arbitrary file read using path traversal sequences such as \"../\"",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-20916"
+    },
+    {
+      "reference": "CVE-2022-24877",
+      "description": "directory traversal in Go-based Kubernetes operator app allows accessing data from the controller's pod file system via ../ sequences in a yaml file",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-24877"
+    },
+    {
+      "reference": "CVE-2020-4053",
+      "description": "a Kubernetes package manager written in Go allows malicious plugins to inject path traversal sequences into a plugin archive (\"Zip slip\") to copy a file outside the intended directory",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-4053"
+    },
+    {
+      "reference": "CVE-2021-21972",
+      "description": "Chain: Cloud computing virtualization platform does not require authentication for upload of a tar format file (CWE-306), then uses .. path traversal sequences (CWE-23) in the file to access unexpected files, as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-21972"
+    },
+    {
+      "reference": "CVE-2019-10743",
+      "description": "Go-based archive library allows extraction of  files to locations outside of the target folder with \"../\" path traversal sequences in filenames in a zip file, aka \"Zip Slip\"",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-10743"
+    },
+    {
+      "reference": "CVE-2002-0298",
+      "description": "Server allows remote attackers to cause a denial of service via certain HTTP GET requests containing a %2e%2e (encoded dot-dot), several \"/../\" sequences, or several \"../\" in a URI.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0298"
+    },
+    {
+      "reference": "CVE-2002-0661",
+      "description": "\"\\\" not in denylist for web server, allowing path traversal attacks when the server is run in Windows and other OSes.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0661"
+    },
+    {
+      "reference": "CVE-2002-0946",
+      "description": "Arbitrary files may be read files via ..\\ (dot dot) sequences in an HTTP request.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0946"
+    },
+    {
+      "reference": "CVE-2002-1042",
+      "description": "Directory traversal vulnerability in search engine for web server allows remote attackers to read arbitrary files via \"..\\\" sequences in queries.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1042"
+    },
+    {
+      "reference": "CVE-2002-1209",
+      "description": "Directory traversal vulnerability in FTP server allows remote attackers to read arbitrary files via \"..\\\" sequences in a GET request.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1209"
+    },
+    {
+      "reference": "CVE-2002-1178",
+      "description": "Directory traversal vulnerability in servlet allows remote attackers to execute arbitrary commands via \"..\\\" sequences in an HTTP request.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1178"
+    },
+    {
+      "reference": "CVE-2002-1987",
+      "description": "Protection mechanism checks for \"/..\" but doesn't account for Windows-specific \"\\..\" allowing read of arbitrary files.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1987"
+    },
+    {
+      "reference": "CVE-2005-2142",
+      "description": "Directory traversal vulnerability in FTP server allows remote authenticated attackers to list arbitrary directories via a \"\\..\" sequence in an LS command.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2142"
+    },
+    {
+      "reference": "CVE-2002-0160",
+      "description": "The administration function in Access Control Server allows remote attackers to read HTML, Java class, and image files outside the web root via a \"..\\..\" sequence in the URL to port 2002.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0160"
+    },
+    {
+      "reference": "CVE-2001-0467",
+      "description": "\"\\...\" in web server",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0467"
+    },
+    {
+      "reference": "CVE-2001-0963",
+      "description": "\"...\" in cd command in FTP server",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0963"
+    },
+    {
+      "reference": "CVE-2001-1193",
+      "description": "\"...\" in cd command in FTP server",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1193"
+    },
+    {
+      "reference": "CVE-2001-1131",
+      "description": "\"...\" in cd command in FTP server",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1131"
+    },
+    {
+      "reference": "CVE-2001-0480",
+      "description": "read of arbitrary files and directories using GET or CD with \"...\" in Windows-based FTP server.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0480"
+    },
+    {
+      "reference": "CVE-2002-0288",
+      "description": "read files using \".\" and Unicode-encoded \"/\" or \"\\\" characters in the URL.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0288"
+    },
+    {
+      "reference": "CVE-2003-0313",
+      "description": "Directory listing of web server using \"...\"",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0313"
+    },
+    {
+      "reference": "CVE-2005-1658",
+      "description": "Triple dot",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1658"
+    },
+    {
+      "reference": "CVE-2000-0240",
+      "description": "read files via \"/........../\" in URL",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0240"
+    },
+    {
+      "reference": "CVE-2000-0773",
+      "description": "read files via \"....\" in web server",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0773"
+    },
+    {
+      "reference": "CVE-1999-1082",
+      "description": "read files via \"......\" in web server (doubled triple dot?)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1082"
+    },
+    {
+      "reference": "CVE-2004-2121",
+      "description": "read files via \"......\" in web server (doubled triple dot?)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2121"
+    },
+    {
+      "reference": "CVE-2001-0491",
+      "description": "multiple attacks using \"..\", \"...\", and \"....\" in different commands",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0491"
+    },
+    {
+      "reference": "CVE-2001-0615",
+      "description": "\"...\" or \"....\" in chat server",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0615"
+    },
+    {
+      "reference": "CVE-2005-2169",
+      "description": "chain: \".../...//\" bypasses protection mechanism using regexp's that remove \"../\" resulting in collapse into an unsafe value \"../\" (CWE-182) and resultant path traversal.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2169"
+    },
+    {
+      "reference": "CVE-2005-0202",
+      "description": "\".../....///\" bypasses regexp's that remove \"./\" and \"../\"",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0202"
+    },
+    {
+      "reference": "CVE-2004-1670",
+      "description": "Mail server allows remote attackers to create arbitrary directories via a \"..\" or rename arbitrary files via a \"....//\" in user supplied parameters.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1670"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-192",
+      "author": [
+        "OWASP"
+      ],
+      "title": "OWASP Attack listing",
+      "url": "http://www.owasp.org/index.php/Relative_Path_Traversal"
+    },
+    {
+      "section": "Chapter 9, \"Filenames and Paths\", Page 503",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    },
+    {
+      "reference_id": "REF-1282",
+      "author": [
+        "Snyk"
+      ],
+      "title": "Zip Slip Vulnerability",
+      "url": "https://security.snyk.io/research/zip-slip-vulnerability",
+      "publication_year": "2018",
+      "publication_month": "--06",
+      "publication_day": "---05"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated References, Demonstrative_Example, Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, References, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-07-27",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Description, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Observed_Examples, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Potential_Mitigations, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Observed_Examples, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Alternate_Terms, Observed_Examples, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Common_Consequences, Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Feedback",
+        "contribution_name": "Nick Johnston",
+        "contribution_date": "2022-07-11",
+        "contribution_comment": "Identified weakness in Perl demonstrative example"
+      }
+    ]
+  },
+  "alternate_terms": [
+    {
+      "term": "Zip Slip",
+      "description": "\"Zip slip\" is an attack that uses file archives (e.g., ZIP, tar, rar, etc.) that contain filenames with path traversal sequences that cause the files to be written outside of the directory under which the archive is expected to be extracted [REF-1282]. It is most commonly used for relative path traversal (CWE-23) and link following (CWE-59)."
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Relative Path Traversal"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Path Traversal",
+      "entry_id": "SFP16"
+    }
+  ],
+  "related_attack_patterns": [
+    "139",
+    "76"
+  ]
+}

@@ -1,0 +1,200 @@
+{
+  "id": "1384",
+  "name": "Improper Handling of Physical or Environmental Conditions",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product does not properly handle unexpected physical or environmental conditions that occur naturally or are artificially induced.",
+  "extended_description": "\n      <xhtml:p>Hardware products are typically only guaranteed to behave correctly within certain physical limits or environmental conditions. Such products cannot necessarily control the physical or external conditions to which they are subjected. However, the inability to handle such conditions can undermine a product's security. For example, an unexpected physical or environmental condition may cause the flipping of a bit that is used for an authentication decision. This unexpected condition could occur naturally or be induced artificially by an adversary.</xhtml:p>\n      <xhtml:p>Physical or environmental conditions of concern are:</xhtml:p>\n      <xhtml:ul>\n        <xhtml:li>\n          <xhtml:div><xhtml:b>Atmospheric characteristics: </xhtml:b>extreme temperature ranges, etc.</xhtml:div>\n        </xhtml:li>\n        <xhtml:li>\n          <xhtml:div><xhtml:b>Interference: </xhtml:b>electromagnetic interference (EMI), radio frequency interference (RFI), etc.</xhtml:div>\n        </xhtml:li>\n        <xhtml:li>\n          <xhtml:div><xhtml:b>Assorted light sources: </xhtml:b>white light, ultra-violet light (UV), lasers, infrared (IR), etc.</xhtml:div>\n        </xhtml:li>\n        <xhtml:li>\n          <xhtml:div><xhtml:b>Power variances: </xhtml:b>under-voltages, over-voltages, under-current, over-current, etc.</xhtml:div>\n        </xhtml:li>\n        <xhtml:li>\n          <xhtml:div><xhtml:b>Clock variances: </xhtml:b>glitching, overclocking, clock stretching, etc.</xhtml:div>\n        </xhtml:li>\n        <xhtml:li>\n          <xhtml:div><xhtml:b>Component aging and degradation</xhtml:b></xhtml:div>\n        </xhtml:li>\n        <xhtml:li>\n          <xhtml:div><xhtml:b>Materials manipulation: </xhtml:b>focused ion beams (FIB), etc.</xhtml:div>\n        </xhtml:li>\n        <xhtml:li>\n          <xhtml:div><xhtml:b>Exposure to radiation: </xhtml:b>x-rays, cosmic radiation, etc.</xhtml:div>\n        </xhtml:li>\n      </xhtml:ul>\n    ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "703",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "technology": [
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      },
+      {
+        "class": "ICS/OT",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "The product's design might not consider checking and handling extreme conditions."
+      ]
+    },
+    {
+      "phase": "Manufacturing",
+      "note": [
+        "For hardware manufacturing, sub-par components might be chosen that are not able to handle the expected environmental conditions."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability"
+      ],
+      "impact": [
+        "Varies by Context",
+        "Unexpected State"
+      ],
+      "note": "Consequences of this weakness are highly dependent on the role of affected components within the larger product."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Requirements"
+      ],
+      "description": [
+        "In requirements, be specific about expectations for how the product will perform when it exceeds physical and environmental boundary conditions, e.g., by shutting down."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "Where possible, include independent components that can detect excess environmental conditions and have the capability to shut down the product."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "Where possible, use shielding or other materials that can increase the adversary's workload and reduce the likelihood of being able to successfully trigger a security-related failure."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2019-17391",
+      "description": "Lack of anti-glitch protections allows an attacker to launch a physical attack to bypass the secure boot and read protected eFuses.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-17391"
+    }
+  ],
+  "references": [
+    {
+      "section": "ICS Communications / 2. Unreliability",
+      "reference_id": "REF-1248",
+      "author": [
+        "Securing Energy Infrastructure Executive Task Force (SEI ETF)"
+      ],
+      "title": "Categories of Security Vulnerabilities in ICS",
+      "url": "https://inl.gov/wp-content/uploads/2022/03/SEI-ETF-NCSV-TPT-Categories-of-Security-Vulnerabilities-ICS-v1_03-09-22.pdf",
+      "publication_year": "2022",
+      "publication_month": "--03",
+      "publication_day": "---09"
+    },
+    {
+      "reference_id": "REF-1255",
+      "author": [
+        "Sergei P. Skorobogatov"
+      ],
+      "title": "Semi-invasive attacks - A new approach to hardware security analysis",
+      "url": "https://www.cl.cam.ac.uk/techreports/UCAM-CL-TR-630.pdf",
+      "publication_year": "2005",
+      "publication_month": "--04"
+    },
+    {
+      "reference_id": "REF-1285",
+      "author": [
+        "Texas Instruments"
+      ],
+      "title": "Physical Security Attacks Against Silicon Devices",
+      "url": "https://www.ti.com/lit/an/swra739/swra739.pdf?ts=1644234570420",
+      "publication_year": "2022",
+      "publication_month": "--01",
+      "publication_day": "---31"
+    },
+    {
+      "section": "1.2",
+      "reference_id": "REF-1286",
+      "author": [
+        "Lennert Wouters",
+        "Benedikt Gierlichs",
+        "Bart Preneel"
+      ],
+      "title": "On The Susceptibility of Texas Instruments SimpleLink Platform Microcontrollers to Non-Invasive Physical Attacks",
+      "url": "https://eprint.iacr.org/2022/328.pdf",
+      "publication_year": "2022",
+      "publication_month": "--03",
+      "publication_day": "---14"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2022-04-21"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Description, Name, Potential_Mitigations, Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Applicable_Platforms, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Improper Handling of Extreme Physical Environment Conditions",
+        "date": "2022-06-28"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Feedback",
+        "contribution_name": "Members of the Hardware CWE Special Interest Group",
+        "contribution_date": "2022-05-13",
+        "contribution_comment": "Provided feedback on descriptions"
+      }
+    ]
+  }
+}

@@ -1,0 +1,286 @@
+{
+  "id": "662",
+  "name": "Improper Synchronization",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product utilizes multiple threads or processes to allow temporary access to a shared resource that can only be exclusive to one process at a time, but it does not properly synchronize these actions, which might cause simultaneous accesses of this resource by multiple threads or processes.",
+  "extended_description": "\n\t   <xhtml:p>Synchronization refers to a variety of behaviors and mechanisms that allow two or more independently-operating processes or threads to ensure that they operate on shared resources in predictable ways that do not interfere with each other.  Some shared resource operations cannot be executed atomically; that is, multiple steps must be guaranteed to execute sequentially, without any interference by other processes.  Synchronization mechanisms vary widely, but they may include locking, mutexes, and semaphores.  When a multi-step operation on a shared resource cannot be guaranteed to execute independent of interference, then the resulting behavior can be unpredictable. Improper synchronization could lead to data or memory corruption, denial of service, etc.</xhtml:p>\n\t ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "664",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "691",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "362",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {},
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Other"
+      ],
+      "impact": [
+        "Modify Application Data",
+        "Read Application Data",
+        "Alter Execution Logic"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use industry standard APIs to synchronize your code."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-24",
+      "text": "\n               <Intro_Text>The following function attempts to acquire a lock in order to perform operations on a shared resource.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void f(pthread_mutex_t *mutex) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>pthread_mutex_lock(mutex);<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* access shared resource */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:br/>pthread_mutex_unlock(mutex);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the code does not check the value returned by pthread_mutex_lock() for errors. If pthread_mutex_lock() cannot acquire the mutex for any reason, the function may introduce a race condition into the program and result in undefined behavior.</Body_Text>\n               <Body_Text>In order to avoid data races, correctly written programs must check the result of thread synchronization functions and appropriately handle all errors, either by attempting to recover from them or reporting them to higher levels.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>int f(pthread_mutex_t *mutex) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int result;<xhtml:br/>\n                           <xhtml:br/>result = pthread_mutex_lock(mutex);<xhtml:br/>if (0 != result)<xhtml:div style=\"margin-left:1em;\">return result;</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* access shared resource */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:br/>return pthread_mutex_unlock(mutex);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-170",
+      "text": "\n               <Intro_Text>The following code intends to fork a process, then have both the parent and child processes print a single line.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>static void print (char * string) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char * word;<xhtml:br/>int counter;<xhtml:br/>for (word = string; counter = *word++; ) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>putc(counter, stdout);<xhtml:br/>fflush(stdout);<xhtml:br/>\n                                 <xhtml:i>/* Make timing window a little larger... */</xhtml:i>\n                                 <xhtml:br/>\n                                 <xhtml:br/>sleep(1);</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main(void) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>pid_t pid;<xhtml:br/>\n                           <xhtml:br/>pid = fork();<xhtml:br/>if (pid == -1) {<xhtml:div style=\"margin-left:1em;\">exit(-2);</xhtml:div>}<xhtml:br/>else if (pid == 0) {<xhtml:div style=\"margin-left:1em;\">print(\"child\\n\");</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">print(\"PARENT\\n\");</xhtml:div>}<xhtml:br/>exit(0);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>One might expect the code to print out something like:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>PARENT</xhtml:div>\n                     <xhtml:div>child</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>However, because the parent and child are executing concurrently, and stdout is flushed each time a character is printed, the output might be mixed together, such as:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>PcAhRiElNdT</xhtml:div>\n                     <xhtml:div>[blank line]</xhtml:div>\n                     <xhtml:div>[blank line]</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-1782",
+      "description": "Chain: improper locking (CWE-667) leads to race condition (CWE-362), as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-1782"
+    },
+    {
+      "reference": "CVE-2009-0935",
+      "description": "Attacker provides invalid address to a memory-reading function, causing a mutex to be unlocked twice",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0935"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Community",
+      "submission_date": "2008-04-11",
+      "submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-09-27",
+        "modification_comment": "updated Name, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Description, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-07-17",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-09-23",
+        "modification_comment": "updated Description, Maintenance_Notes, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Description, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Insufficient Synchronization",
+        "date": "2010-09-27"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Mask signals handled by noninterruptible signal handlers",
+      "entry_id": "SIG00-C"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Do not access shared objects in signal handlers",
+      "entry_id": "SIG31-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "State synchronization error"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Do not assume that a group of calls to independently atomic methods is atomic",
+      "entry_id": "VNA03-J"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Missing Lock",
+      "entry_id": "SFP19"
+    }
+  ],
+  "related_attack_patterns": [
+    "25",
+    "26",
+    "27",
+    "29"
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "Deeper research is necessary for synchronization and related mechanisms, including locks, mutexes, semaphores, and other mechanisms. Multiple entries are dependent on this research, which includes relationships to concurrency, race conditions, reentrant functions, etc.  CWE-662 and its children - including CWE-667, CWE-820, CWE-821, and others - may need to be modified significantly, along with their relationships."
+    }
+  ]
+}

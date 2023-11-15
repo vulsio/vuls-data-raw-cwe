@@ -1,0 +1,250 @@
+{
+  "id": "180",
+  "name": "Incorrect Behavior Order: Validate Before Canonicalize",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product validates input before it is canonicalized, which prevents the product from detecting data that becomes invalid after the canonicalization step.",
+  "extended_description": "This can be used by an attacker to bypass the validation and launch attacks that expose weaknesses that would otherwise be prevented, such as injection.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "179",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "mitigation_id": "MIT-20",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Inputs should be decoded and canonicalized to the application's current internal representation before being validated (CWE-180). Make sure that the application does not decode the same input twice (CWE-174). Such errors could be used to bypass allowlist validation schemes by introducing dangerous inputs after they have been checked."
+      ],
+      "strategy": "Input Validation"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-35",
+      "text": "\n               <Intro_Text>The following code attempts to validate a given input path by checking it against an allowlist and then return the canonical path. In this specific case, the path is considered valid if it starts with the string \"/safe_dir/\".</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String path = getInputPath();<xhtml:br/>if (path.startsWith(\"/safe_dir/\"))<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">File f = new File(path);<xhtml:br/>return f.getCanonicalPath();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The problem with the above code is that the validation step occurs before canonicalization occurs. An attacker could provide an input path of \"/safe_dir/../\" that would pass the validation step. However, the canonicalization process sees the double dot as a traversal to the parent directory and hence when canonicized the path would become just \"/\".</Body_Text>\n               <Body_Text>To avoid this problem, validation should occur after canonicalization takes place. In this case canonicalization occurs during the initialization of the File object. The code below fixes the issue.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>String path = getInputPath();<xhtml:br/>File f = new File(path);<xhtml:br/>if (f.getCanonicalPath().startsWith(\"/safe_dir/\"))<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">return f.getCanonicalPath();</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2002-0433",
+      "description": "Product allows remote attackers to view restricted files via an HTTP request containing a \"*\" (wildcard or asterisk) character.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0433"
+    },
+    {
+      "reference": "CVE-2003-0332",
+      "description": "Product modifies the first two letters of a filename extension after performing a security check, which allows remote attackers to bypass authentication via a filename with a .ats extension instead of a .hts extension.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0332"
+    },
+    {
+      "reference": "CVE-2002-0802",
+      "description": "Database consumes an extra character when processing a character that cannot be converted, which could remove an escape character from the query and make the application subject to SQL injection attacks.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0802"
+    },
+    {
+      "reference": "CVE-2000-0191",
+      "description": "Overlaps \"fakechild/../realchild\"",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0191"
+    },
+    {
+      "reference": "CVE-2004-2363",
+      "description": "Product checks URI for \"<\" and other literal characters, but does it before hex decoding the URI, so \"%3E\" and other sequences are allowed.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2363"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_organization": "Veracode",
+        "modification_date": "2008-08-15",
+        "modification_comment": "Suggested OWASP Top Ten 2004 mapping"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Other_Notes, Relationship_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Functional_Areas"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Validate-Before-Canonicalize",
+        "date": "2008-04-11"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Validate-Before-Canonicalize"
+    },
+    {
+      "taxonomy_name": "OWASP Top Ten 2004",
+      "entry_name": "Unvalidated Input",
+      "entry_id": "A1",
+      "mapping_fit": "CWE More Specific"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Normalize strings before validating them",
+      "entry_id": "IDS01-J",
+      "mapping_fit": "Exact"
+    },
+    {
+      "taxonomy_name": "SEI CERT Oracle Coding Standard for Java",
+      "entry_name": "Normalize strings before validating them",
+      "entry_id": "IDS01-J",
+      "mapping_fit": "Exact"
+    }
+  ],
+  "related_attack_patterns": [
+    "267",
+    "3",
+    "71",
+    "78",
+    "79",
+    "80"
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "This overlaps other categories."
+    }
+  ]
+}

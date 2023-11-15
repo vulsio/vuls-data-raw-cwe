@@ -1,0 +1,244 @@
+{
+  "id": "103",
+  "name": "Struts: Incomplete validate() Method Definition",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product has a validator form that either does not define a validate() method, or defines a validate() method but does not call super.validate().",
+  "extended_description": "If the code does not call super.validate(), the Validation Framework cannot check the contents of the form against a validation form. In other words, the validation framework will be disabled for the given form.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "573",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "20",
+      "view_id": "700",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "Java"
+      }
+    ]
+  },
+  "background_details": [
+    "The Struts Validator uses a form's validate() method to check the contents of the form properties against the constraints specified in the associated validation form. That means the following classes have a validate() method that is part of the validation framework: ValidatorForm, ValidatorActionForm, DynaValidatorForm, and DynaValidatorActionForm. If the code creates a class that extends one of these classes, and if that class implements custom validation logic by overriding the validate() method, the code must call super.validate() in the validate() implementation."
+  ],
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Other"
+      ],
+      "impact": [
+        "Other"
+      ],
+      "note": "Disabling the validation framework for a form exposes the product to numerous types of attacks. Unchecked input is the root cause of vulnerabilities like cross-site scripting, process control, and SQL injection."
+    },
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability",
+        "Other"
+      ],
+      "impact": [
+        "Other"
+      ],
+      "note": "Although J2EE applications are not generally susceptible to memory corruption attacks, if a J2EE application interfaces with native code that does not perform array bounds checking, an attacker may be able to use an input validation mistake in the J2EE application to launch a buffer overflow attack."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Implement the validate() method and call super.validate() within that method."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>In the following Java example the class RegistrationForm is a Struts framework ActionForm Bean that will maintain user input data from a registration webpage for an online business site. The user will enter registration data and the RegistrationForm bean in the Struts framework will maintain the user data. Tthe RegistrationForm class implements the validate method to validate the user input entered into the form.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class RegistrationForm extends org.apache.struts.validator.ValidatorForm {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">// private variables for registration form<xhtml:br/>private String name;<xhtml:br/>private String email;<xhtml:br/>...<xhtml:br/>\n                        <xhtml:br/>public RegistrationForm() {<xhtml:div style=\"margin-left:1em;\">super();</xhtml:div>}<xhtml:br/>\n                        <xhtml:br/>public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {<xhtml:div style=\"margin-left:1em;\">ActionErrors errors = new ActionErrors();<xhtml:br/>if (getName() == null || getName().length() &lt; 1) {<xhtml:div style=\"margin-left:1em;\">errors.add(\"name\", new ActionMessage(\"error.name.required\"));</xhtml:div>}<xhtml:br/>return errors;</xhtml:div>}</xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">// getter and setter methods for private variables<xhtml:br/>...</xhtml:div>\n                     <xhtml:br/>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Although the validate method is implemented in this example the method does not call the validate method of the ValidatorForm parent class with a call super.validate(). Without the call to the parent validator class only the custom validation will be performed and the default validation will not be performed. The following example shows that the validate method of the ValidatorForm class is called within the implementation of the validate method.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public class RegistrationForm extends org.apache.struts.validator.ValidatorForm {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>// private variables for registration form<xhtml:br/>private String name;<xhtml:br/>private String email;<xhtml:br/>...<xhtml:br/>\n                           <xhtml:br/>public RegistrationForm() {<xhtml:div style=\"margin-left:1em;\">super();</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {<xhtml:div style=\"margin-left:1em;\">ActionErrors errors = super.validate(mapping, request);<xhtml:br/>if (errors == null) {<xhtml:div style=\"margin-left:1em;\">errors = new ActionErrors();</xhtml:div>}</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:br/>if (getName() == null || getName().length() &lt; 1) {<xhtml:div style=\"margin-left:1em;\">errors.add(\"name\", new ActionMessage(\"error.name.required\"));</xhtml:div>}<xhtml:br/>return errors;</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">// getter and setter methods for private variables<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-6",
+      "author": [
+        "Katrina Tsipenyuk",
+        "Brian Chess",
+        "Gary McGraw"
+      ],
+      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+      "publication_year": "2005",
+      "publication_month": "--11",
+      "publication_day": "---07",
+      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+      "publisher": "NIST"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "7 Pernicious Kingdoms",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description, Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Background_Details, Common_Consequences, Description, Other_Notes, Relationship_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-12-28",
+        "modification_comment": "updated Common_Consequences, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Causal_Nature, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Background_Details, Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Common_Consequences, Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "7 Pernicious Kingdoms",
+      "entry_name": "Struts: Erroneous validate() Method"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Tainted input to command",
+      "entry_id": "SFP24"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "This could introduce other weaknesses related to missing input validation."
+    },
+    {
+      "type": "Maintenance",
+      "text": "The current description implies a loose composite of two separate weaknesses, so this node might need to be split or converted into a low-level category."
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "id": "526",
+  "name": "Cleartext Storage of Sensitive Information in an Environment Variable",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product uses an environment variable to store unencrypted sensitive information.",
+  "extended_description": "Information stored in an environment variable can be accessible by other processes with the execution context, including child processes that dependencies are executed in, or serverless functions in cloud environments. An environment variable's contents can also be inserted into messages, headers, log files, or other outputs. Often these other dependencies have no need to use the environment variable in question. A weakness that discloses environment variables could expose this information.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "312",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "214",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {},
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Application Data"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Encrypt information stored in the environment variable to protect it from being exposed to an unauthorized user. If encryption is not feasible or is considered too expensive for the business use of the application, then consider using a properly protected configuration file instead of an environment variable. It should be understood that unencrypted information in a config file is also not guaranteed to be protected, but it is still a better choice, because it reduces attack surface related to weaknesses such as CWE-214. In some settings, vaults might be a feasible option for safer data transfer. Users should be notified of the business choice made to not protect the sensitive information through encryption."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "If the environment variable is not necessary for the desired behavior, then remove it entirely, or clear it to an empty value."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2022-43691",
+      "description": "CMS shows sensitive server-side information from environment variables when run in Debug mode.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-43691"
+    },
+    {
+      "reference": "CVE-2022-27195",
+      "description": "Plugin for an automation server inserts environment variable contents into build XML files.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-27195"
+    },
+    {
+      "reference": "CVE-2022-25264",
+      "description": "CI/CD tool logs environment variables related to passwords add Contribution to content history.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-25264"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1318",
+      "author": [
+        "David Fiser, Alfredo Oliveira"
+      ],
+      "title": "Analyzing the Hidden Danger of Environment Variables for Keeping Secrets",
+      "url": "https://www.trendmicro.com/en_us/research/22/h/analyzing-hidden-danger-of-environment-variables-for-keeping-secrets.html",
+      "publication_year": "2022",
+      "publication_month": "--08",
+      "publication_day": "---17",
+      "url_date": "2023-01-26"
+    },
+    {
+      "reference_id": "REF-1319",
+      "author": [
+        "Nicolas Harraudeau"
+      ],
+      "title": "Using environment variables is security-sensitive",
+      "url": "https://sonarsource.atlassian.net/browse/RSPEC-5304",
+      "publication_year": "2021",
+      "publication_month": "--04",
+      "publication_day": "---28",
+      "url_date": "2023-01-26"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Community",
+      "submission_date": "2006-07-19",
+      "submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Name, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description, Name, Observed_Examples, Potential_Mitigations, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Information Leak Through Environmental Variables",
+        "date": "2011-03-29"
+      },
+      {
+        "text": "Information Exposure Through Environmental Variables",
+        "date": "2020-02-24"
+      },
+      {
+        "text": "Exposure of Sensitive Information Through Environmental Variables",
+        "date": "2023-01-31"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Drew Buttner",
+        "contribution_organization": "MITRE",
+        "contribution_date": "2023-01-11",
+        "contribution_comment": "Suggested improvements to name, description, relationships, and mitigations"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Exposed Data",
+      "entry_id": "SFP23"
+    }
+  ]
+}

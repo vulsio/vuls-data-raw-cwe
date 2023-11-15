@@ -1,0 +1,153 @@
+{
+  "id": "1267",
+  "name": "Policy Uses Obsolete Encoding",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product uses an obsolete encoding mechanism to implement access controls.",
+  "extended_description": "\n    <xhtml:p>Within a System-On-a-Chip (SoC), various circuits and hardware engines generate transactions for the purpose of accessing (read/write) assets or performing various actions (e.g., reset, fetch, compute, etc.). Among various types of message information, a typical transaction is comprised of source identity (identifying the originator of the transaction) and a destination identity (routing the transaction to the respective entity). Sometimes the transactions are qualified with a Security Token. This Security Token helps the destination agent decide on the set of allowed actions (e.g., access to an asset for reads and writes). A policy encoder is used to map the bus transactions to Security Tokens that in turn are used as access-controls/protection mechanisms. A common weakness involves using an encoding which is no longer trusted, i.e., an obsolete encoding.</xhtml:p>\n   ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability",
+        "Access Control"
+      ],
+      "impact": [
+        "Modify Memory",
+        "Read Memory",
+        "Modify Files or Directories",
+        "Read Files or Directories",
+        "DoS: Resource Consumption (Other)",
+        "Execute Unauthorized Code or Commands",
+        "Gain Privileges or Assume Identity",
+        "Bypass Protection Mechanism",
+        "Reduce Reliability"
+      ],
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "\n      <xhtml:p>Security Token Decoders should be reviewed for design inconsistency and common weaknesses.</xhtml:p>\n      <xhtml:p>Access and programming flows should be tested in both pre-silicon and post-silicon testing.</xhtml:p>\n     "
+      ],
+      "effectiveness": "High"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n      <Intro_Text>\n       <xhtml:p>For example, consider a system that has four bus masters. The table below provides bus masters, their Security Tokens, and trust assumptions.</xhtml:p>\n       <xhtml:table>\n        <xhtml:tr>\n         <xhtml:th>Bus Master</xhtml:th>\n         <xhtml:th>Security Token Decoding</xhtml:th>\n         <xhtml:th>Trust Assumptions</xhtml:th>\n        </xhtml:tr>\n        <xhtml:tr>\n         <xhtml:td>Master_0</xhtml:td>\n         <xhtml:td>\"00\"</xhtml:td>\n         <xhtml:td>Untrusted</xhtml:td>\n        </xhtml:tr>\n        <xhtml:tr>\n         <xhtml:td>Master_1</xhtml:td>\n         <xhtml:td>\"01\"</xhtml:td>\n         <xhtml:td>Trusted</xhtml:td>\n        </xhtml:tr>\n        <xhtml:tr>\n         <xhtml:td>Master_2</xhtml:td>\n         <xhtml:td>\"10\"</xhtml:td>\n         <xhtml:td>Untrusted</xhtml:td>\n        </xhtml:tr>\n        <xhtml:tr>\n         <xhtml:td>Master_3</xhtml:td>\n         <xhtml:td>\"11\"</xhtml:td>\n         <xhtml:td>Untrusted</xhtml:td>\n        </xhtml:tr>\n       </xhtml:table>\n       <xhtml:p>The policy encoding is to be defined such that Security Token will be used in implemented access-controls. The bits in the bus transaction that contain Security-Token information are Bus_transaction [15:11]. The assets are the AES-Key registers for encryption or decryption. The key of 128 bits is implemented as a set of four, 32-bit registers.</xhtml:p>\n       <xhtml:table>\n        <xhtml:tr>\n         <xhtml:th>Register</xhtml:th>\n         <xhtml:th>Field description</xhtml:th>\n        </xhtml:tr>\n        <xhtml:tr>\n         <xhtml:td>AES_ENC_DEC_KEY_0</xhtml:td>\n         <xhtml:td>AES key [0:31] for encryption or decryption, Default 0x00000000</xhtml:td>\n        </xhtml:tr>\n        <xhtml:tr>\n         <xhtml:td>AES_ENC_DEC_KEY_1</xhtml:td>\n         <xhtml:td>AES key [32:63] for encryption or decryption, Default 0x00000000</xhtml:td>\n        </xhtml:tr>\n        <xhtml:tr>\n         <xhtml:td>AES_ENC_DEC_KEY_2</xhtml:td>\n         <xhtml:td>AES key [64:95] for encryption or decryption, Default 0x00000000</xhtml:td>\n        </xhtml:tr>\n        <xhtml:tr>\n         <xhtml:td>AES_ENC_DEC_KEY_4</xhtml:td>\n         <xhtml:td>AES key [96:127] for encryption or decryption, Default 0x00000000</xhtml:td>\n        </xhtml:tr>\n       </xhtml:table>\n       <xhtml:p>Below is an example of a policy encoding scheme inherited from a previous project where all \"ODD\" numbered Security Tokens are trusted.</xhtml:p>\n      </Intro_Text>\n      <Example_Code Nature=\"Bad\">\n        <xhtml:div>If (Bus_transaction[14] == \"1\")<xhtml:div style=\"margin-left:1em;\">Trusted = \"1\"</xhtml:div>Else<xhtml:div style=\"margin-left:1em;\">Trusted = \"0\"</xhtml:div></xhtml:div>\n        <xhtml:div>If (trusted)<xhtml:div style=\"margin-left:1em;\">Allow access to AES-Key registers</xhtml:div>Else<xhtml:div style=\"margin-left:1em;\">Deny access to AES-Key registers</xhtml:div></xhtml:div>\n      </Example_Code>\n\t\t  <Body_Text><xhtml:p>The inherited policy encoding is obsolete and does not work for the new system where an untrusted bus master with an odd Security Token exists in the system, i.e., Master_3 whose Security Token is \"11\". Based on the old policy, the untrusted bus master (Master_3) has access to the AES-Key registers. To resolve this, a register AES_KEY_ACCESS_POLICY can be defined to provide necessary, access controls:</xhtml:p></Body_Text>\n\t\t  <Body_Text>\n\t\t    <xhtml:p>New Policy: </xhtml:p>\n\t\t    <xhtml:table>\n\t\t      <xhtml:tr>\n\t\t        <xhtml:td>AES_KEY_ACCESS_POLICY</xhtml:td>\n\t\t        <xhtml:td>[31:0] Default 0x00000002 - agent with Security Token \"1\" has access to AES_ENC_DEC_KEY_0 through AES_ENC_DEC_KEY_4 registers</xhtml:td>\n\t\t      </xhtml:tr>\n\t\t    </xhtml:table>\n\t\t    <xhtml:p>The AES_KEY_ACCESS_POLICY register defines which agents with a Security Token in the transaction can access the AES-key registers. Each bit in this 32-bit register defines a Security Token. There could be a maximum of 32 security Tokens that are allowed access to the AES-key registers. The number of the bit when set (i.e., \"1\") allows respective action from an agent whose identity matches the number of the bit and, if \"0\" (i.e., Clear), disallows the respective action to that corresponding agent. Thus, any bus master with Security Token \"01\" is allowed access to the AES-Key registers. Below is the Pseudo Code for policy encoding:</xhtml:p>\n\t\t  </Body_Text>\n      <Example_Code Nature=\"Good\">\n        <xhtml:div>Security_Token[4:0] = Bus_transaction[15:11]</xhtml:div>\n        <xhtml:div>If (AES_KEY_ACCESS_POLICY[Security_Token] == \"1\")<xhtml:div style=\"margin-left:1em;\">Allow access to AES-Key registers</xhtml:div>Else<xhtml:div style=\"margin-left:1em;\">Deny access to AES-Key registers</xhtml:div></xhtml:div>\n      </Example_Code>\n\t\t"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1093",
+      "author": [
+        "Brandon Hill"
+      ],
+      "title": "Huge Intel CPU Bug Allegedly Causes Kernel Memory Vulnerability With Up To 30% Performance Hit In Windows And Linux",
+      "url": "https://hothardware.com/news/intel-cpu-bug-kernel-memory-isolation-linux-windows-macos",
+      "publication_year": "2018",
+      "publication_month": "--01",
+      "publication_day": "---02",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-04-18"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Modes_of_Introduction, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "121",
+    "681"
+  ]
+}

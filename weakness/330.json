@@ -1,0 +1,604 @@
+{
+  "id": "330",
+  "name": "Use of Insufficiently Random Values",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Stable",
+  "description": "The product uses insufficiently random numbers or values in a security context that depends on unpredictable numbers.",
+  "extended_description": "When product generates predictable values in a context requiring unpredictability, it may be possible for an attacker to guess the next value that will be generated, and use this guess to impersonate another user or access sensitive information.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "693",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "804",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "background_details": [
+    "Computers are deterministic machines, and as such are unable to produce true randomness. Pseudo-Random Number Generators (PRNGs) approximate randomness algorithmically, starting with a seed from which subsequent values are calculated. There are two types of PRNGs: statistical and cryptographic. Statistical PRNGs provide useful statistical properties, but their output is highly predictable and forms an easy to reproduce numeric stream that is unsuitable for use in cases where security depends on generated values being unpredictable. Cryptographic PRNGs address this problem by generating output that is more difficult to predict. For a value to be cryptographically secure, it must be impossible or highly improbable for an attacker to distinguish between it and a truly random value."
+  ],
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Other"
+      ],
+      "impact": [
+        "Other"
+      ],
+      "note": "When a protection mechanism relies on random values to restrict access to a sensitive resource, such as a session ID or a seed for generating a cryptographic key, then the resource being protected could be accessed by guessing the ID or key."
+    },
+    {
+      "scope": [
+        "Access Control",
+        "Other"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism",
+        "Other"
+      ],
+      "note": "If product relies on unique, unguessable IDs to identify a resource, an attacker might be able to guess an ID for a resource that is owned by another user. The attacker could then read the resource, or pre-create a resource with the same ID to prevent the legitimate program from properly sending the resource to the intended user. For example, a product might maintain session information in a file whose name is based on a username. An attacker could pre-create this file for a victim user, then set the permissions so that the application cannot generate the session for the victim, preventing the victim from using the application."
+    },
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism",
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "When an authorization or authentication mechanism relies on random values to restrict access to restricted functionality, such as a session ID or a seed for generating a cryptographic key, then an attacker may access the restricted functionality by guessing the ID or key."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Use a well-vetted algorithm that is currently considered to be strong by experts in the field, and select well-tested implementations with adequate length seeds.</xhtml:p>\n                  <xhtml:p>In general, if a pseudo-random number generator is not advertised as being cryptographically secure, then it is probably a statistical PRNG and should not be used in security-sensitive contexts.</xhtml:p>\n                  <xhtml:p>Pseudo-random number generators can produce predictable numbers if the generator is known and the seed can be guessed. A 256-bit seed is a good starting point for producing a \"random enough\" number.</xhtml:p>\n               "
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Consider a PRNG that re-seeds itself as needed from high quality pseudo-random output sources, such as hardware devices."
+      ]
+    },
+    {
+      "phase": [
+        "Testing"
+      ],
+      "description": [
+        "Use automated static analysis tools that target this type of weakness. Many modern techniques use data flow analysis to minimize the number of false positives. This is not a perfect solution, since 100% accuracy and coverage are not feasible."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-2",
+      "phase": [
+        "Architecture and Design",
+        "Requirements"
+      ],
+      "description": [
+        "Use products or modules that conform to FIPS 140-2 [REF-267] to avoid obvious entropy problems. Consult FIPS 140-2 Annex C (\"Approved Random Number Generators\")."
+      ],
+      "strategy": "Libraries or Frameworks"
+    },
+    {
+      "phase": [
+        "Testing"
+      ],
+      "description": [
+        "Use tools and techniques that require manual (human) analysis, such as penetration testing, threat modeling, and interactive tools that allow the tester to record and modify an active session. These may be more effective than strictly automated techniques. This is especially the case with weaknesses that are related to design and business rules."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-45",
+      "text": "\n               <Intro_Text>This code attempts to generate a unique random identifier for a user's session.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function generateSessionID($userID){<xhtml:div style=\"margin-left:1em;\">srand($userID);<xhtml:br/>return rand();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because the seed for the PRNG is always the user's ID, the session ID will always be the same. An attacker could thus predict any user's session ID and potentially hijack the session.</Body_Text>\n               <Body_Text>This example also exhibits a Small Seed Space (CWE-339).</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-46",
+      "text": "\n               <Intro_Text>The following code uses a statistical PRNG to create a URL for a receipt that remains active for some period of time after a purchase.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String GenerateReceiptURL(String baseUrl) {<xhtml:div style=\"margin-left:1em;\">Random ranGen = new Random();<xhtml:br/>ranGen.setSeed((new Date()).getTime());<xhtml:br/>return(baseUrl + ranGen.nextInt(400000000) + \".html\");</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code uses the Random.nextInt() function to generate \"unique\" identifiers for the receipt pages it generates. Because Random.nextInt() is a statistical PRNG, it is easy for an attacker to guess the strings it generates. Although the underlying design of the receipt system is also faulty, it would be more secure if it used a random number generator that did not produce predictable receipt identifiers, such as a cryptographic PRNG.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-3692",
+      "description": "PHP framework uses mt_rand() function (Marsenne Twister) when generating tokens",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-3692"
+    },
+    {
+      "reference": "CVE-2020-7010",
+      "description": "Cloud application on Kubernetes generates passwords using a weak random number generator based on deployment time.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-7010"
+    },
+    {
+      "reference": "CVE-2009-3278",
+      "description": "Crypto product uses rand() library function to generate a recovery key, making it easier to conduct brute force attacks.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-3278"
+    },
+    {
+      "reference": "CVE-2009-3238",
+      "description": "Random number generator can repeatedly generate the same value.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-3238"
+    },
+    {
+      "reference": "CVE-2009-2367",
+      "description": "Web application generates predictable session IDs, allowing session hijacking.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2367"
+    },
+    {
+      "reference": "CVE-2009-2158",
+      "description": "Password recovery utility generates a relatively small number of random passwords, simplifying brute force attacks.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2158"
+    },
+    {
+      "reference": "CVE-2009-0255",
+      "description": "Cryptographic key created with a seed based on the system time.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0255"
+    },
+    {
+      "reference": "CVE-2008-5162",
+      "description": "Kernel function does not have a good entropy source just after boot.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-5162"
+    },
+    {
+      "reference": "CVE-2008-4905",
+      "description": "Blogging software uses a hard-coded salt when calculating a password hash.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4905"
+    },
+    {
+      "reference": "CVE-2008-4929",
+      "description": "Bulletin board application uses insufficiently random names for uploaded files, allowing other users to access private files.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4929"
+    },
+    {
+      "reference": "CVE-2008-3612",
+      "description": "Handheld device uses predictable TCP sequence numbers, allowing spoofing or hijacking of TCP connections.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-3612"
+    },
+    {
+      "reference": "CVE-2008-2433",
+      "description": "Web management console generates session IDs based on the login time, making it easier to conduct session hijacking.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2433"
+    },
+    {
+      "reference": "CVE-2008-0166",
+      "description": "SSL library uses a weak random number generator that only generates 65,536 unique keys.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-0166"
+    },
+    {
+      "reference": "CVE-2008-2108",
+      "description": "Chain: insufficient precision causes extra zero bits to be assigned, reducing entropy for an API function that generates random numbers.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2108"
+    },
+    {
+      "reference": "CVE-2008-2108",
+      "description": "Chain: insufficient precision (CWE-1339) in\n\t     random-number generator causes some zero bits to be reliably\n\t     generated, reducing the amount of entropy (CWE-331)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2108"
+    },
+    {
+      "reference": "CVE-2008-2020",
+      "description": "CAPTCHA implementation does not produce enough different images, allowing bypass using a database of all possible checksums.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2020"
+    },
+    {
+      "reference": "CVE-2008-0087",
+      "description": "DNS client uses predictable DNS transaction IDs, allowing DNS spoofing.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-0087"
+    },
+    {
+      "reference": "CVE-2008-0141",
+      "description": "Application generates passwords that are based on the time of day.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-0141"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-267",
+      "author": [
+        "Information Technology Laboratory, National Institute of Standards and Technology"
+      ],
+      "title": "SECURITY REQUIREMENTS FOR CRYPTOGRAPHIC MODULES",
+      "url": "https://csrc.nist.gov/csrc/media/publications/fips/140/2/final/documents/fips1402.pdf",
+      "publication_year": "2001",
+      "publication_month": "--05",
+      "publication_day": "---25",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-207",
+      "author": [
+        "John Viega",
+        "Gary McGraw"
+      ],
+      "title": "Building Secure Software: How to Avoid Security Problems the Right Way",
+      "publication_year": "2002",
+      "publisher": "Addison-Wesley",
+      "edition": "1st Edition"
+    },
+    {
+      "section": "Chapter 8, \"Using Poor Random Numbers\" Page 259",
+      "reference_id": "REF-7",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc"
+      ],
+      "title": "Writing Secure Code",
+      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+      "publication_year": "2002",
+      "publication_month": "--12",
+      "publication_day": "---04",
+      "publisher": "Microsoft Press",
+      "edition": "2nd Edition"
+    },
+    {
+      "section": "\"Sin 20: Weak Random Numbers.\" Page 299",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Background_Details, Relationships, Other_Notes, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-01-12",
+        "modification_comment": "updated Description, Likelihood_of_Exploit, Other_Notes, Potential_Mitigations, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-12-28",
+        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Description, Observed_Examples, Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Detection_Factors, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Potential_Mitigations, References, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-02-18",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Detection_Factors"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Functional_Areas, Likelihood_of_Exploit, Modes_of_Introduction, References, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Applicable_Platforms, Description, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Maintenance_Notes, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Demonstrative_Examples, Maintenance_Notes, Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Common_Consequences, Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Randomness and Predictability",
+        "date": "2008-04-11"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-11.4",
+      "method": "Black Box",
+      "description": "\n                  <xhtml:p>Use monitoring tools that examine the software's process as it interacts with the operating system and the network. This technique is useful in cases when source code is unavailable, if the software was not developed by you, or if you want to verify that the build phase did not introduce any new weaknesses. Examples include debuggers that directly attach to the running process; system-call tracing utilities such as truss (Solaris) and strace (Linux); system activity monitors such as FileMon, RegMon, Process Monitor, and other Sysinternals utilities (Windows); and sniffers and protocol analyzers that monitor network traffic.</xhtml:p>\n                  <xhtml:p>Attach the monitor to the process and look for library functions that indicate when randomness is being used. Run the process multiple times to see if the seed changes. Look for accesses of devices or equivalent resources that are commonly used for strong (or weak) randomness, such as /dev/urandom on Linux. Look for library or system calls that access predictable information such as process IDs and system time.</xhtml:p>\n               "
+    },
+    {
+      "method": "Automated Static Analysis - Binary or Bytecode",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                           <xhtml:li>Binary Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Manual Static Analysis - Binary or Bytecode",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Dynamic Analysis with Manual Results Interpretation",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Man-in-the-middle attack tool</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Manual Static Analysis - Source Code",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Automated Static Analysis - Source Code",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Architecture or Design Review",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Randomness and Predictability"
+    },
+    {
+      "taxonomy_name": "7 Pernicious Kingdoms",
+      "entry_name": "Insecure Randomness"
+    },
+    {
+      "taxonomy_name": "OWASP Top Ten 2004",
+      "entry_name": "Broken Access Control",
+      "entry_id": "A2",
+      "mapping_fit": "CWE More Specific"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Avoid race conditions when using library functions",
+      "entry_id": "CON33-C",
+      "mapping_fit": "Imprecise"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Do not use the rand() function for generating pseudorandom numbers",
+      "entry_id": "MSC30-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Properly seed pseudorandom number generators",
+      "entry_id": "MSC32-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "WASC",
+      "entry_name": "Brute Force",
+      "entry_id": "11"
+    },
+    {
+      "taxonomy_name": "WASC",
+      "entry_name": "Credential/Session Prediction",
+      "entry_id": "18"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Generate strong random numbers",
+      "entry_id": "MSC02-J"
+    }
+  ],
+  "related_attack_patterns": [
+    "112",
+    "485",
+    "59"
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "This can be primary to many other weaknesses such as cryptographic errors, authentication errors, symlink following, information leaks, and others."
+    },
+    {
+      "type": "Maintenance",
+      "text": "\n\t\t\t  As of CWE 4.3, CWE-330 and its descendants are being\n\t\t\t  investigated by the CWE crypto team to identify gaps\n\t\t\t  related to randomness and unpredictability, as well as\n\t\t\t  the relationships between randomness and cryptographic\n\t\t\t  primitives.  This \"subtree analysis\" might\n\t\t\t  result in the addition or deprecation of existing\n\t\t\t  entries; the reorganization of relationships in some\n\t\t\t  views, e.g. the research view (CWE-1000); more consistent\n\t\t\t  use of terminology; and/or significant modifications to\n\t\t\t  related entries.\n\t\t\t"
+    },
+    {
+      "type": "Maintenance",
+      "text": "As of CWE 4.5, terminology related to randomness, entropy, and\n\t   predictability can vary widely. Within the developer and other\n\t   communities, \"randomness\" is used heavily. However, within\n\t   cryptography, \"entropy\" is distinct, typically implied as a\n\t   measurement. There are no commonly-used definitions, even within\n\t   standards documents and cryptography papers. Future versions of\n\t   CWE will attempt to define these terms and, if necessary,\n\t   distinguish between them in ways that are appropriate for\n\t   different communities but do not reduce the usability of CWE for\n\t   mapping, understanding, or other scenarios."
+    }
+  ],
+  "functional_areas": [
+    "Cryptography",
+    "Authentication",
+    "Session Management"
+  ]
+}

@@ -1,0 +1,275 @@
+{
+  "id": "353",
+  "name": "Missing Support for Integrity Check",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product uses a transmission protocol that does not include a mechanism for verifying the integrity of the data during transmission, such as a checksum.",
+  "extended_description": "If integrity check values or \"checksums\" are omitted from a protocol, there is no way of determining if data has been corrupted in transmission. The lack of checksum functionality in a protocol removes the first application-level check of data that can be used. The end-to-end philosophy of checks states that integrity checks should be performed at the lowest level that they can be completely implemented. Excluding further sanity checks and input validation performed by applications, the protocol's checksum is the most important level of checksum, since it can be performed more completely than at any previous level and takes into account entire messages, as opposed to single packets.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "345",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "354",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "OMISSION: This weakness is caused by missing a security tactic during the architecture and design phase."
+      ]
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Other"
+      ],
+      "impact": [
+        "Other"
+      ],
+      "note": "Data that is parsed and used may be corrupted."
+    },
+    {
+      "scope": [
+        "Non-Repudiation",
+        "Other"
+      ],
+      "impact": [
+        "Hide Activities",
+        "Other"
+      ],
+      "note": "Without a checksum it is impossible to determine if any changes have been made to the data after it was sent."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Add an appropriately sized checksum to the protocol, ensuring that data received may be simply validated before it is parsed and used."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Ensure that the checksums present in the protocol design are properly implemented and added to each message before it is sent."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>In this example, a request packet is received, and privileged information is sent to the requester:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>while(true) {<xhtml:div style=\"margin-left:1em;\">DatagramPacket rp = new DatagramPacket(rData,rData.length);<xhtml:br/>outSock.receive(rp);<xhtml:br/>InetAddress IPAddress = rp.getAddress();<xhtml:br/>int port = rp.getPort();<xhtml:br/>out = secret.getBytes();<xhtml:br/>DatagramPacket sp =new DatagramPacket(out, out.length, IPAddress, port);<xhtml:br/>outSock.send(sp);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The response containing secret data has no integrity check associated with it, allowing an attacker to alter the message without detection.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    },
+    {
+      "section": "\"Sin 15: Not Updating Easily.\" Page 231",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Description, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Description, Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Failure to Add Integrity Check Value",
+        "date": "2010-12-13"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
+        "contribution_date": "2023-04-25",
+        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Failure to add integrity check value"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SP.03.03 RE(1)",
+      "entry_id": "Part 2-4"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SP.04.02 RE(1)",
+      "entry_id": "Part 2-4"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SP.11.06 RE(2)",
+      "entry_id": "Part 2-4"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SR 3.1",
+      "entry_id": "Part 3-3"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SD-1",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 3.1",
+      "entry_id": "Part 4-2"
+    }
+  ],
+  "related_attack_patterns": [
+    "13",
+    "14",
+    "389",
+    "39",
+    "665",
+    "74",
+    "75"
+  ]
+}

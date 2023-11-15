@@ -1,0 +1,250 @@
+{
+  "id": "332",
+  "name": "Insufficient Entropy in PRNG",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The lack of entropy available for, or used by, a Pseudo-Random Number Generator (PRNG) can be a stability and security threat.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "331",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart"
+      ],
+      "note": "If a pseudo-random number generator is using a limited entropy source which runs out (if the generator fails closed), the program may pause or crash."
+    },
+    {
+      "scope": [
+        "Access Control",
+        "Other"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism",
+        "Other"
+      ],
+      "note": "If a PRNG is using a limited entropy source which runs out, and the generator fails open, the generator could produce predictable random numbers. Potentially a weak source of random numbers could weaken the encryption method used for authentication of users."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "mitigation_id": "MIT-2",
+      "phase": [
+        "Architecture and Design",
+        "Requirements"
+      ],
+      "description": [
+        "Use products or modules that conform to FIPS 140-2 [REF-267] to avoid obvious entropy problems. Consult FIPS 140-2 Annex C (\"Approved Random Number Generators\")."
+      ],
+      "strategy": "Libraries or Frameworks"
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Consider a PRNG that re-seeds itself as needed from high-quality pseudo-random output, such as hardware devices."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "When deciding which PRNG to use, look at its sources of entropy. Depending on what your security needs are, you may need to use a random number generator that always uses strong random data -- i.e., a random number generator that attempts to be strong but will fail in a weak way or will always provide some middle ground of protection through techniques like re-seeding. Generally, something that always provides a predictable amount of strength is preferable."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2019-1715",
+      "description": "security product has insufficient entropy in the DRBG, allowing collisions and private key discovery",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-1715"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-267",
+      "author": [
+        "Information Technology Laboratory, National Institute of Standards and Technology"
+      ],
+      "title": "SECURITY REQUIREMENTS FOR CRYPTOGRAPHIC MODULES",
+      "url": "https://csrc.nist.gov/csrc/media/publications/fips/140/2/final/documents/fips1402.pdf",
+      "publication_year": "2001",
+      "publication_month": "--05",
+      "publication_day": "---25",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-12-28",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Potential_Mitigations, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Insufficient entropy in PRNG"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Generate strong random numbers",
+      "entry_id": "MSC02-J"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "As of CWE 4.5, terminology related to randomness, entropy, and\n\t   predictability can vary widely. Within the developer and other\n\t   communities, \"randomness\" is used heavily. However, within\n\t   cryptography, \"entropy\" is distinct, typically implied as a\n\t   measurement. There are no commonly-used definitions, even within\n\t   standards documents and cryptography papers. Future versions of\n\t   CWE will attempt to define these terms and, if necessary,\n\t   distinguish between them in ways that are appropriate for\n\t   different communities but do not reduce the usability of CWE for\n\t   mapping, understanding, or other scenarios."
+    }
+  ]
+}

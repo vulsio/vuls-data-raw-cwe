@@ -1,0 +1,157 @@
+{
+  "id": "1295",
+  "name": "Debug Messages Revealing Unnecessary Information",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product fails to adequately prevent the revealing of unnecessary and potentially sensitive system information within debugging messages.",
+  "extended_description": "\n\t\t\t\t<xhtml:p>Debug messages are messages that help troubleshoot an issue by revealing the internal state of the system. For example, debug data in design can be exposed through internal memory array dumps or boot logs through interfaces like UART via TAP commands, scan chain, etc. Thus, the more information contained in a debug message, the easier it is to debug. However, there is also the risk of revealing information that could help an attacker either decipher a vulnerability, and/or gain a better understanding of the system. Thus, this extra information could lower the \"security by obscurity\" factor. While \"security by obscurity\" alone is insufficient, it can help as a part of \"Defense-in-depth\". </xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "200",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "209",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability",
+        "Access Control",
+        "Accountability",
+        "Authentication",
+        "Authorization",
+        "Non-Repudiation"
+      ],
+      "impact": [
+        "Read Memory",
+        "Bypass Protection Mechanism",
+        "Gain Privileges or Assume Identity",
+        "Varies by Context"
+      ],
+      "likelihood": "Medium"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Ensure that a debug message does not reveal any unnecessary information during the debug process for the intended response."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>This example here shows how an attacker can take advantage of unnecessary information in debug messages.</Intro_Text>\n\t\t\t\t\t<Body_Text>Example 1: Suppose in response to a Test Access Port (TAP) chaining request the debug message also reveals the current TAP hierarchy (the full topology) in addition to the success/failure message.</Body_Text>\n\t\t\t\t\t<Body_Text>Example 2: In response to a password-filling request, the debug message, instead of a simple Granted/Denied response, prints an elaborate message, \"The user-entered password does not match the actual password stored in &lt;directory name&gt;.\"</Body_Text>\n\t\t\t\t\t<Body_Text>The result of the above examples is that the user is able to gather additional unauthorized information about the system from the debug messages.</Body_Text>\n\t\t\t\t\t<Body_Text>The solution is to ensure that Debug messages do not reveal additional details.</Body_Text>\n\t\t\t\t"
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-25476",
+      "description": "Digital Rights Management (DRM) capability for mobile platform leaks pointer information, simplifying ASLR bypass",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-25476"
+    },
+    {
+      "reference": "CVE-2020-24491",
+      "description": "Processor generates debug message that contains sensitive information (\"addresses of memory transactions\").",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-24491"
+    },
+    {
+      "reference": "CVE-2017-18326",
+      "description": "modem debug messages include cryptographic keys",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2017-18326"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1112",
+      "title": "Android Security Bulletin - December 2018",
+      "url": "https://source.android.com/security/bulletin/2018-12-01.html",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Parbati Kumar Manna, Hareesh Khattri, Arun Kanuparthi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-05-31"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Observed_Examples, Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Observed_Examples, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "121"
+  ]
+}

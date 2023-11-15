@@ -1,0 +1,216 @@
+{
+  "id": "58",
+  "name": "Path Equivalence: Windows 8.3 Filename",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product contains a protection mechanism that restricts access to a long filename on a Windows operating system, but it does not properly restrict access to the equivalent short \"8.3\" filename.",
+  "extended_description": "On later Windows operating systems, a file can have a \"long name\" and a short name that is compatible with older Windows file systems, with up to 8 characters in the filename and 3 characters for the extension. These \"8.3\" filenames, therefore, act as an alternate name for files with long names, so they are useful pathname equivalence manipulations.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "41",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Windows",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity"
+      ],
+      "impact": [
+        "Read Files or Directories",
+        "Modify Files or Directories"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "System Configuration"
+      ],
+      "description": [
+        "Disable Windows from supporting 8.3 filenames by editing the Windows registry. Preventing 8.3 filenames will not remove previously generated 8.3 filenames."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-1999-0012",
+      "description": "Multiple web servers allow restriction bypass using 8.3 names instead of long names",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0012"
+    },
+    {
+      "reference": "CVE-2001-0795",
+      "description": "Source code disclosure using 8.3 file name.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0795"
+    },
+    {
+      "reference": "CVE-2005-0471",
+      "description": "Multi-Factor Vulnerability. Product generates temporary filenames using long filenames, which become predictable in 8.3 format.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0471"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-7",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc"
+      ],
+      "title": "Writing Secure Code",
+      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+      "publication_year": "2002",
+      "publication_month": "--12",
+      "publication_day": "---04",
+      "publisher": "Microsoft Press",
+      "edition": "2nd Edition"
+    },
+    {
+      "section": "Chapter 11, \"DOS 8.3 Filenames\", Page 673",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Path Issue - Windows 8.3 Filename",
+        "date": "2008-04-11"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Windows 8.3 Filename"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Path Traversal",
+      "entry_id": "SFP16"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Research Gap",
+      "text": "Probably under-studied."
+    }
+  ],
+  "functional_areas": [
+    "File Processing"
+  ]
+}

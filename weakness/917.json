@@ -1,0 +1,264 @@
+{
+  "id": "917",
+  "name": "Improper Neutralization of Special Elements used in an Expression Language Statement ('Expression Language Injection')",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product constructs all or part of an expression language (EL) statement in a framework such as a Java Server Page (JSP) using externally-influenced input from an upstream component, but it does not neutralize or incorrectly neutralizes special elements that could modify the intended EL statement before it is executed.",
+  "extended_description": "Frameworks such as Java Server Page (JSP) allow a developer to insert executable expressions within otherwise-static content. When the developer is not aware of the executable nature of these expressions and/or does not disable them, then if an attacker can inject expressions, this could lead to code execution or other unexpected behaviors.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "77",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "1336",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "74",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "77",
+      "view_id": "1305",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "77",
+      "view_id": "1340",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "Java"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Application Data"
+      ]
+    },
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Execute Unauthorized Code or Commands"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Avoid adding user-controlled data into an expression interpreter when possible."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "\n                  <xhtml:p>If user-controlled data must be added to an expression interpreter, one or more of the following should be performed:</xhtml:p>\n                     <xhtml:ul>\n                        <xhtml:li>Validate that the user input will not evaluate as an expression</xhtml:li>\n                        <xhtml:li>Encode the user input in a way that ensures it is not evaluated as an expression</xhtml:li>\n                     </xhtml:ul>\n               "
+      ]
+    },
+    {
+      "phase": [
+        "System Configuration",
+        "Operation"
+      ],
+      "description": [
+        "The framework or tooling might allow the developer to disable or deactivate the processing of EL expressions, such as setting the isELIgnored attribute for a JSP page to \"true\"."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-44228",
+      "description": "Product does not neutralize ${xyz} style expressions, allowing remote code execution. (log4shell vulnerability in log4j)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-44228"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-911",
+      "author": [
+        "Stefano Di Paola",
+        "Arshan Dabirsiaghi"
+      ],
+      "title": "Expression Language Injection",
+      "url": "https://mindedsecurity.com/wp-content/uploads/2020/10/ExpressionLanguageInjection.pdf",
+      "publication_year": "2011",
+      "publication_month": "--09",
+      "publication_day": "---12",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-912",
+      "author": [
+        "Dan Amodio"
+      ],
+      "title": "Remote Code with Expression Language Injection",
+      "url": "http://danamodio.com/appsec/research/spring-remote-code-with-expression-language-injection/",
+      "publication_year": "2012",
+      "publication_month": "--12",
+      "publication_day": "---14",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1279",
+      "author": [
+        "CWE/CAPEC"
+      ],
+      "title": "Neutralizing Your Inputs: A Log4Shell Weakness Story",
+      "url": "https://medium.com/@CWE_CAPEC/neutralizing-your-inputs-a-log4shell-weakness-story-89954c8b25c9"
+    },
+    {
+      "reference_id": "REF-1280",
+      "author": [
+        "OWASP"
+      ],
+      "title": "Expression Language Injection",
+      "url": "https://owasp.org/www-community/vulnerabilities/Expression_Language_Injection"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2013-02-15"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Description, Maintenance_Notes, Observed_Examples, Potential_Mitigations, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Feedback",
+        "contribution_name": "Dan Amodio, Dave Wichers",
+        "contribution_organization": "Aspect Security",
+        "contribution_date": "2013-02-15",
+        "contribution_comment": "Suggested adding this weakness and provided references."
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "alternate_terms": [
+    {
+      "term": "EL Injection"
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "The interrelationships and differences between CWE-917 and CWE-1336 need to be further clarified."
+    },
+    {
+      "type": "Relationship",
+      "text": "In certain versions of Spring 3.0.5 and earlier, there was a vulnerability (CVE-2011-2730) in which Expression Language tags would be evaluated twice, which effectively exposed any application to EL injection. However, even for later versions, this weakness is still possible depending on configuration."
+    }
+  ]
+}

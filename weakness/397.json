@@ -1,0 +1,243 @@
+{
+  "id": "397",
+  "name": "Declaration of Throws for Generic Exception",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "Throwing overly broad exceptions promotes complex error handling code that is more likely to contain security vulnerabilities.",
+  "extended_description": "Declaring a method to throw Exception or Throwable makes it difficult for callers to perform proper error handling and error recovery. Java's exception mechanism, for example, is set up to make it easy for callers to anticipate what can go wrong and write code to handle each specific exceptional circumstance. Declaring that a method throws a generic form of exception defeats this system.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "705",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "221",
+      "view_id": "1000"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "703",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "C++"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Java"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C#"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Non-Repudiation",
+        "Other"
+      ],
+      "impact": [
+        "Hide Activities",
+        "Alter Execution Logic"
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following method throws three types of exceptions.</Intro_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public void doExchange() throws IOException, InvocationTargetException, SQLException {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>While it might seem tidier to write</Body_Text>\n               <Example_Code Nature=\"Bad\">\n                  <xhtml:div>public void doExchange() throws Exception {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>doing so hampers the caller's ability to understand and handle the exceptions that occur. Further, if a later revision of doExchange() introduces a new type of exception that should be treated differently than previous exceptions, there is no easy way to enforce this requirement.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>Early versions of C++ (C++98, C++03, C++11) included a feature known as Dynamic Exception Specification. This allowed functions to declare what type of exceptions it may throw. It is possible to declare a general class of exception to cover any derived exceptions that may be throw.</Intro_Text>\n               <Example_Code Nature=\"Bad\">\n                  <xhtml:div>int myfunction() throw(std::exception) {<xhtml:div style=\"margin-left:1em;\">if (0) throw out_of_range();<xhtml:br/>throw length_error();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In the example above, the code declares that myfunction() can throw an exception of type \"std::exception\" thus hiding details about the possible derived exceptions that could potentially be thrown.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-6",
+      "author": [
+        "Katrina Tsipenyuk",
+        "Brian Chess",
+        "Gary McGraw"
+      ],
+      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+      "publication_year": "2005",
+      "publication_month": "--11",
+      "publication_day": "---07",
+      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+      "publisher": "NIST"
+    },
+    {
+      "section": "ASCRM-CWE-397",
+      "reference_id": "REF-961",
+      "author": [
+        "Object Management Group (OMG)"
+      ],
+      "title": "Automated Source Code Reliability Measure (ASCRM)",
+      "url": "http://www.omg.org/spec/ASCRM/1.0/",
+      "publication_year": "2016",
+      "publication_month": "--01"
+    },
+    {
+      "section": "ASCSM-CWE-397",
+      "reference_id": "REF-962",
+      "author": [
+        "Object Management Group (OMG)"
+      ],
+      "title": "Automated Source Code Security Measure (ASCSM)",
+      "url": "http://www.omg.org/spec/ASCSM/1.0/",
+      "publication_year": "2016",
+      "publication_month": "--01"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "7 Pernicious Kingdoms",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-24",
+        "modification_comment": "Removed C from Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Description, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, References, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Overly-Broad Throws Declaration",
+        "date": "2008-04-11"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "7 Pernicious Kingdoms",
+      "entry_name": "Overly-Broad Throws Declaration"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Do not throw RuntimeException, Exception, or Throwable",
+      "entry_id": "ERR07-J"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Ambiguous Exception Type",
+      "entry_id": "SFP5"
+    },
+    {
+      "taxonomy_name": "OMG ASCSM",
+      "entry_id": "ASCSM-CWE-397"
+    },
+    {
+      "taxonomy_name": "OMG ASCRM",
+      "entry_id": "ASCRM-CWE-397"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Applicable Platform",
+      "text": "For C++, this weakness only applies to C++98, C++03, and C++11. It relies on a feature known as Dynamic Exception Specification, which was part of early versions of C++ but was deprecated in C++11. It has been removed for C++17 and later."
+    }
+  ]
+}

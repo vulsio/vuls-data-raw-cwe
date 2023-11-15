@@ -1,0 +1,171 @@
+{
+  "id": "453",
+  "name": "Insecure Default Variable Initialization",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product, by default, initializes an internal variable with an insecure or less secure value than is possible.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1188",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Sometimes",
+        "name": "PHP"
+      },
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Application Data"
+      ],
+      "note": "An attacker could gain access to and modify sensitive data or system information."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "System Configuration"
+      ],
+      "description": [
+        "Disable or change default settings when they can be used to abuse the system. Since those default settings are shipped with the product they are likely to be known by a potential attacker who is familiar with the product. For instance, default credentials should be changed or the associated accounts should be disabled."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-163",
+      "text": "\n               <Intro_Text>This code attempts to login a user using credentials from a POST request:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>// $user and $pass automatically set from POST request</xhtml:i>\n                     <xhtml:br/>if (login_user($user,$pass)) {<xhtml:div style=\"margin-left:1em;\">$authorized = true;</xhtml:div>}<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>if ($authorized) {<xhtml:div style=\"margin-left:1em;\">generatePage();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because the $authorized variable is never initialized, PHP will automatically set $authorized to any value included in the POST request if register_globals is enabled. An attacker can send a POST request with an unexpected third value 'authorized' set to 'true' and gain authorized status without supplying valid credentials.</Body_Text>\n               <Body_Text>Here is a fixed version:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$user = $_POST['user'];<xhtml:br/>$pass = $_POST['pass'];<xhtml:br/>$authorized = false;<xhtml:br/>if (login_user($user,$pass)) {<xhtml:div style=\"margin-left:1em;\">$authorized = true;</xhtml:div>}<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>This code avoids the issue by initializing the $authorized variable to false and explicitly retrieving the login credentials from the $_POST variable. Regardless, register_globals should never be enabled and is disabled by default in current versions of PHP.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2022-36349",
+      "description": "insecure default variable initialization in BIOS firmware for a hardware board allows DoS",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-36349"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Maintenance_Notes, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Insecure default variable initialization"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "This overlaps other categories, probably should be split into separate items."
+    }
+  ]
+}

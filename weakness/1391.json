@@ -1,0 +1,284 @@
+{
+  "id": "1391",
+  "name": "Use of Weak Credentials",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product uses weak credentials (such as a default key or hard-coded password) that can be calculated, derived, reused, or guessed by an attacker.",
+  "extended_description": "\n\t<xhtml:p>By design, authentication protocols try to ensure that attackers must perform brute force attacks if they do not know the credentials such as a key or password. However, when these credentials are easily predictable or even fixed (as with default or hard-coded passwords and keys), then the attacker can defeat the mechanism without relying on brute force.</xhtml:p>\n\t<xhtml:p>Credentials may be weak for different reasons, such as:</xhtml:p>\n\t<xhtml:ul>\n\t  <xhtml:li>Hard-coded (i.e., static and unchangeable by the administrator)</xhtml:li>\n\t  <xhtml:li>Default (i.e., the same static value across different deployments/installations, but able to be changed by the administrator)</xhtml:li>\n\t  <xhtml:li>Predictable (i.e., generated in a way that produces unique credentials across deployments/installations, but can still be guessed with reasonable efficiency)</xhtml:li>\n\t</xhtml:ul>\n\t<xhtml:p>Even if a new, unique credential is intended to be generated for each product installation, if the generation is predictable, then that may also simplify guessing attacks.</xhtml:p>\n      ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1390",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "ICS/OT",
+        "prevalence": "Undetermined"
+      },
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Requirements"
+    },
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Installation"
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-153",
+      "text": "\n          <Intro_Text>In 2022, the OT:ICEFALL study examined products by 10 different Operational Technology (OT) vendors. The researchers reported 56 vulnerabilities and said that the products were \"insecure by design\" [REF-1283]. If exploited, these vulnerabilities often allowed adversaries to change how the products operated, ranging from denial of service to changing the code that the products executed. Since these products were often used in industries such as power, electrical, water, and others, there could even be safety implications.</Intro_Text>\n          <Body_Text>Multiple OT products used weak credentials.</Body_Text>\n        "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2022-30270",
+      "description": "Remote Terminal Unit (RTU) uses default credentials for some SSH accounts",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-30270"
+    },
+    {
+      "reference": "CVE-2022-29965",
+      "description": "Distributed Control System (DCS) uses a deterministic algorithm to generate utility passwords",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-29965"
+    },
+    {
+      "reference": "CVE-2022-30271",
+      "description": "Remote Terminal Unit (RTU) uses a hard-coded SSH private key that is likely to be used in typical deployments",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-30271"
+    },
+    {
+      "reference": "CVE-2021-38759",
+      "description": "microcontroller board has default password, allowing admin access",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-38759"
+    },
+    {
+      "reference": "CVE-2021-41192",
+      "description": "data visualization/sharing package uses default secret keys or cookie values if they are not specified in environment variables",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-41192"
+    },
+    {
+      "reference": "CVE-2020-27020",
+      "description": "password manager does not generate cryptographically strong passwords, allowing prediction of passwords using guessable details such as time of generation",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-27020"
+    },
+    {
+      "reference": "CVE-2020-8632",
+      "description": "password generator for cloud application has small length value, making it easier for brute-force guessing",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-8632"
+    },
+    {
+      "reference": "CVE-2020-5365",
+      "description": "network-attached storage (NAS) system has predictable default passwords for a diagnostics/support account",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-5365"
+    },
+    {
+      "reference": "CVE-2020-5248",
+      "description": "IT asset management app has a default encryption key that is the same across installations ",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-5248"
+    },
+    {
+      "reference": "CVE-2012-3503",
+      "description": "Installation script has a hard-coded secret token value, allowing attackers to bypass authentication",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2012-3503"
+    },
+    {
+      "reference": "CVE-2010-2306",
+      "description": "Intrusion Detection System (IDS) uses the same static, private SSL keys for multiple devices and installations, allowing decryption of SSL traffic",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-2306"
+    },
+    {
+      "reference": "CVE-2001-0618",
+      "description": "Residential gateway uses the last 5 digits of the 'Network Name' or SSID as the default WEP key, which allows attackers to get the key by sniffing the SSID, which is sent in the clear",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0618"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1303",
+      "author": [
+        "Kelly Jackson Higgins"
+      ],
+      "title": "Researchers Out Default Passwords Packaged With ICS/SCADA Wares",
+      "url": "https://www.darkreading.com/endpoint/researchers-out-default-passwords-packaged-with-ics-scada-wares",
+      "publication_year": "2016",
+      "publication_month": "--01",
+      "publication_day": "---04",
+      "url_date": "2022-10-11"
+    },
+    {
+      "reference_id": "REF-1304",
+      "author": [
+        "ICS-CERT"
+      ],
+      "title": "ICS Alert (ICS-ALERT-13-164-01): Medical Devices Hard-Coded Passwords",
+      "url": "https://www.cisa.gov/news-events/ics-alerts/ics-alert-13-164-01",
+      "publication_year": "2013",
+      "publication_month": "--06",
+      "publication_day": "---13",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1283",
+      "author": [
+        "Forescout Vedere Labs"
+      ],
+      "title": "OT:ICEFALL: The legacy of \"insecure by design\" and its implications for certifications and risk management",
+      "url": "https://www.forescout.com/resources/ot-icefall-report/",
+      "publication_year": "2022",
+      "publication_month": "--06",
+      "publication_day": "---20"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2022-10-06"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Observed_Examples, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes, Taxonomy_Mappings"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
+        "contribution_date": "2023-06-29",
+        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SP.09.02 RE(1)",
+      "entry_id": "Part 2-4"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SR-3 b)",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SI-2 b)",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SI-2 d)",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SG-3 d)",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SG-6 b)",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 1.1",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 1.2",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 1.5",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 1.7",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 1.8",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 1.9",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 1.14",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 2.1",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 4.3",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 7.5",
+      "entry_id": "Part 4-2"
+    }
+  ]
+}

@@ -1,0 +1,150 @@
+{
+  "id": "1235",
+  "name": "Incorrect Use of Autoboxing and Unboxing for Performance Critical Operations",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The code uses boxed primitives, which may introduce inefficiencies into performance-critical operations.",
+  "extended_description": "\n            <xhtml:p>Languages such as Java and C# support automatic conversion through their respective compilers from primitive types into objects of the corresponding wrapper classes, and vice versa. For example, a compiler might convert an int to Integer (called autoboxing) or an Integer to int (called unboxing). This eliminates forcing the programmer to perform these conversions manually, which makes the code cleaner.</xhtml:p>\n\t    <xhtml:p>However, this feature comes at a cost of performance and can lead to resource exhaustion and impact availability when used with generic collections. Therefore, they should not be used for scientific computing or other performance critical operations. They are only suited to support \"impedance mismatch\" between reference types and primitives.</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "400",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "Java"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C#"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation",
+      "note": [
+        "The programmer may use boxed primitives when not strictly necessary."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Resource Consumption (CPU)",
+        "DoS: Resource Consumption (Memory)",
+        "DoS: Resource Consumption (Other)",
+        "Reduce Performance"
+      ],
+      "note": "Incorrect autoboxing/unboxing would result in reduced performance, which sometimes can lead to resource consumption issues.",
+      "likelihood": "Low"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use of boxed primitives should be limited to certain situations such as when calling methods with typed parameters.  Examine the use of boxed primitives prior to use. Use SparseArrays or ArrayMap instead of HashMap to avoid performance overhead."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>Java has a boxed primitive for each primitive type. A long can be represented with the boxed primitive Long. Issues arise where boxed primitives are used when not strictly necessary.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n\t\t\t\t<xhtml:div>Long count = 0L;\n\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\tfor (long i = 0; i &lt; Integer.MAX_VALUE; i++) {\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\tcount += i;\n\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t}\n\t\t\t\t</xhtml:div>\n               </Example_Code>\n               <Body_Text>In the above loop, we see that the count variable is declared as a boxed primitive. This causes autoboxing on the line that increments. This causes execution to be magnitudes less performant (time and possibly space) than if the \"long\" primitive was used to declare the count variable, which can impact availability of a resource.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>This code uses primitive long which fixes the issue.</Intro_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n\t\t\t\t<xhtml:div>long count = 0L;\n\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\tfor (long i = 0; i &lt; Integer.MAX_VALUE; i++) {\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\tcount += i;\n\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t}\n\t\t\t\t</xhtml:div>\n               </Example_Code>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1051",
+      "title": "Oracle Java Documentation",
+      "url": " https://docs.oracle.com/javase/1.5.0/docs/guide/language/autoboxing.html"
+    },
+    {
+      "reference_id": "REF-1052",
+      "author": [
+        "The Software Engineering Institute"
+      ],
+      "title": "SEI CERT Oracle Coding Standard for Java : Rule 02. Expressions (EXP)",
+      "url": "https://wiki.sei.cmu.edu/confluence/display/java/EXP04-J.+Do+not+pass+arguments+to+certain+Java+Collections+Framework+methods+that+are+a+different+type+than+the+collection+parameter+type"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Joe Harvey",
+      "submission_date": "2019-10-14"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
+        "contribution_date": "2023-04-25",
+        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "SEI CERT Oracle Coding Standard for Java",
+      "entry_name": "Do not pass arguments to certain Java Collections Framework methods that are a different type than the collection parameter type",
+      "entry_id": "EXP04-J"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SI-2",
+      "entry_id": "Part 4-1"
+    }
+  ]
+}

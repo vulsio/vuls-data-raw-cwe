@@ -1,0 +1,119 @@
+{
+  "id": "1222",
+  "name": "Insufficient Granularity of Address Regions Protected by Register Locks",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product defines a large address region protected from modification by the same register lock control bit. This results in a conflict between the functional requirement that some addresses need to be writable by software during operation and the security requirement that the system configuration lock bit must be set during the boot process.",
+  "extended_description": "\n                <xhtml:p>Integrated circuits and hardware IPs can expose the device configuration controls that need to be programmed after device power reset by a trusted firmware or software module (commonly set by BIOS/bootloader) and then locked from any further modification. In hardware design, this is commonly implemented using a programmable lock bit which enables/disables writing to a protected set of registers or address regions. When the programmable lock bit is set, the relevant address region can be implemented as a hardcoded value in hardware logic that cannot be changed later.</xhtml:p>\n                <xhtml:p>A problem can arise wherein the protected region definition is not granular enough. After the programmable lock bit has been set, then this new functionality cannot be implemented without change to the hardware design.</xhtml:p>\n            ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1220",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "Such issues are introduced during hardware architecture and design since software controls and configuration are defined during these phases and identified later during Testing or System Configuration phases."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Other"
+      ],
+      "note": "System security configuration cannot be defined in a way that does not conflict with functional requirements of device."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                        <xhtml:p>The defining of protected locked registers should be reviewed or tested early in the design phase with software teams to ensure software flows are not blocked by the security locks.</xhtml:p>\n                        <xhtml:p>As an alternative to using register lock control bits and fixed access control regions, the hardware design could use programmable security access control configuration so that device trusted firmware can configure and change the protected regions based on software usage and security models.</xhtml:p>\n                    "
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n                    <Intro_Text>For example, consider a hardware unit with a 32 kilobyte configuration address space where the first 8 kilobyte address contains security sensitive controls that must only be writable by device bootloader. One way to protect the security configuration could be to define a 32 bit system configuration locking register (SYS_LOCK) where each bit lock locks the corresponding 1 kilobyte region. </Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Other\">\n                        <xhtml:table>\n                            <xhtml:tbody>\n                                <xhtml:tr>\n                                    <xhtml:th>Address</xhtml:th>\n                                    <xhtml:th>Register</xhtml:th>\n                                </xhtml:tr>\n                                <xhtml:tr>\n                                    <xhtml:td>0x0000</xhtml:td>\n                                    <xhtml:td>SYS_LOCK: 32 bit system configuration lock register, each bit is write-1-once</xhtml:td>\n                                </xhtml:tr>\n                                <xhtml:tr>\n                                    <xhtml:td>0x0004</xhtml:td>\n                                    <xhtml:td>SECURITY_FEATURE_ENABLE: 32 bit register controlling enabling of security features</xhtml:td>\n                                </xhtml:tr>\n                                <xhtml:tr>\n                                    <xhtml:td>...</xhtml:td>\n                                    <xhtml:td/>\n                                </xhtml:tr>\n                                <xhtml:tr>\n                                    <xhtml:td>0x0310</xhtml:td>\n                                    <xhtml:td>SW_MODE: 32 bit Software Mode indication register </xhtml:td>\n                                </xhtml:tr>\n                            </xhtml:tbody>\n                        </xhtml:table>\n                        <xhtml:table>\n                            <xhtml:tbody>\n                                <xhtml:tr>\n                                    <xhtml:th>Address region</xhtml:th>\n                                    <xhtml:th>Lock bit</xhtml:th>\n                                </xhtml:tr>\n                                <xhtml:tr>\n                                    <xhtml:td>0x0000 - 0x03FF</xhtml:td>\n                                    <xhtml:td>SYS_LOCK[0]</xhtml:td>\n                                </xhtml:tr>\n                                <xhtml:tr>\n                                    <xhtml:td>0x0400 - 0x07FF</xhtml:td>\n                                    <xhtml:td>SYS_LOCK[1]</xhtml:td>\n                                </xhtml:tr>\n                                <xhtml:tr>\n                                    <xhtml:td>...</xhtml:td>\n                                    <xhtml:td/>\n                                </xhtml:tr>\n                                <xhtml:tr>\n                                    <xhtml:td>0x7C00 - 0x7FFF</xhtml:td>\n                                    <xhtml:td>SYS_LOCK[31]</xhtml:td>\n                                </xhtml:tr>\n                            </xhtml:tbody>\n                        </xhtml:table>\n                    </Example_Code>\n                    <Body_Text>If a register exists within the first kilobyte address range (e.g. SW_MODE, address 0x310) and needs to be software writable at runtime, then this register cannot be written in a securely configured system since SYS_LOCK register lock bit 0 must be set to protect other security settings (e.g. SECURITY_FEATURE_ENABLE, address 0x0004). The only fix would be to change the hardware logic or not set the security lock bit.</Body_Text>\n                "
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2019-12-12"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "679"
+  ]
+}

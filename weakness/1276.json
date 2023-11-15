@@ -1,0 +1,186 @@
+{
+  "id": "1276",
+  "name": "Hardware Child Block Incorrectly Connected to Parent System",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "Signals between a hardware IP and the parent system design are incorrectly connected causing security risks.",
+  "extended_description": "\n\t\t\t\t<xhtml:p>Individual hardware IP must communicate with the parent system in order for the product to function correctly and as intended. If implemented incorrectly, while not causing any apparent functional issues, may cause security issues. For example, if the IP should only be reset by a system-wide hard reset, but instead the reset input is connected to a software-triggered debug mode reset (which is also asserted during a hard reset), integrity of data inside the IP can be violated.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation",
+      "note": [
+        "This weakness is introduced when integrating IP into a parent design."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability"
+      ],
+      "impact": [
+        "Varies by Context"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Testing"
+      ],
+      "description": [
+        "System-level verification may be used to ensure that components are correctly connected and that design security requirements are not violated due to interactions between various IP blocks."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t    <Intro_Text>Many SoCs use hardware to partition system resources between trusted and un-trusted entities. One example of this concept is the Arm TrustZone, in which the processor and all security-aware IP attempt to isolate resources based on the status of a privilege bit. This privilege bit is part of the input interface in all TrustZone-aware IP. If this privilege bit is accidentally grounded or left unconnected when the IP is instantiated, privilege escalation of all input data may occur.</Intro_Text>\n\t\t\t    <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t      // IP definition<xhtml:br/>\n\t\t\t      module tz_peripheral(clk, reset, data_in, data_in_security_level, ...);<xhtml:br/>\n\t\t\t      <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\tinput clk, reset;<xhtml:br/>\n\t\t\t\tinput [31:0] data_in;<xhtml:br/>\n\t\t\t\tinput data_in_security_level;<xhtml:br/>\n\t\t\t\t...<xhtml:br/>\n\t\t\t      </xhtml:div>\n\t\t\t      endmodule<xhtml:br/>\n\t\t\t      // Instantiation of IP in a parent system<xhtml:br/>\n\t\t\t      module soc(...)<xhtml:br/>\n\t\t\t      <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t...<xhtml:br/>\n\t\t\t\ttz_peripheral u_tz_peripheral(<xhtml:br/>\n\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t  .clk(clk),<xhtml:br/>\n\t\t\t\t  .rst(rst),<xhtml:br/>\n\t\t\t\t  .data_in(rdata),<xhtml:br/>\n\t\t\t\t  //Copy-and-paste error or typo grounds data_in_security_level (in this example 0=secure, 1=non-secure) effectively promoting all data to \"secure\")<xhtml:br/>\n\t\t\t\t  .data_in_security_level(1'b0),<xhtml:br/>\n\t\t\t\t</xhtml:div>\n\t\t\t\t);<xhtml:br/>\n\t\t\t\t...<xhtml:br/>\n\t\t\t      </xhtml:div>\n\t\t\t      endmodule<xhtml:br/>\n\t\t\t    </Example_Code>\n\t\t\t    <Body_Text>In the Verilog code below, the security level input to the TrustZone aware peripheral is correctly driven by an appropriate signal instead of being grounded.</Body_Text>\n\t\t\t    <Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t      // Instantiation of IP in a parent system<xhtml:br/>\n\t\t\t      module soc(...)<xhtml:br/>\n\t\t\t      <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t...<xhtml:br/>\n\t\t\t\ttz_peripheral u_tz_peripheral(<xhtml:br/>\n\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t  .clk(clk),<xhtml:br/>\n\t\t\t\t  .rst(rst),<xhtml:br/>\n\t\t\t\t  .data_in(rdata),<xhtml:br/>\n\t\t\t\t  // This port is no longer grounded, but instead driven by the appropriate signal<xhtml:br/>\n\t\t\t\t  .data_in_security_level(rdata_security_level),<xhtml:br/>\n\t\t\t\t</xhtml:div>\n\t\t\t\t);<xhtml:br/>\n\t\t\t\t...<xhtml:br/>\n\t\t\t      </xhtml:div>\n\t\t\t      endmodule<xhtml:br/>\n\t\t\t    </Example_Code>\n\t\t\t  "
+    },
+    {
+      "text": "\n\t\t\t  \t<Intro_Text>Here is a code snippet from the Ariane core module in the HACK@DAC'21 Openpiton SoC [REF-1362]. \n\t\t\t\tTo ensure full functional correctness, developers connect the ports with names. However, in some cases developers forget to connect some of these ports to the desired signals in the parent module. These mistakes by developers can lead to incorrect functional behavior or, in some cases, introduce security vulnerabilities. \t\t\t\t</Intro_Text>\n\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t...<xhtml:br/>\n\t\t\t\tcsr_regfile #(<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t) csr_regfile_i (<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t.flush_o             ( flush_csr_ctrl ),<xhtml:br/>\n\t\t\t\t\t.halt_csr_o          ( halt_csr_ctrl ),<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t<xhtml:b>.irq_i(),</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:b>.time_irq_i(),</xhtml:b><xhtml:br/>\n\t\t\t\t\t.*<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t);<xhtml:br/>\n\t\t\t\t...<xhtml:br/>\n\t\t\t\t</Example_Code>\n\t\t\t\t<Body_Text>In the above example from HACK@DAC'21, since interrupt signals are not properly connected, the CSR module will fail to send notifications in the event of interrupts. Consequently, critical information in CSR registers that should be flushed or modified in response to an interrupt won't be updated. These vulnerabilities can potentially result in information leakage across various privilege levels.</Body_Text>\n\t\t\t\t<Body_Text>To address the aforementioned vulnerability, developers must follow a two-step approach. First, they should ensure that all module signals are properly connected. This can often be facilitated using automated tools, and many simulators and sanitizer tools issue warnings when a signal remains unconnected or floats. Second, it is imperative to validate that the signals connected to a module align with the specifications. In the provided example, the developer should establish the correct connection of interrupt signals from the parent module (Ariane core) to the child module (csr_regfile) [REF-1363].</Body_Text>\n\t\t\t  \t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t...<xhtml:br/>\n\t\t\t\tcsr_regfile #(<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t) csr_regfile_i (<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t.flush_o             ( flush_csr_ctrl ),<xhtml:br/>\n\t\t\t\t\t.halt_csr_o          ( halt_csr_ctrl ),<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t<xhtml:b>.irq_i\t\t\t(irq_i),</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:b>.time_irq_i\t(time_irq_i),</xhtml:b><xhtml:br/>\n\t\t\t\t\t.*<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t);<xhtml:br/>\n\t\t\t\t...<xhtml:br/>\n\t\t\t\t</Example_Code>\n\t\t\t  "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1362",
+      "title": "ariane.sv",
+      "url": "https://github.com/HACK-EVENT/hackatdac21/blob/b9ecdf6068445d76d6bee692d163fededf7a9d9b/piton/design/chip/tile/ariane/src/ariane.sv#L539:L540",
+      "publication_year": "2021",
+      "url_date": "2023-07-15"
+    },
+    {
+      "reference_id": "REF-1363",
+      "title": "Fix CWE-1276",
+      "url": "https://github.com/HACK-EVENT/hackatdac21/blob/9a796ee83e21f59476d4b0a68ec3d8e8d5148214/piton/design/chip/tile/ariane/src/ariane.sv#L539:L540",
+      "publication_year": "2021",
+      "url_date": "2023-09-01"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Nicole Fern",
+      "submission_organization": "Tortuga Logic",
+      "submission_date": "2020-05-22"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Demonstrative_Examples, Description, Modes_of_Introduction, Name, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, References"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Hardware Block Incorrectly Connected to Larger System",
+        "date": "2020-08-20"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Chen Chen",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Rahul Kande",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Jeyavijayan Rajendran",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Shaza Zeitoni",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Mohamadreza Rostami",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Ahmad-Reza Sadeghi",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      }
+    ]
+  }
+}

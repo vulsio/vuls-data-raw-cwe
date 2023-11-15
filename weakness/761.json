@@ -1,0 +1,218 @@
+{
+  "id": "761",
+  "name": "Free of Pointer not at Start of Buffer",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product calls free() on a pointer to a memory resource that was allocated on the heap, but the pointer is not at the start of the buffer.",
+  "extended_description": "\n            <xhtml:p>This can cause the product to crash, or in some cases, modify critical program variables or execute code.</xhtml:p>\n            <xhtml:p>This weakness often occurs when the memory is allocated explicitly on the heap with one of the malloc() family functions and free() is called, but pointer arithmetic has caused the pointer to be in the interior or end of the buffer.</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "763",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "404",
+      "view_id": "1340",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {},
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Availability",
+        "Confidentiality"
+      ],
+      "impact": [
+        "Modify Memory",
+        "DoS: Crash, Exit, or Restart",
+        "Execute Unauthorized Code or Commands"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "When utilizing pointer arithmetic to traverse a buffer, use a separate variable to track progress through memory and preserve the originally allocated address for later freeing."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "When programming in C++, consider using smart pointers provided by the boost library to help correctly and consistently manage memory."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-4.6",
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>For example, glibc in Linux provides protection against free of invalid pointers.</xhtml:p>\n               "
+      ],
+      "strategy": "Libraries or Frameworks"
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Use a language that provides abstractions for memory allocation and deallocation."
+      ]
+    },
+    {
+      "phase": [
+        "Testing"
+      ],
+      "description": [
+        "Use a tool that dynamically detects memory management problems, such as valgrind."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-77",
+      "text": "\n               <Intro_Text>In this example, the programmer dynamically allocates a buffer to hold a string and then searches for a specific character. After completing the search, the programmer attempts to release the allocated memory and return SUCCESS or FAILURE to the caller. Note: for simplification, this example uses a hard-coded \"Search Me!\" string and a constant string length of 20.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define SUCCESS (1)<xhtml:br/>#define FAILURE (0)<xhtml:br/>\n                     <xhtml:br/>int contains_char(char c){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char *str;<xhtml:br/>str = (char*)malloc(20*sizeof(char));<xhtml:br/>strcpy(str, \"Search Me!\");<xhtml:br/>while( *str != NULL){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if( *str == c ){<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>/* matched char, free string and return success */</xhtml:i>\n                                       <xhtml:br/>free(str);<xhtml:br/>return SUCCESS;</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>\n                                 <xhtml:i>/* didn't match yet, increment pointer and try next char */</xhtml:i>\n                                 <xhtml:br/>\n                                 <xhtml:br/>str = str + 1;</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:i>/* we did not match the char in the string, free mem and return failure */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>free(str);<xhtml:br/>return FAILURE;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, if the character is not at the beginning of the string, or if it is not in the string at all, then the pointer will not be at the start of the buffer when the programmer frees it.</Body_Text>\n               <Body_Text>Instead of freeing the pointer in the middle of the buffer, the programmer can use an indexing pointer to step through the memory or abstract the memory calculations by using array indexing.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>#define SUCCESS (1)<xhtml:br/>#define FAILURE (0)<xhtml:br/>\n                     <xhtml:br/>int cointains_char(char c){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char *str;<xhtml:br/>int i = 0;<xhtml:br/>str = (char*)malloc(20*sizeof(char));<xhtml:br/>strcpy(str, \"Search Me!\");<xhtml:br/>while( i &lt; strlen(str) ){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if( str[i] == c ){<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>/* matched char, free string and return success */</xhtml:i>\n                                       <xhtml:br/>free(str);<xhtml:br/>return SUCCESS;</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>\n                                 <xhtml:i>/* didn't match yet, increment pointer and try next char */</xhtml:i>\n                                 <xhtml:br/>\n                                 <xhtml:br/>i = i + 1;</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:i>/* we did not match the char in the string, free mem and return failure */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>free(str);<xhtml:br/>return FAILURE;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-78",
+      "text": "\n               <Intro_Text>This code attempts to tokenize a string and place it into an array using the strsep function, which inserts a \\0 byte in place of whitespace or a tab character. After finishing the loop, each string in the AP array points to a location within the input string.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char **ap, *argv[10], *inputstring;<xhtml:br/>for (ap = argv; (*ap = strsep(&amp;inputstring, \" \\t\")) != NULL;)<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if (**ap != '\\0')<xhtml:div style=\"margin-left:1em;\">if (++ap &gt;= &amp;argv[10])<xhtml:div style=\"margin-left:1em;\">break;</xhtml:div>\n                           </xhtml:div>\n                        </xhtml:div>\n                     </xhtml:div>\n                     <xhtml:br/>/.../<xhtml:br/>free(ap[4]);</xhtml:div>\n               </Example_Code>\n               <Body_Text>Since strsep is not allocating any new memory, freeing an element in the middle of the array is equivalent to free a pointer in the middle of inputstring.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-79",
+      "text": "\n               <Intro_Text>Consider the following code in the context of a parsing application to extract commands out of user data. The intent is to parse each command and add it to a queue of commands to be executed, discarding each malformed entry.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>//hardcode input length for simplicity</xhtml:i>\n                     <xhtml:br/>char* input = (char*) malloc(40*sizeof(char));<xhtml:br/>char *tok;<xhtml:br/>char* sep = \" \\t\";<xhtml:br/>\n                     <xhtml:br/>get_user_input( input );<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>/* The following loop will parse and process each token in the input string */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>tok = strtok( input, sep);<xhtml:br/>while( NULL != tok ){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if( isMalformed( tok ) ){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>/* ignore and discard bad data */</xhtml:i>\n                                 <xhtml:br/>free( tok );</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">add_to_command_queue( tok );</xhtml:div>}<xhtml:br/>tok = strtok( NULL, sep));</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>While the above code attempts to free memory associated with bad commands, since the memory was all allocated in one chunk, it must all be freed together.</Body_Text>\n               <Body_Text>One way to fix this problem would be to copy the commands into a new memory location before placing them in the queue. Then, after all commands have been processed, the memory can safely be freed.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>//hardcode input length for simplicity</xhtml:i>\n                     <xhtml:br/>char* input = (char*) malloc(40*sizeof(char));<xhtml:br/>char *tok, *command;<xhtml:br/>char* sep = \" \\t\";<xhtml:br/>\n                     <xhtml:br/>get_user_input( input );<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>/* The following loop will parse and process each token in the input string */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>tok = strtok( input, sep);<xhtml:br/>while( NULL != tok ){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if( !isMalformed( command ) ){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>/* copy and enqueue good data */</xhtml:i>\n                                 <xhtml:br/>command = (char*) malloc( (strlen(tok) + 1) * sizeof(char) );<xhtml:br/>strcpy( command, tok );<xhtml:br/>add_to_command_queue( command );</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>tok = strtok( NULL, sep));</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>free( input )</xhtml:div>\n               </Example_Code>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2019-11930",
+      "description": "function \"internally calls 'calloc' and returns a pointer at an index... inside the allocated buffer. This led to freeing invalid memory.\"",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-11930"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-657",
+      "title": "boost C++ Library Smart Pointers",
+      "url": "https://www.boost.org/doc/libs/1_38_0/libs/smart_ptr/smart_ptr.htm",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-480",
+      "title": "Valgrind",
+      "url": "http://valgrind.org/"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2009-05-08"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-09-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Demonstrative_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-02-18",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Faulty Memory Release",
+      "entry_id": "SFP12"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "Currently, CWE-763 is the parent, however it may be desirable to have an intermediate parent which is not function-specific, similar to how CWE-762 is an intermediate parent between CWE-763 and CWE-590."
+    }
+  ],
+  "affected_resources": [
+    "Memory"
+  ]
+}

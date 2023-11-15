@@ -1,0 +1,331 @@
+{
+  "id": "96",
+  "name": "Improper Neutralization of Directives in Statically Saved Code ('Static Code Injection')",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product receives input from an upstream component, but it does not neutralize or incorrectly neutralizes code syntax before inserting the input into an executable resource, such as a library, configuration file, or template.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "94",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "PHP"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Perl"
+      },
+      {
+        "class": "Interpreted",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "This issue is frequently found in PHP applications that allow users to set configuration variables that are stored within executable PHP files. Technically, this could also be performed in some compiled code (e.g., by byte-patching an executable), although it is highly unlikely."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Files or Directories",
+        "Read Application Data"
+      ],
+      "note": "The injected code could access restricted data / files."
+    },
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism"
+      ],
+      "note": "In some cases, injectable code controls authentication; this may lead to a remote vulnerability."
+    },
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "Injected code can access resources that the attacker is directly prevented from accessing."
+    },
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Availability",
+        "Other"
+      ],
+      "impact": [
+        "Execute Unauthorized Code or Commands"
+      ],
+      "note": "Code injection attacks can lead to loss of data integrity in nearly all cases as the control-plane data injected is always incidental to data recall or writing. Additionally, code injection can often result in the execution of arbitrary code."
+    },
+    {
+      "scope": [
+        "Non-Repudiation"
+      ],
+      "impact": [
+        "Hide Activities"
+      ],
+      "note": "Often the actions performed by injected control code are unlogged."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "mitigation_id": "MIT-5",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n               "
+      ],
+      "strategy": "Input Validation"
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Perform proper output validation and escaping to neutralize all code syntax from data written to code files."
+      ],
+      "strategy": "Output Encoding"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-32",
+      "text": "\n               <Intro_Text>This example attempts to write user messages to a message file and allow users to view them.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$MessageFile = \"messages.out\";<xhtml:br/>if ($_GET[\"action\"] == \"NewMessage\") {<xhtml:div style=\"margin-left:1em;\">$name = $_GET[\"name\"];<xhtml:br/>$message = $_GET[\"message\"];<xhtml:br/>$handle = fopen($MessageFile, \"a+\");<xhtml:br/>fwrite($handle, \"&lt;b&gt;$name&lt;/b&gt; says '$message'&lt;hr&gt;\\n\");<xhtml:br/>fclose($handle);<xhtml:br/>echo \"Message Saved!&lt;p&gt;\\n\";</xhtml:div>}<xhtml:br/>else if ($_GET[\"action\"] == \"ViewMessages\") {<xhtml:div style=\"margin-left:1em;\">include($MessageFile);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>While the programmer intends for the MessageFile to only include data, an attacker can provide a message such as:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>name=h4x0r<xhtml:br/>message=%3C?php%20system(%22/bin/ls%20-l%22);?%3E</xhtml:div>\n               </Example_Code>\n               <Body_Text>which will decode to the following:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>&lt;?php system(\"/bin/ls -l\");?&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer thought they were just including the contents of a regular data file, but PHP parsed it and executed the code. Now, this code is executed any time people view messages.</Body_Text>\n               <Body_Text>Notice that XSS (CWE-79) is also possible in this situation.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2002-0495",
+      "description": "Perl code directly injected into CGI library file from parameters to another CGI program.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0495"
+    },
+    {
+      "reference": "CVE-2005-1876",
+      "description": "Direct PHP code injection into supporting template file.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1876"
+    },
+    {
+      "reference": "CVE-2005-1894",
+      "description": "Direct code injection into PHP script that can be accessed by attacker.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1894"
+    },
+    {
+      "reference": "CVE-2003-0395",
+      "description": "PHP code from User-Agent HTTP header directly inserted into log file implemented as PHP script.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0395"
+    },
+    {
+      "reference": "CVE-2007-6652",
+      "description": "chain: execution after redirect allows non-administrator to perform static code injection.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-6652"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Description, Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Description, Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-02-21",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Enabling_Factors_for_Exploitation, Other_Notes, Relationship_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-05-03",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Affected_Resources, Applicable_Platforms, Causal_Nature, Demonstrative_Examples, Enabling_Factors_for_Exploitation, Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Potential_Mitigations, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Modes_of_Introduction, Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Direct Static Code Injection",
+        "date": "2008-04-11"
+      },
+      {
+        "text": "Insufficient Control of Directives in Statically Saved Code (Static Code Injection)",
+        "date": "2009-05-27"
+      },
+      {
+        "text": "Improper Sanitization of Directives in Statically Saved Code ('Static Code Injection')",
+        "date": "2010-04-05"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Direct Static Code Injection"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Tainted Input to Command",
+      "entry_id": "SFP24"
+    }
+  ],
+  "related_attack_patterns": [
+    "35",
+    "73",
+    "77",
+    "81",
+    "85"
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "\"HTML injection\" (see CWE-79: XSS) could be thought of as an example of this, but the code is injected and executed on the client side, not the server side. Server-Side Includes (SSI) are an example of direct static code injection."
+    }
+  ],
+  "affected_resources": [
+    "File or Directory"
+  ]
+}

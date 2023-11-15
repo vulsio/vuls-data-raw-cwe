@@ -1,0 +1,193 @@
+{
+  "id": "1241",
+  "name": "Use of Predictable Algorithm in Random Number Generator",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The device uses an algorithm that is predictable and generates a pseudo-random number.",
+  "extended_description": "\n\t\t\t\t<xhtml:p>Pseudo-random number generator algorithms are predictable because their registers have a finite number of possible states, which eventually lead to repeating patterns. As a result, pseudo-random number generators (PRNGs) can compromise their randomness or expose their internal state to various attacks, such as reverse engineering or tampering. It is highly recommended to use hardware-based true random number generators (TRNGs) to ensure the security of encryption schemes. TRNGs generate unpredictable, unbiased, and independent random numbers because they employ physical phenomena, e.g., electrical noise, as sources to generate random numbers.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "330",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "technology": [
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "In many cases, the design originally defines a cryptographically secure random number generator, but is then changed during implementation due to unforeseen constraints."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Application Data"
+      ],
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "A true random number generator should be specified for cryptographic algorithms."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "A true random number generator should be implemented for cryptographic algorithms."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>Suppose a cryptographic function expects random value to be supplied for the crypto algorithm.</Intro_Text>\n\t\t\t\t\t<Body_Text>During the implementation phase, due to space constraint, a cryptographically secure random-number-generator could not be used, and instead  of using a TRNG (True Random Number Generator), a LFSR (Linear Feedback Shift Register) is used to generate a random value. While an LFSR will provide a pseudo-random number, its entropy (measure of randomness) is insufficient for a cryptographic algorithm.</Body_Text>\n\t\t\t\t"
+    },
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>The example code is taken from the PRNG inside the buggy OpenPiton SoC of HACK@DAC'21 [REF-1370]. The SoC implements a pseudo-random number generator using a Linear Feedback Shift Register (LFSR). </Intro_Text>\n\t\t\t\t\t<Body_Text>\n\t\t\t\t\t\t<xhtml:img src=\"https://cwe.mitre.org/data/images/LSFR-based-PRNG-CWE-1241.png\" alt=\"LSFR-based Pseudo-Random Number Generator\"/>\n\t\t\t\t\t</Body_Text>\n\t\t\t\t\t<Body_Text>An example of LFSR with the polynomial function P(x) = x<xhtml:sup>6</xhtml:sup>+x<xhtml:sup>4</xhtml:sup>+x<xhtml:sup>3</xhtml:sup>+1 is shown in the figure.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t\t<xhtml:b>reg in_sr, entropy16_valid;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t<xhtml:b>reg [15:0] entropy16;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\t<xhtml:b>assign entropy16_o = entropy16;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t<xhtml:b>assign entropy16_valid_o = entropy16_valid;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\t<xhtml:b>always @ (*)</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t<xhtml:b>begin</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t<xhtml:b>in_sr = ^ (poly_i [15:0] &amp; entropy16 [15:0]);</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t<xhtml:b>end</xhtml:b><xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>A LFSR's input bit is determined by the output of a linear function of two or more of its previous states. Therefore, given a long cycle, a LFSR-based PRNG will enter a repeating cycle, which is predictable.</Body_Text>\n\t\t\t\t"
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-3692",
+      "description": "PHP framework uses mt_rand() function (Marsenne Twister) when generating tokens",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-3692"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1370",
+      "title": "rng_16.v",
+      "url": "https://github.com/HACK-EVENT/hackatdac21/blob/main/piton/design/chip/tile/ariane/src/rand_num/rng_16.v#L12-L22",
+      "publication_year": "2021",
+      "url_date": "2023-07-15"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-02-10"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Modes_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Maintenance_Notes, Modes_of_Introduction, Potential_Mitigations, Related_Attack_Patterns, Research_Gaps"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Maintenance_Notes, Research_Gaps"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, Description, Observed_Examples, References"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Chen Chen",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested extended description and demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Rahul Kande",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested extended description and demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Jeyavijayan Rajendran",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested extended description and demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Shaza Zeitoni",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested extended description and demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Mohamadreza Rostami",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested extended description and demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Ahmad-Reza Sadeghi",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested extended description and demonstrative example"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "97"
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "As of CWE 4.5, terminology related to randomness, entropy, and\n\t   predictability can vary widely. Within the developer and other\n\t   communities, \"randomness\" is used heavily. However, within\n\t   cryptography, \"entropy\" is distinct, typically implied as a\n\t   measurement. There are no commonly-used definitions, even within\n\t   standards documents and cryptography papers. Future versions of\n\t   CWE will attempt to define these terms and, if necessary,\n\t   distinguish between them in ways that are appropriate for\n\t   different communities but do not reduce the usability of CWE for\n\t   mapping, understanding, or other scenarios."
+    }
+  ]
+}

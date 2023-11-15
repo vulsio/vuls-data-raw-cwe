@@ -1,0 +1,116 @@
+{
+  "id": "1232",
+  "name": "Improper Lock Behavior After Power State Transition",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "Register lock bit protection disables changes to system configuration once the bit is set. Some of the protected registers or lock bits become programmable after power state transitions (e.g., Entry and wake from low power sleep modes) causing the system configuration to be changeable.",
+  "extended_description": "\n        <xhtml:p>Devices may allow device configuration controls which need to be programmed after device power reset via a trusted firmware or software module (commonly set by BIOS/bootloader) and then locked from any further modification. This action is commonly implemented using a programmable lock bit, which, when set, disables writes to a protected set of registers or address regions.</xhtml:p>\n        <xhtml:p>After a power state transition, the lock bit is set to unlocked. Some common weaknesses that can exist in such a protection scheme are that the lock gets cleared, the values of the protected registers get reset, or the lock become programmable.</xhtml:p>\n      ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "667",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Modify Memory"
+      ],
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation",
+        "Testing"
+      ],
+      "description": [
+        "\n            <xhtml:ul>\n              <xhtml:li>Security Lock bit protections should be reviewed for behavior across supported power state transitions.</xhtml:li>\n              <xhtml:li>Security lock programming flow and lock properties should be tested in pre-silicon and post-silicon testing including testing across power transitions.</xhtml:li>\n            </xhtml:ul>\n          "
+      ],
+      "effectiveness": "High"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n          <Intro_Text>\n            <xhtml:p>Consider the memory configuration settings of a system that uses DDR3 DRAM memory. Protecting the DRAM memory configuration from modification by software is required to ensure that system memory access control protections cannot be bypassed. This can be done by using lock bit protection that locks all of the memory configuration registers. The memory configuration lock can be set by the BIOS during the boot process.</xhtml:p>\n            <xhtml:p>If such a system also supports a rapid power on mode like hibernate, the DRAM data must be saved to a disk before power is removed and restored back to the DRAM once the system powers back up and before the OS resumes operation after returning from hibernate.</xhtml:p>\n          </Intro_Text>\n          <Body_Text>To support the hibernate transition back to the operating state, the DRAM memory configuration must be reprogrammed even though it was locked previously. As the hibernate resume does a partial reboot, the memory configuration could be altered before the memory lock is set. Functionally the hibernate resume flow requires a bypass of the lock-based protection. The memory configuration must be securely stored and restored by trusted system firmware. Lock settings and system configuration must be restored to the same state it was in before the device entered into the hibernate mode.</Body_Text>\n        "
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-01-15"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Modes_of_Introduction, Potential_Mitigations, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "166"
+  ]
+}

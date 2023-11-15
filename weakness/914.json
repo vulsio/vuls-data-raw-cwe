@@ -1,0 +1,187 @@
+{
+  "id": "914",
+  "name": "Improper Control of Dynamically-Identified Variables",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product does not properly restrict reading from or writing to dynamically-identified variables.",
+  "extended_description": "Many languages offer powerful features that allow the programmer to access arbitrary variables that are specified by an input string. While these features can offer significant flexibility and reduce development time, they can be extremely dangerous if attackers can modify unintended variables that have security implications.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "99",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "913",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {},
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Application Data"
+      ],
+      "note": "An attacker could modify sensitive data or program variables."
+    },
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Execute Unauthorized Code or Commands"
+      ]
+    },
+    {
+      "scope": [
+        "Other",
+        "Integrity"
+      ],
+      "impact": [
+        "Varies by Context",
+        "Alter Execution Logic"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "For any externally-influenced input, check the input against an allowlist of internal program variables that are allowed to be modified."
+      ],
+      "strategy": "Input Validation"
+    },
+    {
+      "phase": [
+        "Implementation",
+        "Architecture and Design"
+      ],
+      "description": [
+        "Refactor the code so that internal program variables do not need to be dynamically identified."
+      ],
+      "strategy": "Refactoring"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-107",
+      "text": "\n               <Intro_Text>This code uses the credentials sent in a POST request to login a user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>\n                     <xhtml:i>//Log user in, and set $isAdmin to true if user is an administrator</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>function login($user,$pass){<xhtml:div style=\"margin-left:1em;\">$query = buildQuery($user,$pass);<xhtml:br/>mysql_query($query);<xhtml:br/>if(getUserRole($user) == \"Admin\"){<xhtml:div style=\"margin-left:1em;\">$isAdmin = true;</xhtml:div>}</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>$isAdmin = false;<xhtml:br/>extract($_POST);<xhtml:br/>login(mysql_real_escape_string($user),mysql_real_escape_string($pass));</xhtml:div>\n               </Example_Code>\n               <Body_Text>The call to extract() will overwrite the existing values of any variables defined previously, in this case $isAdmin. An attacker can send a POST request with an unexpected third value \"isAdmin\" equal to \"true\", thus gaining Admin privileges.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2006-7135",
+      "description": "extract issue enables file inclusion",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-7135"
+    },
+    {
+      "reference": "CVE-2006-7079",
+      "description": "Chain: extract used for register_globals compatibility layer, enables path traversal (CWE-22)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-7079"
+    },
+    {
+      "reference": "CVE-2007-0649",
+      "description": "extract() buried in include files makes post-disclosure analysis confusing; original report had seemed incorrect.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-0649"
+    },
+    {
+      "reference": "CVE-2006-6661",
+      "description": "extract() enables static code injection",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-6661"
+    },
+    {
+      "reference": "CVE-2006-2828",
+      "description": "import_request_variables() buried in include files makes post-disclosure analysis confusing",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-2828"
+    },
+    {
+      "reference": "CVE-2009-0422",
+      "description": "Chain: Dynamic variable evaluation allows resultant remote file inclusion and path traversal.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0422"
+    },
+    {
+      "reference": "CVE-2007-2431",
+      "description": "Chain: dynamic variable evaluation in PHP program used to modify critical, unexpected $_SERVER variable for resultant XSS.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-2431"
+    },
+    {
+      "reference": "CVE-2006-4904",
+      "description": "Chain: dynamic variable evaluation in PHP program used to conduct remote file inclusion.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4904"
+    },
+    {
+      "reference": "CVE-2006-4019",
+      "description": "Dynamic variable evaluation in mail program allows reading and modifying attachments and preferences of other users.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4019"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2013-01-26"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ]
+}

@@ -1,0 +1,619 @@
+{
+  "id": "798",
+  "name": "Use of Hard-coded Credentials",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product contains hard-coded credentials, such as a password or cryptographic key, which it uses for its own inbound authentication, outbound communication to external components, or encryption of internal data.",
+  "extended_description": "\n            <xhtml:p>Hard-coded credentials typically create a significant hole that allows an attacker to bypass the authentication that has been configured by the product administrator. This hole might be difficult for the system administrator to detect. Even if detected, it can be difficult to fix, so the administrator may be forced into disabling the product entirely. There are two main variations:</xhtml:p>\n            <xhtml:div style=\"margin-left:1em;\">\n               <xhtml:div>Inbound: the product contains an authentication mechanism that checks the input credentials against a hard-coded set of credentials.</xhtml:div>\n               <xhtml:div>Outbound: the product connects to another system or component, and it contains hard-coded credentials for connecting to that component.</xhtml:div>\n            </xhtml:div>\n            <xhtml:p>In the Inbound variant, a default administration account is created, and a simple password is hard-coded into the product and associated with that account. This hard-coded password is the same for each installation of the product, and it usually cannot be changed or disabled by system administrators without manually modifying the program, or otherwise patching the product. If the password is ever discovered or published (a common occurrence on the Internet), then anybody with knowledge of this password can access the product. Finally, since all installations of the product will have the same password, even across different organizations, this enables massive attacks such as worms to take place.</xhtml:p>\n            <xhtml:p>The Outbound variant applies to front-end systems that authenticate with a back-end service. The back-end service may require a fixed password which can be easily discovered. The programmer may simply hard-code those back-end credentials into the front-end product. Any user of that program may be able to extract the password. Client-side systems with hard-coded passwords pose even more of a threat, since the extraction of a password from a binary is usually very simple.</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1391",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "287",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "344",
+      "view_id": "1000"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "671",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "257",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Mobile",
+        "prevalence": "Undetermined"
+      },
+      {
+        "class": "ICS/OT",
+        "prevalence": "Often"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism"
+      ],
+      "note": "If hard-coded passwords are used, it is almost certain that malicious users will gain access to the account in question."
+    },
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Availability",
+        "Access Control",
+        "Other"
+      ],
+      "impact": [
+        "Read Application Data",
+        "Gain Privileges or Assume Identity",
+        "Execute Unauthorized Code or Commands",
+        "Other"
+      ],
+      "note": "This weakness can lead to the exposure of resources or functionality to unintended actors, possibly providing attackers with sensitive information or even execute arbitrary code."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>For outbound authentication: store passwords, keys, and other credentials outside of the code in a strongly-protected, encrypted configuration file or database that is protected from access by all outsiders, including other local users on the same system. Properly protect the key (CWE-320). If you cannot use encryption to protect the file, then make sure that the permissions are as restrictive as possible [REF-7].</xhtml:p>\n                  <xhtml:p>In Windows environments, the Encrypted File System (EFS) may provide some protection.</xhtml:p>\n               "
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "For inbound authentication: Rather than hard-code a default username and password, key, or other authentication credentials for first time logins, utilize a \"first login\" mode that requires the user to enter a unique strong password or key."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "If the product must contain hard-coded credentials or they cannot be removed, perform access control checks and limit which entities can access the feature that requires the hard-coded credentials. For example, a feature might only be enabled through the system console instead of through a network connection."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>For inbound authentication using passwords: apply strong one-way hashes to passwords and store those hashes in a configuration file or database with appropriate access control. That way, theft of the file/database still requires the attacker to try to crack the password. When handling an incoming password during authentication, take the hash of the password and compare it to the saved hash.</xhtml:p>\n                  <xhtml:p>Use randomly assigned salts for each separate hash that is generated. This increases the amount of computation that an attacker needs to conduct a brute-force attack, possibly limiting the effectiveness of the rainbow table method.</xhtml:p>\n               "
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>For front-end to back-end connections: Three solutions are possible, although none are complete.</xhtml:p>\n                     <xhtml:ul>\n                        <xhtml:li>The first suggestion involves the use of generated passwords or keys that are changed automatically and must be entered at given time intervals by a system administrator. These passwords will be held in memory and only be valid for the time intervals.</xhtml:li>\n                        <xhtml:li>Next, the passwords or keys should be limited at the back end to only performing actions valid for the front end, as opposed to having full access.</xhtml:li>\n                        <xhtml:li>Finally, the messages sent should be tagged and checksummed with time sensitive values so as to prevent replay-style attacks.</xhtml:li>\n                     </xhtml:ul>\n               "
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-13",
+      "text": "\n               <Intro_Text>The following code uses a hard-coded password to connect to a database:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>...<xhtml:br/>DriverManager.getConnection(url, \"scott\", \"tiger\");<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>This is an example of an external hard-coded password on the client-side of a connection. This code will run successfully, but anyone who has access to it will have access to the password. Once the program has shipped, there is no going back from the database user \"scott\" with a password of \"tiger\" unless the program is patched. A devious employee with access to this information can use it to break into the system. Even worse, if attackers have access to the bytecode for application, they can use the javap -c command to access the disassembled code, which will contain the values of the passwords used. The result of this operation might look something like the following for the example above:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>javap -c ConnMngr.class<xhtml:div style=\"margin-left:1em;\">22: ldc #36; //String jdbc:mysql://ixne.com/rxsql<xhtml:br/>24: ldc #38; //String scott<xhtml:br/>26: ldc #17; //String tiger</xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-14",
+      "text": "\n               <Intro_Text>The following code is an example of an internal hard-coded password in the back-end:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int VerifyAdmin(char *password) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if (strcmp(password, \"Mew!\")) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 printf(\"Incorrect Password!\\n\");<xhtml:br/>return(0)</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>printf(\"Entering Diagnostic Mode...\\n\");<xhtml:br/>return(1);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>int VerifyAdmin(String password) {<xhtml:div style=\"margin-left:1em;\">if (!password.equals(\"Mew!\")) {<xhtml:div style=\"margin-left:1em;\">return(0)</xhtml:div>}<xhtml:br/>//Diagnostic Mode<xhtml:br/>return(1);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Every instance of this program can be placed into diagnostic mode with the same password. Even worse is the fact that if this program is distributed as a binary-only distribution, it is very difficult to change that password or disable this \"functionality.\"</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-92",
+      "text": "\n               <Intro_Text>The following code examples attempt to verify a password using a hard-coded cryptographic key.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int VerifyAdmin(char *password) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if (strcmp(password,\"68af404b513073584c4b6f22b6c63e6b\")) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>printf(\"Incorrect Password!\\n\");<xhtml:br/>return(0);</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>printf(\"Entering Diagnostic Mode...\\n\");<xhtml:br/>return(1);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public boolean VerifyAdmin(String password) {<xhtml:div style=\"margin-left:1em;\">if (password.equals(\"68af404b513073584c4b6f22b6c63e6b\")) {<xhtml:div style=\"margin-left:1em;\">System.out.println(\"Entering Diagnostic Mode...\");<xhtml:br/>return true;</xhtml:div>}<xhtml:br/>System.out.println(\"Incorrect Password!\");<xhtml:br/>return false;</xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"C#\">\n                  <xhtml:div>int VerifyAdmin(String password) {<xhtml:div style=\"margin-left:1em;\">if (password.Equals(\"68af404b513073584c4b6f22b6c63e6b\")) {<xhtml:div style=\"margin-left:1em;\">Console.WriteLine(\"Entering Diagnostic Mode...\");<xhtml:br/>return(1);</xhtml:div>}<xhtml:br/>Console.WriteLine(\"Incorrect Password!\");<xhtml:br/>return(0);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The cryptographic key is within a hard-coded string value that is compared to the password. It is likely that an attacker will be able to read the key and compromise the system.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-43",
+      "text": "\n               <Intro_Text>The following examples show a portion of properties and configuration files for Java and ASP.NET applications. The files include username and password information but they are stored in cleartext.</Intro_Text>\n               <Body_Text>This Java example shows a properties file with a cleartext username / password pair.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i># Java Web App ResourceBundle properties file</xhtml:i>\n                     <xhtml:br/>...<xhtml:br/>webapp.ldap.username=secretUsername<xhtml:br/>webapp.ldap.password=secretPassword<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The following example shows a portion of a configuration file for an ASP.Net application. This configuration file includes username and password information for a connection to a database but the pair is stored in cleartext.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"ASP.NET\">\n                  <xhtml:div>...<xhtml:br/>&lt;connectionStrings&gt;<xhtml:div style=\"margin-left:1em;\">&lt;add name=\"ud_DEV\" connectionString=\"connectDB=uDB; uid=db2admin; pwd=password; dbalias=uDB;\" providerName=\"System.Data.Odbc\" /&gt;</xhtml:div>&lt;/connectionStrings&gt;<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>Username and password information should not be included in a configuration file or a properties file in cleartext as this will allow anyone who can read the file access to the resource. If possible, encrypt this information.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-153",
+      "text": "\n\t      <Intro_Text>In 2022, the OT:ICEFALL study examined products by 10 different Operational Technology (OT) vendors. The researchers reported 56 vulnerabilities and said that the products were \"insecure by design\" [REF-1283]. If exploited, these vulnerabilities often allowed adversaries to change how the products operated, ranging from denial of service to changing the code that the products executed. Since these products were often used in industries such as power, electrical, water, and others, there could even be safety implications.</Intro_Text>\n\t      <Body_Text>Multiple vendors used hard-coded credentials in their OT products.</Body_Text>\n\t    "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2022-29953",
+      "description": "Condition Monitor firmware has a maintenance interface with hard-coded credentials",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-29953"
+    },
+    {
+      "reference": "CVE-2022-29960",
+      "description": "Engineering Workstation uses hard-coded cryptographic keys that could allow for unathorized filesystem access and privilege escalation",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-29960"
+    },
+    {
+      "reference": "CVE-2022-29964",
+      "description": "Distributed Control System (DCS) has hard-coded passwords for local shell access",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-29964"
+    },
+    {
+      "reference": "CVE-2022-30997",
+      "description": "Programmable Logic Controller (PLC) has a maintenance service that uses undocumented, hard-coded credentials",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-30997"
+    },
+    {
+      "reference": "CVE-2022-30314",
+      "description": "Firmware for a Safety Instrumented System (SIS) has hard-coded credentials for access to boot configuration",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-30314"
+    },
+    {
+      "reference": "CVE-2022-30271",
+      "description": "Remote Terminal Unit (RTU) uses a hard-coded SSH private key that is likely to be used in typical deployments",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-30271"
+    },
+    {
+      "reference": "CVE-2021-37555",
+      "description": "Telnet service for IoT feeder for dogs and cats has hard-coded password [REF-1288]",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-37555"
+    },
+    {
+      "reference": "CVE-2012-3503",
+      "description": "Installation script has a hard-coded secret token value, allowing attackers to bypass authentication",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2012-3503"
+    },
+    {
+      "reference": "CVE-2010-2772",
+      "description": "SCADA system uses a hard-coded password to protect back-end database containing authorization information, exploited by Stuxnet worm",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-2772"
+    },
+    {
+      "reference": "CVE-2010-2073",
+      "description": "FTP server library uses hard-coded usernames and passwords for three default accounts",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-2073"
+    },
+    {
+      "reference": "CVE-2010-1573",
+      "description": "Chain: Router firmware uses hard-coded username and password for access to debug functionality, which can be used to execute arbitrary code",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-1573"
+    },
+    {
+      "reference": "CVE-2008-2369",
+      "description": "Server uses hard-coded authentication key",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2369"
+    },
+    {
+      "reference": "CVE-2008-0961",
+      "description": "Backup product uses hard-coded username and password, allowing attackers to bypass authentication via the RPC interface",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-0961"
+    },
+    {
+      "reference": "CVE-2008-1160",
+      "description": "Security appliance uses hard-coded password allowing attackers to gain root access",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-1160"
+    },
+    {
+      "reference": "CVE-2006-7142",
+      "description": "Drive encryption product stores hard-coded cryptographic keys for encrypted configuration files in executable programs",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-7142"
+    },
+    {
+      "reference": "CVE-2005-3716",
+      "description": "VoIP product uses hard-coded public credentials that cannot be changed, which allows attackers to obtain sensitive information",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3716"
+    },
+    {
+      "reference": "CVE-2005-3803",
+      "description": "VoIP product uses hard coded public and private SNMP community strings that cannot be changed, which allows remote attackers to obtain sensitive information",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3803"
+    },
+    {
+      "reference": "CVE-2005-0496",
+      "description": "Backup product contains hard-coded credentials that effectively serve as a back door, which allows remote attackers to access the file system",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0496"
+    }
+  ],
+  "references": [
+    {
+      "section": "Chapter 8, \"Key Management Issues\" Page 272",
+      "reference_id": "REF-7",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc"
+      ],
+      "title": "Writing Secure Code",
+      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+      "publication_year": "2002",
+      "publication_month": "--12",
+      "publication_day": "---04",
+      "publisher": "Microsoft Press",
+      "edition": "2nd Edition"
+    },
+    {
+      "reference_id": "REF-729",
+      "author": [
+        "Johannes Ullrich"
+      ],
+      "title": "Top 25 Series - Rank 11 - Hardcoded Credentials",
+      "url": "https://www.sans.org/blog/top-25-series-rank-11-hardcoded-credentials/",
+      "publication_year": "2010",
+      "publication_month": "--03",
+      "publication_day": "---10",
+      "publisher": "SANS Software Security Institute",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-172",
+      "author": [
+        "Chris Wysopal"
+      ],
+      "title": "Mobile App Top 10 List",
+      "url": "https://www.veracode.com/blog/2010/12/mobile-app-top-10-list",
+      "publication_year": "2010",
+      "publication_month": "--12",
+      "publication_day": "---13",
+      "url_date": "2023-04-07"
+    },
+    {
+      "section": "ASCSM-CWE-798",
+      "reference_id": "REF-962",
+      "author": [
+        "Object Management Group (OMG)"
+      ],
+      "title": "Automated Source Code Security Measure (ASCSM)",
+      "url": "http://www.omg.org/spec/ASCSM/1.0/",
+      "publication_year": "2016",
+      "publication_month": "--01"
+    },
+    {
+      "reference_id": "REF-1283",
+      "author": [
+        "Forescout Vedere Labs"
+      ],
+      "title": "OT:ICEFALL: The legacy of \"insecure by design\" and its implications for certifications and risk management",
+      "url": "https://www.forescout.com/resources/ot-icefall-report/",
+      "publication_year": "2022",
+      "publication_month": "--06",
+      "publication_day": "---20"
+    },
+    {
+      "reference_id": "REF-1288",
+      "author": [
+        "Julia Lokrantz"
+      ],
+      "title": "Ethical hacking of a Smart Automatic Feed Dispenser",
+      "url": "http://kth.diva-portal.org/smash/get/diva2:1561552/FULLTEXT01.pdf",
+      "publication_year": "2021",
+      "publication_month": "--06",
+      "publication_day": "---07"
+    },
+    {
+      "reference_id": "REF-1304",
+      "author": [
+        "ICS-CERT"
+      ],
+      "title": "ICS Alert (ICS-ALERT-13-164-01): Medical Devices Hard-Coded Passwords",
+      "url": "https://www.cisa.gov/news-events/ics-alerts/ics-alert-13-164-01",
+      "publication_year": "2013",
+      "publication_month": "--06",
+      "publication_day": "---13",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2010-01-15",
+      "submission_comment": "More abstract entry for hard-coded password and hard-coded cryptographic key."
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Common_Consequences, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-09-27",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Potential_Mitigations, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-02-21",
+        "modification_comment": "updated Applicable_Platforms, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Demonstrative_Examples, Detection_Factors"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Causal_Nature, Demonstrative_Examples, Likelihood_of_Exploit, Modes_of_Introduction, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-09-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Applicable_Platforms, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Observed_Examples, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description, Detection_Factors, Maintenance_Notes, Potential_Mitigations, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes, Relationships"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
+        "contribution_date": "2023-01-24",
+        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "method": "Black Box",
+      "description": "Credential storage in configuration files is findable using black box methods, but the use of hard-coded credentials for an incoming authentication routine typically involves an account that is not visible outside of the code.",
+      "effectiveness": "Moderate"
+    },
+    {
+      "method": "Automated Static Analysis",
+      "description": "Automated white box techniques have been published for detecting hard-coded credentials for incoming authentication, but there is some expert disagreement regarding their effectiveness and applicability to a broad range of methods."
+    },
+    {
+      "method": "Manual Static Analysis",
+      "description": "This weakness may be detectable using manual code analysis. Unless authentication is decentralized and applied throughout the product, there can be sufficient time for the analyst to find incoming authentication routines and examine the program logic looking for usage of hard-coded credentials. Configuration files could also be analyzed.",
+      "effectiveness_notes": "These may be more effective than strictly automated techniques. This is especially the case with weaknesses that are related to design and business rules."
+    },
+    {
+      "method": "Manual Dynamic Analysis",
+      "description": "\n                  <xhtml:p>For hard-coded credentials in incoming authentication: use monitoring tools that examine the product's process as it interacts with the operating system and the network. This technique is useful in cases when source code is unavailable, if the product was not developed by you, or if you want to verify that the build phase did not introduce any new weaknesses. Examples include debuggers that directly attach to the running process; system-call tracing utilities such as truss (Solaris) and strace (Linux); system activity monitors such as FileMon, RegMon, Process Monitor, and other Sysinternals utilities (Windows); and sniffers and protocol analyzers that monitor network traffic.</xhtml:p>\n                  <xhtml:p>Attach the monitor to the process and perform a login. Using call trees or similar artifacts from the output, examine the associated behaviors and see if any of them appear to be comparing the input to a fixed string or value.</xhtml:p>\n               "
+    },
+    {
+      "method": "Automated Static Analysis - Binary or Bytecode",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                           <xhtml:li>Binary Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Manual Static Analysis - Binary or Bytecode",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Dynamic Analysis with Manual Results Interpretation",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Network Sniffer</xhtml:li>\n                           <xhtml:li>Forced Path Execution</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Manual Static Analysis - Source Code",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Automated Static Analysis - Source Code",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Automated Static Analysis",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Configuration Checker</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Architecture or Design Review",
+      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Never hard code sensitive information",
+      "entry_id": "MSC03-J"
+    },
+    {
+      "taxonomy_name": "OMG ASCSM",
+      "entry_id": "ASCSM-CWE-798"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SR 1.5",
+      "entry_id": "Part 3-3"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 1.5",
+      "entry_id": "Part 4-2"
+    }
+  ],
+  "related_attack_patterns": [
+    "191",
+    "70"
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "The Taxonomy_Mappings to ISA/IEC 62443 were added in CWE 4.10, but they are still under review and might change in future CWE versions. These draft mappings were performed by members of the \"Mapping CWE to 62443\" subgroup of the CWE-CAPEC ICS/OT Special Interest Group (SIG), and their work is incomplete as of CWE 4.10. The mappings are included to facilitate discussion and review by the broader ICS/OT community, and they are likely to change in future CWE versions."
+    }
+  ]
+}

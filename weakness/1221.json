@@ -1,0 +1,200 @@
+{
+  "id": "1221",
+  "name": "Incorrect Register Defaults or Module Parameters",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "Hardware description language code incorrectly defines register defaults or hardware Intellectual Property (IP) parameters to insecure values.",
+  "extended_description": "\n                <xhtml:p>Integrated circuits and hardware IP software programmable controls and settings are commonly stored in register circuits. These register contents have to be initialized at hardware reset to defined default values that are hard coded in the hardware description language (HDL) code of the hardware unit. Hardware descriptive languages also support definition of parameter variables, which can be defined in code during instantiation of the hardware IP module. Such parameters are generally used to configure a specific instance of a hardware IP in the design.</xhtml:p>\n                <xhtml:p>The system security settings of a hardware design can be affected by incorrectly defined default values or IP parameters. The hardware IP would be in an insecure state at power reset, and this can be exposed or exploited by untrusted software running on the system. Both register defaults and parameters are hardcoded values, which cannot be changed using software or firmware patches but must be changed in hardware silicon. Thus, such security issues are considerably more difficult to address later in the lifecycle. Hardware designs can have a large number of such parameters and register defaults settings, and it is important to have design tool support to check these settings in an automated way and be able to identify which settings are security sensitive.</xhtml:p>\n            ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1419",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "Verilog"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "VHDL"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation",
+      "note": [
+        "Such issues could be introduced during implementation of hardware design, since IP parameters and defaults are defined in HDL code and identified later during Testing or System Configuration phases."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability",
+        "Access Control"
+      ],
+      "impact": [
+        "Varies by Context"
+      ],
+      "note": "Degradation of system functionality, or loss of access control enforcement can occur."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "During hardware design, all the system parameters and register defaults must be reviewed to identify security sensitive settings."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "The default values of these security sensitive settings need to be defined as part of the design review phase."
+      ]
+    },
+    {
+      "phase": [
+        "Testing"
+      ],
+      "description": [
+        "Testing phase should use automated tools to test that values are configured per design specifications."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-162",
+      "text": "\n                    <Intro_Text>Consider example design module system verilog code shown below. The register_example module is an example parameterized module that defines two parameters, REGISTER_WIDTH and REGISTER_DEFAULT. Register_example module defines a Secure_mode setting, which when set makes the register content read-only and not modifiable by software writes. register_top module instantiates two registers, Insecure_Device_ID_1 and Insecure_Device_ID_2. Generally, registers containing device identifier values are required to be read only to prevent any possibility of software modifying these values. </Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                        // Parameterized Register module example <xhtml:br/>\n\t\t\t// Secure_mode : REGISTER_DEFAULT[0] : When set to 1 register is read only and not writable// <xhtml:br/>\n\t\t\tmodule register_example <xhtml:br/>\n\t\t\t#( <xhtml:br/>\n\t\t\tparameter REGISTER_WIDTH = 8, // Parameter defines width of register, default 8 bits <xhtml:br/>\n\t\t\tparameter [REGISTER_WIDTH-1:0] REGISTER_DEFAULT = 2**REGISTER_WIDTH -2 // Default value of register computed from Width. Sets all bits to 1s except bit 0 (Secure _mode) <xhtml:br/>\n\t\t\t) <xhtml:br/>\n\t\t\t( <xhtml:br/>\n\t\t\tinput [REGISTER_WIDTH-1:0] Data_in, <xhtml:br/>\n\t\t\tinput Clk, <xhtml:br/>\n\t\t\tinput resetn, <xhtml:br/>\n\t\t\tinput write, <xhtml:br/>\n\t\t\toutput reg [REGISTER_WIDTH-1:0] Data_out <xhtml:br/>\n\t\t\t); <xhtml:br/>\n\t\t\t<xhtml:br/>\n\t\t\treg Secure_mode; <xhtml:br/>\n\t\t\t<xhtml:br/>\n\t\t\talways @(posedge Clk or negedge resetn) <xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  if (~resetn) <xhtml:br/>\n\t\t\t  begin <xhtml:br/>\n\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t    Data_out &lt;= REGISTER_DEFAULT; // Register content set to Default at reset <xhtml:br/>\n\t\t\t    Secure_mode &lt;= REGISTER_DEFAULT[0]; // Register Secure_mode set at reset <xhtml:br/>\n\t\t\t  </xhtml:div>\n\t\t\t  end <xhtml:br/>\n\t\t\t  else if (write &amp; ~Secure_mode) <xhtml:br/>\n\t\t\t  begin <xhtml:br/>\n\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t    Data_out &lt;= Data_in; <xhtml:br/>\n\t\t\t  </xhtml:div>\n\t\t\t  end <xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tendmodule <xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:br/>\n\t\t\tmodule register_top <xhtml:br/>\n\t\t\t( <xhtml:br/>\n\t\t\tinput Clk, <xhtml:br/>\n\t\t\tinput resetn, <xhtml:br/>\n\t\t\tinput write, <xhtml:br/>\n\t\t\tinput [31:0] Data_in, <xhtml:br/>\n\t\t\toutput reg [31:0] Secure_reg, <xhtml:br/>\n\t\t\toutput reg [31:0] Insecure_reg <xhtml:br/>\n\t\t\t); <xhtml:br/>\n\t\t\t<xhtml:br/>\n\t\t\tregister_example #( <xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  .REGISTER_WIDTH (32), <xhtml:br/>\n\t\t\t  .REGISTER_DEFAULT (1224) // Incorrect Default value used bit 0 is 0. <xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\t) Insecure_Device_ID_1 ( <xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  .Data_in (Data_in), <xhtml:br/>\n\t\t\t  .Data_out (Secure_reg), <xhtml:br/>\n\t\t\t  .Clk (Clk), <xhtml:br/>\n\t\t\t  .resetn (resetn), <xhtml:br/>\n\t\t\t  .write (write) <xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\t); <xhtml:br/>\n                        <xhtml:br/>\n\t\t\tregister_example #(<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  .REGISTER_WIDTH (32) // Default not defined 2^32-2 value will be used as default. <xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\t) Insecure_Device_ID_2 ( <xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  .Data_in (Data_in), <xhtml:br/>\n\t\t\t  .Data_out (Insecure_reg), <xhtml:br/>\n\t\t\t  .Clk (Clk), <xhtml:br/>\n\t\t\t  .resetn (resetn), <xhtml:br/>\n\t\t\t  .write (write) <xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\t); <xhtml:br/>\n                        <xhtml:br/>\n\t\t\tendmodule <xhtml:br/>\n                    </Example_Code>\n                    <Body_Text>These example instantiations show how, in a hardware design, it would be possible to instantiate the register module with insecure defaults and parameters.</Body_Text>\n                    <Body_Text>In the example design, both registers will be software writable since Secure_mode is defined as zero. </Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"Verilog\">\n                      register_example #( <xhtml:br/>\n\t\t      <xhtml:div style=\"margin-left:1em;\">\n\t\t\t.REGISTER_WIDTH (32), <xhtml:br/>\n\t\t\t.REGISTER_DEFAULT (1225) // Correct default value set, to enable Secure_mode <xhtml:br/>\n\t\t      </xhtml:div>\n\t\t      ) Secure_Device_ID_example ( <xhtml:br/>\n\t\t      <xhtml:div style=\"margin-left:1em;\">\n\t\t\t.Data_in (Data_in), <xhtml:br/>\n\t\t\t.Data_out (Secure_reg), <xhtml:br/>\n\t\t\t.Clk (Clk), <xhtml:br/>\n\t\t\t.resetn (resetn), <xhtml:br/>\n\t\t\t.write (write) <xhtml:br/>\n\t\t      </xhtml:div>\n\t\t      );\n                    </Example_Code>\n                "
+    },
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>The example code is taken from the fuse memory inside the buggy OpenPiton SoC of HACK@DAC'21 [REF-1356]. Fuse memory is used to store keys/passwords and most configuration information. For example, the keys of JTAG and HMAC are stored in the fuse memory. During the firmware setup phase, the data in the Fuse memory is transferred into the registers of corresponding SoC peripherals for initialization. However, if the offset to access keys is set incorrectly, programs cannot access the correct keys from the fuse memory, breaking the functionalities of peripherals and even exposing sensitive information through other peripherals.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t<xhtml:b>parameter  MEM_SIZE = 100;</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:b>localparam JTAG_OFFSET = 81;</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\tconst logic [MEM_SIZE-1:0][31:0] mem = {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t// JTAG expected hamc hash<xhtml:br/>\n\t\t\t\t\t\t32'h49ac13af, 32'h1276f1b8, 32'h6703193a, 32'h65eb531b,<xhtml:br/>\n\t\t\t\t\t\t32'h3025ccca, 32'h3e8861f4, 32'h329edfe5, 32'h98f763b4,<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\tassign jtag_hash_o = {mem[JTAG_OFFSET-1],mem[JTAG_OFFSET-2],mem[JTAG_OFFSET-3],<xhtml:br/>\n\t\t\t\t\tmem[JTAG_OFFSET-4],mem[JTAG_OFFSET-5],mem[JTAG_OFFSET-6],mem[JTAG_OFFSET-7],mem[JTAG_OFFSET-8]};<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>The following vulnerable code accesses the JTAG key from the fuse memory. However, the JTAG_OFFSET is incorrect, and the fuse memory outputs the wrong values to jtag_hash_o. Moreover, setting incorrect offset gives the ability to attackers to access JTAG by knowing other low-privileged peripherals' passwords.</Body_Text>\n\t\t\t\t\t<Body_Text>To mitigate this, change JTAG_OFFSET to the correct address of the JTAG key [REF-1357].<xhtml:br/></Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\tparameter  MEM_SIZE = 100;<xhtml:br/>\n\t\t\t\t\t<xhtml:b>localparam JTAG_OFFSET = 100;</xhtml:b><xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1356",
+      "title": "fuse_mem.sv",
+      "url": "https://github.com/HACK-EVENT/hackatdac21/blob/main/piton/design/chip/tile/ariane/src/fuse_mem/fuse_mem.sv#L14-L15 ",
+      "publication_year": "2021",
+      "url_date": "2023-07-15"
+    },
+    {
+      "reference_id": "REF-1357",
+      "title": "fix CWE 1221 in fuse_mem.sv",
+      "url": "https://github.com/HACK-EVENT/hackatdac21/compare/main...cwe_1221_in_fuse_mem#diff-d7275edeac22f76691a31c83f005d0177359ad710ad6549ece3d069ed043ef21",
+      "publication_year": "2021",
+      "url_date": "2023-07-24"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2019-12-12"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, Description, References, Relationships"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Chen Chen",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Rahul Kande",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Jeyavijayan Rajendran",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Shaza Zeitoni",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Mohamadreza Rostami",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Ahmad-Reza Sadeghi",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "166"
+  ]
+}

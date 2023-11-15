@@ -1,0 +1,305 @@
+{
+  "id": "1281",
+  "name": "Sequence of Processor Instructions Leads to Unexpected Behavior",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "Specific combinations of processor instructions lead to undesirable behavior such as locking the processor until a hard reset performed.",
+  "extended_description": "\n\t\t\t\t<xhtml:p>If the instruction set architecture (ISA) and processor logic are not designed carefully and tested thoroughly, certain combinations of instructions may lead to locking the processor or other unexpected and undesirable behavior.  Upon encountering unimplemented instruction opcodes or illegal instruction operands, the processor should throw an exception and carry on without negatively impacting security.  However, specific combinations of legal and illegal instructions may cause unexpected behavior with security implications such as allowing unprivileged programs to completely lock the CPU. \n                </xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "691",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Processor Hardware"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "Unexpected behavior from certain instruction combinations can arise from bugs in the ISA"
+      ]
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "Unexpected behavior from certain instruction combinations can arise because of implementation details such as speculative execution, caching etc."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Availability"
+      ],
+      "impact": [
+        "Varies by Context"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Testing"
+      ],
+      "description": [
+        "Implement a rigorous testing strategy that incorporates randomization to explore instruction sequences that are unlikely to appear in normal workloads in order to identify halt and catch fire instruction sequences."
+      ]
+    },
+    {
+      "phase": [
+        "Patching and Maintenance"
+      ],
+      "description": [
+        "Patch operating system to avoid running Halt and Catch Fire type sequences or to mitigate the damage caused by unexpected behavior.  See [REF-1108]."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>The Pentium F00F bug is a real-world example of how a sequence of instructions can lock a processor. The \"cmpxchg8b\" instruction compares contents of registers with a memory location.  The operand is expected to be a memory location, but in the bad code snippet it is the eax register. Because the specified operand is illegal, an exception is generated, which is the correct behavior and not a security issue in itself. However, when prefixed with the \"lock\" instruction, the processor deadlocks because locked memory transactions require a read and write pair of transactions to occur before the lock on the memory bus is released. The exception causes a read to occur but there is no corresponding write, as there would have been if a legal operand had been supplied to the cmpxchg8b instruction. [REF-1331]</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"x86 Assembly\">lock cmpxchg8b eax</Example_Code>\n\t\t\t\t"
+    },
+    {
+      "text": "\n\t\t\t\t<Intro_Text>The Cyrix Coma bug was capable of trapping a Cyrix 6x86, 6x86L, or 6x86MX processor in an infinite loop. An infinite loop on a processor is not necessarily an issue on its own, as interrupts could stop the loop. However, on select Cyrix processors, the x86 Assembly 'xchg' instruction was designed to prevent interrupts. On these processors, if the loop was such that a new 'xchg' instruction entered the instruction pipeline before the previous one exited, the processor would become deadlocked. [REF-1323]</Intro_Text>\n\t\t\t\t"
+    },
+    {
+      "text": "\n\t\t\t\t<Intro_Text>The Motorola MC6800 microprocessor contained the first documented instance of a Halt and Catch Fire instruction - an instruction that causes the normal function of a processor to stop. If the MC6800 was given the opcode 0x9D or 0xDD, the processor would begin to read all memory very quickly, in sequence, and without executing any other instructions. This will cause the processor to become unresponsive to anything but a hard reset. [REF-1324]</Intro_Text>\n\t\t\t\t"
+    },
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>The example code is taken from the commit stage inside the processor core of the HACK@DAC'19 buggy CVA6 SoC [REF-1342]. To ensure the correct execution of atomic instructions, the CPU must guarantee atomicity: no other device overwrites the memory location between the atomic read starts and the atomic write finishes. Another device may overwrite the memory location only before the read operation or after the write operation, but never between them, and finally, the content will still be consistent.</Intro_Text>\n\t\t\t\t\t<Body_Text>Atomicity is especially critical when the variable to be modified is a mutex, counting semaphore, or similar piece of data that controls access to shared resources. Failure to ensure atomicity may result in two processors accessing a shared resource simultaneously, permanent lock-up, or similar disastrous behavior.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t\t<xhtml:div><xhtml:b>if (csr_exception_i.valid &amp;&amp; csr_exception_i.cause[63] &amp;&amp; commit_instr_i[0].fu != CSR) begin</xhtml:b>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\texception_o = csr_exception_i;<xhtml:br/>\n\t\t\t\t\t\t\t\texception_o.tval = commit_instr_i[0].ex.tval;<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>       \n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>The above vulnerable code checks for CSR interrupts and gives them precedence over any other exception. However, the interrupts should not occur when the processor runs a series of atomic instructions. In the above vulnerable code, the required check must be included to ensure the processor is not in the middle of a series of atomic instructions.</Body_Text>\n\t\t\t\t\t<Body_Text>Refrain from interrupting if the intention is to commit an atomic instruction that should not be interrupted. This can be done by adding a condition to check whether the current committing instruction is atomic. [REF-1343]</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\t\t<xhtml:div><xhtml:b>if (csr_exception_i.valid &amp;&amp; csr_exception_i.cause[63] &amp;&amp; !amo_valid_commit_o &amp;&amp; commit_instr_i[0].fu != CSR) begin</xhtml:b>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\texception_o = csr_exception_i;<xhtml:br/>\n\t\t\t\t\t\t\t\texception_o.tval = commit_instr_i[0].ex.tval;<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>       \n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-26339",
+      "description": "A bug in AMD CPU's core logic allows a potential DoS by using a specific x86 instruction sequence to hang the processor",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-26339"
+    },
+    {
+      "reference": "CVE-1999-1476",
+      "description": "A bug in some Intel Pentium processors allow DoS (hang) via an invalid \"CMPXCHG8B\" instruction, causing a deadlock",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1476"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1094",
+      "author": [
+        "Christopher Domas"
+      ],
+      "title": "Breaking the x86 ISA",
+      "url": "https://github.com/xoreaxeaxeax/sandsifter/blob/master/references/domas_breaking_the_x86_isa_wp.pdf"
+    },
+    {
+      "reference_id": "REF-1108",
+      "author": [
+        "Intel Corporation"
+      ],
+      "title": "Deep Dive: Retpoline: A Branch Target Injection Mitigation",
+      "url": "https://www.intel.com/content/www/us/en/developer/topic-technology/software-security-guidance/overview.html",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1323",
+      "title": "Cyrix coma bug",
+      "url": "https://en.wikipedia.org/wiki/Cyrix_coma_bug",
+      "publication_year": "2006",
+      "publication_month": "--03",
+      "publication_day": "---22",
+      "publisher": "Wikipedia"
+    },
+    {
+      "reference_id": "REF-1324",
+      "author": [
+        "Gary Wheeler"
+      ],
+      "title": "Undocumented M6800 Instructions",
+      "url": "https://spivey.oriel.ox.ac.uk/wiki/images-corner/1/1a/Undoc6800.pdf",
+      "publication_year": "1977",
+      "publication_month": "--12",
+      "url_date": "2023-04-20"
+    },
+    {
+      "reference_id": "REF-1331",
+      "author": [
+        "Robert R. Collins"
+      ],
+      "title": "The Pentium F00F Bug",
+      "url": "https://www.drdobbs.com/embedded-systems/the-pentium-f00f-bug/184410555",
+      "publication_year": "1998",
+      "publication_month": "--05",
+      "publication_day": "---01",
+      "url_date": "2023-04-25"
+    },
+    {
+      "reference_id": "REF-1342",
+      "title": "Hackatdac19 commit_stage.sv",
+      "url": "https://github.com/HACK-EVENT/hackatdac19/blob/619e9fb0ef32ee1e01ad76b8732a156572c65700/src/commit_stage.sv#L287:L290",
+      "publication_year": "2019",
+      "url_date": "2023-06-21"
+    },
+    {
+      "reference_id": "REF-1343",
+      "author": [
+        "Florian Zaruba",
+        "Michael Schaffner",
+        "Stefan Mach",
+        "Andreas Traber"
+      ],
+      "title": "commit_stage.sv",
+      "url": "https://github.com/openhwgroup/cva6/blob/7951802a0147aedb21e8f2f6dc1e1e9c4ee857a2/src/commit_stage.sv#L296:L301",
+      "publication_year": "2018",
+      "url_date": "2023-06-21"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Nicole Fern",
+      "submission_organization": "Tortuga Logic",
+      "submission_date": "2020-05-15"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Name, Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Demonstrative_Examples, Description, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Demonstrative_Examples, Mapping_Notes, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Sequence of Processor Instructions Leads to Unexpected Behavior (Halt and Catch Fire)",
+        "date": "2021-07-20"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Shaza Zeitoni",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Mohamadreza Rostami",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Pouya Mahmoody",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Ahmad-Reza Sadeghi",
+        "contribution_organization": "Technical University of Darmstadt",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Rahul Kande",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Chen Chen",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Jeyavijayan Rajendran",
+        "contribution_organization": "Texas A&M University",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "suggested demonstrative example"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Hareesh Khattri",
+        "contribution_organization": "Intel Corporation",
+        "contribution_date": "2023-06-21",
+        "contribution_comment": "contributed to observed example"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "212"
+  ]
+}

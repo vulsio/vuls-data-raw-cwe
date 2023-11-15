@@ -1,0 +1,651 @@
+{
+  "id": "787",
+  "name": "Out-of-bounds Write",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product writes data past the end, or before the beginning, of the intended buffer.",
+  "extended_description": "Typically, this can result in corruption of data, a crash, or code execution.  The product may modify an index or perform pointer arithmetic that references a memory location that is outside of the boundaries of the buffer.  A subsequent write operation then produces undefined or unexpected results.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "119",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "119",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "119",
+      "view_id": "1305",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "119",
+      "view_id": "1340",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Often",
+        "name": "C"
+      },
+      {
+        "prevalence": "Often",
+        "name": "C++"
+      },
+      {
+        "class": "Assembly",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "ICS/OT",
+        "prevalence": "Often"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Availability"
+      ],
+      "impact": [
+        "Modify Memory",
+        "DoS: Crash, Exit, or Restart",
+        "Execute Unauthorized Code or Commands"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "mitigation_id": "MIT-3",
+      "phase": [
+        "Requirements"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.</xhtml:p>\n                  <xhtml:p>Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.</xhtml:p>\n               "
+      ],
+      "strategy": "Language Selection"
+    },
+    {
+      "mitigation_id": "MIT-4.1",
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>Examples include the Safe C String Library (SafeStr) by Messier and Viega [REF-57], and the Strsafe.h library from Microsoft [REF-56]. These libraries provide safer versions of overflow-prone string-handling functions.</xhtml:p>\n               "
+      ],
+      "effectiveness_notes": "This is not a complete solution, since many buffer overflows are not related to strings.",
+      "strategy": "Libraries or Frameworks"
+    },
+    {
+      "mitigation_id": "MIT-10",
+      "phase": [
+        "Operation",
+        "Build and Compilation"
+      ],
+      "description": [
+        " \n\t\t<xhtml:p>Use automatic buffer overflow detection mechanisms that are offered by certain compilers or compiler extensions. Examples include: the Microsoft Visual Studio /GS flag, Fedora/Red Hat FORTIFY_SOURCE GCC flag, StackGuard, and ProPolice, which provide various mechanisms including canary-based detection and range/index checking. </xhtml:p> \n\t\t<xhtml:p> D3-SFCV (Stack Frame Canary Validation) from D3FEND [REF-1334] discusses canary-based detection in detail. </xhtml:p> \n\n\t      "
+      ],
+      "effectiveness": "Defense in Depth",
+      "effectiveness_notes": " \n\t\t \n\t      ",
+      "strategy": "Environment Hardening"
+    },
+    {
+      "mitigation_id": "MIT-9",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Consider adhering to the following rules when allocating and managing an application's memory:</xhtml:p>\n                     <xhtml:ul>\n                        <xhtml:li>Double check that the buffer is as large as specified.</xhtml:li>\n                        <xhtml:li>When using functions that accept a number of bytes to copy, such as strncpy(), be aware that if the destination buffer size is equal to the source buffer size, it may not NULL-terminate the string.</xhtml:li>\n                        <xhtml:li>Check buffer boundaries if accessing the buffer in a loop and make sure there is no danger of writing past the allocated space.</xhtml:li>\n                        <xhtml:li>If necessary, truncate all input strings to a reasonable length before passing them to the copy and concatenation functions.</xhtml:li>\n                     </xhtml:ul>\n               "
+      ]
+    },
+    {
+      "mitigation_id": "MIT-11",
+      "phase": [
+        "Operation",
+        "Build and Compilation"
+      ],
+      "description": [
+        "\n\t\t <xhtml:p>Run or compile the software using features or extensions that randomly arrange the positions of a program's executable and libraries in memory. Because this makes the addresses unpredictable, it can prevent an attacker from reliably jumping to exploitable code. </xhtml:p> \n\t\t <xhtml:p> Examples include Address Space Layout Randomization (ASLR) [REF-58] [REF-60] and Position-Independent Executables (PIE) [REF-64]. Imported modules may be similarly realigned if their default memory addresses conflict with other modules, in a process known as \"rebasing\" (for Windows) and \"prelinking\" (for Linux) [REF-1332] using randomly generated addresses. ASLR for libraries cannot be used in conjunction with prelink since it would require relocating the libraries at run-time, defeating the whole purpose of prelinking. </xhtml:p> \n\t\t <xhtml:p> For more information on these techniques see D3-SAOR (Segment Address Offset Randomization) from D3FEND [REF-1335]. </xhtml:p>\n\t       "
+      ],
+      "effectiveness": "Defense in Depth",
+      "effectiveness_notes": "These techniques do not provide a complete solution.  For instance, exploits frequently use a bug that discloses memory addresses in order to maximize reliability of code execution [REF-1337]. It has also been shown that a side-channel attack can bypass ASLR [REF-1333]",
+      "strategy": "Environment Hardening"
+    },
+    {
+      "mitigation_id": "MIT-12",
+      "phase": [
+        "Operation"
+      ],
+      "description": [
+        " \n\t\t <xhtml:p> Use a CPU and operating system that offers Data Execution Protection (using hardware NX or XD bits) or the equivalent techniques that simulate this feature in software, such as PaX [REF-60] [REF-61]. These techniques ensure that any instruction executed is exclusively at a memory address that is part of the code segment.  </xhtml:p> \n\t         <xhtml:p> For more information on these techniques see D3-PSEP (Process Segment Execution Prevention) from D3FEND [REF-1336]. </xhtml:p>\n\t       "
+      ],
+      "effectiveness": "Defense in Depth",
+      "effectiveness_notes": "This is not a complete solution, since buffer overflows could be used to overwrite nearby variables to modify the software's state in dangerous ways. In addition, it cannot be used in cases in which self-modifying code is required. Finally, an attack could still cause a denial of service, since the typical response is to exit the application. ",
+      "strategy": "Environment Hardening"
+    },
+    {
+      "mitigation_id": "MIT-13",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Replace unbounded copy functions with analogous functions that support length arguments, such as strcpy with strncpy. Create these if they are not available."
+      ],
+      "effectiveness": "Moderate",
+      "effectiveness_notes": "This approach is still susceptible to calculation errors, including issues such as off-by-one errors (CWE-193) and incorrectly calculating buffer lengths (CWE-131)."
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following code attempts to save four different identification numbers into an array.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int id_sequence[3];<xhtml:br/>\n                     <xhtml:br/>/* Populate the id array. */<xhtml:br/>\n                     <xhtml:br/>id_sequence[0] = 123;<xhtml:br/>id_sequence[1] = 234;<xhtml:br/>id_sequence[2] = 345;<xhtml:br/>id_sequence[3] = 456;</xhtml:div>\n               </Example_Code>\n\t       <Body_Text>Since the array is only allocated to hold three elements, the valid indices are 0 to 2; so, the assignment to id_sequence[3] is out of bounds.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-114",
+      "text": "\n               <Intro_Text>In the following code, it is possible to request that memcpy move a much larger segment of memory than assumed:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int returnChunkSize(void *) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>/* if chunk info is valid, return the size of usable memory,</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>* else, return -1 to indicate an error</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>*/</xhtml:i>\n                           <xhtml:br/>...</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>int main() {<xhtml:div style=\"margin-left:1em;\">...<xhtml:br/>memcpy(destBuf, srcBuf, (returnChunkSize(destBuf)-1));<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If returnChunkSize() happens to encounter an error it will return -1. Notice that the return value is not checked before the memcpy operation (CWE-252), so -1 can be passed as the size argument to memcpy() (CWE-805). Because memcpy() assumes that the value is unsigned, it will be interpreted as MAXINT-1 (CWE-195), and therefore will copy far more memory than is likely available to the destination buffer (CWE-787, CWE-788).</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-1",
+      "text": "\n               <Intro_Text>This code takes an IP address from the user and verifies that it is well formed. It then looks up the hostname and copies it into a buffer.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void host_lookup(char *user_supplied_addr){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>struct hostent *hp;<xhtml:br/>in_addr_t *addr;<xhtml:br/>char hostname[64];<xhtml:br/>in_addr_t inet_addr(const char *cp);<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/*routine that ensures user_supplied_addr is in the right format for conversion */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>validate_addr_form(user_supplied_addr);<xhtml:br/>addr = inet_addr(user_supplied_addr);<xhtml:br/>hp = gethostbyaddr( addr, sizeof(struct in_addr), AF_INET);<xhtml:br/>strcpy(hostname, hp-&gt;h_name);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This function allocates a buffer of 64 bytes to store the hostname. However, there is no guarantee that the hostname will not be larger than 64 bytes. If an attacker specifies an address which resolves to a very large hostname, then the function may overwrite sensitive data or even relinquish control flow to the attacker.</Body_Text>\n               <Body_Text>Note that this example also contains an unchecked return value (CWE-252) that can lead to a NULL pointer dereference (CWE-476).</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-19",
+      "text": "\n               <Intro_Text>This code applies an encoding procedure to an input string and stores it into a buffer.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char * copy_input(char *user_supplied_string){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int i, dst_index;<xhtml:br/>char *dst_buf = (char*)malloc(4*sizeof(char) * MAX_SIZE);<xhtml:br/>if ( MAX_SIZE &lt;= strlen(user_supplied_string) ){<xhtml:div style=\"margin-left:1em;\">die(\"user string too long, die evil hacker!\");</xhtml:div>}<xhtml:br/>dst_index = 0;<xhtml:br/>for ( i = 0; i &lt; strlen(user_supplied_string); i++ ){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if( '&amp;' == user_supplied_string[i] ){<xhtml:div style=\"margin-left:1em;\">dst_buf[dst_index++] = '&amp;';<xhtml:br/>dst_buf[dst_index++] = 'a';<xhtml:br/>dst_buf[dst_index++] = 'm';<xhtml:br/>dst_buf[dst_index++] = 'p';<xhtml:br/>dst_buf[dst_index++] = ';';</xhtml:div>}<xhtml:br/>else if ('&lt;' == user_supplied_string[i] ){<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>/* encode to &amp;lt; */</xhtml:i>\n                                       <xhtml:br/>\n                                    </xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>else dst_buf[dst_index++] = user_supplied_string[i];</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return dst_buf;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer attempts to encode the ampersand character in the user-controlled string. However, the length of the string is validated before the encoding procedure is applied. Furthermore, the programmer assumes encoding expansion will only expand a given character by a factor of 4, while the encoding of the ampersand expands by 5. As a result, when the encoding procedure expands the string it is possible to overflow the destination buffer if the attacker provides a string of many ampersands.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-87",
+      "text": "\n               <Intro_Text>In the following C/C++ code, a utility function is used to trim trailing whitespace from a character string. The function copies the input string to a local character string and uses a while statement to remove the trailing whitespace by moving backward through the string and overwriting whitespace with a NUL character.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char* trimTrailingWhitespace(char *strMessage, int length) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char *retMessage;<xhtml:br/>char *message = malloc(sizeof(char)*(length+1));<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// copy input string to a temporary string</xhtml:i>\n                           <xhtml:br/>char message[length+1];<xhtml:br/>int index;<xhtml:br/>for (index = 0; index &lt; length; index++) {<xhtml:div style=\"margin-left:1em;\">message[index] = strMessage[index];</xhtml:div>}<xhtml:br/>message[index] = '\\0';<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// trim trailing whitespace</xhtml:i>\n                           <xhtml:br/>int len = index-1;<xhtml:br/>while (isspace(message[len])) {<xhtml:div style=\"margin-left:1em;\">message[len] = '\\0';<xhtml:br/>len--;</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// return string without trailing whitespace</xhtml:i>\n                           <xhtml:br/>retMessage = message;<xhtml:br/>return retMessage;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, this function can cause a buffer underwrite if the input character string contains all whitespace. On some systems the while statement will move backwards past the beginning of a character string and will call the isspace() function on an address outside of the bounds of the local buffer.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-20",
+      "text": "\n               <Intro_Text>The following code allocates memory for a maximum number of widgets. It then gets a user-specified number of widgets, making sure that the user does not request too many. It then initializes the elements of the array using InitializeWidget(). Because the number of widgets can vary for each request, the code inserts a NULL pointer to signify the location of the last widget.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int i;<xhtml:br/>unsigned int numWidgets;<xhtml:br/>Widget **WidgetList;<xhtml:br/>\n                     <xhtml:br/>numWidgets = GetUntrustedSizeValue();<xhtml:br/>if ((numWidgets == 0) || (numWidgets &gt; MAX_NUM_WIDGETS)) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Incorrect number of widgets requested!\");</xhtml:div>}<xhtml:br/>WidgetList = (Widget **)malloc(numWidgets * sizeof(Widget *));<xhtml:br/>printf(\"WidgetList ptr=%p\\n\", WidgetList);<xhtml:br/>for(i=0; i&lt;numWidgets; i++) {<xhtml:div style=\"margin-left:1em;\">WidgetList[i] = InitializeWidget();</xhtml:div>}<xhtml:br/>WidgetList[numWidgets] = NULL;<xhtml:br/>showWidgets(WidgetList);</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, this code contains an off-by-one calculation error (CWE-193). It allocates exactly enough space to contain the specified number of widgets, but it does not include the space for the NULL pointer. As a result, the allocated buffer is smaller than it is supposed to be (CWE-131). So if the user ever requests MAX_NUM_WIDGETS, there is an out-of-bounds write (CWE-787) when the NULL is assigned. Depending on the environment and compilation settings, this could cause memory corruption.</Body_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-88",
+      "text": "\n               <Intro_Text>The following code may result in a buffer underwrite, if find() returns a negative value to indicate that ch is not found in srcBuf:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int main() {<xhtml:div style=\"margin-left:1em;\">...<xhtml:br/>strncpy(destBuf, &amp;srcBuf[find(srcBuf, ch)], 1024);<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the index to srcBuf is somehow under user control, this is an arbitrary write-what-where condition.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-21220",
+      "description": "Chain: insufficient input validation (CWE-20) in browser allows heap corruption (CWE-787), as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-21220"
+    },
+    {
+      "reference": "CVE-2021-28664",
+      "description": "GPU kernel driver allows memory corruption because a user can obtain read/write access to read-only pages, as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-28664"
+    },
+    {
+      "reference": "CVE-2020-17087",
+      "description": "Chain: integer truncation (CWE-197) causes small buffer allocation (CWE-131) leading to out-of-bounds write (CWE-787) in kernel pool, as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-17087"
+    },
+    {
+      "reference": "CVE-2020-1054",
+      "description": "Out-of-bounds write in kernel-mode driver, as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-1054"
+    },
+    {
+      "reference": "CVE-2020-0041",
+      "description": "Escape from browser sandbox using out-of-bounds write due to incorrect bounds check, as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-0041"
+    },
+    {
+      "reference": "CVE-2020-0968",
+      "description": "Memory corruption in web browser scripting engine, as exploited in the wild per CISA KEV.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-0968"
+    },
+    {
+      "reference": "CVE-2020-0022",
+      "description": "chain: mobile phone Bluetooth implementation does not include offset when calculating packet length (CWE-682), leading to out-of-bounds write (CWE-787)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-0022"
+    },
+    {
+      "reference": "CVE-2019-1010006",
+      "description": "Chain: compiler optimization (CWE-733) removes or modifies code used to detect integer overflow (CWE-190), allowing out-of-bounds write (CWE-787).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-1010006"
+    },
+    {
+      "reference": "CVE-2009-1532",
+      "description": "malformed inputs cause accesses of uninitialized or previously-deleted objects, leading to memory corruption",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1532"
+    },
+    {
+      "reference": "CVE-2009-0269",
+      "description": "chain: -1 value from a function call was intended to indicate an error, but is used as an array index instead.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0269"
+    },
+    {
+      "reference": "CVE-2002-2227",
+      "description": "Unchecked length of SSLv2 challenge value leads to buffer underflow.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-2227"
+    },
+    {
+      "reference": "CVE-2007-4580",
+      "description": "Buffer underflow from a small size value with a large buffer (length parameter inconsistency, CWE-130)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4580"
+    },
+    {
+      "reference": "CVE-2007-4268",
+      "description": "Chain: integer signedness error (CWE-195) passes signed comparison, leading to heap overflow (CWE-122)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4268"
+    },
+    {
+      "reference": "CVE-2009-2550",
+      "description": "Classic stack-based buffer overflow in media player using a long entry in a playlist",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2550"
+    },
+    {
+      "reference": "CVE-2009-2403",
+      "description": "Heap-based buffer overflow in media player using a long entry in a playlist",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2403"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1029",
+      "author": [
+        "Aleph One"
+      ],
+      "title": "Smashing The Stack For Fun And Profit",
+      "url": "http://phrack.org/issues/49/14.html",
+      "publication_year": "1996",
+      "publication_month": "--11",
+      "publication_day": "---08"
+    },
+    {
+      "section": "Chapter 5, \"Stack Overruns\" Page 129",
+      "reference_id": "REF-7",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc"
+      ],
+      "title": "Writing Secure Code",
+      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+      "publication_year": "2002",
+      "publication_month": "--12",
+      "publication_day": "---04",
+      "publisher": "Microsoft Press",
+      "edition": "2nd Edition"
+    },
+    {
+      "section": "Chapter 5, \"Heap Overruns\" Page 138",
+      "reference_id": "REF-7",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc"
+      ],
+      "title": "Writing Secure Code",
+      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+      "publication_year": "2002",
+      "publication_month": "--12",
+      "publication_day": "---04",
+      "publisher": "Microsoft Press",
+      "edition": "2nd Edition"
+    },
+    {
+      "section": "\"Sin 5: Buffer Overruns.\" Page 89",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    },
+    {
+      "section": "Chapter 3, \"Nonexecutable Stack\", Page 76",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    },
+    {
+      "section": "Chapter 5, \"Protection Mechanisms\", Page 189",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    },
+    {
+      "reference_id": "REF-90",
+      "title": "Buffer UNDERFLOWS: What do you know about it?",
+      "url": "https://seclists.org/vuln-dev/2004/Jan/22",
+      "publication_year": "2004",
+      "publication_month": "--01",
+      "publication_day": "---10",
+      "publication": "Vuln-Dev Mailing List",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-56",
+      "author": [
+        "Microsoft"
+      ],
+      "title": "Using the Strsafe.h Functions",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/menurc/strsafe-ovw?redirectedfrom=MSDN",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-57",
+      "author": [
+        "Matt Messier",
+        "John Viega"
+      ],
+      "title": "Safe C String Library v1.0.3",
+      "url": "http://www.gnu-darwin.org/www001/ports-1.5a-CURRENT/devel/safestr/work/safestr-1.0.3/doc/safestr.html",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-58",
+      "author": [
+        "Michael Howard"
+      ],
+      "title": "Address Space Layout Randomization in Windows Vista",
+      "url": "https://learn.microsoft.com/en-us/archive/blogs/michael_howard/address-space-layout-randomization-in-windows-vista",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-60",
+      "title": "PaX",
+      "url": "https://en.wikipedia.org/wiki/Executable_space_protection#PaX",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-61",
+      "author": [
+        "Microsoft"
+      ],
+      "title": "Understanding DEP as a mitigation technology part 1",
+      "url": "https://msrc.microsoft.com/blog/2009/06/understanding-dep-as-a-mitigation-technology-part-1/",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-64",
+      "author": [
+        "Grant Murphy"
+      ],
+      "title": "Position Independent Executables (PIE)",
+      "url": "https://www.redhat.com/en/blog/position-independent-executables-pie",
+      "publication_year": "2012",
+      "publication_month": "--11",
+      "publication_day": "---28",
+      "publisher": "Red Hat",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1332",
+      "author": [
+        "John Richard Moser"
+      ],
+      "title": "Prelink and address space randomization",
+      "url": "https://lwn.net/Articles/190139/",
+      "publication_year": "2006",
+      "publication_month": "--07",
+      "publication_day": "---05",
+      "url_date": "2023-04-26"
+    },
+    {
+      "reference_id": "REF-1333",
+      "author": [
+        "Dmitry Evtyushkin, Dmitry Ponomarev, Nael Abu-Ghazaleh"
+      ],
+      "title": "Jump Over ASLR: Attacking Branch Predictors to Bypass ASLR",
+      "url": "http://www.cs.ucr.edu/~nael/pubs/micro16.pdf",
+      "publication_year": "2016",
+      "url_date": "2023-04-26"
+    },
+    {
+      "reference_id": "REF-1334",
+      "author": [
+        "D3FEND"
+      ],
+      "title": "Stack Frame Canary Validation (D3-SFCV)",
+      "url": "https://d3fend.mitre.org/technique/d3f:StackFrameCanaryValidation/",
+      "publication_year": "2023",
+      "url_date": "2023-04-26"
+    },
+    {
+      "reference_id": "REF-1335",
+      "author": [
+        "D3FEND"
+      ],
+      "title": "Segment Address Offset Randomization (D3-SAOR)",
+      "url": "https://d3fend.mitre.org/technique/d3f:SegmentAddressOffsetRandomization/",
+      "publication_year": "2023",
+      "url_date": "2023-04-26"
+    },
+    {
+      "reference_id": "REF-1336",
+      "author": [
+        "D3FEND"
+      ],
+      "title": "Process Segment Execution Prevention (D3-PSEP)",
+      "url": "https://d3fend.mitre.org/technique/d3f:ProcessSegmentExecutionPrevention/",
+      "publication_year": "2023",
+      "url_date": "2023-04-26"
+    },
+    {
+      "section": "Memory information leaks",
+      "reference_id": "REF-1337",
+      "author": [
+        "Alexander Sotirov and Mark Dowd"
+      ],
+      "title": "Bypassing Browser Memory Protections: Setting back browser security by 10 years",
+      "url": "https://www.blackhat.com/presentations/bh-usa-08/Sotirov_Dowd/bh08-sotirov-dowd.pdf",
+      "publication_year": "2008",
+      "url_date": "2023-04-26"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2009-10-21"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-09-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-09-19",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Detection_Factors, Likelihood_of_Exploit, Observed_Examples, Potential_Mitigations, References, Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Alternate_Terms, Demonstrative_Examples, Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Alternate_Terms, Demonstrative_Examples, Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Potential_Mitigations, References, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes, Relationships, Taxonomy_Mappings"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
+        "contribution_date": "2023-04-25",
+        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
+      }
+    ]
+  },
+  "alternate_terms": [
+    {
+      "term": "Memory Corruption",
+      "description": "Often used to describe the consequences of writing to memory outside the bounds of a buffer, or to memory that is invalid, when the root cause is something other than a sequential copy of excessive data from a fixed starting location. This may include issues such as incorrect pointer arithmetic, accessing invalid pointers due to incomplete initialization or memory release, etc."
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-1",
+      "method": "Automated Static Analysis",
+      "description": "\n                  <xhtml:p>This weakness can often be detected using automated static analysis tools. Many modern tools use data flow analysis or constraint-based techniques to minimize the number of false positives.</xhtml:p>\n                  <xhtml:p>Automated static analysis generally does not account for environmental considerations when reporting out-of-bounds memory operations. This can make it difficult for users to determine which warnings should be investigated first. For example, an analysis tool might report buffer overflows that originate from command line arguments in a program that is not expected to run with setuid or other special privileges.</xhtml:p>\n               ",
+      "effectiveness": "High",
+      "effectiveness_notes": "Detection techniques for buffer-related errors are more mature than for most other weakness types."
+    },
+    {
+      "detection_method_id": "DM-2",
+      "method": "Automated Dynamic Analysis",
+      "description": "This weakness can be detected using dynamic tools and techniques that interact with the software using large test suites with many diverse inputs, such as fuzz testing (fuzzing), robustness testing, and fault injection. The software's operation may slow down, but it should not become unstable, crash, or generate incorrect results."
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SR 3.5",
+      "entry_id": "Part 3-3"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SI-1",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SI-2",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SVV-1",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SVV-3",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 3.5",
+      "entry_id": "Part 4-2"
+    }
+  ]
+}

@@ -1,0 +1,316 @@
+{
+  "id": "1332",
+  "name": "Improper Handling of Faults that Lead to Instruction Skips",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Stable",
+  "description": "The device is missing or incorrectly implements circuitry or sensors that detect and mitigate the skipping of security-critical CPU instructions when they occur.",
+  "extended_description": "\n              <xhtml:p>The operating conditions of hardware may change\n              in ways that cause unexpected behavior to occur,\n              including the skipping of security-critical CPU\n              instructions. Generally, this can occur due to\n              electrical disturbances or when the device operates\n              outside of its expected conditions.</xhtml:p>\n\t\t\t  <xhtml:p>In practice, application code may contain\n\t\t\t  conditional branches that are security-sensitive (e.g.,\n\t\t\t  accepting or rejecting a user-provided password). These\n\t\t\t  conditional branches are typically implemented by a\n\t\t\t  single conditional branch instruction in the program\n\t\t\t  binary which, if skipped, may lead to effectively\n\t\t\t  flipping the branch condition - i.e., causing the wrong\n\t\t\t  security-sensitive branch to be taken. This affects\n\t\t\t  processes such as firmware authentication, password\n\t\t\t  verification, and other security-sensitive decision\n\t\t\t  points.</xhtml:p>\n\t\t\t  <xhtml:p>Attackers can use fault injection techniques to\n\t\t\t  alter the operating conditions of hardware so that\n\t\t\t  security-critical instructions are skipped more\n\t\t\t  frequently or more reliably than they would in a\n\t\t\t  \"natural\" setting.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1384",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "1247",
+      "view_id": "1194",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "Failure to design appropriate countermeasures to common fault injection techniques can manifest this weakness."
+      ]
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "This weakness can arise if the hardware design incorrectly implements countermeasures to prevent fault injection."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Authentication"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism",
+        "Alter Execution Logic",
+        "Unexpected State"
+      ],
+      "note": "Depending on the context, instruction skipping can\n                        have a broad range of consequences related to the\n                        generic bypassing of security critical code.",
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Design strategies for ensuring safe failure if\n                        inputs, such as Vcc, are modified out of acceptable\n                        ranges."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Design strategies for ensuring safe behavior if\n                        instructions attempt to be skipped."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Identify mission critical secrets that should\n                          be wiped if faulting is detected, and design a\n                          mechanism to do the deletion."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Add redundancy by performing an operation\n                          multiple times, either in space or time, and perform\n                          majority voting. Additionally, make conditional\n                          instruction timing unpredictable."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use redundant operations or canaries to\n                          detect and respond to faults."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Ensure that fault mitigations are strong enough\n                        in practice. For example, a low power detection\n                        mechanism that takes 50 clock cycles to trigger at lower\n                        voltages may be an insufficient security mechanism if\n                        the instruction counter has already progressed with no\n                        other CPU activity occurring."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t    <Intro_Text>A smart card contains authentication credentials that are used as authorization to enter a building. The credentials are only accessible when a correct PIN is presented to the card.</Intro_Text>\n\t\t\t    <Example_Code Nature=\"Bad\">\n\t\t\t      The card emits the credentials when a voltage anomaly is injected into the power line to the device at a particular time after providing an incorrect PIN to the card, causing the internal program to accept the incorrect PIN.</Example_Code>\n\t\t\t    <Body_Text>There are several ways this weakness could be fixed.</Body_Text>\n\t\t\t    <Example_Code Nature=\"Good\"><xhtml:ul>\n\t\t\t      <xhtml:li>add an internal filter or internal power supply in series with the power supply pin on the device</xhtml:li>\n\t\t\t      <xhtml:li>add sensing circuitry to reset the device if out of tolerance conditions are detected</xhtml:li>\n\t\t\t      <xhtml:li>add additional execution sensing circuits to monitor the execution order for anomalies and abort the action or reset the device under fault conditions</xhtml:li>\n\t\t\t      </xhtml:ul>\n\t\t\t    </Example_Code>\n\t\t\t  "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2019-15894",
+      "description": "fault injection attack bypasses the verification mode, potentially allowing arbitrary code execution.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-15894"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1161",
+      "author": [
+        "Josep Balasch",
+        "Benedikt Gierlichs",
+        "Ingrid Verbauwhede"
+      ],
+      "title": "An In-depth and Black-box Characterization of the Effects of Clock Glitches on 8-bit MCUs",
+      "url": "https://ieeexplore.ieee.org/document/6076473",
+      "publication_year": "2011",
+      "publication_month": "--09",
+      "publication": "2011 Workshop on Fault Diagnosis and Tolerance in Cryptography (IEEE)"
+    },
+    {
+      "reference_id": "REF-1222",
+      "author": [
+        "Alexandre Menu",
+        "Jean-Max Dutertre",
+        "Olivier Potin",
+        "Jean-Baptiste Rigaud"
+      ],
+      "title": "Experimental Analysis of the Electromagnetic Instruction Skip Fault Model",
+      "url": "https://ieeexplore.ieee.org/document/9081261",
+      "publication_year": "2020",
+      "publication_month": "--04",
+      "publication_day": "---30",
+      "publication": "IEEE Xplore"
+    },
+    {
+      "reference_id": "REF-1223",
+      "author": [
+        "Niek Timmers",
+        "Albert Spruyt",
+        "Marc Witteman"
+      ],
+      "title": "Controlling PC on ARM using Fault Injection",
+      "url": "https://fdtc.deib.polimi.it/FDTC16/shared/FDTC-2016-session_2_1.pdf",
+      "publication_year": "2016",
+      "publication_month": "--06",
+      "publication_day": "---11",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1224",
+      "author": [
+        "Colin O'Flynn"
+      ],
+      "title": "Attacking USB Gear with EMFI",
+      "url": "https://www.totalphase.com/media/pdf/whitepapers/Circuit_Cellar_TP.pdf",
+      "publication_year": "2019",
+      "publication_month": "--05",
+      "publication": "Circuit Cellar"
+    },
+    {
+      "section": "4.3",
+      "reference_id": "REF-1286",
+      "author": [
+        "Lennert Wouters",
+        "Benedikt Gierlichs",
+        "Bart Preneel"
+      ],
+      "title": "On The Susceptibility of Texas Instruments SimpleLink Platform Microcontrollers to Non-Invasive Physical Attacks",
+      "url": "https://eprint.iacr.org/2022/328.pdf",
+      "publication_year": "2022",
+      "publication_month": "--03",
+      "publication_day": "---14"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Jasper van Woudenberg",
+      "submission_organization": "Riscure",
+      "submission_date": "2020-10-14"
+    },
+    "modification": [
+      {
+        "modification_name": "Jasper van Woudenberg",
+        "modification_organization": "Riscure",
+        "modification_date": "2021-01-11"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Description, Functional_Areas, Potential_Mitigations, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Demonstrative_Examples, Description, Detection_Factors, Maintenance_Notes, Name, Observed_Examples, Potential_Mitigations, References, Relationships, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Potential_Mitigations, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Potential_Mitigations, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Insufficient Protection Against Instruction Skipping Via Fault Injection",
+        "date": "2021-10-28"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Jasper van Woudenberg",
+        "contribution_organization": "Riscure",
+        "contribution_date": "2021-10-11",
+        "contribution_comment": "Provided detection methods and feedback on demonstrative example"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "method": "Automated Static Analysis",
+      "description": "This weakness can be found using automated static analysis once a developer has indicated which code paths are critical to protect.",
+      "effectiveness": "Moderate"
+    },
+    {
+      "method": "Simulation / Emulation",
+      "description": "This weakness can be found using automated dynamic analysis. Both emulation of a CPU with instruction skips, as well as RTL simulation of a CPU IP, can indicate parts of the code that are sensitive to faults due to instruction skips.",
+      "effectiveness": "Moderate"
+    },
+    {
+      "method": "Manual Analysis",
+      "description": "This weakness can be found using manual (static) analysis. The analyst has security objectives that are matched against the high-level code. This method is less precise than emulation, especially if the analysis is done at the higher level language rather than at assembly level.",
+      "effectiveness": "Moderate"
+    }
+  ],
+  "related_attack_patterns": [
+    "624",
+    "625"
+  ],
+  "functional_areas": [
+    "Power"
+  ]
+}

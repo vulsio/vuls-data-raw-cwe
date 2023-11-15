@@ -1,0 +1,293 @@
+{
+  "id": "273",
+  "name": "Improper Check for Dropped Privileges",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product attempts to drop privileges but does not check or incorrectly checks to see if the drop succeeded.",
+  "extended_description": "If the drop fails, the product will continue to run with the raised privileges, which might provide additional access to unprivileged users.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "754",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "754",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "271",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "252",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "background_details": [
+    "In Windows based environments that have access control, impersonation is used so that access checks can be performed on a client identity by a server with higher privileges. By impersonating the client, the server is restricted to client-level security -- although in different threads it may have much higher privileges."
+  ],
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation",
+      "note": [
+        "\n                  <xhtml:p>REALIZATION: This weakness is caused during implementation of an architectural security tactic.</xhtml:p>\n                  <xhtml:p>This issue is likely to occur in restrictive environments in which the operating system or application provides fine-grained control over privilege management.</xhtml:p>\n               "
+      ]
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "If privileges are not dropped, neither are access rights of the user. Often these rights can be prevented from being dropped."
+    },
+    {
+      "scope": [
+        "Access Control",
+        "Non-Repudiation"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity",
+        "Hide Activities"
+      ],
+      "note": "If privileges are not dropped, in some cases the system may record actions as the user which is being impersonated rather than the impersonator."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "mitigation_id": "MIT-46",
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Compartmentalize the system to have \"safe\" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.</xhtml:p>\n                  <xhtml:p>Ensure that appropriate compartmentalization is built into the system design, and the compartmentalization allows for and reinforces privilege separation functionality. Architects and designers should rely on the principle of least privilege to decide the appropriate time to use privileges and the time to drop privileges.</xhtml:p>\n               "
+      ],
+      "strategy": "Separation of Privilege"
+    },
+    {
+      "mitigation_id": "MIT-53",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Check the results of all functions that return a value and verify that the value is expected."
+      ],
+      "effectiveness": "High",
+      "effectiveness_notes": "Checking the return value of the function will typically be sufficient, however beware of race conditions (CWE-362) in a concurrent environment."
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "In Windows, make sure that the process token has the SeImpersonatePrivilege(Microsoft Server 2003). Code that relies on impersonation for security must ensure that the impersonation succeeded, i.e., that a proper privilege demotion happened."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>This code attempts to take on the privileges of a user before creating a file, thus avoiding performing the action with unnecessarily high privileges:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>bool DoSecureStuff(HANDLE hPipe) {<xhtml:div style=\"margin-left:1em;\">bool fDataWritten = false;<xhtml:br/>ImpersonateNamedPipeClient(hPipe);<xhtml:br/>HANDLE hFile = CreateFile(...);<xhtml:br/>/../<xhtml:br/>RevertToSelf()<xhtml:br/>/../</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The call to ImpersonateNamedPipeClient may fail, but the return value is not checked. If the call fails, the code may execute with higher privileges than intended. In this case, an attacker could exploit this behavior to write a file to a location that the attacker does not have access to.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2006-4447",
+      "description": "Program does not check return value when invoking functions to drop privileges, which could leave users with higher privileges than expected by forcing those functions to fail.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4447"
+    },
+    {
+      "reference": "CVE-2006-2916",
+      "description": "Program does not check return value when invoking functions to drop privileges, which could leave users with higher privileges than expected by forcing those functions to fail.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-2916"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Description, Modes_of_Introduction, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Description, Name, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Background_Details, Other_Notes, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Causal_Nature, Demonstrative_Examples, Modes_of_Introduction, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Failure to Check Whether Privileges Were Dropped Successfully",
+        "date": "2009-03-10"
+      },
+      {
+        "text": "Improper Check for Successfully Dropped Privileges",
+        "date": "2009-05-27"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Failure to check whether privileges were dropped successfully"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Ensure that privilege relinquishment is successful",
+      "entry_id": "POS37-C",
+      "mapping_fit": "Exact"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Unchecked Status Condition",
+      "entry_id": "SFP4"
+    }
+  ],
+  "affected_resources": [
+    "System Process"
+  ]
+}

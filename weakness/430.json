@@ -1,0 +1,220 @@
+{
+  "id": "430",
+  "name": "Deployment of Wrong Handler",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The wrong \"handler\" is assigned to process an object.",
+  "extended_description": "An example of deploying the wrong handler would be calling a servlet to reveal source code of a .JSP file, or automatically \"determining\" type of the object even if it is contradictory to an explicitly specified type.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "691",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "433",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "434",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Other"
+      ],
+      "impact": [
+        "Varies by Context",
+        "Unexpected State"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Perform a type check before interpreting an object."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Reject any inconsistent types, such as a file with a .GIF extension that appears to consist of PHP code."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2001-0004",
+      "description": "Source code disclosure via manipulated file extension that causes parsing by wrong DLL.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0004"
+    },
+    {
+      "reference": "CVE-2002-0025",
+      "description": "Web browser does not properly handle the Content-Type header field, causing a different application to process the document.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0025"
+    },
+    {
+      "reference": "CVE-2000-1052",
+      "description": "Source code disclosure by directly invoking a servlet.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-1052"
+    },
+    {
+      "reference": "CVE-2002-1742",
+      "description": "Arbitrary Perl functions can be loaded by calling a non-existent function that activates a handler.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1742"
+    }
+  ],
+  "references": [
+    {
+      "section": "Chapter 3, \"File Handlers\", Page 74",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Other_Notes, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Improper Handler Deployment",
+        "date": "2008-04-11"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Resultant",
+      "description": "This weakness is usually resultant from other weaknesses."
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Improper Handler Deployment"
+    }
+  ],
+  "related_attack_patterns": [
+    "11"
+  ]
+}

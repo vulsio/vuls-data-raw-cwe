@@ -1,0 +1,404 @@
+{
+  "id": "184",
+  "name": "Incomplete List of Disallowed Inputs",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product implements a protection mechanism that relies on a list of inputs (or properties of inputs) that are not allowed by policy or otherwise require other action to neutralize before additional processing takes place, but the list is incomplete, leading to resultant weaknesses.",
+  "extended_description": "Developers often try to protect their products against malicious input by performing tests against inputs that are known to be bad, such as special characters that can invoke new commands.  However, such lists often only account for the most well-known bad inputs. Attackers may be able to find other malicious inputs that were not expected by the developer, allowing them to bypass the intended protection mechanism.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "693",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "1023",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "79",
+      "view_id": "1000",
+      "chain_id": "692"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "78",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "434",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "98",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation",
+      "note": [
+        "Developers might begin to develop a list of bad inputs as a fast way to fix a particular weakness, instead of fixing the root cause. See [REF-141]."
+      ]
+    },
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "The design might rely solely on detection of malicious inputs as a protection mechanism."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Do not rely exclusively on detecting disallowed inputs.  There are too many variants to encode a character, especially when different environments are used, so there is a high likelihood of missing some variants.  Only use detection of disallowed inputs as a mechanism for detecting suspicious activity. Ensure that you are using other protection mechanisms that only identify \"good\" input - such as lists of allowed inputs - and ensure that you are properly encoding your outputs."
+      ],
+      "strategy": "Input Validation"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following code attempts to stop XSS attacks by removing all occurences of \"script\" in an input string.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public String removeScriptTags(String input, String mask) {<xhtml:div style=\"margin-left:1em;\">return input.replaceAll(\"script\", mask);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because the code only checks for the lower-case \"script\" string, it can be easily defeated with upper-case script tags.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2008-2309",
+      "description": "product uses a denylist to identify potentially dangerous content, allowing attacker to bypass a warning",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2309"
+    },
+    {
+      "reference": "CVE-2005-2782",
+      "description": "PHP remote file inclusion in web application that filters \"http\" and \"https\" URLs, but not \"ftp\".",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2782"
+    },
+    {
+      "reference": "CVE-2004-0542",
+      "description": "Programming language does not filter certain shell metacharacters in Windows environment.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0542"
+    },
+    {
+      "reference": "CVE-2004-0595",
+      "description": "XSS filter doesn't filter null characters before looking for dangerous tags, which are ignored by web browsers. MIE and validate-before-cleanse.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0595"
+    },
+    {
+      "reference": "CVE-2005-3287",
+      "description": "Web-based mail product doesn't restrict dangerous extensions such as ASPX on a web server, even though others are prohibited.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3287"
+    },
+    {
+      "reference": "CVE-2004-2351",
+      "description": "Resultant XSS when only <script> and <style> are checked.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2351"
+    },
+    {
+      "reference": "CVE-2005-2959",
+      "description": "Privileged program does not clear sensitive environment variables that are used by bash. Overlaps multiple interpretation error.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2959"
+    },
+    {
+      "reference": "CVE-2005-1824",
+      "description": "SQL injection protection scheme does not quote the \"\\\" special character.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1824"
+    },
+    {
+      "reference": "CVE-2005-2184",
+      "description": "Detection of risky filename extensions prevents users from automatically executing .EXE files, but .LNK is accepted, allowing resultant Windows symbolic link.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2184"
+    },
+    {
+      "reference": "CVE-2007-1343",
+      "description": "Product uses list of protected variables, but accidentally omits one dangerous variable, allowing external modification",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-1343"
+    },
+    {
+      "reference": "CVE-2007-5727",
+      "description": "Chain: product only removes SCRIPT tags (CWE-184), enabling XSS (CWE-79)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-5727"
+    },
+    {
+      "reference": "CVE-2006-4308",
+      "description": "Chain: product only checks for use of \"javascript:\" tag (CWE-184), allowing XSS (CWE-79) using other tags",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4308"
+    },
+    {
+      "reference": "CVE-2007-3572",
+      "description": "Chain: OS command injection (CWE-78) enabled by using an unexpected character that is not explicitly disallowed (CWE-184)",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-3572"
+    },
+    {
+      "reference": "CVE-2002-0661",
+      "description": "\"\\\" not in list of disallowed values for web server, allowing path traversal attacks when the server is run on Windows and other OSes.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0661"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-140",
+      "author": [
+        "Greg Hoglund",
+        "Gary McGraw"
+      ],
+      "title": "Exploiting Software: How to Break Code",
+      "url": "https://www.amazon.com/Exploiting-Software-How-Break-Code/dp/0201786958",
+      "publication_year": "2004",
+      "publication_month": "--02",
+      "publication_day": "---27",
+      "publisher": "Addison-Wesley",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-141",
+      "author": [
+        "Steve Christey"
+      ],
+      "title": "Blacklist defenses as a breeding ground for vulnerability variants",
+      "url": "https://seclists.org/fulldisclosure/2006/Feb/40",
+      "publication_year": "2006",
+      "publication_month": "--02",
+      "publication_day": "---03",
+      "url_date": "2023-04-07"
+    },
+    {
+      "section": "Chapter 8, \"Eliminating Metacharacters\", Page 435",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Sean Eidemiller",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "added/updated demonstrative examples"
+      },
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Detection_Factors, Relationships, Other_Notes, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Description, Other_Notes, Relationship_Notes, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated References, Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-02-21",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Demonstrative_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-05-03",
+        "modification_comment": "updated Potential_Mitigations, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Alternate_Terms, Description, Detection_Factors, Modes_of_Introduction, Name, Observed_Examples, Potential_Mitigations, Relationship_Notes, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Alternate_Terms, Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes, Relationships"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Incomplete Blacklist",
+        "date": "2020-02-24"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "alternate_terms": [
+    {
+      "term": "Denylist / Deny List",
+      "description": "This is used by CWE and CAPEC instead of other commonly-used terms.  Its counterpart is allowlist."
+    },
+    {
+      "term": "Blocklist / Block List",
+      "description": "This is often used by security tools such as firewalls, email or web gateways, proxies, etc."
+    },
+    {
+      "term": "Blacklist / Black List",
+      "description": "This term is frequently used, but usage has been declining as organizations have started to adopt other terms."
+    }
+  ],
+  "detection_methods": [
+    {
+      "method": "Black Box",
+      "description": "Exploitation of a vulnerability with commonly-used manipulations might fail, but minor variations might succeed."
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Incomplete Blacklist"
+    }
+  ],
+  "related_attack_patterns": [
+    "120",
+    "15",
+    "182",
+    "3",
+    "43",
+    "6",
+    "71",
+    "73",
+    "85"
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "\n               <xhtml:p>Multiple interpretation errors can indirectly introduce inputs that should be disallowed. For example, a list of dangerous shell metacharacters might not include a metacharacter that only has meaning in one particular shell, not all of them; or a check for XSS manipulations might ignore an unusual construct that is supported by one web browser, but not others.</xhtml:p>\n            "
+    }
+  ]
+}

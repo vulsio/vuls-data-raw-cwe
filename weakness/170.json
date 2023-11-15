@@ -1,0 +1,427 @@
+{
+  "id": "170",
+  "name": "Improper Null Termination",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product does not terminate or incorrectly terminates a string or array with a null character or equivalent terminator.",
+  "extended_description": "Null termination errors frequently occur in two different ways. An off-by-one error could cause a null to be written out of bounds, leading to an overflow. Or, a program could use a strncpy() function call incorrectly, which prevents a null terminator from being added at all. Other scenarios are possible.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "707",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "120",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "126",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanAlsoBe",
+      "cweid": "147",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "464",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "463",
+      "view_id": "1000"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "20",
+      "view_id": "700",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "C"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C++"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability"
+      ],
+      "impact": [
+        "Read Memory",
+        "Execute Unauthorized Code or Commands"
+      ],
+      "note": "The case of an omitted null character is the most dangerous of the possible issues. This will almost certainly result in information disclosure, and possibly a buffer overflow condition, which may be exploited to execute arbitrary code."
+    },
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart",
+        "Read Memory",
+        "DoS: Resource Consumption (CPU)",
+        "DoS: Resource Consumption (Memory)"
+      ],
+      "note": "If a null character is omitted from a string, then most string-copying functions will read data until they locate a null character, even outside of the intended boundaries of the string. This could: cause a crash due to a segmentation fault cause sensitive adjacent memory to be copied and sent to an outsider trigger a buffer overflow when the copy is being written to a fixed-size buffer."
+    },
+    {
+      "scope": [
+        "Integrity",
+        "Availability"
+      ],
+      "impact": [
+        "Modify Memory",
+        "DoS: Crash, Exit, or Restart"
+      ],
+      "note": "Misplaced null characters may result in any number of security problems. The biggest issue is a subset of buffer overflow, and write-what-where conditions, where data corruption occurs from the writing of a null character over valid data, or even instructions. A randomly placed null character may put the system into an undefined state, and therefore make it prone to crashing. A misplaced null character may corrupt other data in memory."
+    },
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Availability",
+        "Access Control",
+        "Other"
+      ],
+      "impact": [
+        "Alter Execution Logic",
+        "Execute Unauthorized Code or Commands"
+      ],
+      "note": "Should the null character corrupt the process flow, or affect a flag controlling access, it may lead to logical errors which allow for the execution of arbitrary code."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Requirements"
+      ],
+      "description": [
+        "Use a language that is not susceptible to these issues. However, be careful of null byte interaction errors (CWE-626) with lower-level constructs that may be written in a language that is susceptible."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Ensure that all string functions used are understood fully as to how they append null characters. Also, be wary of off-by-one errors when appending nulls to the end of strings."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "If performance constraints permit, special code can be added that validates null-termination of string buffers, this is a rather naive and error-prone solution."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Switch to bounded string manipulation functions. Inspect buffer lengths involved in the buffer overrun trace reported with the defect."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Add code that fills buffers with nulls (however, the length of buffers still needs to be inspected, to ensure that the non null-terminated string is not written at the physical end of the buffer)."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following code reads from cfgfile and copies the input into inputbuf using strcpy(). The code mistakenly assumes that inputbuf will always contain a NULL terminator.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define MAXLEN 1024<xhtml:br/>...<xhtml:br/>char *pathbuf[MAXLEN];<xhtml:br/>...<xhtml:br/>read(cfgfile,inputbuf,MAXLEN); //does not null terminate<xhtml:br/>strcpy(pathbuf,inputbuf); //requires null terminated input<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code above will behave correctly if the data read from cfgfile is null terminated on disk as expected. But if an attacker is able to modify this input so that it does not contain the expected NULL character, the call to strcpy() will continue copying from memory until it encounters an arbitrary NULL character. This will likely overflow the destination buffer and, if the attacker can control the contents of memory immediately following inputbuf, can leave the application susceptible to a buffer overflow attack.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>In the following code, readlink() expands the name of a symbolic link stored in pathname and puts the absolute path into buf. The length of the resulting value is then calculated using strlen().</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char buf[MAXPATH];<xhtml:br/>...<xhtml:br/>readlink(pathname, buf, MAXPATH);<xhtml:br/>int length = strlen(buf);<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code above will not always behave correctly as readlink() does not append a NULL byte to buf. Readlink() will stop copying characters once the maximum size of buf has been reached to avoid overflowing the buffer, this will leave the value buf not NULL terminated. In this situation, strlen() will continue traversing memory until it encounters an arbitrary NULL character further on down the stack, resulting in a length value that is much larger than the size of string. Readlink() does return the number of bytes copied, but when this return value is the same as stated buf size (in this case MAXPATH), it is impossible to know whether the pathname is precisely that many bytes long, or whether readlink() has truncated the name to avoid overrunning the buffer. In testing, vulnerabilities like this one might not be caught because the unused contents of buf and the memory immediately following it may be NULL, thereby causing strlen() to appear as if it is behaving correctly.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>While the following example is not exploitable, it provides a good example of how nulls can be omitted or misplaced, even when \"safe\" functions are used:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#include &lt;stdio.h&gt;<xhtml:br/>#include &lt;string.h&gt;<xhtml:br/>\n                     <xhtml:br/>int main() {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>char longString[] = \"String signifying nothing\";<xhtml:br/>char shortString[16];<xhtml:br/>\n                           <xhtml:br/>strncpy(shortString, longString, 16);<xhtml:br/>printf(\"The last character in shortString is: %c (%1$x)\\n\", shortString[15]);<xhtml:br/>return (0);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The above code gives the following output: \"The last character in shortString is: n (6e)\". So, the shortString array does not end in a NULL character, even though the \"safe\" string function strncpy() was used. The reason is that strncpy() does not impliciitly add a NULL character at the end of the string when the source is equal in length or longer than the provided size.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2000-0312",
+      "description": "Attacker does not null-terminate argv[] when invoking another program.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0312"
+    },
+    {
+      "reference": "CVE-2003-0777",
+      "description": "Interrupted step causes resultant lack of null termination.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0777"
+    },
+    {
+      "reference": "CVE-2004-1072",
+      "description": "Fault causes resultant lack of null termination, leading to buffer expansion.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1072"
+    },
+    {
+      "reference": "CVE-2001-1389",
+      "description": "Multiple vulnerabilities related to improper null termination.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1389"
+    },
+    {
+      "reference": "CVE-2003-0143",
+      "description": "Product does not null terminate a message buffer after snprintf-like call, leading to overflow.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0143"
+    },
+    {
+      "reference": "CVE-2009-2523",
+      "description": "Chain: product does not handle when an input string is not NULL terminated (CWE-170), leading to buffer over-read (CWE-125) or heap-based buffer overflow (CWE-122).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2523"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_organization": "KDM Analytics",
+        "modification_date": "2008-08-01",
+        "modification_comment": "added/updated white box definitions"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Causal_Nature, Common_Consequences, Description, Likelihood_of_Exploit, Maintenance_Notes, Relationships, Other_Notes, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "KDM Analytics",
+        "modification_date": "2009-07-17",
+        "modification_comment": "Improved the White_Box_Definition"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-07-27",
+        "modification_comment": "updated Common_Consequences, Other_Notes, Potential_Mitigations, White_Box_Definitions"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Causal_Nature, Observed_Examples, Relationships, Taxonomy_Mappings, White_Box_Definitions"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Resultant"
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Improper Null Termination"
+    },
+    {
+      "taxonomy_name": "7 Pernicious Kingdoms",
+      "entry_name": "String Termination Error"
+    },
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Miscalculated null termination"
+    },
+    {
+      "taxonomy_name": "OWASP Top Ten 2004",
+      "entry_name": "Denial of Service",
+      "entry_id": "A9",
+      "mapping_fit": "CWE More Specific"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Use the readlink() function properly",
+      "entry_id": "POS30-C",
+      "mapping_fit": "CWE More Abstract"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Do not inadvertently truncate a null-terminated byte string",
+      "entry_id": "STR03-C"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Do not pass a non-null-terminated character sequence to a library function that expects a string",
+      "entry_id": "STR32-C",
+      "mapping_fit": "Exact"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Improper Null Termination",
+      "entry_id": "SFP11"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "Factors: this is usually resultant from other weaknesses such as off-by-one errors, but it can be primary to boundary condition violations such as buffer overflows. In buffer overflows, it can act as an expander for assumed-immutable data."
+    },
+    {
+      "type": "Relationship",
+      "text": "Overlaps missing input terminator."
+    },
+    {
+      "type": "Applicable Platform",
+      "text": "\n               <xhtml:p>Conceptually, this does not just apply to the C language; any language or representation that involves a terminator could have this type of problem.</xhtml:p>\n            "
+    },
+    {
+      "type": "Maintenance",
+      "text": "As currently described, this entry is more like a category than a weakness."
+    }
+  ]
+}

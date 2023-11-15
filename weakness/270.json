@@ -1,0 +1,261 @@
+{
+  "id": "270",
+  "name": "Privilege Context Switching Error",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product does not properly manage privileges while it is switching between different contexts that have different privileges or spheres of control.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "269",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+      ]
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "A user can assume the identity of another user with separate privileges in another context. This will give the user unauthorized access that may allow them to acquire the access information of other users."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "mitigation_id": "MIT-1",
+      "phase": [
+        "Architecture and Design",
+        "Operation"
+      ],
+      "description": [
+        "Very carefully manage the setting, management, and handling of privileges. Explicitly manage trust zones in the software."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-17",
+      "phase": [
+        "Architecture and Design",
+        "Operation"
+      ],
+      "description": [
+        "Run your code using the lowest privileges that are required to accomplish the necessary tasks [REF-76]. If possible, create isolated accounts with limited privileges that are only used for a single task. That way, a successful attack will not immediately give the attacker access to the rest of the software or its environment. For example, database applications rarely need to run as the database administrator, especially in day-to-day operations."
+      ],
+      "strategy": "Environment Hardening"
+    },
+    {
+      "mitigation_id": "MIT-49",
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Consider following the principle of separation of privilege. Require multiple conditions to be met before permitting access to a system resource."
+      ],
+      "strategy": "Separation of Privilege"
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2002-1688",
+      "description": "Web browser cross domain problem when user hits \"back\" button.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1688"
+    },
+    {
+      "reference": "CVE-2003-1026",
+      "description": "Web browser cross domain problem when user hits \"back\" button.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-1026"
+    },
+    {
+      "reference": "CVE-2002-1770",
+      "description": "Cross-domain issue - third party product passes code to web browser, which executes it in unsafe zone.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1770"
+    },
+    {
+      "reference": "CVE-2005-2263",
+      "description": "Run callback in different security context after it has been changed from untrusted to trusted. * note that \"context switch before actions are completed\" is one type of problem that happens frequently, espec. in browsers.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2263"
+    }
+  ],
+  "references": [
+    {
+      "section": "Chapter 7, \"Running with Least Privilege\" Page 207",
+      "reference_id": "REF-7",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc"
+      ],
+      "title": "Writing Secure Code",
+      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+      "publication_year": "2002",
+      "publication_month": "--12",
+      "publication_day": "---04",
+      "publisher": "Microsoft Press",
+      "edition": "2nd Edition"
+    },
+    {
+      "reference_id": "REF-76",
+      "author": [
+        "Sean Barnum",
+        "Michael Gegick"
+      ],
+      "title": "Least Privilege",
+      "url": "https://web.archive.org/web/20211209014121/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/least-privilege",
+      "publication_year": "2005",
+      "publication_month": "--09",
+      "publication_day": "---14",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Description, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-12-28",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-02-18",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2018-03-27",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Privilege Context Switching Error"
+    }
+  ],
+  "related_attack_patterns": [
+    "17",
+    "30",
+    "35"
+  ],
+  "notes": [
+    {
+      "type": "Research Gap",
+      "text": "This concept needs more study."
+    }
+  ]
+}

@@ -1,0 +1,164 @@
+{
+  "id": "206",
+  "name": "Observable Internal Behavioral Discrepancy",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product performs multiple behaviors that are combined to produce a single result, but the individual behaviors are observable separately in a way that allows attackers to reveal internal state or internal decision points.",
+  "extended_description": "\n\t   Ideally, a product should provide as little information as possible to an attacker.  Any hints that the attacker may be making progress can then be used to simplify or optimize the attack.  For example, in a login procedure that requires a username and password, ultimately there is only one decision: success or failure.  However, internally, two separate actions are performed: determining if the username exists, and checking if the password is correct.  If the product behaves differently based on whether the username exists or not, then the attacker only needs to concentrate on the password.\n\t ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "205",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Access Control"
+      ],
+      "impact": [
+        "Read Application Data",
+        "Bypass Protection Mechanism"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "description": [
+        "Setup generic response pages for error conditions. The error page should not disclose information about the success or failure of a sensitive operation. For instance, the login page should not confirm that the login is correct and the password incorrect. The attacker who tries random account name may be able to guess some of them. Confirming that the account exists would make the login page more susceptible to brute force attack."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2002-2031",
+      "description": "File existence via infoleak monitoring whether \"onerror\" handler fires or not.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-2031"
+    },
+    {
+      "reference": "CVE-2005-2025",
+      "description": "Valid groupname enumeration via behavioral infoleak (sends response if valid, doesn't respond if not).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2025"
+    },
+    {
+      "reference": "CVE-2001-1497",
+      "description": "Behavioral infoleak in GUI allows attackers to distinguish between alphanumeric and non-alphanumeric characters in a password, thus reducing the search space.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1497"
+    },
+    {
+      "reference": "CVE-2003-0190",
+      "description": "Product immediately sends an error message when user does not exist instead of waiting until the password is provided, allowing username enumeration.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0190"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Description, Name, Potential_Mitigations, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Internal Behavioral Inconsistency Information Leak",
+        "date": "2011-03-29"
+      },
+      {
+        "text": "Information Exposure of Internal State Through Behavioral Inconsistency",
+        "date": "2020-02-24"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Internal behavioral inconsistency infoleak"
+    }
+  ]
+}

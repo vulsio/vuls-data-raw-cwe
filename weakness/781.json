@@ -1,0 +1,258 @@
+{
+  "id": "781",
+  "name": "Improper Address Validation in IOCTL with METHOD_NEITHER I/O Control Code",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product defines an IOCTL that uses METHOD_NEITHER for I/O, but it does not validate or incorrectly validates the addresses that are provided.",
+  "extended_description": "When an IOCTL uses the METHOD_NEITHER option for I/O control, it is the responsibility of the IOCTL to validate the addresses that have been supplied to it. If validation is missing or incorrect, attackers can supply arbitrary memory addresses, leading to code execution or a denial of service.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1285",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "822",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Often",
+        "name": "C"
+      },
+      {
+        "prevalence": "Often",
+        "name": "C++"
+      }
+    ],
+    "operating_system": [
+      {
+        "prevalence": "Sometimes",
+        "name": "Windows NT"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Availability",
+        "Confidentiality"
+      ],
+      "impact": [
+        "Modify Memory",
+        "Read Memory",
+        "Execute Unauthorized Code or Commands",
+        "DoS: Crash, Exit, or Restart"
+      ],
+      "note": "An attacker may be able to access memory that belongs to another process or user. If the attacker can control the contents that the IOCTL writes, it may lead to code execution at high privilege levels. At the least, a crash can occur."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "If METHOD_NEITHER is required for the IOCTL, then ensure that all user-space addresses are properly validated before they are first accessed. The ProbeForRead and ProbeForWrite routines are available for this task. Also properly protect and manage the user-supplied buffers, since the I/O Manager does not do this when METHOD_NEITHER is being used. See References."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "If possible, avoid using METHOD_NEITHER in the IOCTL and select methods that effectively control the buffer size, such as METHOD_BUFFERED, METHOD_IN_DIRECT, or METHOD_OUT_DIRECT."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "If the IOCTL is part of a driver that is only intended to be accessed by trusted users, then use proper access control for the associated device or device namespace. See References."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2006-2373",
+      "description": "Driver for file-sharing and messaging protocol allows attackers to execute arbitrary code.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-2373"
+    },
+    {
+      "reference": "CVE-2009-0686",
+      "description": "Anti-virus product does not validate addresses, allowing attackers to gain SYSTEM privileges.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0686"
+    },
+    {
+      "reference": "CVE-2009-0824",
+      "description": "DVD software allows attackers to cause a crash.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0824"
+    },
+    {
+      "reference": "CVE-2008-5724",
+      "description": "Personal firewall allows attackers to gain SYSTEM privileges.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-5724"
+    },
+    {
+      "reference": "CVE-2007-5756",
+      "description": "chain: device driver for packet-capturing software allows access to an unintended IOCTL with resultant array index error.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-5756"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-696",
+      "author": [
+        "Ruben Santamarta"
+      ],
+      "title": "Exploiting Common Flaws in Drivers",
+      "url": "http://reversemode.com/index.php?option=com_content&task=view&id=38&Itemid=1",
+      "publication_year": "2007",
+      "publication_month": "--07",
+      "publication_day": "---11"
+    },
+    {
+      "reference_id": "REF-697",
+      "author": [
+        "Yuriy Bulygin"
+      ],
+      "title": "Remote and Local Exploitation of Network Drivers",
+      "url": "https://www.blackhat.com/presentations/bh-usa-07/Bulygin/Presentation/bh-usa-07-bulygin.pdf",
+      "publication_year": "2007",
+      "publication_month": "--08",
+      "publication_day": "---01"
+    },
+    {
+      "reference_id": "REF-698",
+      "author": [
+        "Anibal Sacco"
+      ],
+      "title": "Windows driver vulnerabilities: the METHOD_NEITHER odyssey",
+      "url": "http://www.net-security.org/dl/insecure/INSECURE-Mag-18.pdf",
+      "publication_year": "2008",
+      "publication_month": "--10"
+    },
+    {
+      "reference_id": "REF-699",
+      "author": [
+        "Microsoft"
+      ],
+      "title": "Buffer Descriptions for I/O Control Codes",
+      "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/buffer-descriptions-for-i-o-control-codes",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-700",
+      "author": [
+        "Microsoft"
+      ],
+      "title": "Using Neither Buffered Nor Direct I/O",
+      "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/using-neither-buffered-nor-direct-i-o",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-701",
+      "author": [
+        "Microsoft"
+      ],
+      "title": "Securing Device Objects",
+      "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/controlling-device-access",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-702",
+      "author": [
+        "Piotr Bania"
+      ],
+      "title": "Exploiting Windows Device Drivers",
+      "url": "https://www.piotrbania.com/all/articles/ewdd.pdf",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2009-07-15"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-12-28",
+        "modification_comment": "updated Common_Consequences, Potential_Mitigations, References, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-09-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Likelihood_of_Exploit, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "notes": [
+    {
+      "type": "Applicable Platform",
+      "text": "\n               <xhtml:p>Because IOCTL functionality is typically performing low-level actions and closely interacts with the operating system, this weakness may only appear in code that is written in low-level languages.</xhtml:p>\n            "
+    },
+    {
+      "type": "Research Gap",
+      "text": "\n               <xhtml:p>While this type of issue has been known since 2006, it is probably still under-studied and under-reported. Most of the focus has been on high-profile software and security products, but other kinds of system software also use drivers. Since exploitation requires the development of custom code, it requires some skill to find this weakness.</xhtml:p>\n               <xhtml:p>Because exploitation typically requires local privileges, it might not be a priority for active attackers. However, remote exploitation may be possible for software such as device drivers. Even when remote vectors are not available, it may be useful as the final privilege-escalation step in multi-stage remote attacks against application-layer software, or as the primary attack by a local user on a multi-user system.</xhtml:p>\n            "
+    }
+  ]
+}

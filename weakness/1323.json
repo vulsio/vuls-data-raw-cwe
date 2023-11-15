@@ -1,0 +1,137 @@
+{
+  "id": "1323",
+  "name": "Improper Management of Sensitive Trace Data",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "Trace data collected from several sources on the\n                System-on-Chip (SoC) is stored in unprotected locations or\n                transported to untrusted agents.",
+  "extended_description": "\n                <xhtml:p>To facilitate verification of complex System-on-Chip\n                    (SoC) designs, SoC integrators add specific IP blocks that\n                    trace the SoC's internal signals in real-time. This\n                    infrastructure enables observability of the SoC's internal\n                    behavior, validation of its functional design,\n                    and detection of hardware and software bugs. Such tracing\n                    IP blocks collect traces from several sources on the SoC\n                    including the CPU, crypto coprocessors, and on-chip fabrics. Traces collected from these sources are then\n                    aggregated inside trace IP block and forwarded to trace\n                    sinks, such as debug-trace ports that facilitate debugging by\n                    external hardware and software debuggers.</xhtml:p>\n\t\t\t\t\t<xhtml:p>Since\n                    these traces are collected from several security-sensitive\n                    sources, they must be protected against untrusted\n                    debuggers. If they are stored in unprotected memory, an\n                    untrusted software debugger can access these traces and\n                    extract secret information. Additionally, if\n                    security-sensitive traces are not tagged as secure, an\n                    untrusted hardware debugger might access them to extract\n                    confidential information.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Memory"
+      ],
+      "note": "An adversary can read secret values if they are captured in debug traces and stored unsafely."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Tag traces to indicate owner and debugging privilege level (designer, OEM, or end user) needed to access that trace."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n                    <Intro_Text>In a SoC, traces generated from sources\n                        include security-sensitive IP blocks such as CPU (with\n                        tracing information such as instructions executed and\n                        memory operands), on-chip fabric (e.g., memory-transfer\n                        signals, transaction type and destination, and\n                        on-chip-firewall-error signals), power-management\n                        IP blocks (e.g., clock- and power-gating signals), and\n                        cryptographic coprocessors (e.g., cryptographic keys and\n                        intermediate values of crypto operations), among\n                        other non-security-sensitive IP blocks including timers\n                        and other functional blocks. The collected traces are\n                        then forwarded to the debug and trace interface used by\n                        the external hardware debugger.</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Other\">The traces do\n                        not have any privilege level attached to them. All\n                        collected traces can be viewed by any debugger (i.e., SoC\n                        designer, OEM debugger, or end user).</Example_Code>\n                    <Example_Code Nature=\"Good\" Language=\"Other\">Some of the\n                        traces are SoC-design-house secrets, while some are OEM\n                        secrets. Few are end-user secrets and the rest are\n                        not security-sensitive. Tag all traces with the\n                        appropriate, privilege level at the source. The bits\n                        indicating the privilege level must be immutable in\n                        their transit from trace source to the final, trace\n                        sink. Debugger privilege level must be checked before\n                        providing access to traces. </Example_Code>\n\t\t\t\t"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1150",
+      "author": [
+        "Jerry Backer",
+        "David Hely",
+        "Ramesh Karri"
+      ],
+      "title": "Secure design-for-debug for Systems-on-Chip",
+      "url": "https://ieeexplore.ieee.org/document/7342418",
+      "publication_year": "2015",
+      "publication_month": "--10",
+      "publication_day": "---06"
+    },
+    {
+      "reference_id": "REF-1151",
+      "author": [
+        "Jerry Backer",
+        "David Hely",
+        "Ramesh Karri"
+      ],
+      "title": "Secure and Flexible Trace-Based Debugging of Systems-on-Chip",
+      "url": "https://dl.acm.org/doi/pdf/10.1145/2994601",
+      "publication_year": "2016",
+      "publication_month": "--12",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Hareesh Khattri, Parbati K. Manna, and Arun Kanuparthi",
+      "submission_organization": "The Intel Corporation",
+      "submission_date": "2020-07-20"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "150",
+    "167",
+    "545"
+  ]
+}

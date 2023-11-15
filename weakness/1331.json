@@ -1,0 +1,223 @@
+{
+  "id": "1331",
+  "name": "Improper Isolation of Shared Resources in Network On Chip (NoC)",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Stable",
+  "description": "The Network On Chip (NoC) does not isolate or incorrectly isolates its on-chip-fabric and internal resources such that they are shared between trusted and untrusted agents, creating timing channels.",
+  "extended_description": "\n\t\t\t  <xhtml:p>Typically, network on chips (NoC) have many internal resources that are shared between packets from different trust domains. These resources include internal buffers, crossbars and switches, individual ports, and channels. The sharing of resources causes contention and introduces interference between differently trusted domains, which poses a security threat via a timing channel, allowing attackers to infer data that belongs to a trusted agent. This may also result in introducing network interference, resulting in degraded throughput and latency.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "653",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "668",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "1189",
+      "view_id": "1194"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "prevalence": "Undetermined",
+        "name": "Security Hardware"
+      },
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "background_details": [
+    "\n\t\t\t    <xhtml:p>\"Network-on-chip\" (NoC) is a commonly-used term used for hardware interconnect fabrics used by multicore Systems-on-Chip (SoC).  Communication between modules on the chip uses packet-based methods, with improved efficiency and scalability compared to bus architectures [REF-1241].</xhtml:p>\n\t\t\t  "
+  ],
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Resource Consumption (Other)",
+        "Varies by Context",
+        "Other"
+      ],
+      "note": "Attackers may infer data that belongs to a trusted agent. The methods used to perform this attack may result in noticeably increased resource consumption.",
+      "likelihood": "Medium"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "Implement priority-based arbitration inside the NoC and have dedicated buffers or virtual channels for routing secret data from trusted agents."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>Consider a NoC that implements a one-dimensional mesh network with four nodes. This supports two flows: Flow A from node 0 to node 3 (via node 1 and node 2) and Flow B from node 1 to node 2. Flows A and B share a common link between Node 1 and Node 2.  Only one flow can use the link in each cycle.</Intro_Text>\n\t\t\t\t\t<Body_Text>One of the masters to this NoC implements a cryptographic algorithm (RSA), and another master to the NoC is a core that can be exercised by an attacker. The RSA algorithm performs a modulo multiplication of two large numbers and depends on each bit of the secret key. The algorithm examines each bit in the secret key and only performs multiplication if the bit is 1. This algorithm is known to be prone to timing attacks. Whenever RSA performs multiplication, there is additional network traffic to the memory controller. One of the reasons for this is cache conflicts.</Body_Text>\n\t\t\t\t\t<Body_Text>Since this is a one-dimensional mesh, only one flow can use the link in each cycle.  Also, packets from the attack program and the RSA program share the output port of the network-on-chip.  This contention results in network interference, and the throughput and latency of one flow can be affected by the other flow's demand.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Attack\">\n\t\t\t\t\t  The attacker runs a loop program on the core they control, and this causes a cache miss in every iteration for the RSA algorithm. Thus, by observing network-traffic bandwidth and timing, the attack program can determine when the RSA algorithm is doing a multiply operation (i.e., when the secret key bit is 1) and eventually extract the entire, secret key.</Example_Code>\n\t\t\t\t\t<Body_Text>There may be different ways to fix this particular weakness.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Other\">\n\t\t\t\t\tImplement priority-based arbitration inside the NoC and have dedicated buffers or virtual channels for routing secret data from trusted agents.\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-33096",
+      "description": "Improper isolation of shared resource in a network-on-chip leads to denial of service",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-33096"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1155",
+      "author": [
+        "Hassan M. G. Wassel, Ying Gao, Jason K. Oberg, Tedd Huffmire, Ryan Kastner, Frederic T. Chong, Timothy Sherwood"
+      ],
+      "title": "SurfNoC: A Low Latency and Provably Non-Interfering Approach to Secure Networks-On-Chip",
+      "url": "http://cseweb.ucsd.edu/~kastner/papers/isca13-surfNOC.pdf",
+      "publication_year": "2013"
+    },
+    {
+      "reference_id": "REF-1241",
+      "author": [
+        "Wikipedia"
+      ],
+      "title": "Network on a chip",
+      "url": "https://en.wikipedia.org/wiki/Network_on_a_chip",
+      "url_date": "2021-10-24"
+    },
+    {
+      "reference_id": "REF-1242",
+      "author": [
+        "Subodha Charles",
+        "Prabhat Mishra"
+      ],
+      "title": "A Survey of Network-on-Chip Security Attacks and Countermeasures",
+      "url": "https://dl.acm.org/doi/fullHtml/10.1145/3450964",
+      "publication_year": "2021",
+      "publication_month": "--05",
+      "publication": "ACM Computing Surveys",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1245",
+      "author": [
+        "Subodha Charles"
+      ],
+      "title": "Design of Secure and Trustworthy Network-on-chip Architectures",
+      "url": "https://www.cise.ufl.edu/research/cad/Publications/charlesThesis.pdf",
+      "publication_year": "2020"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati K. Manna",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-05-23"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Background_Details, Demonstrative_Examples, Description, Detection_Factors, Name, References, Relationships, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Applicable_Platforms, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Improper Isolation of Shared Resources in Network On Chip",
+        "date": "2021-10-28"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Hareesh Khattri",
+        "contribution_organization": "Intel Corporation",
+        "contribution_date": "2021-10-22",
+        "contribution_comment": "provided references and background information"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "method": "Manual Analysis",
+      "description": "Providing marker flags to send through the interfaces coupled with examination of which users are able to read or manipulate the flags will help verify that the proper isolation has been achieved and is effective.",
+      "effectiveness": "Moderate"
+    }
+  ],
+  "related_attack_patterns": [
+    "124"
+  ]
+}

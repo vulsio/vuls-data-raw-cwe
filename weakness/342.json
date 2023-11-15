@@ -1,0 +1,227 @@
+{
+  "id": "342",
+  "name": "Predictable Exact Value from Previous Values",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "An exact value or random number can be precisely predicted by observing previous values.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "340",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Other"
+      ],
+      "impact": [
+        "Varies by Context"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "description": [
+        "Increase the entropy used to seed a PRNG."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-2",
+      "phase": [
+        "Architecture and Design",
+        "Requirements"
+      ],
+      "description": [
+        "Use products or modules that conform to FIPS 140-2 [REF-267] to avoid obvious entropy problems. Consult FIPS 140-2 Annex C (\"Approved Random Number Generators\")."
+      ],
+      "strategy": "Libraries or Frameworks"
+    },
+    {
+      "mitigation_id": "MIT-50",
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use a PRNG that periodically re-seeds itself using input from high-quality sources, such as hardware devices with high entropy. However, do not re-seed too frequently, or else the entropy source might block."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2002-1463",
+      "description": "Firewall generates easily predictable initial sequence numbers (ISN), which allows remote attackers to spoof connections.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1463"
+    },
+    {
+      "reference": "CVE-1999-0074",
+      "description": "Listening TCP ports are sequentially allocated, allowing spoofing attacks.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0074"
+    },
+    {
+      "reference": "CVE-1999-0077",
+      "description": "Predictable TCP sequence numbers allow spoofing.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0077"
+    },
+    {
+      "reference": "CVE-2000-0335",
+      "description": "DNS resolver uses predictable IDs, allowing a local user to spoof DNS query results.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0335"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-267",
+      "author": [
+        "Information Technology Laboratory, National Institute of Standards and Technology"
+      ],
+      "title": "SECURITY REQUIREMENTS FOR CRYPTOGRAPHIC MODULES",
+      "url": "https://csrc.nist.gov/csrc/media/publications/fips/140/2/final/documents/fips1402.pdf",
+      "publication_year": "2001",
+      "publication_month": "--05",
+      "publication_day": "---25",
+      "url_date": "2023-04-07"
+    },
+    {
+      "section": "\"Sin 20: Weak Random Numbers.\" Page 299",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-12-28",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Potential_Mitigations, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Observed_Examples, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Predictable Exact Value from Previous Values"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "As of CWE 4.5, terminology related to randomness, entropy, and\n\t   predictability can vary widely. Within the developer and other\n\t   communities, \"randomness\" is used heavily. However, within\n\t   cryptography, \"entropy\" is distinct, typically implied as a\n\t   measurement. There are no commonly-used definitions, even within\n\t   standards documents and cryptography papers. Future versions of\n\t   CWE will attempt to define these terms and, if necessary,\n\t   distinguish between them in ways that are appropriate for\n\t   different communities but do not reduce the usability of CWE for\n\t   mapping, understanding, or other scenarios."
+    }
+  ]
+}

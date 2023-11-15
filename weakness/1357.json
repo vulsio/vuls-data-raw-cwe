@@ -1,0 +1,266 @@
+{
+  "id": "1357",
+  "name": "Reliance on Insufficiently Trustworthy Component",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product is built from multiple separate components, but it uses a component that is not sufficiently trusted to meet expectations for security, reliability, updateability, and maintainability.",
+  "extended_description": "\n\t\t<xhtml:p>Many modern hardware and software products are built by combining multiple smaller components together into one larger entity, often during the design or architecture phase. For example, a hardware component might be built by a separate supplier, or the product might use an open-source software library from a third party.</xhtml:p>\n\t\t<xhtml:p>Regardless of the source, each component should be sufficiently trusted to ensure correct, secure operation of the product. If a component is not trustworthy, it can produce significant risks for the overall product, such as vulnerabilities that cannot be patched fast enough (if at all); hidden functionality such as malware; inability to update or replace the component if needed for security purposes; hardware components built from parts that do not meet specifications in ways that can lead to weaknesses; etc. Note that a component might not be trustworthy even if it is owned by the product vendor, such as a software component whose source code is lost and was built by developers who left the company, or a component that was developed by a separate company that was acquired and brought into the product's own company.</xhtml:p>\n\t\t<xhtml:p>Note that there can be disagreement as to whether a component is sufficiently trustworthy, since trust is ultimately subjective. Different stakeholders (e.g., customers, vendors, governments) have various threat models and ways to assess trust, and design/architecture choices might make tradeoffs between security, reliability, safety, privacy, cost, and other characteristics.</xhtml:p>\n      ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "710",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      },
+      {
+        "class": "ICS/OT",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Requirements",
+      "note": [
+        "Requirements might include criteria for which the only available solutions are provided by insufficiently trusted components."
+      ]
+    },
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "An insufficiently trusted component might be selected because it is less expensive to do in-house, requires expertise that is not available in-house, or might allow the product to reach the market faster."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Other"
+      ],
+      "impact": [
+        "Reduce Maintainability"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Requirements",
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "For each component, ensure that its supply chain is well-controlled with sub-tier suppliers using best practices. For third-party software components such as libraries, ensure that they are developed and actively maintained by reputable vendors."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation",
+        "Integration",
+        "Manufacturing"
+      ],
+      "description": [
+        "Maintain a Bill of Materials for all components and sub-components of the product. For software, maintain a Software Bill of Materials (SBOM). According to [REF-1247], \"An SBOM is a formal, machine-readable inventory of software components and dependencies, information about those components, and their hierarchical relationships.\""
+      ]
+    },
+    {
+      "phase": [
+        "Operation",
+        "Patching and Maintenance"
+      ],
+      "description": [
+        "Continue to monitor changes in each of the product's components, especially when the changes indicate new vulnerabilities, end-of-life (EOL) plans, supplier practices that affect trustworthiness, etc."
+      ]
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2020-9054",
+      "description": "Chain: network-attached storage (NAS) device has a critical OS command injection (CWE-78) vulnerability that is actively exploited to place IoT devices into a botnet, but some products are \"end-of-support\" and cannot be patched (CWE-1277). [REF-1097]",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-9054"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1212",
+      "title": "A06:2021 - Vulnerable and Outdated Components",
+      "url": "https://owasp.org/Top10/A06_2021-Vulnerable_and_Outdated_Components/",
+      "publication_year": "2021",
+      "publication_month": "--09",
+      "publication_day": "---24",
+      "publisher": "OWASP"
+    },
+    {
+      "reference_id": "REF-1246",
+      "author": [
+        "National Telecommunications and Information Administration"
+      ],
+      "title": "SOFTWARE BILL OF MATERIALS",
+      "url": "https://ntia.gov/page/software-bill-materials",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1247",
+      "author": [
+        "NTIA Multistakeholder Process on Software Component Transparency Framing Working Group"
+      ],
+      "title": "Framing Software Component Transparency: Establishing a Common Software Bill of Materials (SBOM)",
+      "url": "https://www.ntia.gov/files/ntia/publications/ntia_sbom_framing_2nd_edition_20211021.pdf",
+      "publication_year": "2021",
+      "publication_month": "--10",
+      "publication_day": "---21"
+    },
+    {
+      "reference_id": "REF-1097",
+      "author": [
+        "Brian Krebs"
+      ],
+      "title": "Zyxel Flaw Powers New Mirai IoT Botnet Strain",
+      "url": "https://krebsonsecurity.com/2020/03/zxyel-flaw-powers-new-mirai-iot-botnet-strain/",
+      "publication_year": "2020",
+      "publication_month": "--03",
+      "publication_day": "---20"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2022-04-20"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Applicable_Platforms, Description, Maintenance_Notes, Modes_of_Introduction, Name, Potential_Mitigations, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes, Taxonomy_Mappings"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Reliance on Uncontrolled Component",
+        "date": "2023-01-31"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
+        "contribution_date": "2023-06-29",
+        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Indirect"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SP.03.02 RE(1)",
+      "entry_id": "Part 2-4"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SP.03.02 RE(2)",
+      "entry_id": "Part 2-4"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SR 1.13",
+      "entry_id": "Part 3-3"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req EDR 3.12",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req HDR 3.12",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req NDR 3.12",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req EDR 3.13",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req HDR 3.13",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req NDR 3.13",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR-7.8",
+      "entry_id": "Part 4-2"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SM-6",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SM-9",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SM-10",
+      "entry_id": "Part 4-1"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "As of CWE 4.10, the name and description for this entry has undergone significant change and is still under public discussion, especially by members of the HW SIG."
+    }
+  ]
+}

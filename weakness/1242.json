@@ -1,0 +1,206 @@
+{
+  "id": "1242",
+  "name": "Inclusion of Undocumented Features or Chicken Bits",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The device includes chicken bits or undocumented features that can create entry points for unauthorized actors.",
+  "extended_description": "\n                <xhtml:p>A common design practice is to use undocumented bits on a device that can be used to disable certain functional security features. These bits are commonly referred to as \"chicken bits\". They can facilitate quick identification and isolation of faulty components, features that negatively affect performance, or features that do not provide the required controllability for debug and test. Another way to achieve this is through implementation of undocumented features. An attacker might exploit these interfaces for unauthorized access.</xhtml:p>\n            ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      },
+      {
+        "class": "ICS/OT",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    },
+    {
+      "phase": "Documentation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability",
+        "Access Control"
+      ],
+      "impact": [
+        "Modify Memory",
+        "Read Memory",
+        "Execute Unauthorized Code or Commands",
+        "Gain Privileges or Assume Identity",
+        "Bypass Protection Mechanism"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "\n                        <xhtml:p>The implementation of chicken bits in a released product is highly discouraged. If implemented at all, ensure that they are disabled in production devices. All interfaces to a device should be documented.</xhtml:p>\n                    "
+      ],
+      "effectiveness": "High"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n                    <Intro_Text>Consider a device that comes with various security measures, such as secure boot. The secure-boot process performs firmware-integrity verification at boot time, and this code is stored in a separate SPI-flash device. However, this code contains undocumented \"special access features\" intended to be used only for performing failure analysis and intended to only be unlocked by the device designer.</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Other\">\n                        <xhtml:div>Attackers dump the code from the device and then perform reverse engineering to analyze the code. The undocumented, special-access features are identified, and attackers can activate them by sending specific commands via UART before secure-boot phase completes. Using these hidden features, attackers can perform reads and writes to memory via the UART interface. At runtime, the attackers can also execute arbitrary code and dump the entire memory contents.</xhtml:div>\n                    </Example_Code>\n                    <Body_Text>Remove all chicken bits and hidden features that are exposed to attackers. Add authorization schemes that rely on cryptographic primitives to access any features that the manufacturer does not want to expose. Clearly document all interfaces.</Body_Text>\n            \t"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1071",
+      "author": [
+        "Ali Abbasi",
+        "Tobias Scharnowski",
+        "Thorsten Holz"
+      ],
+      "title": "Doors of Durin: The Veiled Gate to Siemens S7 Silicon",
+      "url": "https://i.blackhat.com/eu-19/Wednesday/eu-19-Abbasi-Doors-Of-Durin-The-Veiled-Gate-To-Siemens-S7-Silicon.pdf"
+    },
+    {
+      "reference_id": "REF-1072",
+      "author": [
+        "Sergei Skorobogatov",
+        "Christopher Woods"
+      ],
+      "title": "Breakthrough Silicon Scanning Discovers Backdoor in Military Chip",
+      "url": "https://www.cl.cam.ac.uk/~sps32/Silicon_scan_draft.pdf"
+    },
+    {
+      "reference_id": "REF-1073",
+      "author": [
+        "Chris Domas"
+      ],
+      "title": "God Mode Unlocked: Hardware Backdoors in x86 CPUs",
+      "url": "https://i.blackhat.com/us-18/Thu-August-9/us-18-Domas-God-Mode-Unlocked-Hardware-Backdoors-In-x86-CPUs.pdf"
+    },
+    {
+      "reference_id": "REF-1074",
+      "author": [
+        "Jonathan Brossard"
+      ],
+      "title": "Hardware Backdooring is Practical",
+      "url": "https://media.blackhat.com/bh-us-12/Briefings/Brossard/BH_US_12_Brossard_Backdoor_Hacking_Slides.pdf"
+    },
+    {
+      "reference_id": "REF-1075",
+      "author": [
+        "Sergei Skorabogatov"
+      ],
+      "title": "Security, Reliability, and Backdoors",
+      "url": "https://www.cl.cam.ac.uk/~sps32/SG_talk_SRB.pdf"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-02-13"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Potential_Mitigations, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes, Taxonomy_Mappings"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
+        "contribution_date": "2023-04-25",
+        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SD-4",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SVV-3",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR2.12",
+      "entry_id": "Part 4-2"
+    }
+  ],
+  "related_attack_patterns": [
+    "212",
+    "36"
+  ]
+}

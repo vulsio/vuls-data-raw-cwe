@@ -1,0 +1,160 @@
+{
+  "id": "767",
+  "name": "Access to Critical Private Variable via Public Method",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product defines a public method that reads or modifies a private variable.",
+  "extended_description": "If an attacker modifies the variable to contain unexpected values, this could violate assumptions from other parts of the code. Additionally, if an attacker can read the private variable, it may expose sensitive information or make it easier to launch further attacks.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "668",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "C++"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C#"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Java"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Other"
+      ],
+      "impact": [
+        "Modify Application Data",
+        "Other"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Use class accessor and mutator methods appropriately. Perform validation when accepting data from a public method that is intended to modify a critical private variable. Also be sure that appropriate access controls are being applied when a public method interfaces with critical data."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following example declares a critical variable to be private, and then allows the variable to be modified by public methods.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>private: float price;<xhtml:br/>public: void changePrice(float newPrice) {<xhtml:div style=\"margin-left:1em;\">price = newPrice;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>The following example could be used to implement a user forum where a single user (UID) can switch between multiple profiles (PID).</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class Client {<xhtml:div style=\"margin-left:1em;\">private int UID;<xhtml:br/>public int PID;<xhtml:br/>private String userName;<xhtml:br/>public Client(String userName){<xhtml:div style=\"margin-left:1em;\">PID = getDefaultProfileID();<xhtml:br/>UID = mapUserNametoUID( userName );<xhtml:br/>this.userName = userName;</xhtml:div>}<xhtml:br/>public void setPID(int ID) {<xhtml:div style=\"margin-left:1em;\">UID = ID;</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer implemented setPID with the intention of modifying the PID variable, but due to a typo. accidentally specified the critical variable UID instead. If the program allows profile IDs to be between 1 and 10, but a UID of 1 means the user is treated as an admin, then a user could gain administrative privileges as a result of this typo.</Body_Text>\n            "
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2009-03-03"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Likelihood_of_Exploit, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Time_of_Introduction, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Failure to protect stored data from modification"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Exposed Data",
+      "entry_id": "SFP23"
+    },
+    {
+      "taxonomy_name": "SEI CERT Perl Coding Standard",
+      "entry_name": "Do not access private variables or subroutines in other packages",
+      "entry_id": "OOP31-PL",
+      "mapping_fit": "Imprecise"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "This entry is closely associated with access control for public methods. If the public methods are restricted with proper access controls, then the information in the private variable will not be exposed to unexpected parties. There may be chaining or composite relationships between improper access controls and this weakness."
+    }
+  ]
+}

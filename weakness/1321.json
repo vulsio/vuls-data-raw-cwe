@@ -1,0 +1,204 @@
+{
+  "id": "1321",
+  "name": "Improperly Controlled Modification of Object Prototype Attributes ('Prototype Pollution')",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product receives input from an upstream component that specifies attributes that are to be initialized or updated in an object, but it does not properly control modifications of attributes of the object prototype.",
+  "extended_description": "\n\t\t\t\t<xhtml:p>By adding or modifying attributes of an object prototype, it is possible to create attributes that exist on every object, or replace critical attributes with malicious ones. This can be problematic if the product depends on existence or non-existence of certain attributes, or uses pre-defined attributes of object prototype (such as hasOwnProperty, toString or valueOf).</xhtml:p>\n\t\t\t\t<xhtml:p>This weakness is usually exploited by using a special attribute of objects called proto,  constructor or prototype. Such attributes give access to the object prototype. This weakness is often found in code that assigns object attributes based on user input, or merges or clones objects recursively.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "915",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "913",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "471",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "JavaScript"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Application Data"
+      ],
+      "note": "An attacker can inject attributes that are used in other components.",
+      "likelihood": "High"
+    },
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart"
+      ],
+      "note": "An attacker can override existing attributes with ones that have incompatible type, which may lead to a crash.",
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "By freezing the object prototype first (for example, Object.freeze(Object.prototype)), modification of the prototype becomes impossible."
+      ],
+      "effectiveness": "High",
+      "effectiveness_notes": "While this can mitigate this weakness completely, other methods are recommended when possible, especially in components used by upstream software (\"libraries\")."
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "By blocking modifications of attributes that resolve to object prototype, such as proto or prototype, this weakness can be mitigated."
+      ],
+      "effectiveness": "High"
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "When handling untrusted objects, validating using a schema can be used."
+      ],
+      "effectiveness": "Limited",
+      "strategy": "Input Validation"
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "By using an object without prototypes (via Object.create(null) ), adding object prototype attributes by accessing the prototype via the special attributes becomes impossible, mitigating this weakness."
+      ],
+      "effectiveness": "High"
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Map can be used instead of objects in most cases. If Map methods are used instead of object attributes, it is not possible to access the object prototype or modify it."
+      ],
+      "effectiveness": "Moderate"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n\t\t\t\t\t<Intro_Text>This function sets object attributes based on a dot-separated path.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n\n\t\t\t\t\t<xhtml:div>function setValueByPath (object, path, value) {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t    const pathArray = path.split(\".\");<xhtml:br/>\n\t\t\t\t\t    const attributeToSet = pathArray.pop();<xhtml:br/>\n\t\t\t\t\t    let objectToModify = object;<xhtml:br/>\n\t\t\t\t\t    for (const attr of pathArray) {<xhtml:br/>\n\t\t\t\t\t    <xhtml:div style=\"margin-left:1em;\">if (typeof objectToModify[attr] !== 'object') {<xhtml:br/>\n\t\t\t\t\t    <xhtml:div style=\"margin-left:1em;\">objectToModify[attr] = {};<xhtml:br/>\n\t\t\t\t\t        }</xhtml:div><xhtml:br/>\n\t\t\t\t\t        objectToModify = objectToModify[attr];<xhtml:br/>\n\t\t\t\t\t    }</xhtml:div><xhtml:br/>\n\t\t\t\t\t    objectToModify[attributeToSet] = value;<xhtml:br/>\n\t\t\t\t\t    return object;<xhtml:br/>\n\t\t\t\t\t}<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>This function does not check if the attribute resolves to the object prototype. These codes can be used to add \"isAdmin: true\" to the object prototype.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n\t\t\t\t\t<xhtml:div>\n\t\t\t\t\t  setValueByPath({}, \"__proto__.isAdmin\", true)<xhtml:br/>\n\t\t\t\t\t  setValueByPath({}, \"constructor.prototype.isAdmin\", true)<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>By using a denylist of dangerous attributes, this weakness can be eliminated.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"JavaScript\">\n\t\t\t\t\t<xhtml:div>\n\t\t\t\t\tfunction setValueByPath (object, path, value) {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t    const pathArray = path.split(\".\");<xhtml:br/>\n\t\t\t\t\t    const attributeToSet = pathArray.pop();<xhtml:br/>\n\t\t\t\t\t    let objectToModify = object;<xhtml:br/>\n\t\t\t\t\t    for (const attr of pathArray) {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t        <xhtml:i>// Ignore attributes which resolve to object prototype</xhtml:i><xhtml:br/>\n\t\t\t\t\t        if (attr === \"__proto__\" || attr === \"constructor\" || attr === \"prototype\") {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t            continue;<xhtml:br/>\n\t\t\t\t\t        }<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t        if (typeof objectToModify[attr] !== \"object\") {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t            objectToModify[attr] = {};<xhtml:br/>\n\t\t\t\t\t        }<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t        objectToModify = objectToModify[attr];<xhtml:br/>\n\t\t\t\t\t    }<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t    objectToModify[attributeToSet] = value;<xhtml:br/>\n\t\t\t\t\t    return object;<xhtml:br/>\n\t\t\t\t\t}<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2018-3721",
+      "description": "Prototype pollution by merging objects.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2018-3721"
+    },
+    {
+      "reference": "CVE-2019-10744",
+      "description": "Prototype pollution by setting default values to object attributes recursively.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-10744"
+    },
+    {
+      "reference": "CVE-2019-11358",
+      "description": "Prototype pollution by merging objects recursively.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-11358"
+    },
+    {
+      "reference": "CVE-2020-8203",
+      "description": "Prototype pollution by setting object attributes based on dot-separated path.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-8203"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1148",
+      "author": [
+        "Olivier Arteau"
+      ],
+      "title": "Prototype pollution attack in NodeJS application",
+      "url": "https://github.com/HoLyVieR/prototype-pollution-nsec18/blob/master/paper/JavaScript_prototype_pollution_attack_in_NodeJS.pdf",
+      "publication_year": "2018",
+      "publication_month": "--05",
+      "publication_day": "---15"
+    },
+    {
+      "reference_id": "REF-1149",
+      "author": [
+        "Changhui Xu"
+      ],
+      "title": "What is Prototype Pollution?",
+      "url": "https://codeburst.io/what-is-prototype-pollution-49482fc4b638",
+      "publication_year": "2019",
+      "publication_month": "--07",
+      "publication_day": "---30"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Anonymous External Contributor",
+      "submission_date": "2020-08-25"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "1",
+    "180",
+    "77"
+  ]
+}

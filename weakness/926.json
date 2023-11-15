@@ -1,0 +1,207 @@
+{
+  "id": "926",
+  "name": "Improper Export of Android Application Components",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The Android application exports a component for use by other applications, but does not properly restrict which applications can launch the component or access the data it contains.",
+  "extended_description": "\n            <xhtml:p>The attacks and consequences of improperly exporting a component may depend on the exported component:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>If access to an exported Activity is not restricted, any application will be able to launch the activity. This may allow a malicious application to gain access to sensitive information, modify the internal state of the application, or trick a user into interacting with the victim application while believing they are still interacting with the malicious application.</xhtml:li>\n                  <xhtml:li>If access to an exported Service is not restricted, any application may start and bind to the Service. Depending on the exposed functionality, this may allow a malicious application to perform unauthorized actions, gain access to sensitive information, or corrupt the internal state of the application.</xhtml:li>\n                  <xhtml:li>If access to a Content Provider is not restricted to only the expected applications, then malicious applications might be able to access the sensitive data. Note that in Android before 4.2, the Content Provider is automatically exported unless it has been explicitly declared as NOT exported.</xhtml:li>\n               </xhtml:ul>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "285",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Mobile",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "background_details": [
+    "\n               <xhtml:p>There are three types of components that can be exported in an Android application.</xhtml:p>\n\t       <xhtml:ul>\n\t\t <xhtml:li>An Activity is an application component that provides a UI for users to interact with. A typical application will have multiple Activity screens that perform different functions, such as a main Activity screen and a separate settings Activity screen.</xhtml:li>\n\t\t <xhtml:li>A Service is an application component that is started by another component to execute an operation in the background, even after the invoking component is terminated. Services do not have a UI component visible to the user.</xhtml:li>\n\t\t <xhtml:li>The Content Provider mechanism can be used to share data with other applications or internally within the same application.</xhtml:li>\n\t     </xhtml:ul>\n            "
+  ],
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability",
+        "Integrity"
+      ],
+      "impact": [
+        "Unexpected State",
+        "DoS: Crash, Exit, or Restart",
+        "DoS: Instability",
+        "Varies by Context"
+      ],
+      "note": "Other applications, possibly untrusted, can launch the Activity."
+    },
+    {
+      "scope": [
+        "Availability",
+        "Integrity"
+      ],
+      "impact": [
+        "Unexpected State",
+        "Gain Privileges or Assume Identity",
+        "DoS: Crash, Exit, or Restart",
+        "DoS: Instability",
+        "Varies by Context"
+      ],
+      "note": "Other applications, possibly untrusted, can bind to the Service."
+    },
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity"
+      ],
+      "impact": [
+        "Read Application Data",
+        "Modify Application Data"
+      ],
+      "note": "Other applications, possibly untrusted, can read or modify the data that is offered by the Content Provider."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Build and Compilation"
+      ],
+      "description": [
+        "If they do not need to be shared by other applications, explicitly mark components with android:exported=\"false\" in the application manifest."
+      ],
+      "strategy": "Attack Surface Reduction"
+    },
+    {
+      "phase": [
+        "Build and Compilation"
+      ],
+      "description": [
+        "If you only intend to use exported components between related apps under your control, use android:protectionLevel=\"signature\" in the xml manifest to restrict access to applications signed by you."
+      ],
+      "strategy": "Attack Surface Reduction"
+    },
+    {
+      "phase": [
+        "Build and Compilation",
+        "Architecture and Design"
+      ],
+      "description": [
+        "Limit Content Provider permissions (read/write) as appropriate."
+      ],
+      "strategy": "Attack Surface Reduction"
+    },
+    {
+      "phase": [
+        "Build and Compilation",
+        "Architecture and Design"
+      ],
+      "description": [
+        "Limit Content Provider permissions (read/write) as appropriate."
+      ],
+      "strategy": "Separation of Privilege"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>This application is exporting an activity and a service in its manifest.xml:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;activity android:name=\"com.example.vulnerableApp.mainScreen\"&gt;<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>&lt;intent-filter&gt;<xhtml:div style=\"margin-left:1em;\">&lt;action android:name=\"com.example.vulnerableApp.OPEN_UI\" /&gt;<xhtml:br/>&lt;category android:name=\"android.intent.category.DEFAULT\" /&gt;</xhtml:div>&lt;/intent-filter&gt;<xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>&lt;/activity&gt;<xhtml:br/>&lt;service android:name=\"com.example.vulnerableApp.backgroundService\"&gt;<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>&lt;intent-filter&gt;<xhtml:div style=\"margin-left:1em;\">&lt;action android:name=\"com.example.vulnerableApp.START_BACKGROUND\" /&gt;</xhtml:div>&lt;/intent-filter&gt;<xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>&lt;/service&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because these components have intent filters but have not explicitly set 'android:exported=false' elsewhere in the manifest, they are automatically exported so that any other application can launch them. This may lead to unintended behavior or exploits.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>This application has created a content provider to enable custom search suggestions within the application:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;provider&gt;<xhtml:div style=\"margin-left:1em;\">android:name=\"com.example.vulnerableApp.searchDB\"<xhtml:br/>android:authorities=\"com.example.vulnerableApp.searchDB\"&gt;</xhtml:div>&lt;/provider&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because this content provider is only intended to be used within the application, it does not need to be exported. However, in Android before 4.2, it is automatically exported thus potentially allowing malicious applications to access sensitive information.</Body_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-923",
+      "author": [
+        "Android Open Source Project"
+      ],
+      "title": "Security Tips",
+      "url": "https://developer.android.com/training/articles/security-tips#ContentProviders",
+      "publication_year": "2013",
+      "publication_month": "--07",
+      "publication_day": "---16",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2013-07-02"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-01-22",
+        "modification_comment": "Expanded entry to be more general and include all types of Android components that may be improperly exported.",
+        "modification_importance": "Critical"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-02-18",
+        "modification_comment": "updated Background_Details, Common_Consequences, Demonstrative_Examples, Description, Maintenance_Notes, Name, Potential_Mitigations, References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Applicable_Platforms, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Background_Details"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Improper Restriction of Content Provider Export to Other Applications",
+        "date": "2014-02-18"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ]
+}

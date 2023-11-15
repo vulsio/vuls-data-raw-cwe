@@ -1,0 +1,246 @@
+{
+  "id": "406",
+  "name": "Insufficient Control of Network Message Volume (Network Amplification)",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product does not sufficiently monitor or control transmitted network traffic volume, so that an actor can cause the product to transmit more traffic than should be allowed for that actor.",
+  "extended_description": "In the absence of a policy to restrict asymmetric resource consumption, the application or system cannot distinguish between legitimate transmissions and traffic intended to serve as an amplifying attack on target systems. Systems can often be configured to restrict the amount of traffic sent out on behalf of a client, based on the client's origin or access level. This is usually defined in a resource allocation policy. In the absence of a mechanism to keep track of transmissions, the system or application can be easily abused to transmit asymmetrically greater traffic than the request or client should be permitted to.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "405",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Operation"
+    },
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "If the application uses UDP, then it could potentially be subject to spoofing attacks that use the inherent weaknesses of UDP to perform traffic amplification, although this problem can exist in other protocols or contexts."
+      ]
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Amplification",
+        "DoS: Crash, Exit, or Restart",
+        "DoS: Resource Consumption (CPU)",
+        "DoS: Resource Consumption (Memory)",
+        "DoS: Resource Consumption (Other)"
+      ],
+      "note": "System resources can be quickly consumed leading to poor application performance or system crash. This may affect network performance and could be used to attack other systems and applications relying on network performance."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "An application must make network resources available to a client commensurate with the client's access level."
+      ],
+      "strategy": "Separation of Privilege"
+    },
+    {
+      "phase": [
+        "Policy"
+      ],
+      "description": [
+        "Define a clear policy for network resource allocation and consumption."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "An application must, at all times, keep track of network resources and meter their usage appropriately."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-113",
+      "text": "\n               <Intro_Text>This code listens on a port for DNS requests and sends the result to the requesting address.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)<xhtml:br/>sock.bind( (UDP_IP,UDP_PORT) )<xhtml:br/>while true:<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>data = sock.recvfrom(1024)<xhtml:br/>if not data:<xhtml:div style=\"margin-left:1em;\">break</xhtml:div>\n                           <xhtml:br/>(requestIP, nameToResolve) = parseUDPpacket(data)<xhtml:br/>record = resolveName(nameToResolve)<xhtml:br/>sendResponse(requestIP,record)</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>This code sends a DNS record to a requesting IP address. UDP allows the source IP address to be easily changed ('spoofed'), thus allowing an attacker to redirect responses to a target, which may be then be overwhelmed by the network traffic.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-1999-0513",
+      "description": "Classic \"Smurf\" attack, using spoofed ICMP packets to broadcast addresses.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0513"
+    },
+    {
+      "reference": "CVE-1999-1379",
+      "description": "DNS query with spoofed source address causes more traffic to be returned to spoofed address than was sent by the attacker.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1379"
+    },
+    {
+      "reference": "CVE-2000-0041",
+      "description": "Large datagrams are sent in response to malformed datagrams.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0041"
+    },
+    {
+      "reference": "CVE-1999-1066",
+      "description": "Game server sends a large amount.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1066"
+    },
+    {
+      "reference": "CVE-2013-5211",
+      "description": "composite: NTP feature generates large responses (high amplification factor) with spoofed UDP source addresses.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2013-5211"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description, Enabling_Factors_for_Exploitation, Name, Other_Notes, Theoretical_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Other_Notes, Relationship_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-02-18",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Enabling_Factors_for_Exploitation, Modes_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Network Amplification",
+        "date": "2008-10-14"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Network Amplification"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "This can be resultant from weaknesses that simplify spoofing attacks."
+    },
+    {
+      "type": "Theoretical",
+      "text": "Network amplification, when performed with spoofing, is normally a multi-channel attack from attacker (acting as user) to amplifier, and amplifier to victim."
+    }
+  ]
+}

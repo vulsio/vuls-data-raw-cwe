@@ -1,0 +1,150 @@
+{
+  "id": "820",
+  "name": "Missing Synchronization",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product utilizes a shared resource in a concurrent manner but does not attempt to synchronize access to the resource.",
+  "extended_description": "If access to a shared resource is not synchronized, then the resource may not be in a state that is expected by the product. This might lead to unexpected or insecure behaviors, especially if an attacker can influence the shared resource.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "662",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "662",
+      "view_id": "1305",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "662",
+      "view_id": "1340",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {},
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Other"
+      ],
+      "impact": [
+        "Modify Application Data",
+        "Read Application Data",
+        "Alter Execution Logic"
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-170",
+      "text": "\n               <Intro_Text>The following code intends to fork a process, then have both the parent and child processes print a single line.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>static void print (char * string) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char * word;<xhtml:br/>int counter;<xhtml:br/>for (word = string; counter = *word++; ) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>putc(counter, stdout);<xhtml:br/>fflush(stdout);<xhtml:br/>\n                                 <xhtml:i>/* Make timing window a little larger... */</xhtml:i>\n                                 <xhtml:br/>\n                                 <xhtml:br/>sleep(1);</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main(void) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>pid_t pid;<xhtml:br/>\n                           <xhtml:br/>pid = fork();<xhtml:br/>if (pid == -1) {<xhtml:div style=\"margin-left:1em;\">exit(-2);</xhtml:div>}<xhtml:br/>else if (pid == 0) {<xhtml:div style=\"margin-left:1em;\">print(\"child\\n\");</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">print(\"PARENT\\n\");</xhtml:div>}<xhtml:br/>exit(0);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>One might expect the code to print out something like:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>PARENT</xhtml:div>\n                     <xhtml:div>child</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>However, because the parent and child are executing concurrently, and stdout is flushed each time a character is printed, the output might be mixed together, such as:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>PcAhRiElNdT</xhtml:div>\n                     <xhtml:div>[blank line]</xhtml:div>\n                     <xhtml:div>[blank line]</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n            "
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2010-08-06"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-12-13",
+        "modification_comment": "updated Demonstrative_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-07-17",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-09-23",
+        "modification_comment": "updated Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Synchronize access to static fields that can be modified by untrusted code",
+      "entry_id": "LCK05-J"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "Deeper research is necessary for synchronization and related mechanisms, including locks, mutexes, semaphores, and other mechanisms. Multiple entries are dependent on this research, which includes relationships to concurrency, race conditions, reentrant functions, etc.  CWE-662 and its children - including CWE-667, CWE-820, CWE-821, and others - may need to be modified significantly, along with their relationships."
+    }
+  ]
+}

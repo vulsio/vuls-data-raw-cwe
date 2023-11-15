@@ -1,0 +1,263 @@
+{
+  "id": "234",
+  "name": "Failure to Handle Missing Parameter",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "If too few arguments are sent to a function, the function will still pop the expected number of arguments from the stack. Potentially, a variable number of arguments could be exhausted in a function as well.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "233",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "High",
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Availability",
+        "Access Control"
+      ],
+      "impact": [
+        "Execute Unauthorized Code or Commands",
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "There is the potential for arbitrary code execution with privileges of the vulnerable program if function parameter list is exhausted."
+    },
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Crash, Exit, or Restart"
+      ],
+      "note": "Potentially a program could fail if it needs more arguments then are available."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Build and Compilation"
+      ],
+      "description": [
+        "This issue can be simply combated with the use of proper build process."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Forward declare all functions. This is the recommended solution. Properly forward declaration of all used functions will result in a compiler error if too few arguments are sent to a function."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>foo_funct(one, two);<xhtml:br/>\n                     <xhtml:br/>void foo_funct(int one, int two, int three) {<xhtml:div style=\"margin-left:1em;\">printf(\"1) %d\\n2) %d\\n3) %d\\n\", one, two, three);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void some_function(int foo, ...) {<xhtml:div style=\"margin-left:1em;\">int a[3], i;<xhtml:br/>va_list ap;<xhtml:br/>va_start(ap, foo);<xhtml:br/>for (i = 0; i &lt; sizeof(a) / sizeof(int); i++) a[i] = va_arg(ap, int);<xhtml:br/>va_end(ap);</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main(int argc, char *argv[]) {<xhtml:div style=\"margin-left:1em;\">some_function(17, 42);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This can be exploited to disclose information with no work whatsoever. In fact, each time this function is run, it will print out the next 4 bytes on the stack after the two numbers sent to it.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2004-0276",
+      "description": "Server earlier allows remote attackers to cause a denial of service (crash) via an HTTP request with a sequence of \"%\" characters and a missing Host field.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0276"
+    },
+    {
+      "reference": "CVE-2002-1488",
+      "description": "Chat client allows remote malicious IRC servers to cause a denial of service (crash) via a PART message with (1) a missing channel or (2) a channel that the user is not in.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1488"
+    },
+    {
+      "reference": "CVE-2002-1169",
+      "description": "Proxy allows remote attackers to cause a denial of service (crash) via an HTTP request to helpout.exe with a missing HTTP version numbers.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1169"
+    },
+    {
+      "reference": "CVE-2000-0521",
+      "description": "Web server allows disclosure of CGI source code via an HTTP request without the version number.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0521"
+    },
+    {
+      "reference": "CVE-2001-0590",
+      "description": "Application server allows a remote attacker to read the source code to arbitrary 'jsp' files via a malformed URL request which does not end with an HTTP protocol specification.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0590"
+    },
+    {
+      "reference": "CVE-2003-0239",
+      "description": "Chat software allows remote attackers to cause a denial of service via malformed GIF89a headers that do not contain a GCT (Global Color Table) or an LCT (Local Color Table) after an Image Descriptor.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0239"
+    },
+    {
+      "reference": "CVE-2002-1023",
+      "description": "Server allows remote attackers to cause a denial of service (crash) via an HTTP GET request without a URI.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1023"
+    },
+    {
+      "reference": "CVE-2002-1236",
+      "description": "CGI crashes when called without any arguments.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1236"
+    },
+    {
+      "reference": "CVE-2003-0422",
+      "description": "CGI crashes when called without any arguments.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0422"
+    },
+    {
+      "reference": "CVE-2002-1531",
+      "description": "Crash in HTTP request without a Content-Length field.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1531"
+    },
+    {
+      "reference": "CVE-2002-1077",
+      "description": "Crash in HTTP request without a Content-Length field.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1077"
+    },
+    {
+      "reference": "CVE-2002-1358",
+      "description": "Empty elements/strings in protocol test suite affect many SSH2 servers/clients.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1358"
+    },
+    {
+      "reference": "CVE-2003-0477",
+      "description": "FTP server crashes in PORT command without an argument.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0477"
+    },
+    {
+      "reference": "CVE-2002-0107",
+      "description": "Resultant infoleak in web server via GET requests without HTTP/1.0 version string.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0107"
+    },
+    {
+      "reference": "CVE-2002-0596",
+      "description": "GET request with empty parameter leads to error message infoleak (path disclosure).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0596"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Relationships, Observed_Example, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-09",
+        "modification_comment": "added maintenance note: this entry will probably be deprecated",
+        "modification_importance": "Critical"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Maintenance_Notes, Other_Notes, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-07-17",
+        "modification_comment": "updated Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Missing Parameter Error",
+        "date": "2008-04-11"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Missing Parameter Error"
+    },
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Missing parameter"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "This entry will be deprecated in a future version of CWE. The term \"missing parameter\" was used in both PLOVER and CLASP, with completely different meanings. However, data from both taxonomies was merged into this entry. In PLOVER, it was meant to cover malformed inputs that do not contain required parameters, such as a missing parameter in a CGI request. This entry's observed examples and classification came from PLOVER. However, the description, demonstrative example, and other information are derived from CLASP. They are related to an incorrect number of function arguments, which is already covered by CWE-685."
+    }
+  ]
+}

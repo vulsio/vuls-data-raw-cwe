@@ -1,0 +1,278 @@
+{
+  "id": "657",
+  "name": "Violation of Secure Design Principles",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product violates well-established principles for secure design.",
+  "extended_description": "This can introduce resultant weaknesses or make it easier for developers to introduce related weaknesses during implementation. Because code is centered around design, it can be resource-intensive to fix design problems.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "710",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {},
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Other"
+      ],
+      "impact": [
+        "Other"
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-164",
+      "text": "\n               <Intro_Text>Switches may revert their functionality to that of hubs when the table used to map ARP information to the switch interface overflows, such as when under a spoofing attack. This results in traffic being broadcast to an eavesdropper, instead of being sent only on the relevant switch interface. To mitigate this type of problem, the developer could limit the number of ARP entries that can be recorded for a given switch interface, while other interfaces may keep functioning normally. Configuration options can be provided on the appropriate actions to be taken in case of a detected failure, but safe defaults should be used.</Intro_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-165",
+      "text": "\n               <Intro_Text>The IPSEC specification is complex, which resulted in bugs, partial implementations, and incompatibilities between vendors.</Intro_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-166",
+      "text": "\n               <Intro_Text>When executable library files are used on web servers, which is common in PHP applications, the developer might perform an access check in any user-facing executable, and omit the access check from the library file itself. By directly requesting the library file (CWE-425), an attacker can bypass this access check.</Intro_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-167",
+      "text": "\n               <Intro_Text>Single sign-on technology is intended to make it easier for users to access multiple resources or domains without having to authenticate each time. While this is highly convenient for the user and attempts to address problems with psychological acceptability, it also means that a compromise of a user's credentials can provide immediate access to all other resources or domains.</Intro_Text>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-168",
+      "text": "\n               <Intro_Text>The design of TCP relies on the secrecy of Initial Sequence Numbers (ISNs), as originally covered in CVE-1999-0077 [REF-542]. If ISNs can be guessed (due to predictability, CWE-330) or sniffed (due to lack of encryption during transmission, CWE-312), then an attacker can hijack or spoof connections. Many TCP implementations have had variations of this problem over the years, including CVE-2004-0641, CVE-2002-1463, CVE-2001-0751, CVE-2001-0328, CVE-2001-0288, CVE-2001-0163, CVE-2001-0162, CVE-2000-0916, and CVE-2000-0328.</Intro_Text>\n         <References>\n                  <Reference External_Reference_ID=\"REF-542\"/>\n               </References>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-169",
+      "text": "\n\t\t<Intro_Text>The \"SweynTooth\" vulnerabilities in Bluetooth Low Energy (BLE) software development kits (SDK) were found to affect multiple Bluetooth System-on-Chip (SoC) manufacturers. These SoCs were used by many products such as medical devices, Smart Home devices, wearables, and other IoT devices. [REF-1314] [REF-1315]</Intro_Text>\n\t      "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2019-6260",
+      "description": "Baseboard Management Controller (BMC) device implements Advanced High-performance Bus (AHB) bridges that do not require authentication for arbitrary read and write access to the BMC's physical address space from the host, and possibly the network [REF-1138].",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-6260"
+    },
+    {
+      "reference": "CVE-2007-5277",
+      "description": "The failure of connection attempts in a web browser resets DNS pin restrictions. An attacker can then bypass the same origin policy by rebinding a domain name to a different IP address. This was an attempt to \"fail functional.\"",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-5277"
+    },
+    {
+      "reference": "CVE-2006-7142",
+      "description": "Hard-coded cryptographic key stored in executable program.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-7142"
+    },
+    {
+      "reference": "CVE-2007-0408",
+      "description": "Server does not properly validate client certificates when reusing cached connections.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-0408"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-196",
+      "author": [
+        "Jerome H. Saltzer",
+        "Michael D. Schroeder"
+      ],
+      "title": "The Protection of Information in Computer Systems",
+      "url": "http://web.mit.edu/Saltzer/www/publications/protection/",
+      "publication_year": "1975",
+      "publication_month": "--09",
+      "publication": "Proceedings of the IEEE 63"
+    },
+    {
+      "reference_id": "REF-546",
+      "author": [
+        "Sean Barnum",
+        "Michael Gegick"
+      ],
+      "title": "Design Principles",
+      "url": "https://web.archive.org/web/20220126060046/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/design-principles",
+      "publication_year": "2005",
+      "publication_month": "--09",
+      "publication_day": "---19",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-542",
+      "author": [
+        "Jon Postel, Editor"
+      ],
+      "title": "RFC: 793, TRANSMISSION CONTROL PROTOCOL",
+      "url": "https://www.ietf.org/rfc/rfc0793.txt",
+      "publication_year": "1981",
+      "publication_month": "--09",
+      "publisher": "Information Sciences Institute",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1138",
+      "author": [
+        "Stewart Smith"
+      ],
+      "title": "CVE-2019-6260: Gaining control of BMC from the host processor",
+      "url": "https://www.flamingspork.com/blog/2019/01/23/cve-2019-6260:-gaining-control-of-bmc-from-the-host-processor/",
+      "publication_year": "2019"
+    },
+    {
+      "reference_id": "REF-1314",
+      "author": [
+        "ICS-CERT"
+      ],
+      "title": "ICS Alert (ICS-ALERT-20-063-01): SweynTooth Vulnerabilities",
+      "url": "https://www.cisa.gov/news-events/ics-alerts/ics-alert-20-063-01",
+      "publication_year": "2020",
+      "publication_month": "--03",
+      "publication_day": "---04",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1315",
+      "author": [
+        "Matheus E. Garbelini, Sudipta Chattopadhyay, Chundong Wang, Singapore University of Technology and Design"
+      ],
+      "title": "Unleashing Mayhem over Bluetooth Low Energy",
+      "url": "https://asset-group.github.io/disclosures/sweyntooth/",
+      "publication_year": "2020",
+      "publication_month": "--03",
+      "publication_day": "---04",
+      "url_date": "2023-01-25"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Community",
+      "submission_date": "2008-01-30",
+      "submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Description, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated References"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Maintenance_Notes, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, References"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
+        "contribution_date": "2023-01-24",
+        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SD-3",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SD-4",
+      "entry_id": "Part 4-1"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SI-1",
+      "entry_id": "Part 4-1"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Maintenance",
+      "text": "The Taxonomy_Mappings to ISA/IEC 62443 were added in CWE 4.10, but they are still under review and might change in future CWE versions. These draft mappings were performed by members of the \"Mapping CWE to 62443\" subgroup of the CWE-CAPEC ICS/OT Special Interest Group (SIG), and their work is incomplete as of CWE 4.10. The mappings are included to facilitate discussion and review by the broader ICS/OT community, and they are likely to change in future CWE versions."
+    }
+  ]
+}

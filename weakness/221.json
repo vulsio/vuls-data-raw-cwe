@@ -1,0 +1,162 @@
+{
+  "id": "221",
+  "name": "Information Loss or Omission",
+  "abstraction": "Class",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product does not record, or improperly records, security-relevant information that leads to an incorrect decision or hampers later analysis.",
+  "extended_description": "This can be resultant, e.g. a buffer overflow might trigger a crash before the product can log the event.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "664",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Non-Repudiation"
+      ],
+      "impact": [
+        "Hide Activities"
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-174",
+      "text": "\n               <Intro_Text>This code logs suspicious multiple login attempts.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function login($userName,$password){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if(authenticate($userName,$password)){<xhtml:div style=\"margin-left:1em;\">return True;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">incrementLoginAttempts($userName);<xhtml:br/>if(recentLoginAttempts($userName) &gt; 5){<xhtml:div style=\"margin-left:1em;\">writeLog(\"Failed login attempt by User: \" . $userName . \" at \" + date('r') );</xhtml:div>}</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code only logs failed login attempts when a certain limit is reached. If an attacker knows this limit, they can stop their attack from being discovered by avoiding the limit.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2004-2227",
+      "description": "Web browser's filename selection dialog only shows the beginning portion of long filenames, which can trick users into launching executables with dangerous extensions.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2227"
+    },
+    {
+      "reference": "CVE-2003-0412",
+      "description": "application server does not log complete URI of a long request (truncation).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0412"
+    },
+    {
+      "reference": "CVE-1999-1029",
+      "description": "Login attempts are not recorded if the user disconnects before the maximum number of tries.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1029"
+    },
+    {
+      "reference": "CVE-2002-0725",
+      "description": "Attacker performs malicious actions on a hard link to a file, obscuring the real target file.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0725"
+    },
+    {
+      "reference": "CVE-1999-1055",
+      "description": "Product does not warn user when document contains certain dangerous functions or macros.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1055"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Description, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Information loss or omission"
+    }
+  ],
+  "related_attack_patterns": [
+    "81"
+  ]
+}

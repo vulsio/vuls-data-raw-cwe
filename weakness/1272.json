@@ -1,0 +1,194 @@
+{
+  "id": "1272",
+  "name": "Sensitive Information Uncleared Before Debug/Power State Transition",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Stable",
+  "description": "The product performs a power or debug state transition, but it does not clear sensitive information that should no longer be accessible due to changes to information access restrictions.",
+  "extended_description": "\n\t\t\t\t<xhtml:p>A device or system frequently employs many power and sleep states during its normal operation (e.g., normal power, additional power, low power, hibernate, deep sleep, etc.). A device also may be operating within a debug condition. State transitions can happen from one power or debug state to another. If there is information available in the previous state which should not be available in the next state and is not properly removed before the transition into the next state, sensitive information may leak from the system.</xhtml:p>\n\t\t\t",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "226",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "200",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "VHDL"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Verilog"
+      },
+      {
+        "class": "Hardware Description Language",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability",
+        "Access Control",
+        "Accountability",
+        "Authentication",
+        "Authorization",
+        "Non-Repudiation"
+      ],
+      "impact": [
+        "Read Memory",
+        "Read Application Data"
+      ],
+      "note": "Sensitive information may be used to unlock additional capabilities of the device and take advantage of hidden functionalities which could be used to compromise device security.",
+      "likelihood": "High"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "During state transitions, information not needed in the next state should be removed before the transition to the next state."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-147",
+      "text": "\n\t <Intro_Text>This example shows how an attacker can take advantage of an incorrect state transition.</Intro_Text>\n\t <Body_Text>\n\t   <xhtml:p>Suppose a device is transitioning from state A to state B. During state A, it can read certain private keys from the hidden fuses that are only accessible in state A but not in state B. The device reads the keys, performs operations using those keys, then transitions to state B, where those private keys should no longer be accessible.</xhtml:p>\n\t </Body_Text>\n\t <Example_Code Nature=\"Bad\">\n\t   <xhtml:p>During the transition from A to B, the device does not scrub the memory.</xhtml:p>\n\t </Example_Code>\n\t <Body_Text><xhtml:p>After the transition to state B, even though the private keys are no longer accessible directly from the fuses in state B, they can be accessed indirectly by reading the memory that contains the private keys.</xhtml:p></Body_Text>\n\t <Example_Code Nature=\"Good\">For transition from state A to state B, remove information which should not be available once the transition is complete.</Example_Code>\n       "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2020-12926",
+      "description": "Product software does not set a flag as per TPM specifications, thereby preventing a failed authorization attempt from being recorded after a loss of power.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-12926"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1220",
+      "author": [
+        "Zhenyu Ning",
+        "Fengwei Zhang"
+      ],
+      "title": "Understanding the Security of ARM Debugging Features",
+      "url": "https://www.computer.org/csdl/proceedings-article/sp/2019/666000b156/19skgcwSgsE",
+      "publication_year": "2019",
+      "publication_month": "--05",
+      "publication_day": "---22",
+      "publication": "2019 IEEE Symposium on Security and Privacy (SP)",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Parbati Kumar Manna, Hareesh Khattri, Arun Kanuparthi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-05-31"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Description, Name, Potential_Mitigations, Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Functional_Areas"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Detection_Factors, Observed_Examples, Potential_Mitigations, References, Relationships, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Debug/Power State Transitions Leak Information",
+        "date": "2020-08-20"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "method": "Manual Analysis",
+      "description": "Write a known pattern into each sensitive location. Enter the power/debug state in question. Read data back from the sensitive locations. If the reads are successful, and the data is the same as the pattern that was originally written, the test fails and the device needs to be fixed. Note that this test can likely be automated.",
+      "effectiveness": "High"
+    }
+  ],
+  "related_attack_patterns": [
+    "150",
+    "37",
+    "545",
+    "546"
+  ],
+  "functional_areas": [
+    "Power"
+  ]
+}

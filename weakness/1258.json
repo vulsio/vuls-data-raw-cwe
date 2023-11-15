@@ -1,0 +1,146 @@
+{
+  "id": "1258",
+  "name": "Exposure of Sensitive System Information Due to Uncleared Debug Information",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The hardware does not fully clear security-sensitive values, such as keys and intermediate values in cryptographic operations, when debug mode is entered.",
+  "extended_description": "\n            <xhtml:p>Security sensitive values, keys, intermediate steps of cryptographic operations, etc. are stored in temporary registers in the hardware. If these values are not cleared when debug mode is entered they may be accessed by a debugger allowing sensitive information to be accessible by untrusted parties.</xhtml:p>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "212",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "200",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Memory"
+      ]
+    },
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n                 <xhtml:p>Whenever debug mode is enabled, all registers containing sensitive assets must be cleared.</xhtml:p>\n               "
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>A cryptographic core in a System-On-a-Chip (SoC) is used for cryptographic acceleration and implements several cryptographic operations (e.g., computation of AES encryption and decryption, SHA-256, HMAC, etc.). The keys for these operations or the intermediate values are stored in registers internal to the cryptographic core. These internal registers are in the Memory Mapped Input Output (MMIO) space and are blocked from access by software and other untrusted agents on the SoC. These registers are accessible through the debug and test interface.</Intro_Text>\n\n                <Example_Code Nature=\"Bad\" Language=\"Other\">In the above scenario, registers that store keys and intermediate values of cryptographic operations are not cleared when system enters debug mode. An untrusted actor running a debugger may read the contents of these registers and gain access to secret keys and other sensitive cryptographic information.</Example_Code>\n\n                <Example_Code Nature=\"Good\" Language=\"Other\">Whenever the chip enters debug mode, all registers containing security-sensitive data are be cleared rendering them unreadable.</Example_Code>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2021-33080",
+      "description": "Uncleared debug information in memory accelerator for SSD product exposes sensitive system information",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2021-33080"
+    },
+    {
+      "reference": "CVE-2022-31162",
+      "description": "Rust library leaks Oauth client details in application debug logs",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2022-31162"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-02-12"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Demonstrative_Examples, Description, Name, Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Observed_Examples"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Sensitive Information Uncleared During Hardware Debug Flows",
+        "date": "2020-08-20"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "150",
+    "204",
+    "37",
+    "545"
+  ]
+}

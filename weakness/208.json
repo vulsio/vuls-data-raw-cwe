@@ -1,0 +1,255 @@
+{
+  "id": "208",
+  "name": "Observable Timing Discrepancy",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "Two separate operations in a product require different amounts of time to complete, in a way that is observable to an actor and reveals security-relevant information about the state of the product, such as whether a particular operation was successful or not.",
+  "extended_description": "\n\t   In security-relevant contexts, even small variations in timing can be exploited by attackers to indirectly infer certain details about the product's internal operations.  For example, in some cryptographic algorithms, attackers can use timing differences to infer certain properties about a private key, making the key easier to guess.  Timing discrepancies effectively form a timing side channel.\n\t ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "203",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "385",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "327",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
+      ]
+    },
+    {
+      "phase": "Implementation"
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Access Control"
+      ],
+      "impact": [
+        "Read Application Data",
+        "Bypass Protection Mechanism"
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-173",
+      "text": "\n                <Intro_Text>Consider an example hardware module that checks a user-provided password to grant access to a user. The user-provided password is compared against a golden value in a byte-by-byte manner.</Intro_Text>\n                <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                    always_comb @ (posedge clk)<xhtml:br/>\n                    <xhtml:br/>\n                    begin<xhtml:br/>\n\t\t    <xhtml:div style=\"margin-left:1em;\">\n                      assign check_pass[3:0] = 4'b0;<xhtml:br/>\n                      for (i = 0; i &lt; 4; i++) begin<xhtml:br/>\n\t\t      <xhtml:div style=\"margin-left:1em;\">\n                    \tif (entered_pass[(i*8 - 1) : i] eq golden_pass([i*8 - 1) : i])<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  assign check_pass[i] = 1;<xhtml:br/>\n                    \t  continue;<xhtml:br/>\n\t\t\t</xhtml:div>\n                    \telse<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n                    \t  assign check_pass[i] = 0;<xhtml:br/>\n                    \t  break;<xhtml:br/>\n\t\t\t</xhtml:div>\n                    \tend<xhtml:br/>\n\t\t      </xhtml:div>\n                      assign grant_access = (check_pass == 4'b1111) ? 1'b1: 1'b0;<xhtml:br/>\n\t\t    </xhtml:div>\n                    end<xhtml:br/>\n\t\t</Example_Code>\n                <Body_Text>Since the code breaks on an incorrect entry of password, an attacker can guess the correct password for that byte-check iteration with few repeat attempts.</Body_Text>\n\t\t<Body_Text>To fix this weakness, either the comparison of the entire string should be done all at once, or the attacker is not given an indication whether pass or fail happened by allowing the comparison to run through all bits before the grant_access signal is set.</Body_Text>\n                <Example_Code Nature=\"Good\">\n                  always_comb @ (posedge clk)<xhtml:br/>\n\t\t  begin<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n                    assign check_pass[3:0] = 4'b0;<xhtml:br/>\n               \t    for (i = 0; i &lt; 4; i++) begin<xhtml:br/>\n\t\t    <xhtml:div style=\"margin-left:1em;\">\n               \t      if (entered_pass[(i*8 - 1) : i] eq golden_pass([i*8 -1) : i])<xhtml:br/>\n\t\t      <xhtml:div style=\"margin-left:1em;\">\n               \t\tassign check_pass[i] = 1;<xhtml:br/>\n               \t\tcontinue;<xhtml:br/>\n\t\t      </xhtml:div>\n               \t      else<xhtml:br/>\n\t\t      <xhtml:div style=\"margin-left:1em;\">\n               \t\tassign check_pass[i] = 0;<xhtml:br/>\n               \t\tcontinue;<xhtml:br/>\n\t\t      </xhtml:div>\n               \t      end<xhtml:br/>\n\t\t    </xhtml:div>\n               \t    assign grant_access = (check_pass == 4'b1111) ? 1'b1: 1'b0;<xhtml:br/>\n\t\t  </xhtml:div>\n\t\t  end<xhtml:br/>\n\t\t</Example_Code>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2019-10071",
+      "description": "Java-oriented framework compares HMAC signatures  using  String.equals() instead of a constant-time algorithm, causing timing discrepancies",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-10071"
+    },
+    {
+      "reference": "CVE-2019-10482",
+      "description": "Smartphone OS uses comparison functions that are not in constant time, allowing side channels",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-10482"
+    },
+    {
+      "reference": "CVE-2014-0984",
+      "description": "Password-checking function in router terminates validation of a password entry when it encounters the first incorrect character, which allows remote attackers to obtain passwords via a brute-force attack that relies on timing differences in responses to incorrect password guesses, aka a timing side-channel attack.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2014-0984"
+    },
+    {
+      "reference": "CVE-2003-0078",
+      "description": "SSL implementation does not perform a MAC computation if an incorrect block cipher padding is used, which causes an information leak (timing discrepancy) that may make it easier to launch cryptographic attacks that rely on distinguishing between padding and MAC verification errors, possibly leading to extraction of the original plaintext, aka the \"Vaudenay timing attack.\"",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0078"
+    },
+    {
+      "reference": "CVE-2000-1117",
+      "description": "Virtual machine allows malicious web site operators to determine the existence of files on the client by measuring delays in the execution of the getSystemResource method.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-1117"
+    },
+    {
+      "reference": "CVE-2003-0637",
+      "description": "Product uses a shorter timeout for a non-existent user than a valid user, which makes it easier for remote attackers to guess usernames and conduct brute force password guessing.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0637"
+    },
+    {
+      "reference": "CVE-2003-0190",
+      "description": "Product immediately sends an error message when a user does not exist, which allows remote attackers to determine valid usernames via a timing attack.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0190"
+    },
+    {
+      "reference": "CVE-2004-1602",
+      "description": "FTP server responds in a different amount of time when a given username exists, which allows remote attackers to identify valid usernames by timing the server response.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1602"
+    },
+    {
+      "reference": "CVE-2005-0918",
+      "description": "Browser allows remote attackers to determine the existence of arbitrary files by setting the src property to the target filename and using Javascript to determine if the web page immediately stops loading, which indicates whether the file exists or not.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0918"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Other_Notes, Relationship_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-09-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Other_Notes, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-05-03",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Description, Name, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Observed_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-10-26",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Timing Discrepancy Information Leak",
+        "date": "2011-03-29"
+      },
+      {
+        "text": "Information Exposure Through Timing Discrepancy",
+        "date": "2020-02-24"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Timing discrepancy infoleak"
+    }
+  ],
+  "related_attack_patterns": [
+    "462",
+    "541",
+    "580"
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "Often primary in cryptographic applications and algorithms."
+    }
+  ],
+  "functional_areas": [
+    "Cryptography",
+    "Authentication"
+  ]
+}

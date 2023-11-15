@@ -1,0 +1,130 @@
+{
+  "id": "1245",
+  "name": "Improper Finite State Machines (FSMs) in Hardware Logic",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "Faulty finite state machines (FSMs) in the hardware logic allow an attacker to put the system in an undefined state, to cause a denial of service (DoS) or gain privileges on the victim's system.",
+  "extended_description": "\n                <xhtml:p>The functionality and security of the system heavily depend on the implementation of FSMs. FSMs can be used to indicate the current security state of the system. Lots of secure data operations and data transfers rely on the state reported by the FSM. Faulty FSM designs that do not account for all states, either through undefined states (left as don't cares) or through incorrect implementation, might lead an attacker to drive the system into an unstable state from which the system cannot recover without a reset, thus causing a DoS. Depending on what the FSM is used for, an attacker might also gain additional privileges to launch further attacks and compromise the security guarantees.</xhtml:p>\n            ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "684",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability",
+        "Access Control"
+      ],
+      "impact": [
+        "Unexpected State",
+        "DoS: Crash, Exit, or Restart",
+        "DoS: Instability",
+        "Gain Privileges or Assume Identity"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "Define all possible states and handle all unused states through default statements. Ensure that system defaults to a secure state."
+      ],
+      "effectiveness": "High"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-152",
+      "text": "\n                    <Intro_Text>The Finite State Machine (FSM) shown in the \"bad\" code snippet below assigns the output (\"out\") based on the value of state, which is determined based on the user provided input (\"user_input\").</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t  <xhtml:div>module fsm_1(out, user_input, clk, rst_n);\n\t\t\t\t\t  <xhtml:br/>input [2:0] user_input; \n\t\t\t\t\t  <xhtml:br/>input clk, rst_n;\n\t\t\t\t\t  <xhtml:br/>output reg [2:0] out;\n\t\t\t\t\t  <xhtml:br/>reg [1:0] state;\n\t\t\t\t\t  <xhtml:br/>always @ (posedge clk or negedge rst_n )\n\t\t\t\t\t  <xhtml:br/>\n\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">begin\n\t\t\t\t\t  <xhtml:br/>\n\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\tif (!rst_n)<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t  state = 3'h0;\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\telse<xhtml:br/>\n\t\t\t\t\t\tcase (user_input)\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t  3'h0:<xhtml:br/>\n\t\t\t\t\t\t  3'h1:<xhtml:br/>\n\t\t\t\t\t\t  3'h2:<xhtml:br/>\n\t\t\t\t\t\t  3'h3: state = 2'h3;<xhtml:br/>\n\t\t\t\t\t\t  3'h4: state = 2'h2;<xhtml:br/>\n\t\t\t\t\t\t  3'h5: state = 2'h1;<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\tendcase\n\t\t\t\t\t  </xhtml:div>\n\t\t\t\t\t  end<xhtml:br/>\n\t\t\t\t\t  out &lt;= {1'h1, state};<xhtml:br/>\n\t\t\t\t\t  </xhtml:div>\n\t\t\t\t\t  endmodule\n\t\t\t\t\t  </xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>\n\t\t\t\t\t  <xhtml:p>The case statement does not include a default to handle the scenario when the user provides inputs of 3'h6 and 3'h7.  Those inputs push the system to an undefined state and might cause a crash (denial of service) or any other unanticipated outcome.</xhtml:p>\n\t\t\t\t\t  <xhtml:p>Adding a default statement to handle undefined inputs mitigates this issue.  This is shown in the \"Good\" code snippet below.  The default statement is in bold.</xhtml:p>\n\t\t\t\t\t</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\t  <xhtml:div>case (user_input)\n\t\t\t\t\t  <xhtml:br/><xhtml:div style=\"margin-left:1em;\">3'h0:\n\t\t\t\t\t  <xhtml:br/>3'h1:\n\t\t\t\t\t  <xhtml:br/>3'h2:\n\t\t\t\t\t  <xhtml:br/>3'h3: state = 2'h3;\n\t\t\t\t\t  <xhtml:br/>3'h4: state = 2'h2;\n\t\t\t\t\t  <xhtml:br/>3'h5: state = 2'h1;\n\t\t\t\t\t  <xhtml:br/><xhtml:b>default: state = 2'h0;</xhtml:b>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t  endcase</xhtml:div>\n\t\t\t\t\t</Example_Code>\n            \t"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1060",
+      "author": [
+        "Farimah Farahmandi",
+        "Prabhat Mishra"
+      ],
+      "title": "FSM Anomaly Detection using Formal Analysis",
+      "url": "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8119228&tag=1"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "The Intel Corporation",
+      "submission_date": "2020-02-12"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "74"
+  ]
+}

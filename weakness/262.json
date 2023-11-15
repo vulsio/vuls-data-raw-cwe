@@ -1,0 +1,302 @@
+{
+  "id": "262",
+  "name": "Not Using Password Aging",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product does not have a mechanism in place for managing password aging.",
+  "extended_description": "\n\t <xhtml:p>Password aging (or password rotation) is a policy that forces users to change their passwords after a defined time period passes, such as every 30 or 90 days. Without mechanisms such as aging, users might not change their passwords in a timely manner.</xhtml:p>\n\t <xhtml:p>Note that while password aging was once considered an important security feature, it has since fallen out of favor by many, because it is not as effective against modern threats compared to other mechanisms such as slow hashes. In addition, forcing frequent changes can unintentionally encourage users to select less-secure passwords. However, password aging is still in use due to factors such as compliance requirements, e.g., Payment Card Industry Data Security Standard (PCI DSS).</xhtml:p>\n\t ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "1390",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "309",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "324",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
+      ]
+    }
+  ],
+  "likelihood_of_exploit": "Low",
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "As passwords age, the probability that they are compromised grows."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "As part of a product's design, require users to change their passwords regularly and avoid reusing previous passwords."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Developers might disable clipboard paste operations into password fields as a way to discourage users from pasting a password into a clipboard. However, this might encourage users to choose less-secure passwords that are easier to type, and it can reduce the usability of password managers [REF-1294]."
+      ],
+      "effectiveness": "Discouraged Common Practice"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>A system does not enforce the changing of passwords every certain period.</Intro_Text>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    },
+    {
+      "section": "\"Sin 19: Use of Weak Password-Based Systems.\" Page 279",
+      "reference_id": "REF-44",
+      "author": [
+        "Michael Howard",
+        "David LeBlanc",
+        "John Viega"
+      ],
+      "title": "24 Deadly Sins of Software Security",
+      "publication_year": "2010",
+      "publication": "McGraw-Hill"
+    },
+    {
+      "reference_id": "REF-1305",
+      "author": [
+        "Kurt Seifried and other members of the CWE-Research mailing list"
+      ],
+      "title": "Discussion Thread: Time to retire CWE-262 and CWE-263",
+      "url": "https://www.mail-archive.com/cwe-research-list@mitre.org/msg00018.html",
+      "publication_year": "2021",
+      "publication_month": "--12",
+      "publication_day": "---03",
+      "url_date": "2022-10-11"
+    },
+    {
+      "reference_id": "REF-1289",
+      "author": [
+        "Lance Spitzner"
+      ],
+      "title": "Time for Password Expiration to Die",
+      "url": "https://www.sans.org/blog/time-for-password-expiration-to-die/",
+      "publication_year": "2021",
+      "publication_month": "--06",
+      "publication_day": "---27"
+    },
+    {
+      "reference_id": "REF-1290",
+      "author": [
+        "Lorrie Cranor"
+      ],
+      "title": "Time to rethink mandatory password changes",
+      "url": "https://www.ftc.gov/policy/advocacy-research/tech-at-ftc/2016/03/time-rethink-mandatory-password-changes",
+      "publication_year": "2016",
+      "publication_month": "--03",
+      "publication_day": "---02"
+    },
+    {
+      "reference_id": "REF-1291",
+      "author": [
+        "Eugene Spafford"
+      ],
+      "title": "Security Myths and Passwords",
+      "url": "https://www.cerias.purdue.edu/site/blog/post/password-change-myths/",
+      "publication_year": "2006",
+      "publication_month": "--04",
+      "publication_day": "---19"
+    },
+    {
+      "reference_id": "REF-1292",
+      "author": [
+        "National Cyber Security Centre"
+      ],
+      "title": "Password administration for system owners",
+      "url": "https://www.ncsc.gov.uk/collection/passwords",
+      "publication_year": "2018",
+      "publication_month": "--11",
+      "publication_day": "---19",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1293",
+      "author": [
+        "NIST"
+      ],
+      "title": "Digital Identity Guidelines: Authentication and Lifecycle Management(SP 800-63B)",
+      "url": "https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63b.pdf",
+      "publication_year": "2017",
+      "publication_month": "--06",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-1294",
+      "author": [
+        "National Cyber Security Centre"
+      ],
+      "title": "Let them paste passwords",
+      "url": "https://www.ncsc.gov.uk/blog-post/let-them-paste-passwords",
+      "publication_year": "2017",
+      "publication_month": "--01",
+      "publication_day": "---02",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-06-23",
+        "modification_comment": "updated Other_Notes, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Likelihood_of_Exploit, Modes_of_Introduction, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Demonstrative_Examples, Description, Potential_Mitigations, References, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Description, Potential_Mitigations, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Not Allowing Password Aging",
+        "date": "2008-04-11"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Feedback",
+        "contribution_name": "Kurt Seifried, Chris Eng, G. Ann Campbell, Larry Shields, Jeffrey Walton, Jason Dryhurst-Smith, and other members of the CWE Community",
+        "contribution_date": "2021-12-03",
+        "contribution_comment": "Gave feedback on how to update CWE-262 and CWE-263 due to changing password management practices"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Not allowing password aging"
+    }
+  ],
+  "related_attack_patterns": [
+    "16",
+    "49",
+    "509",
+    "55",
+    "555",
+    "560",
+    "561",
+    "565",
+    "600",
+    "652",
+    "653",
+    "70"
+  ]
+}

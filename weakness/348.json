@@ -1,0 +1,175 @@
+{
+  "id": "348",
+  "name": "Use of Less Trusted Source",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product has two different sources of the same data or information, but it uses the source that has less support for verification, is less trusted, or is less resistant to attack.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "345",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Bypass Protection Mechanism",
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "An attacker could utilize the untrusted data source to bypass protection mechanisms and gain access to sensitive data."
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>This code attempts to limit the access of a page to certain IP Addresses. It checks the 'HTTP_X_FORWARDED_FOR' header in case an authorized user is sending the request through a proxy.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$requestingIP = '0.0.0.0';<xhtml:br/>if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {<xhtml:div style=\"margin-left:1em;\">$requestingIP = $_SERVER['HTTP_X_FORWARDED_FOR'];</xhtml:div>\n                     <xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">$requestingIP = $_SERVER['REMOTE_ADDR'];</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>if(in_array($requestingIP,$ipAllowlist)){<xhtml:div style=\"margin-left:1em;\">generatePage();<xhtml:br/>return;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">echo \"You are not authorized to view this page\";<xhtml:br/>return;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The 'HTTP_X_FORWARDED_FOR' header can be user controlled and so should never be trusted. An attacker can falsify the header to gain access to the page.</Body_Text>\n               <Body_Text>This fixed code only trusts the 'REMOTE_ADDR' header and so avoids the issue:</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"PHP\">\n                  <xhtml:div>$requestingIP = '0.0.0.0';<xhtml:br/>if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {<xhtml:div style=\"margin-left:1em;\">echo \"This application cannot be accessed through a proxy.\";<xhtml:br/>return;</xhtml:div>\n                     <xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">$requestingIP = $_SERVER['REMOTE_ADDR'];</xhtml:div>}<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>Be aware that 'REMOTE_ADDR' can still be spoofed. This may seem useless because the server will send the response to the fake address and not the attacker, but this may still be enough to conduct an attack. For example, if the generatePage() function in this code is resource intensive, an attacker could flood the server with fake requests using an authorized IP and consume significant resources. This could be a serious DoS attack even though the attacker would never see the page's sensitive content.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2001-0860",
+      "description": "Product uses IP address provided by a client, instead of obtaining it from the packet headers, allowing easier spoofing.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0860"
+    },
+    {
+      "reference": "CVE-2004-1950",
+      "description": "Web product uses the IP address in the X-Forwarded-For HTTP header instead of a server variable that uses the connecting IP address, allowing filter bypass.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1950"
+    },
+    {
+      "reference": "BID:15326",
+      "description": "Similar to CVE-2004-1950",
+      "link": "http://www.securityfocus.com/bid/15326/info"
+    },
+    {
+      "reference": "CVE-2001-0908",
+      "description": "Product logs IP address specified by the client instead of obtaining it from the packet headers, allowing information hiding.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0908"
+    },
+    {
+      "reference": "CVE-2006-1126",
+      "description": "PHP application uses IP address from X-Forwarded-For HTTP header, instead of REMOTE_ADDR.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-1126"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Observed_Examples, Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-07-17",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-05-03",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-06-25",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Use of Less Trusted Source"
+    }
+  ],
+  "related_attack_patterns": [
+    "141",
+    "142",
+    "73",
+    "76",
+    "85"
+  ]
+}

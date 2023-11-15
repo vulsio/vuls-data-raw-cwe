@@ -1,0 +1,297 @@
+{
+  "id": "412",
+  "name": "Unrestricted Externally Accessible Lock",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product properly checks for the existence of a lock, but the lock can be externally controlled or influenced by an actor that is outside of the intended sphere of control.",
+  "extended_description": "This prevents the product from acting on associated resources or performing other behaviors that are controlled by the presence of the lock. Relevant locks might include an exclusive lock or mutex, or modifying a shared resource that is treated as a lock. If the lock can be held for an indefinite period of time, then the denial of service could be permanent.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "667",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanAlsoBe",
+      "cweid": "410",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Availability"
+      ],
+      "impact": [
+        "DoS: Resource Consumption (Other)"
+      ],
+      "note": "When an attacker can control a lock, the program may wait indefinitely until the attacker releases the lock, causing a denial of service to other users of the program. This is especially problematic if there is a blocking operation on the lock."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "Use any access control that is offered by the functionality that is offering the lock."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "Use unpredictable names or identifiers for the locks. This might not always be possible or feasible."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Consider modifying your code to use non-blocking synchronization methods."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-69",
+      "text": "\n               <Intro_Text>This code tries to obtain a lock for a file, then writes to it.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function writeToLog($message){<xhtml:div style=\"margin-left:1em;\">$logfile = fopen(\"logFile.log\", \"a\");<xhtml:br/>\n                        <xhtml:i>//attempt to get logfile lock</xhtml:i>\n                        <xhtml:br/>if (flock($logfile, LOCK_EX)) {<xhtml:div style=\"margin-left:1em;\">fwrite($logfile,$message);<xhtml:br/>\n                           <xhtml:i>// unlock logfile</xhtml:i>\n                           <xhtml:br/>flock($logfile, LOCK_UN);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">print \"Could not obtain lock on logFile.log, message not recorded\\n\";</xhtml:div>}</xhtml:div>}<xhtml:br/>fclose($logFile);</xhtml:div>\n               </Example_Code>\n               <Body_Text>PHP by default will wait indefinitely until a file lock is released. If an attacker is able to obtain the file lock, this code will pause execution, possibly leading to denial of service for other users. Note that in this case, if an attacker can perform an flock() on the file, they may already have privileges to destroy the log file. However, this still impacts the execution of other programs that depend on flock().</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2001-0682",
+      "description": "Program can not execute when attacker obtains a mutex.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0682"
+    },
+    {
+      "reference": "CVE-2002-1914",
+      "description": "Program can not execute when attacker obtains a lock on a critical output file.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1914"
+    },
+    {
+      "reference": "CVE-2002-1915",
+      "description": "Program can not execute when attacker obtains a lock on a critical output file.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1915"
+    },
+    {
+      "reference": "CVE-2002-0051",
+      "description": "Critical file can be opened with exclusive read access by user, preventing application of security policy. Possibly related to improper permissions, large-window race condition.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0051"
+    },
+    {
+      "reference": "CVE-2000-0338",
+      "description": "Chain: predictable file names used for locking, allowing attacker to create the lock beforehand. Resultant from permissions and randomness.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0338"
+    },
+    {
+      "reference": "CVE-2000-1198",
+      "description": "Chain: Lock files with predictable names. Resultant from randomness.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-1198"
+    },
+    {
+      "reference": "CVE-2002-1869",
+      "description": "Product does not check if it can write to a log file, allowing attackers to avoid logging by accessing the file using an exclusive lock. Overlaps unchecked error condition. This is not quite CWE-412, but close.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1869"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+      },
+      {
+        "modification_organization": "KDM Analytics",
+        "modification_date": "2008-08-01",
+        "modification_comment": "added/updated white box definitions"
+      },
+      {
+        "modification_organization": "Veracode",
+        "modification_date": "2008-08-15",
+        "modification_comment": "Suggested OWASP Top Ten 2004 mapping"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Description, Detection_Factors, Relationships, Observed_Example, Relationship_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-10-14",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "KDM Analytics",
+        "modification_date": "2009-07-17",
+        "modification_comment": "Suggested a better name and the minimal relationship with resources regardless of their criticality.",
+        "modification_importance": "Critical"
+      },
+      {
+        "modification_name": "KDM Analytics",
+        "modification_date": "2009-07-17",
+        "modification_comment": "Added a White_Box_Definition and clarified the consequences."
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-07-27",
+        "modification_comment": "updated Common_Consequences, Description, Name, Potential_Mitigations, White_Box_Definitions"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-03-29",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Demonstrative_Examples, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Relationships, White_Box_Definitions"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Unrestricted Critical Resource Lock",
+        "date": "2008-04-11"
+      },
+      {
+        "text": "Unrestricted Lock on Critical Resource",
+        "date": "2009-07-27"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Feedback",
+        "contribution_organization": "KDM Analytics",
+        "contribution_date": "2008-08-29",
+        "contribution_comment": "suggested clarification of description and observed examples, which were vague and inconsistent."
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "method": "White Box",
+      "description": "Automated code analysis techniques might not be able to reliably detect this weakness, since the application's behavior and general security model dictate which resource locks are critical. Interpretation of the weakness might require knowledge of the environment, e.g. if the existence of a file is used as a lock, but the file is created in a world-writable directory."
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Unrestricted Critical Resource Lock"
+    },
+    {
+      "taxonomy_name": "7 Pernicious Kingdoms",
+      "entry_name": "Deadlock"
+    },
+    {
+      "taxonomy_name": "OWASP Top Ten 2004",
+      "entry_name": "Denial of Service",
+      "entry_id": "A9",
+      "mapping_fit": "CWE More Specific"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Use private final lock objects to synchronize classes that may interact with untrusted code",
+      "entry_id": "LCK00-J"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Avoid deadlock by requesting and releasing locks in the same order",
+      "entry_id": "LCK07-J"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Unrestricted lock",
+      "entry_id": "SFP22"
+    }
+  ],
+  "related_attack_patterns": [
+    "25"
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "This overlaps Insufficient Resource Pool when the \"pool\" is of size 1. It can also be resultant from race conditions, although the timing window could be quite large in some cases."
+    }
+  ]
+}

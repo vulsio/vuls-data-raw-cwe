@@ -1,0 +1,238 @@
+{
+  "id": "481",
+  "name": "Assigning instead of Comparing",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The code uses an operator for assignment when the intention was to perform a comparison.",
+  "extended_description": "In many languages the compare statement is very close in appearance to the assignment statement and are often confused. This bug is generally the result of a typo and usually causes obvious problems with program execution. If the comparison is in an if statement, the if statement will usually evaluate the value of the right-hand side of the predicate.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "480",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "697",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Undetermined",
+        "name": "C"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C++"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Java"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "C#"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Low",
+  "common_consequences": [
+    {
+      "scope": [
+        "Other"
+      ],
+      "impact": [
+        "Alter Execution Logic"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Testing"
+      ],
+      "description": [
+        "Many IDEs and static analysis products will detect this problem."
+      ]
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Place constants on the left. If one attempts to assign a constant with a variable, the compiler will produce an error."
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-140",
+      "text": "\n               <Intro_Text>The following C/C++ and C# examples attempt to validate an int input parameter against the integer value 100.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int isValid(int value) {<xhtml:div style=\"margin-left:1em;\">if (value=100) {<xhtml:div style=\"margin-left:1em;\">printf(\"Value is valid\\n\");<xhtml:br/>return(1);</xhtml:div>}<xhtml:br/>printf(\"Value is not valid\\n\");<xhtml:br/>return(0);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"C#\">\n                  <xhtml:div>bool isValid(int value) {<xhtml:div style=\"margin-left:1em;\">if (value=100) {<xhtml:div style=\"margin-left:1em;\">Console.WriteLine(\"Value is valid.\");<xhtml:br/>return true;</xhtml:div>}<xhtml:br/>Console.WriteLine(\"Value is not valid.\");<xhtml:br/>return false;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the expression to be evaluated in the if statement uses the assignment operator \"=\" rather than the comparison operator \"==\". The result of using the assignment operator instead of the comparison operator causes the int variable to be reassigned locally and the expression in the if statement will always evaluate to the value on the right hand side of the expression. This will result in the input value not being properly validated, which can cause unexpected results.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>In this example, we show how assigning instead of comparing can impact code when values are being passed by reference instead of by value. Consider a scenario in which a string is being processed from user input. Assume the string has already been formatted such that different user inputs are concatenated with the colon character. When the processString function is called, the test for the colon character will result in an insertion of the colon character instead, adding new input separators. Since the string was passed by reference, the data sentinels will be inserted in the original string (CWE-464), and further processing of the inputs will be altered, possibly malformed..</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void processString (char *str) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int i;<xhtml:br/>\n                           <xhtml:br/>for(i=0; i&lt;strlen(str); i++) {<xhtml:div style=\"margin-left:1em;\">if (isalnum(str[i])){<xhtml:div style=\"margin-left:1em;\">processChar(str[i]);</xhtml:div>}<xhtml:br/>else if (str[i] = ':') {<xhtml:div style=\"margin-left:1em;\">movingToNewInput();}</xhtml:div>}</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>The following Java example attempts to perform some processing based on the boolean value of the input parameter. However, the expression to be evaluated in the if statement uses the assignment operator \"=\" rather than the comparison operator \"==\". As with the previous examples, the variable will be reassigned locally and the expression in the if statement will evaluate to true and unintended processing may occur.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public void checkValid(boolean isValid) {<xhtml:div style=\"margin-left:1em;\">if (isValid = true) {<xhtml:div style=\"margin-left:1em;\">System.out.println(\"Performing processing\");<xhtml:br/>doSomethingImportant();</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">System.out.println(\"Not Valid, do not perform processing\");<xhtml:br/>return;</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>While most Java compilers will catch the use of an assignment operator when a comparison operator is required, for boolean variables in Java the use of the assignment operator within an expression is allowed. If possible, try to avoid using comparison operators on boolean variables in java. Instead, let the values of the variables stand for themselves, as in the following code.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public void checkValid(boolean isValid) {<xhtml:div style=\"margin-left:1em;\">if (isValid) {<xhtml:div style=\"margin-left:1em;\">System.out.println(\"Performing processing\");<xhtml:br/>doSomethingImportant();</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">System.out.println(\"Not Valid, do not perform processing\");<xhtml:br/>return;</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Alternatively, to test for false, just use the boolean NOT operator.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public void checkValid(boolean isValid) {<xhtml:div style=\"margin-left:1em;\">if (!isValid) {<xhtml:div style=\"margin-left:1em;\">System.out.println(\"Not Valid, do not perform processing\");<xhtml:br/>return;</xhtml:div>}<xhtml:br/>System.out.println(\"Performing processing\");<xhtml:br/>doSomethingImportant();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void called(int foo){<xhtml:div style=\"margin-left:1em;\">if (foo=1) printf(\"foo\\n\");</xhtml:div>}<xhtml:br/>int main() {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>called(2);<xhtml:br/>return 0;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    },
+    {
+      "section": "Chapter 6, \"Typos\", Page 289",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Applicable_Platforms, Description, Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-07-27",
+        "modification_comment": "updated Description, Other_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-01-19",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Demonstrative_Examples, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Assigning instead of comparing"
+    },
+    {
+      "taxonomy_name": "Software Fault Patterns",
+      "entry_name": "Glitch in computation",
+      "entry_id": "SFP1"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Do not perform assignments in selection statements",
+      "entry_id": "EXP45-C",
+      "mapping_fit": "CWE More Abstract"
+    }
+  ]
+}

@@ -1,0 +1,305 @@
+{
+  "id": "1256",
+  "name": "Improper Restriction of Software Interfaces to Hardware Features",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Stable",
+  "description": "The product provides software-controllable\n\t\t\tdevice functionality for capabilities such as power and\n\t\t\tclock management, but it does not properly limit\n\t\t\tfunctionality that can lead to modification of\n\t\t\thardware memory or register bits, or the ability to\n\t\t\tobserve physical side channels.",
+  "extended_description": "\n              <xhtml:p>It is frequently assumed that physical attacks\n              such as fault injection and side-channel analysis\n              require an attacker to have physical access to the\n              target device.  This assumption may be false if the\n              device has improperly secured power management features,\n              or similar features.  For mobile devices, minimizing\n              power consumption is critical, but these devices run a\n              wide variety of applications with different performance\n              requirements. Software-controllable mechanisms to\n              dynamically scale device voltage and frequency and\n              monitor power consumption are common features in today's\n              chipsets, but they also enable attackers to mount fault\n              injection and side-channel attacks without having\n              physical access to the device.</xhtml:p>\n\t\t\t  \n              <xhtml:p>Fault injection attacks involve strategic\n              manipulation of bits in a device to achieve a desired\n              effect such as skipping an authentication step,\n              elevating privileges, or altering the output of a\n              cryptographic operation.  Manipulation of the device\n              clock and voltage supply is a well-known technique to\n              inject faults and is cheap to implement with physical\n              device access.  Poorly protected power management\n              features allow these attacks to be performed from\n              software.  Other features, such as the ability to write\n              repeatedly to DRAM at a rapid rate from unprivileged\n              software, can result in bit flips in other memory\n              locations (Rowhammer, [REF-1083]).</xhtml:p>\n\n\t\t\t  <xhtml:p>Side channel analysis requires gathering\n\t\t\t  measurement traces of physical quantities such as power\n\t\t\t  consumption.  Modern processors often include power\n\t\t\t  metering capabilities in the hardware itself (e.g.,\n\t\t\t  Intel RAPL) which if not adequately protected enable\n\t\t\t  attackers to gather measurements necessary for\n\t\t\t  performing side-channel attacks from software.</xhtml:p>\n            ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "285",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Memory Hardware"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Power Management Hardware"
+      },
+      {
+        "prevalence": "Undetermined",
+        "name": "Clock/Counter Hardware"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "An architect may initiate introduction of\n\t\t\t\t\tthis weakness via exacting requirements for\n\t\t\t\t\tsoftware accessible power/clock management\n\t\t\t\t\trequirements"
+      ]
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "An implementer may introduce this weakness\n\t\t\t\t\tby assuming there are no consequences to unbounded\n\t\t\t\t\tpower and clock management for secure components\n\t\t\t\t\tfrom untrusted ones."
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Memory",
+        "Modify Application Data",
+        "Bypass Protection Mechanism"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "\n                        <xhtml:p>Ensure proper access control mechanisms protect software-controllable features altering physical operating conditions such as clock frequency and voltage.</xhtml:p>\n                    "
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n                    <Intro_Text>This example considers the Rowhammer problem [REF-1083]. The Rowhammer issue was caused by a program in a tight loop writing repeatedly to a location to which the program was allowed to write but causing an adjacent memory location value to change.</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Other\">\n                        Continuously writing the same value to the same address causes the value of an adjacent location to change value.\n                    </Example_Code>\n                    <Body_Text>Preventing the loop required to defeat the Rowhammer exploit is not always possible:</Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"Other\">\n                        Redesign the RAM devices to reduce inter capacitive coupling making the Rowhammer exploit impossible.\n                    </Example_Code>\n                    <Body_Text>While the redesign may be possible for new devices, a redesign is not possible in existing devices. There is also the possibility that reducing capacitance with a relayout would impact the density of the device resulting in a less capable, more costly device.</Body_Text>\n                "
+    },
+    {
+      "text": "\n                    <Intro_Text>Suppose a hardware design implements a set of software-accessible registers for scaling clock frequency and voltage but does not control access to these registers. Attackers may cause register and memory changes and race conditions by changing the clock or voltage of the device under their control.</Intro_Text>\n                "
+    },
+    {
+      "text": "\n\t      <Intro_Text>Consider the following SoC\n\t      design. Security-critical settings for scaling clock\n\t      frequency and voltage are available in a range of\n\t      registers bounded by [PRIV_END_ADDR : PRIV_START_ADDR]\n\t      in the tmcu.csr module in the HW Root of Trust. These\n\t      values are writable based on the lock_bit register in\n\t      the same module. The lock_bit is only writable by\n\t      privileged software running on the tmcu.</Intro_Text>\n\t    <Body_Text>\n\t    <xhtml:img src=\"https://cwe.mitre.org/data/images/HRoT-CWE.png\" alt=\"Hardware Root of Trust\"/>\n\t    <xhtml:p>\n\t      We assume that untrusted software running on any of the\n\t      Core{0-N} processors has access to the input and output\n\t      ports of the hrot_iface. If untrusted software can clear\n\t      the lock_bit or write the clock frequency and voltage\n\t      registers due to inadequate protection, a fault\n\t      injection attack could be performed.</xhtml:p>\n\t    </Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2019-11157",
+      "description": "Plundervolt: Improper conditions check in voltage settings for some Intel(R) Processors may allow a privileged user to potentially enable escalation of privilege and/or information disclosure via local access [REF-1081].",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-11157"
+    },
+    {
+      "reference": "CVE-2020-8694",
+      "description": "PLATYPUS Attack: Insufficient access control in the Linux kernel driver for some Intel processors allows information disclosure.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-8694"
+    },
+    {
+      "reference": "CVE-2020-8695",
+      "description": "Observable discrepancy in the RAPL interface for some Intel processors allows information disclosure.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-8695"
+    },
+    {
+      "reference": "CVE-2020-12912",
+      "description": "AMD extension to a Linux service does not require privileged access to the RAPL interface, allowing side-channel attacks.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2020-12912"
+    },
+    {
+      "reference": "CVE-2015-0565",
+      "description": "NaCl in 2015 allowed the CLFLUSH instruction, making Rowhammer attacks possible.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2015-0565"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1081",
+      "author": [
+        "Kit Murdock",
+        "David Oswald",
+        "Flavio D Garcia",
+        "Jo Van Bulck",
+        "Frank Piessens",
+        "Daniel Gruss"
+      ],
+      "title": "Plundervolt",
+      "url": "https://plundervolt.com/"
+    },
+    {
+      "reference_id": "REF-1082",
+      "author": [
+        "Adrian Tang",
+        "Simha Sethumadhavan",
+        "Salvatore Stolfo"
+      ],
+      "title": "CLKSCREW: Exposing the Perils of Security-Oblivious Energy Management",
+      "url": "https://www.usenix.org/system/files/conference/usenixsecurity17/sec17-tang.pdf"
+    },
+    {
+      "reference_id": "REF-1083",
+      "author": [
+        "Yoongu Kim",
+        "Ross Daly",
+        "Jeremie Kim",
+        "Ji Hye Lee",
+        "Donghyuk Lee",
+        "Chris Wilkerson",
+        "Konrad Lai",
+        "Onur Mutlu"
+      ],
+      "title": "Flipping Bits in Memory Without Accessing Them: An Experimental Study of DRAM Disturbance Errors",
+      "url": "https://users.ece.cmu.edu/~yoonguk/papers/kim-isca14.pdf"
+    },
+    {
+      "reference_id": "REF-1225",
+      "author": [
+        "Project Zero"
+      ],
+      "title": "Exploiting the DRAM rowhammer bug to gain kernel privileges",
+      "url": "https://googleprojectzero.blogspot.com/2015/03/exploiting-dram-rowhammer-bug-to-gain.html",
+      "publication_year": "2015",
+      "publication_month": "--03",
+      "publication_day": "---09"
+    },
+    {
+      "reference_id": "REF-1217",
+      "author": [
+        "Ross Anderson"
+      ],
+      "title": "Security Engineering",
+      "url": "https://www.cl.cam.ac.uk/~rja14/musicfiles/manuscripts/SEv1.pdf",
+      "publication_year": "2001"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Nicole Fern",
+      "submission_organization": "Tortuga Logic",
+      "submission_date": "2020-05-08"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Demonstrative_Examples, Description, Maintenance_Notes, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Demonstrative_Examples, Functional_Areas, Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Demonstrative_Examples, Description, Detection_Factors, Maintenance_Notes, Modes_of_Introduction, Name, Observed_Examples, References, Relationships, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Hardware Features Enable Physical Attacks from Software",
+        "date": "2021-10-28"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_organization": "Tortuga Logic",
+        "contribution_date": "2021-07-16",
+        "contribution_comment": "Provided Demonstrative Example for Hardware Root of Trust"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Anders Nordstrom, Alric Althoff",
+        "contribution_organization": "Tortuga Logic",
+        "contribution_date": "2021-10-11",
+        "contribution_comment": "Provided detection method"
+      },
+      {
+        "type": "Content",
+        "contribution_name": "Nicole Fern",
+        "contribution_organization": "Riscure",
+        "contribution_date": "2021-10-15",
+        "contribution_comment": "updated description and extended description, detection method, and observed examples"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "method": "Manual Analysis",
+      "description": "Perform a security evaluation of system-level\n\t\tarchitecture and design with software-aided physical attacks\n\t\tin scope."
+    },
+    {
+      "method": "Automated Dynamic Analysis",
+      "description": "\n\t\t  <xhtml:p>Use custom software to change registers that control clock settings or power settings to try to bypass security locks, or repeatedly write DRAM to try to change adjacent locations. This can be effective in extracting or changing data. The drawback is that it cannot be run before manufacturing, and it may require specialized software.</xhtml:p>\n\t\t",
+      "effectiveness": "Moderate"
+    }
+  ],
+  "related_attack_patterns": [
+    "624",
+    "625"
+  ],
+  "functional_areas": [
+    "Power",
+    "Clock"
+  ]
+}

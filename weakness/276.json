@@ -1,0 +1,380 @@
+{
+  "id": "276",
+  "name": "Incorrect Default Permissions",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "During installation, installed file permissions are set to allow anyone to modify those files.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "732",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "ChildOf",
+      "cweid": "732",
+      "view_id": "1003",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "Not Technology-Specific",
+        "prevalence": "Undetermined"
+      },
+      {
+        "class": "ICS/OT",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    },
+    {
+      "phase": "Installation"
+    },
+    {
+      "phase": "Operation"
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity"
+      ],
+      "impact": [
+        "Read Application Data",
+        "Modify Application Data"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "mitigation_id": "MIT-1",
+      "phase": [
+        "Architecture and Design",
+        "Operation"
+      ],
+      "description": [
+        "The architecture needs to access and modification attributes for files to only those users who actually require those actions."
+      ]
+    },
+    {
+      "mitigation_id": "MIT-46",
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "\n          <xhtml:p>Compartmentalize the system to have \"safe\" areas where trust boundaries can be unambiguously drawn. Do not allow sensitive data to go outside of the trust boundary and always be careful when interfacing with a compartment outside of the safe area.</xhtml:p>\n          <xhtml:p>Ensure that appropriate compartmentalization is built into the system design, and the compartmentalization allows for and reinforces privilege separation functionality. Architects and designers should rely on the principle of least privilege to decide the appropriate time to use privileges and the time to drop privileges.</xhtml:p>\n        "
+      ],
+      "strategy": "Separation of Privilege"
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2005-1941",
+      "description": "Executables installed world-writable.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1941"
+    },
+    {
+      "reference": "CVE-2002-1713",
+      "description": "Home directories installed world-readable.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1713"
+    },
+    {
+      "reference": "CVE-2001-1550",
+      "description": "World-writable log files allow information loss; world-readable file has cleartext passwords.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1550"
+    },
+    {
+      "reference": "CVE-2002-1711",
+      "description": "World-readable directory.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1711"
+    },
+    {
+      "reference": "CVE-2002-1844",
+      "description": "Windows product uses insecure permissions when installing on Solaris (genesis: port error).",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1844"
+    },
+    {
+      "reference": "CVE-2001-0497",
+      "description": "Insecure permissions for a shared secret key file. Overlaps cryptographic problem.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0497"
+    },
+    {
+      "reference": "CVE-1999-0426",
+      "description": "Default permissions of a device allow IP spoofing.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0426"
+    }
+  ],
+  "references": [
+    {
+      "section": "Chapter 3, \"Insecure Defaults\", Page 69",
+      "reference_id": "REF-62",
+      "author": [
+        "Mark Dowd",
+        "John McDonald",
+        "Justin Schuh"
+      ],
+      "title": "The Art of Software Security Assessment",
+      "publication_year": "2006",
+      "publisher": "Addison Wesley",
+      "edition": "1st Edition"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-11-24",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-05-27",
+        "modification_comment": "updated Description, Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-09-13",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated References, Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-10-30",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-05-03",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms, Causal_Nature, Modes_of_Introduction, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Applicable_Platforms, Description, Detection_Factors, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Description, Modes_of_Introduction, Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-12-10",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-07-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-06-28",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes, Relationships"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Insecure Default Permissions",
+        "date": "2009-05-27"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
+        "contribution_date": "2023-04-25",
+        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "method": "Automated Static Analysis - Binary or Bytecode",
+      "description": "\n         <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n         <xhtml:div style=\"margin-left:1em;\">\n           <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n            <xhtml:ul>\n              <xhtml:li>Inter-application Flow Analysis</xhtml:li>\n            </xhtml:ul>\n         </xhtml:div>\n        ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Manual Static Analysis - Binary or Bytecode",
+      "description": "\n         <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n         <xhtml:div style=\"margin-left:1em;\">\n           <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n            <xhtml:ul>\n              <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n            </xhtml:ul>\n         </xhtml:div>\n        ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Dynamic Analysis with Automated Results Interpretation",
+      "description": "\n         <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n         <xhtml:div style=\"margin-left:1em;\">\n           <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n            <xhtml:ul>\n              <xhtml:li>Host-based Vulnerability Scanners - Examine configuration for flaws, verifying that audit mechanisms work, ensure host configuration meets certain predefined criteria</xhtml:li>\n              <xhtml:li>Web Application Scanner</xhtml:li>\n              <xhtml:li>Web Services Scanner</xhtml:li>\n              <xhtml:li>Database Scanners</xhtml:li>\n            </xhtml:ul>\n         </xhtml:div>\n        ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Dynamic Analysis with Manual Results Interpretation",
+      "description": "\n         <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n         <xhtml:div style=\"margin-left:1em;\">\n           <xhtml:div>Highly cost effective:</xhtml:div>\n            <xhtml:ul>\n              <xhtml:li>Host Application Interface Scanner</xhtml:li>\n            </xhtml:ul>\n           <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n            <xhtml:ul>\n              <xhtml:li>Fuzz Tester</xhtml:li>\n              <xhtml:li>Framework-based Fuzzer</xhtml:li>\n              <xhtml:li>Automated Monitored Execution</xhtml:li>\n              <xhtml:li>Forced Path Execution</xhtml:li>\n            </xhtml:ul>\n         </xhtml:div>\n        ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Manual Static Analysis - Source Code",
+      "description": "\n         <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n         <xhtml:div style=\"margin-left:1em;\">\n           <xhtml:div>Highly cost effective:</xhtml:div>\n            <xhtml:ul>\n              <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n            </xhtml:ul>\n           <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n            <xhtml:ul>\n              <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n            </xhtml:ul>\n         </xhtml:div>\n        ",
+      "effectiveness": "High"
+    },
+    {
+      "method": "Automated Static Analysis - Source Code",
+      "description": "\n         <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n         <xhtml:div style=\"margin-left:1em;\">\n           <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n            <xhtml:ul>\n              <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n            </xhtml:ul>\n         </xhtml:div>\n        ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Automated Static Analysis",
+      "description": "\n         <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n         <xhtml:div style=\"margin-left:1em;\">\n           <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n            <xhtml:ul>\n              <xhtml:li>Configuration Checker</xhtml:li>\n            </xhtml:ul>\n         </xhtml:div>\n        ",
+      "effectiveness": "SOAR Partial"
+    },
+    {
+      "method": "Architecture or Design Review",
+      "description": "\n         <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n         <xhtml:div style=\"margin-left:1em;\">\n           <xhtml:div>Highly cost effective:</xhtml:div>\n            <xhtml:ul>\n              <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n            </xhtml:ul>\n           <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n            <xhtml:ul>\n              <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n            </xhtml:ul>\n         </xhtml:div>\n        ",
+      "effectiveness": "High"
+    }
+  ],
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Insecure Default Permissions"
+    },
+    {
+      "taxonomy_name": "CERT C Secure Coding",
+      "entry_name": "Create files with appropriate access permissions",
+      "entry_id": "FIO06-C"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Create files with appropriate access permission",
+      "entry_id": "FIO01-J"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req SP.03.08",
+      "entry_id": "Part 2-4"
+    },
+    {
+      "taxonomy_name": "ISA/IEC 62443",
+      "entry_name": "Req CR 2.1",
+      "entry_id": "Part 4-2"
+    }
+  ],
+  "related_attack_patterns": [
+    "1",
+    "127",
+    "81"
+  ]
+}

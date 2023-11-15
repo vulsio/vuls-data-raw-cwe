@@ -1,0 +1,243 @@
+{
+  "id": "1244",
+  "name": "Internal Asset Exposed to Unsafe Debug Access Level or State",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Stable",
+  "description": "The product uses physical debug or test\n        interfaces with support for multiple access levels, but it\n        assigns the wrong debug access level to an internal asset,\n        providing unintended access to the asset from untrusted debug\n        agents.",
+  "extended_description": "\n\t  <xhtml:p>Debug authorization can have multiple levels of\n\t  access, defined such that different system internal assets\n\t  are accessible based on the current authorized debug\n\t  level. Other than debugger authentication (e.g., using\n\t  passwords or challenges), the authorization can also be\n\t  based on the system state or boot stage. For example, full\n\t  system debug access might only be allowed early in boot\n\t  after a system reset to ensure that previous session data is\n\t  not accessible to the authenticated debugger.</xhtml:p>\n\n          <xhtml:p>If this protection mechanism does not ensure that\n          internal assets have the correct debug access level during\n          each boot stage or change in system state, an attacker could\n          obtain sensitive information from the internal asset using a\n          debugger.</xhtml:p>\n        ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "863",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality"
+      ],
+      "impact": [
+        "Read Memory"
+      ]
+    },
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Memory"
+      ]
+    },
+    {
+      "scope": [
+        "Authorization",
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity",
+        "Bypass Protection Mechanism"
+      ]
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "\n                    <xhtml:p>For security-sensitive assets accessible over debug/test interfaces, only allow trusted agents.</xhtml:p>\n                  "
+      ],
+      "effectiveness": "High"
+    },
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "Apply blinding [REF-1219] or masking techniques in strategic areas."
+      ],
+      "effectiveness": "Limited"
+    },
+    {
+      "phase": [
+        "Implementation"
+      ],
+      "description": [
+        "Add shielding or tamper-resistant protections to the device, which increases the difficulty and cost for accessing debug/test interfaces."
+      ],
+      "effectiveness": "Limited"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n                    <Intro_Text>The JTAG interface is used to perform debugging and provide CPU core access for developers. JTAG-access protection is implemented as part of the JTAG_SHIELD bit in the hw_digctl_ctrl register. This register has no default value at power up and is set only after the system boots from ROM and control is transferred to the user software.</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Other\">\n                        <xhtml:table>\n                            <xhtml:tbody>\n                                <xhtml:tr>\n                                    <xhtml:td>1 bit</xhtml:td>\n                                    <xhtml:td>0x0 = JTAG debugger is enabled (default)</xhtml:td>\n                                </xhtml:tr>\n                                <xhtml:tr>\n                                    <xhtml:td>JTAG_SHIELD</xhtml:td>\n                                    <xhtml:td>0x1 = JTAG debugger is disabled</xhtml:td>\n                                </xhtml:tr>\n                            </xhtml:tbody>\n                        </xhtml:table>\n                    </Example_Code>\n                    <Body_Text>This means that since the end user has access to JTAG at system reset and during ROM code execution before control is transferred to user software, a JTAG user can modify the boot flow and subsequently disclose all CPU information, including data-encryption keys.</Body_Text>\n                \t<Example_Code Nature=\"Informative\">\n                  \t\t<xhtml:div>The default value of this register bit should be set to 1 to prevent the JTAG from being enabled at system reset.</xhtml:div>\n               \t\t</Example_Code> \n            \t"
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2019-18827",
+      "description": "After ROM code execution, JTAG access is disabled. But before the ROM code is executed, JTAG access is possible, allowing a user full system access.  This allows a user to modify the boot flow and successfully bypass the secure-boot process.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2019-18827"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-1056",
+      "author": [
+        "F-Secure Labs"
+      ],
+      "title": "Multiple Vulnerabilities in Barco Clickshare: JTAG access is not permanently disabled",
+      "url": "https://labs.f-secure.com/advisories/multiple-vulnerabilities-in-barco-clickshare/"
+    },
+    {
+      "reference_id": "REF-1057",
+      "author": [
+        "Kurt Rosenfeld",
+        "Ramesh Karri"
+      ],
+      "title": "Attacks and Defenses for JTAG",
+      "url": "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=5406671"
+    },
+    {
+      "reference_id": "REF-1219",
+      "author": [
+        "Monodeep Kar",
+        "Arvind Singh",
+        "Santosh Ghosh",
+        "Sanu Mathew",
+        "Anand Rajan",
+        "Vivek De",
+        "Raheem Beyah",
+        "Saibal Mukhopadhyay"
+      ],
+      "title": "Blindsight: Blinding EM Side-Channel Leakage using Built-In Fully Integrated Inductive Voltage Regulator",
+      "url": "https://arxiv.org/pdf/1802.09096.pdf",
+      "publication_year": "2018",
+      "publication_month": "--02",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-02-12"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Demonstrative_Examples, Name, Observed_Examples, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Maintenance_Notes"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Demonstrative_Examples, Description, Detection_Factors, Maintenance_Notes, Name, Observed_Examples, Potential_Mitigations, References, Relationship_Notes, Relationships, Weakness_Ordinalities"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-04-28",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Improper Authorization on Physical Debug and Test Interfaces",
+        "date": "2020-08-20"
+      },
+      {
+        "text": "Improper Access to Sensitive Information Using Debug and Test Interfaces",
+        "date": "2021-10-28"
+      }
+    ],
+    "contribution": [
+      {
+        "type": "Content",
+        "contribution_name": "Hareesh Khattri",
+        "contribution_organization": "Intel Corporation",
+        "contribution_date": "2021-10-22",
+        "contribution_comment": "clarified differences between CWE-1191 and CWE-1244, and suggested rephrasing of descriptions and names."
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "method": "Manual Analysis",
+      "description": "Check 2 devices for their passcode to authenticate access to JTAG/debugging ports. If the passcodes are missing or the same, update the design to fix and retest. Check communications over JTAG/debugging ports for encryption. If the communications are not encrypted, fix the design and retest.",
+      "effectiveness": "Moderate"
+    }
+  ],
+  "related_attack_patterns": [
+    "114"
+  ],
+  "notes": [
+    {
+      "type": "Relationship",
+      "text": "\n\t  CWE-1191 and CWE-1244 both involve physical debug access,\n\t  but the weaknesses are different. CWE-1191 is effectively\n\t  about missing authorization for a debug interface,\n\t  i.e. JTAG.  CWE-1244 is about providing internal assets with\n\t  the wrong debug access level, exposing the asset to\n\t  untrusted debug agents."
+    }
+  ]
+}

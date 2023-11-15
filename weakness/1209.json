@@ -1,0 +1,153 @@
+{
+  "id": "1209",
+  "name": "Failure to Disable Reserved Bits",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The reserved bits in a hardware design are not disabled prior to production. Typically, reserved bits are used for future capabilities and should not support any functional logic in the design.   However, designers might covertly use these bits to debug or further develop new capabilities in production hardware. Adversaries with access to these bits will write to them in hopes of compromising hardware state.",
+  "extended_description": "\n                <xhtml:p>Reserved bits are labeled as such so they can be allocated for a later purpose. They are not to do anything in the current design.  However, designers might want to use these bits to debug or control/configure a future capability to help minimize time to market (TTM). If the logic being controlled by these bits is still enabled in production, an adversary could use the logic to induce unwanted/unsupported behavior in the hardware.</xhtml:p>\n            ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "710",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "technology": [
+      {
+        "class": "System on Chip",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "operating_system": [
+      {
+        "class": "Not OS-Specific",
+        "prevalence": "Undetermined"
+      }
+    ],
+    "architecture": [
+      {
+        "class": "Not Architecture-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design",
+      "note": [
+        "The Designer and Implementer have to make a conscious choice to do this"
+      ]
+    },
+    {
+      "phase": "Implementation",
+      "note": [
+        "The Designer and Implementer have to make a conscious choice to do this"
+      ]
+    },
+    {
+      "phase": "Documentation",
+      "note": [
+        "If documentation labels anything \"for future use\", \"reserved\", or the like, such labeling could indicate to an attacker a potential attack point"
+      ]
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Confidentiality",
+        "Integrity",
+        "Availability",
+        "Access Control",
+        "Accountability",
+        "Authentication",
+        "Authorization",
+        "Non-Repudiation"
+      ],
+      "impact": [
+        "Varies by Context"
+      ],
+      "note": "This type of weakness all depends on the capabilities of the logic being controlled or configured by the reserved bits"
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "\n                        <xhtml:p>Include a feature to disable reserved bits.</xhtml:p>\n                    "
+      ]
+    },
+    {
+      "phase": [
+        "Integration"
+      ],
+      "description": [
+        "\n                    \t<xhtml:p>Any writes to these reserve bits are blocked (e.g., ignored, access-protected, etc.), or an exception can be asserted.</xhtml:p>\n                    "
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n                    <Intro_Text>Assume a hardware Intellectual Property (IP) has address space 0x0-0x0F for its configuration registers, with the last one labeled reserved (i.e. 0x0F).  Therefore inside the Finite State Machine (FSM), the code is as follows:</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t      reg gpio_out = 0;  //gpio should remain low for normal operation<xhtml:br/>\n                      <xhtml:br/>\n                      case (register_address)<xhtml:br/>\n\t\t      <xhtml:div style=\"margin-left:1em;\">\n                        4'b1111 : //0x0F<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  begin<xhtml:br/>\n\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n                            gpio_out = 1;<xhtml:br/>\n\t\t\t  </xhtml:div>\n\t\t\t  end<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t      </xhtml:div>\n                    </Example_Code>\n                    <Body_Text>\n                        <xhtml:p>An adversary may perform writes to reserved address space in hopes of changing the behavior of the hardware. In the code above, the GPIO pin should remain low for normal operation.  However, it can be asserted by accessing the reserved address space (0x0F).  This may be a concern if the GPIO state is being used as an indicator of health (e.g. if asserted the hardware may respond by shutting down or resetting the system, which may not be the correct action the system should perform).</xhtml:p>\n                        <xhtml:p>In the code below, the condition \"register_address = 0X0F\" is commented out, and a default is provided that will catch any values of register_address not explicitly accounted for and take no action with regards to gpio_out. This means that an attacker who is able to write 0X0F to register_address will not enable any undocumented \"features\" in the process.</xhtml:p>\n                    </Body_Text>\n                \t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n                  \t  reg gpio_out = 0;  //gpio should remain low for normal operation<xhtml:br/>\n\t\t\t  <xhtml:br/>\n                  \t  case (register_address)<xhtml:br/>\n\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n                  \t    //4'b1111 : //0x0F<xhtml:br/>\n                  \t    default: gpio_out = gpio_out;<xhtml:br/>\n\t\t\t  </xhtml:div>\n               \t\t</Example_Code>\n            \t"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "Brent Sherman",
+      "submission_organization": "Intel Corporation",
+      "submission_date": "2020-02-06"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-08-20",
+        "modification_comment": "updated Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-10-28",
+        "modification_comment": "updated Potential_Mitigations"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2022-10-13",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "related_attack_patterns": [
+    "121"
+  ]
+}

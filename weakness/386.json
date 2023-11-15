@@ -1,0 +1,182 @@
+{
+  "id": "386",
+  "name": "Symbolic Name not Mapping to Correct Object",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "A constant symbolic reference to an object is used, even though the reference can resolve to a different object over time.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "706",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "367",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "610",
+      "view_id": "1000"
+    },
+    {
+      "nature": "PeerOf",
+      "cweid": "486",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Access Control"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity"
+      ],
+      "note": "The attacker can gain access to otherwise unauthorized resources."
+    },
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Other"
+      ],
+      "impact": [
+        "Modify Application Data",
+        "Modify Files or Directories",
+        "Read Application Data",
+        "Read Files or Directories",
+        "Other"
+      ],
+      "note": "Race conditions such as this kind may be employed to gain read or write access to resources not normally readable or writable by the user in question."
+    },
+    {
+      "scope": [
+        "Integrity",
+        "Other"
+      ],
+      "impact": [
+        "Modify Application Data",
+        "Other"
+      ],
+      "note": "The resource in question, or other resources (through the corrupted one) may be changed in undesirable ways by a malicious user."
+    },
+    {
+      "scope": [
+        "Non-Repudiation"
+      ],
+      "impact": [
+        "Hide Activities"
+      ],
+      "note": "If a file or other resource is written in this method, as opposed to a valid way, logging of the activity may not occur."
+    },
+    {
+      "scope": [
+        "Non-Repudiation",
+        "Integrity"
+      ],
+      "impact": [
+        "Modify Files or Directories"
+      ],
+      "note": "In some cases it may be possible to delete files that a malicious user might not otherwise have access to -- such as log files."
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-18",
+      "author": [
+        "Secure Software, Inc."
+      ],
+      "title": "The CLASP Application Security Process",
+      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+      "publication_year": "2005"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CLASP",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "CLASP",
+      "entry_name": "Symbolic name not mapping to correct object"
+    }
+  ]
+}

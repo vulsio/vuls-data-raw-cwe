@@ -1,0 +1,262 @@
+{
+  "id": "749",
+  "name": "Exposed Dangerous Method or Function",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product provides an Applications Programming Interface (API) or similar interface for interaction with external actors, but the interface includes a dangerous method or function that is not properly restricted.",
+  "extended_description": "\n            <xhtml:p>This weakness can lead to a wide variety of resultant weaknesses, depending on the behavior of the exposed method. It can apply to any number of technologies and approaches, such as ActiveX controls, Java functions, IOCTLs, and so on.</xhtml:p>\n            <xhtml:p>The exposure can occur in a few different ways:</xhtml:p>\n            <xhtml:ul>\n               <xhtml:li>The function/method was never intended to be exposed to outside actors.</xhtml:li>\n               <xhtml:li>The function/method was only intended to be accessible to a limited set of actors, such as Internet-based access from a single web site.</xhtml:li>\n            </xhtml:ul>\n         ",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "284",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Architecture and Design"
+    },
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Low",
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity",
+        "Confidentiality",
+        "Availability",
+        "Access Control",
+        "Other"
+      ],
+      "impact": [
+        "Gain Privileges or Assume Identity",
+        "Read Application Data",
+        "Modify Application Data",
+        "Execute Unauthorized Code or Commands",
+        "Other"
+      ],
+      "note": "Exposing critical functionality essentially provides an attacker with the privilege level of the exposed functionality. This could result in the modification or exposure of sensitive data or possibly even execution of arbitrary code."
+    }
+  ],
+  "potential_mitigations": [
+    {
+      "phase": [
+        "Architecture and Design"
+      ],
+      "description": [
+        "If you must expose a method, make sure to perform input validation on all arguments, limit access to authorized parties, and protect against all possible vulnerabilities."
+      ]
+    },
+    {
+      "phase": [
+        "Architecture and Design",
+        "Implementation"
+      ],
+      "description": [
+        "\n                  <xhtml:p>Identify all exposed functionality. Explicitly list all functionality that must be exposed to some user or set of users. Identify which functionality may be:</xhtml:p>\n                     <xhtml:ul>\n                        <xhtml:li>accessible to all users</xhtml:li>\n                        <xhtml:li>restricted to a small set of privileged users</xhtml:li>\n                        <xhtml:li>prevented from being directly accessible at all</xhtml:li>\n                     </xhtml:ul>\n                  <xhtml:p>Ensure that the implemented code follows these expectations. This includes setting the appropriate access modifiers where applicable (public, private, protected, etc.) or not marking ActiveX controls safe-for-scripting.</xhtml:p>\n               "
+      ],
+      "strategy": "Attack Surface Reduction"
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "text": "\n               <Intro_Text>In the following Java example the method removeDatabase will delete the database with the name specified in the input parameter.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public void removeDatabase(String databaseName) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>Statement stmt = conn.createStatement();<xhtml:br/>stmt.execute(\"DROP DATABASE \" + databaseName);<xhtml:br/>\n                              </xhtml:div>\n                           </xhtml:div>} catch (SQLException ex) {...}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The method in this example is declared public and therefore is exposed to any class in the application. Deleting a database should be considered a critical operation within an application and access to this potentially dangerous method should be restricted. Within Java this can be accomplished simply by declaring the method private thereby exposing it only to the enclosing class as in the following example.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>private void removeDatabase(String databaseName) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>Statement stmt = conn.createStatement();<xhtml:br/>stmt.execute(\"DROP DATABASE \" + databaseName);<xhtml:br/>\n                              </xhtml:div>\n                           </xhtml:div>} catch (SQLException ex) {...}<xhtml:br/>}</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n            "
+    },
+    {
+      "demonstrative_example_id": "DX-109",
+      "text": "\n               <Intro_Text>These Android and iOS applications intercept URL loading within a WebView and perform special actions if a particular URL scheme is used, thus allowing the Javascript within the WebView to communicate with the application:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>\n                     <xhtml:i>// Android</xhtml:i>\n                     <xhtml:br/>@Override<xhtml:br/>public boolean shouldOverrideUrlLoading(WebView view, String url){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if (url.substring(0,14).equalsIgnoreCase(\"examplescheme:\")){<xhtml:div style=\"margin-left:1em;\">if(url.substring(14,25).equalsIgnoreCase(\"getUserInfo\")){<xhtml:div style=\"margin-left:1em;\">writeDataToView(view, UserData);<xhtml:br/>return false;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">return true;</xhtml:div>}</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Objective-C\">\n                  <xhtml:div>\n                     <xhtml:i>// iOS</xhtml:i>\n                     <xhtml:br/>-(BOOL) webView:(UIWebView *)exWebView shouldStartLoadWithRequest:(NSURLRequest *)exRequest navigationType:(UIWebViewNavigationType)exNavigationType<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>NSURL *URL = [exRequest URL];<xhtml:br/>if ([[URL scheme] isEqualToString:@\"exampleScheme\"])<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>NSString *functionString = [URL resourceSpecifier];<xhtml:br/>if ([functionString hasPrefix:@\"specialFunction\"])<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// Make data available back in webview.</xhtml:i>\n                                       <xhtml:br/>UIWebView *webView = [self writeDataToView:[URL query]];</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>return NO;</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return YES;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>A call into native code can then be initiated by passing parameters within the URL:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"JavaScript\">\n                  <xhtml:div>window.location = examplescheme://method?parameter=value</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because the application does not check the source, a malicious website loaded within this WebView has the same access to the API as a trusted site.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>This application uses a WebView to display websites, and creates a Javascript interface to a Java object to allow enhanced functionality on a trusted website:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class WebViewGUI extends Activity {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>WebView mainWebView;<xhtml:br/>\n                           <xhtml:br/>public void onCreate(Bundle savedInstanceState) {<xhtml:div style=\"margin-left:1em;\">super.onCreate(savedInstanceState);<xhtml:br/>mainWebView = new WebView(this);<xhtml:br/>mainWebView.getSettings().setJavaScriptEnabled(true);<xhtml:br/>mainWebView.addJavascriptInterface(new JavaScriptInterface(), \"userInfoObject\");<xhtml:br/>mainWebView.loadUrl(\"file:///android_asset/www/index.html\");<xhtml:br/>setContentView(mainWebView);</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>final class JavaScriptInterface {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>JavaScriptInterface () {}<xhtml:br/>\n                                 <xhtml:br/>public String getUserInfo() {<xhtml:div style=\"margin-left:1em;\">return currentUser.Info();</xhtml:div>}</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Before Android 4.2 all methods, including inherited ones, are exposed to Javascript when using addJavascriptInterface(). This means that a malicious website loaded within this WebView can use reflection to acquire a reference to arbitrary Java objects. This will allow the website code to perform any action the parent application is authorized to.</Body_Text>\n               <Body_Text>For example, if the application has permission to send text messages:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"JavaScript\">\n                  <xhtml:div>&lt;script&gt;<xhtml:div style=\"margin-left:1em;\">userInfoObject.getClass().forName('android.telephony.SmsManager').getMethod('getDefault',null).sendTextMessage(attackNumber, null, attackMessage, null, null);</xhtml:div>&lt;/script&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>This malicious script can use the userInfoObject object to load the SmsManager object and send arbitrary text messages to any recipient.</Body_Text>\n            "
+    },
+    {
+      "text": "\n               <Intro_Text>After Android 4.2, only methods annotated with @JavascriptInterface are available in JavaScript, protecting usage of getClass() by default, as in this example:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>final class JavaScriptInterface {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>JavaScriptInterface () { }<xhtml:br/>\n                           <xhtml:br/>@JavascriptInterface<xhtml:br/>public String getUserInfo() {<xhtml:div style=\"margin-left:1em;\">return currentUser.Info();</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code is not vulnerable to the above attack, but still may expose user info to malicious pages loaded in the WebView. Even malicious iframes loaded within a trusted page may access the exposed interface:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"JavaScript\">\n                  <xhtml:div>&lt;script&gt;<xhtml:div style=\"margin-left:1em;\">var info = window.userInfoObject.getUserInfo();<xhtml:br/>sendUserInfo(info);</xhtml:div>&lt;/script&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>This malicious code within an iframe is able to access the interface object and steal the user's data.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2007-6382",
+      "description": "arbitrary Java code execution via exposed method",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-6382"
+    },
+    {
+      "reference": "CVE-2007-1112",
+      "description": "security tool ActiveX control allows download or upload of files",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-1112"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-503",
+      "author": [
+        "Microsoft"
+      ],
+      "title": "Developing Secure ActiveX Controls",
+      "url": "https://learn.microsoft.com/en-us/previous-versions//ms533046(v=vs.85)?redirectedfrom=MSDN",
+      "publication_year": "2005",
+      "publication_month": "--04",
+      "publication_day": "---13",
+      "url_date": "2023-04-07"
+    },
+    {
+      "reference_id": "REF-510",
+      "author": [
+        "Microsoft"
+      ],
+      "title": "How to stop an ActiveX control from running in Internet Explorer",
+      "url": "https://support.microsoft.com/en-us/help/240797/how-to-stop-an-activex-control-from-running-in-internet-explorer",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2008-11-24"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-01-12",
+        "modification_comment": "updated Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-07-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-12-28",
+        "modification_comment": "updated Applicable_Platforms, Likelihood_of_Exploit"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-02-16",
+        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Potential_Mitigations, References, Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-04-05",
+        "modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2010-06-21",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-02-18",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2015-12-07",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Likelihood_of_Exploit, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description, Related_Attack_Patterns, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Detection_Factors, References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Exposed Insecure Method or Function",
+        "date": "2009-01-12"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ],
+  "detection_methods": [
+    {
+      "detection_method_id": "DM-14",
+      "method": "Automated Static Analysis",
+      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+      "effectiveness": "High"
+    }
+  ],
+  "related_attack_patterns": [
+    "500"
+  ],
+  "notes": [
+    {
+      "type": "Research Gap",
+      "text": "Under-reported and under-studied. This weakness could appear in any technology, language, or framework that allows the programmer to provide a functional interface to external parties, but it is not heavily reported. In 2007, CVE began showing a notable increase in reports of exposed method vulnerabilities in ActiveX applications, as well as IOCTL access to OS-level resources. These weaknesses have been documented for Java applications in various secure programming sources, but there are few reports in CVE, which suggests limited awareness in most parts of the vulnerability research community."
+    }
+  ]
+}

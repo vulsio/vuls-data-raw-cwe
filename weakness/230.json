@@ -1,0 +1,204 @@
+{
+  "id": "230",
+  "name": "Improper Handling of Missing Values",
+  "abstraction": "Variant",
+  "structure": "Simple",
+  "status": "Draft",
+  "description": "The product does not handle or incorrectly handles when a parameter, field, or argument name is specified, but the associated value is missing, i.e. it is empty, blank, or null.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "229",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "common_consequences": [
+    {
+      "scope": [
+        "Integrity"
+      ],
+      "impact": [
+        "Unexpected State"
+      ]
+    }
+  ],
+  "demonstrative_examples": [
+    {
+      "demonstrative_example_id": "DX-110",
+      "text": "\n               <Intro_Text>This Android application has registered to handle a URL when sent an intent:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>IntentFilter filter = new IntentFilter(\"com.example.URLHandler.openURL\");<xhtml:br/>MyReceiver receiver = new MyReceiver();<xhtml:br/>registerReceiver(receiver, filter);<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>public class UrlHandlerReceiver extends BroadcastReceiver {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>@Override<xhtml:br/>public void onReceive(Context context, Intent intent) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if(\"com.example.URLHandler.openURL\".equals(intent.getAction())) {<xhtml:div style=\"margin-left:1em;\">String URL = intent.getStringExtra(\"URLToOpen\");<xhtml:br/>int length = URL.length();</xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>...</xhtml:i>\n                                 <xhtml:br/>}</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The application assumes the URL will always be included in the intent. When the URL is not present, the call to getStringExtra() will return null, thus causing a null pointer exception when length() is called.</Body_Text>\n            "
+    }
+  ],
+  "observed_examples": [
+    {
+      "reference": "CVE-2002-0422",
+      "description": "Blank Host header triggers resultant infoleak.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0422"
+    },
+    {
+      "reference": "CVE-2000-1006",
+      "description": "Blank \"charset\" attribute in MIME header triggers crash.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2000-1006"
+    },
+    {
+      "reference": "CVE-2004-1504",
+      "description": "Blank parameter causes external error infoleak.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1504"
+    },
+    {
+      "reference": "CVE-2005-2053",
+      "description": "Blank parameter causes external error infoleak.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2053"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "PLOVER",
+      "submission_date": "2006-07-19"
+    },
+    "modification": [
+      {
+        "modification_name": "Eric Dalci",
+        "modification_organization": "Cigital",
+        "modification_date": "2008-07-01",
+        "modification_comment": "updated Time_of_Introduction"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2008-09-08",
+        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-03-10",
+        "modification_comment": "updated Description, Name"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2009-10-29",
+        "modification_comment": "updated Other_Notes, Research_Gaps"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-01",
+        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2011-06-27",
+        "modification_comment": "updated Common_Consequences"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2012-05-11",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2013-07-17",
+        "modification_comment": "updated Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-02-18",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2014-07-30",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2017-11-08",
+        "modification_comment": "updated Applicable_Platforms"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-01-03",
+        "modification_comment": "updated Taxonomy_Mappings"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2021-03-15",
+        "modification_comment": "updated Demonstrative_Examples"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ],
+    "previous_entry_name": [
+      {
+        "text": "Missing Value Error",
+        "date": "2008-04-11"
+      },
+      {
+        "text": "Failure to Handle Missing Value",
+        "date": "2009-03-10"
+      }
+    ]
+  },
+  "taxonomy_mappings": [
+    {
+      "taxonomy_name": "PLOVER",
+      "entry_name": "Missing Value Error"
+    },
+    {
+      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+      "entry_name": "Do not catch NullPointerException or any of its ancestors",
+      "entry_id": "ERR08-J"
+    }
+  ],
+  "notes": [
+    {
+      "type": "Research Gap",
+      "text": "Some \"crash by port scan\" bugs are probably due to this, but lack of diagnosis makes it difficult to be certain."
+    }
+  ]
+}

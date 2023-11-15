@@ -1,0 +1,193 @@
+{
+  "id": "911",
+  "name": "Improper Update of Reference Count",
+  "abstraction": "Base",
+  "structure": "Simple",
+  "status": "Incomplete",
+  "description": "The product uses a reference count to manage a resource, but it does not update or incorrectly updates the reference count.",
+  "extended_description": "Reference counts can be used when tracking how many objects contain a reference to a particular resource, such as in memory management or garbage collection. When the reference count reaches zero, the resource can be de-allocated or reused because there are no more objects that use it. If the reference count accidentally reaches zero, then the resource might be released too soon, even though it is still in use. If all objects no longer use the resource, but the reference count is not zero, then the resource might not ever be released.",
+  "related_weaknesses": [
+    {
+      "nature": "ChildOf",
+      "cweid": "664",
+      "view_id": "1000",
+      "ordinal": "Primary"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "672",
+      "view_id": "1000"
+    },
+    {
+      "nature": "CanPrecede",
+      "cweid": "772",
+      "view_id": "1000"
+    }
+  ],
+  "applicable_platforms": {
+    "language": [
+      {
+        "prevalence": "Sometimes",
+        "name": "C"
+      },
+      {
+        "prevalence": "Sometimes",
+        "name": "C++"
+      },
+      {
+        "class": "Not Language-Specific",
+        "prevalence": "Undetermined"
+      }
+    ]
+  },
+  "modes_of_introduction": [
+    {
+      "phase": "Implementation"
+    }
+  ],
+  "likelihood_of_exploit": "Medium",
+  "observed_examples": [
+    {
+      "reference": "CVE-2002-0574",
+      "description": "chain: reference count is not decremented, leading to memory leak in OS by sending ICMP packets.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0574"
+    },
+    {
+      "reference": "CVE-2004-0114",
+      "description": "Reference count for shared memory not decremented when a function fails, potentially allowing unprivileged users to read kernel memory.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0114"
+    },
+    {
+      "reference": "CVE-2006-3741",
+      "description": "chain: improper reference count tracking leads to file descriptor consumption",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2006-3741"
+    },
+    {
+      "reference": "CVE-2007-1383",
+      "description": "chain: integer overflow in reference counter causes the same variable to be destroyed twice.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-1383"
+    },
+    {
+      "reference": "CVE-2007-1700",
+      "description": "Incorrect reference count calculation leads to improper object destruction and code execution.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2007-1700"
+    },
+    {
+      "reference": "CVE-2008-2136",
+      "description": "chain: incorrect update of reference count leads to memory leak.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2136"
+    },
+    {
+      "reference": "CVE-2008-2785",
+      "description": "chain/composite: use of incorrect data type for a reference counter allows an overflow of the counter, leading to a free of memory that is still in use.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2785"
+    },
+    {
+      "reference": "CVE-2008-5410",
+      "description": "Improper reference counting leads to failure of cryptographic operations.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2008-5410"
+    },
+    {
+      "reference": "CVE-2009-1709",
+      "description": "chain: improper reference counting in a garbage collection routine leads to use-after-free",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1709"
+    },
+    {
+      "reference": "CVE-2009-3553",
+      "description": "chain: reference count not correctly maintained when client disconnects during a large operation, leading to a use-after-free.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-3553"
+    },
+    {
+      "reference": "CVE-2009-3624",
+      "description": "Reference count not always incremented, leading to crash or code execution.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2009-3624"
+    },
+    {
+      "reference": "CVE-2010-0176",
+      "description": "improper reference counting leads to expired pointer dereference.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-0176"
+    },
+    {
+      "reference": "CVE-2010-0623",
+      "description": "OS kernel increments reference count twice but only decrements once, leading to resource consumption and crash.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-0623"
+    },
+    {
+      "reference": "CVE-2010-2549",
+      "description": "OS kernel driver allows code execution",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-2549"
+    },
+    {
+      "reference": "CVE-2010-4593",
+      "description": "improper reference counting leads to exhaustion of IP addresses",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2010-4593"
+    },
+    {
+      "reference": "CVE-2011-0695",
+      "description": "Race condition causes reference counter to be decremented prematurely, leading to the destruction of still-active object and an invalid pointer dereference.",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2011-0695"
+    },
+    {
+      "reference": "CVE-2012-4787",
+      "description": "improper reference counting leads to use-after-free",
+      "link": "https://www.cve.org/CVERecord?id=CVE-2012-4787"
+    }
+  ],
+  "references": [
+    {
+      "reference_id": "REF-884",
+      "author": [
+        "Mateusz \"j00ru\" Jurczyk"
+      ],
+      "title": "Windows Kernel Reference Count Vulnerabilities - Case Study",
+      "url": "https://j00ru.vexillium.org/slides/2012/zeronights.pdf",
+      "publication_year": "2012",
+      "publication_month": "--11",
+      "url_date": "2023-04-07"
+    }
+  ],
+  "content_history": {
+    "submission": {
+      "submission_name": "CWE Content Team",
+      "submission_organization": "MITRE",
+      "submission_date": "2012-12-21"
+    },
+    "modification": [
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2019-06-20",
+        "modification_comment": "updated Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2020-02-24",
+        "modification_comment": "updated Relationships, Type"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-01-31",
+        "modification_comment": "updated Description"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-04-27",
+        "modification_comment": "updated References, Relationships"
+      },
+      {
+        "modification_name": "CWE Content Team",
+        "modification_organization": "MITRE",
+        "modification_date": "2023-06-29",
+        "modification_comment": "updated Mapping_Notes"
+      }
+    ]
+  },
+  "weakness_ordinalities": [
+    {
+      "ordinality": "Primary"
+    }
+  ]
+}
