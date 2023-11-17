@@ -1,193 +1,193 @@
 {
-  "id": "66",
-  "name": "Improper Handling of File Names that Identify Virtual Resources",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not handle or incorrectly handles a file name that identifies a \"virtual\" resource that is not directly specified within the directory that is associated with the file name, causing the product to perform file-based operations on a resource that is not a file.",
-  "extended_description": "Virtual file names are represented like normal file names, but they are effectively aliases for other resources that do not behave like normal files. Depending on their functionality, they could be alternate entities. They are not necessarily listed in directories.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "706",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Other"
-      ]
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-1999-0278",
-      "description": "In IIS, remote attackers can obtain source code for ASP files by appending \"::$DATA\" to the URL.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0278"
-    },
-    {
-      "reference": "CVE-2004-1084",
-      "description": "Server allows remote attackers to read files and resource fork content via HTTP requests to certain special file names related to multiple data streams in HFS+.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1084"
-    },
-    {
-      "reference": "CVE-2002-0106",
-      "description": "Server allows remote attackers to cause a denial of service via a series of requests to .JSP files that contain an MS-DOS device name.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0106"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Relationships, Taxonomy_Mappings, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Description, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Affected_Resources, Applicable_Platforms, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Virtual Files",
-        "date": "2008-04-11"
-      },
-      {
-        "text": "Failure to Handle File Names that Identify Virtual Resources",
-        "date": "2009-03-10"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "method": "Automated Static Analysis - Binary or Bytecode",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Manual Static Analysis - Binary or Bytecode",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Automated Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Manual Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Manual Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Automated Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Architecture or Design Review",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Virtual Files"
-    }
-  ],
-  "affected_resources": [
-    "File or Directory"
-  ],
-  "functional_areas": [
-    "File Processing"
-  ]
+	"id": "66",
+	"name": "Improper Handling of File Names that Identify Virtual Resources",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not handle or incorrectly handles a file name that identifies a \"virtual\" resource that is not directly specified within the directory that is associated with the file name, causing the product to perform file-based operations on a resource that is not a file.",
+	"extended_description": "Virtual file names are represented like normal file names, but they are effectively aliases for other resources that do not behave like normal files. Depending on their functionality, they could be alternate entities. They are not necessarily listed in directories.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "706",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Other"
+			]
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-1999-0278",
+			"description": "In IIS, remote attackers can obtain source code for ASP files by appending \"::$DATA\" to the URL.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-0278"
+		},
+		{
+			"reference": "CVE-2004-1084",
+			"description": "Server allows remote attackers to read files and resource fork content via HTTP requests to certain special file names related to multiple data streams in HFS+.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-1084"
+		},
+		{
+			"reference": "CVE-2002-0106",
+			"description": "Server allows remote attackers to cause a denial of service via a series of requests to .JSP files that contain an MS-DOS device name.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0106"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Relationships, Taxonomy_Mappings, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Description, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Affected_Resources, Applicable_Platforms, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Virtual Files",
+				"date": "2008-04-11"
+			},
+			{
+				"text": "Failure to Handle File Names that Identify Virtual Resources",
+				"date": "2009-03-10"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"method": "Automated Static Analysis - Binary or Bytecode",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Manual Static Analysis - Binary or Bytecode",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Automated Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Manual Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Manual Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Automated Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Architecture or Design Review",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Virtual Files"
+		}
+	],
+	"affected_resources": [
+		"File or Directory"
+	],
+	"functional_areas": [
+		"File Processing"
+	]
 }

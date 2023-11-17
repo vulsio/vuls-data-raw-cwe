@@ -1,175 +1,175 @@
 {
-  "id": "666",
-  "name": "Operation on Resource in Wrong Phase of Lifetime",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product performs an operation on a resource at the wrong phase of the resource's lifecycle, which can lead to unexpected behaviors.",
-  "extended_description": "A resource's lifecycle includes several phases: initialization, use, and release. For each phase, it is important to follow the specifications outlined for how to operate on the resource and to ensure that the resource is in the expected phase. Otherwise, if a resource is in one phase but the operation is not valid for that phase (i.e., an incorrect phase of the resource's lifetime), then this can produce resultant weaknesses. For example, using a resource before it has been fully initialized could cause corruption or incorrect data to be used.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "664",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Other"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Follow the resource's lifecycle from creation to release."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-149",
-      "text": "\n               <Intro_Text>The following code shows a simple example of a double free vulnerability.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                 <xhtml:div>\n\t\t\t\t   char* ptr = (char*)malloc (SIZE);<xhtml:br/>\n\t\t\t\t   ...<xhtml:br/>\n\t\t\t\t   if (abrt) {\n\t\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t free(ptr);\n\t\t\t\t   </xhtml:div>\n\t\t\t\t   }<xhtml:br/>\n\t\t\t\t   ...<xhtml:br/>\n\t\t\t\t   free(ptr);\n\t\t\t\t </xhtml:div>\n               </Example_Code>\n               <Body_Text>Double free vulnerabilities have two common (and sometimes overlapping) causes:</Body_Text>\n               <Body_Text>\n                  <xhtml:ul>\n                     <xhtml:li>\n                        <xhtml:div>Error conditions and other exceptional circumstances</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>Confusion over which part of the program is responsible for freeing the memory</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ul>\n               </Body_Text>\n               <Body_Text>Although some double free vulnerabilities are not much more complicated than this example, most are spread out across hundreds of lines of code or even different files. Programmers seem particularly susceptible to freeing global variables more than once.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2006-5051",
-      "description": "Chain: Signal handler contains too much functionality (CWE-828), introducing a race condition (CWE-362) that leads to a double free (CWE-415).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-5051"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2008-04-11"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not access a closed file",
-      "entry_id": "FIO46-C",
-      "mapping_fit": "CWE More Abstract"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not access freed memory",
-      "entry_id": "MEM30-C",
-      "mapping_fit": "CWE More Abstract"
-    }
-  ]
+	"id": "666",
+	"name": "Operation on Resource in Wrong Phase of Lifetime",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product performs an operation on a resource at the wrong phase of the resource's lifecycle, which can lead to unexpected behaviors.",
+	"extended_description": "A resource's lifecycle includes several phases: initialization, use, and release. For each phase, it is important to follow the specifications outlined for how to operate on the resource and to ensure that the resource is in the expected phase. Otherwise, if a resource is in one phase but the operation is not valid for that phase (i.e., an incorrect phase of the resource's lifetime), then this can produce resultant weaknesses. For example, using a resource before it has been fully initialized could cause corruption or incorrect data to be used.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "664",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Other"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Follow the resource's lifecycle from creation to release."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-149",
+			"text": "\n               <Intro_Text>The following code shows a simple example of a double free vulnerability.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                 <xhtml:div>\n\t\t\t\t   char* ptr = (char*)malloc (SIZE);<xhtml:br/>\n\t\t\t\t   ...<xhtml:br/>\n\t\t\t\t   if (abrt) {\n\t\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t free(ptr);\n\t\t\t\t   </xhtml:div>\n\t\t\t\t   }<xhtml:br/>\n\t\t\t\t   ...<xhtml:br/>\n\t\t\t\t   free(ptr);\n\t\t\t\t </xhtml:div>\n               </Example_Code>\n               <Body_Text>Double free vulnerabilities have two common (and sometimes overlapping) causes:</Body_Text>\n               <Body_Text>\n                  <xhtml:ul>\n                     <xhtml:li>\n                        <xhtml:div>Error conditions and other exceptional circumstances</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>Confusion over which part of the program is responsible for freeing the memory</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ul>\n               </Body_Text>\n               <Body_Text>Although some double free vulnerabilities are not much more complicated than this example, most are spread out across hundreds of lines of code or even different files. Programmers seem particularly susceptible to freeing global variables more than once.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2006-5051",
+			"description": "Chain: Signal handler contains too much functionality (CWE-828), introducing a race condition (CWE-362) that leads to a double free (CWE-415).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-5051"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2008-04-11"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not access a closed file",
+			"entry_id": "FIO46-C",
+			"mapping_fit": "CWE More Abstract"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not access freed memory",
+			"entry_id": "MEM30-C",
+			"mapping_fit": "CWE More Abstract"
+		}
+	]
 }

@@ -1,509 +1,509 @@
 {
-  "id": "122",
-  "name": "Heap-based Buffer Overflow",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "A heap overflow condition is a buffer overflow, where the buffer that can be overwritten is allocated in the heap portion of memory, generally meaning that the buffer was allocated using a routine such as malloc().",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "788",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "787",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Crash, Exit, or Restart",
-        "DoS: Resource Consumption (CPU)",
-        "DoS: Resource Consumption (Memory)"
-      ],
-      "note": "Buffer overflows generally lead to crashes. Other attacks leading to lack of availability are possible, including putting the program into an infinite loop."
-    },
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality",
-        "Availability",
-        "Access Control"
-      ],
-      "impact": [
-        "Execute Unauthorized Code or Commands",
-        "Bypass Protection Mechanism",
-        "Modify Memory"
-      ],
-      "note": "Buffer overflows often can be used to execute arbitrary code, which is usually outside the scope of a program's implicit security policy. Besides important user data, heap-based overflows can be used to overwrite function pointers that may be living in memory, pointing it to the attacker's code. Even in applications that do not explicitly use function pointers, the run-time will usually leave many in memory. For example, object methods in C++ are generally implemented using function pointers. Even in C programs, there is often a global offset table used by the underlying runtime."
-    },
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality",
-        "Availability",
-        "Access Control",
-        "Other"
-      ],
-      "impact": [
-        "Execute Unauthorized Code or Commands",
-        "Bypass Protection Mechanism",
-        "Other"
-      ],
-      "note": "When the consequence is arbitrary code execution, this can often be used to subvert any other security service."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "description": [
-        "Pre-design: Use a language or compiler that performs automatic bounds checking."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Use an abstraction library to abstract away risky APIs. Not a complete solution."
-      ]
-    },
-    {
-      "mitigation_id": "MIT-10",
-      "phase": [
-        "Operation",
-        "Build and Compilation"
-      ],
-      "description": [
-        " \n\t\t<xhtml:p>Use automatic buffer overflow detection mechanisms that are offered by certain compilers or compiler extensions. Examples include: the Microsoft Visual Studio /GS flag, Fedora/Red Hat FORTIFY_SOURCE GCC flag, StackGuard, and ProPolice, which provide various mechanisms including canary-based detection and range/index checking. </xhtml:p> \n\t\t<xhtml:p> D3-SFCV (Stack Frame Canary Validation) from D3FEND [REF-1334] discusses canary-based detection in detail. </xhtml:p> \n\n\t      "
-      ],
-      "effectiveness": "Defense in Depth",
-      "effectiveness_notes": " \n\t\t \n\t      ",
-      "strategy": "Environment Hardening"
-    },
-    {
-      "mitigation_id": "MIT-11",
-      "phase": [
-        "Operation",
-        "Build and Compilation"
-      ],
-      "description": [
-        "\n\t\t <xhtml:p>Run or compile the software using features or extensions that randomly arrange the positions of a program's executable and libraries in memory. Because this makes the addresses unpredictable, it can prevent an attacker from reliably jumping to exploitable code. </xhtml:p> \n\t\t <xhtml:p> Examples include Address Space Layout Randomization (ASLR) [REF-58] [REF-60] and Position-Independent Executables (PIE) [REF-64]. Imported modules may be similarly realigned if their default memory addresses conflict with other modules, in a process known as \"rebasing\" (for Windows) and \"prelinking\" (for Linux) [REF-1332] using randomly generated addresses. ASLR for libraries cannot be used in conjunction with prelink since it would require relocating the libraries at run-time, defeating the whole purpose of prelinking. </xhtml:p> \n\t\t <xhtml:p> For more information on these techniques see D3-SAOR (Segment Address Offset Randomization) from D3FEND [REF-1335]. </xhtml:p>\n\t       "
-      ],
-      "effectiveness": "Defense in Depth",
-      "effectiveness_notes": "These techniques do not provide a complete solution.  For instance, exploits frequently use a bug that discloses memory addresses in order to maximize reliability of code execution [REF-1337]. It has also been shown that a side-channel attack can bypass ASLR [REF-1333]",
-      "strategy": "Environment Hardening"
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Implement and perform bounds checking on input."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Do not use dangerous functions such as gets. Look for their safe equivalent, which checks for the boundary."
-      ],
-      "strategy": "Libraries or Frameworks"
-    },
-    {
-      "phase": [
-        "Operation"
-      ],
-      "description": [
-        "Use OS-level preventative functionality. This is not a complete solution, but it provides some defense in depth."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>While buffer overflow examples can be rather complex, it is possible to have very simple, yet still exploitable, heap-based buffer overflows:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define BUFSIZE 256<xhtml:br/>int main(int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">char *buf;<xhtml:br/>buf = (char *)malloc(sizeof(char)*BUFSIZE);<xhtml:br/>strcpy(buf, argv[1]);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The buffer is allocated heap memory with a fixed size, but there is no guarantee the string in argv[1] will not exceed this size and cause an overflow.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-19",
-      "text": "\n               <Intro_Text>This example applies an encoding procedure to an input string and stores it into a buffer.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char * copy_input(char *user_supplied_string){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int i, dst_index;<xhtml:br/>char *dst_buf = (char*)malloc(4*sizeof(char) * MAX_SIZE);<xhtml:br/>if ( MAX_SIZE &lt;= strlen(user_supplied_string) ){<xhtml:div style=\"margin-left:1em;\">die(\"user string too long, die evil hacker!\");</xhtml:div>}<xhtml:br/>dst_index = 0;<xhtml:br/>for ( i = 0; i &lt; strlen(user_supplied_string); i++ ){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if( '&amp;' == user_supplied_string[i] ){<xhtml:div style=\"margin-left:1em;\">dst_buf[dst_index++] = '&amp;';<xhtml:br/>dst_buf[dst_index++] = 'a';<xhtml:br/>dst_buf[dst_index++] = 'm';<xhtml:br/>dst_buf[dst_index++] = 'p';<xhtml:br/>dst_buf[dst_index++] = ';';</xhtml:div>}<xhtml:br/>else if ('&lt;' == user_supplied_string[i] ){<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>/* encode to &amp;lt; */</xhtml:i>\n                                       <xhtml:br/>\n                                    </xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>else dst_buf[dst_index++] = user_supplied_string[i];</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return dst_buf;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer attempts to encode the ampersand character in the user-controlled string, however the length of the string is validated before the encoding procedure is applied. Furthermore, the programmer assumes encoding expansion will only expand a given character by a factor of 4, while the encoding of the ampersand expands by 5. As a result, when the encoding procedure expands the string it is possible to overflow the destination buffer if the attacker provides a string of many ampersands.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2021-43537",
-      "description": "Chain: in a web browser, an unsigned 64-bit integer is foribly cast to a 32-bit integer (CWE-681) and potentially leading to an integer overflow (CWE-190). If an integer overflow occurs, this can cause heap memory corruption (CWE-122)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-43537"
-    },
-    {
-      "reference": "CVE-2007-4268",
-      "description": "Chain: integer signedness error (CWE-195) passes signed comparison, leading to heap overflow (CWE-122)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4268"
-    },
-    {
-      "reference": "CVE-2009-2523",
-      "description": "Chain: product does not handle when an input string is not NULL terminated (CWE-170), leading to buffer over-read (CWE-125) or heap-based buffer overflow (CWE-122).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2523"
-    },
-    {
-      "reference": "CVE-2021-29529",
-      "description": "Chain: machine-learning product can have a heap-based\n\t      buffer overflow (CWE-122) when some integer-oriented bounds are\n\t      calculated by using ceiling() and floor() on floating point values\n\t      (CWE-1339)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-29529"
-    },
-    {
-      "reference": "CVE-2010-1866",
-      "description": "Chain: integer overflow (CWE-190) causes a negative signed value, which later bypasses a maximum-only check (CWE-839), leading to heap-based buffer overflow (CWE-122).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2010-1866"
-    }
-  ],
-  "references": [
-    {
-      "section": "Chapter 5, \"Heap Overruns\" Page 138",
-      "reference_id": "REF-7",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc"
-      ],
-      "title": "Writing Secure Code",
-      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
-      "publication_year": "2002",
-      "publication_month": "--12",
-      "publication_day": "---04",
-      "publisher": "Microsoft Press",
-      "edition": "2nd Edition"
-    },
-    {
-      "section": "\"Sin 5: Buffer Overruns.\" Page 89",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    },
-    {
-      "section": "Chapter 3, \"Nonexecutable Stack\", Page 76",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "section": "Chapter 5, \"Protection Mechanisms\", Page 189",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "reference_id": "REF-58",
-      "author": [
-        "Michael Howard"
-      ],
-      "title": "Address Space Layout Randomization in Windows Vista",
-      "url": "https://learn.microsoft.com/en-us/archive/blogs/michael_howard/address-space-layout-randomization-in-windows-vista",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-60",
-      "title": "PaX",
-      "url": "https://en.wikipedia.org/wiki/Executable_space_protection#PaX",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-64",
-      "author": [
-        "Grant Murphy"
-      ],
-      "title": "Position Independent Executables (PIE)",
-      "url": "https://www.redhat.com/en/blog/position-independent-executables-pie",
-      "publication_year": "2012",
-      "publication_month": "--11",
-      "publication_day": "---28",
-      "publisher": "Red Hat",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    },
-    {
-      "section": "Memory information leaks",
-      "reference_id": "REF-1337",
-      "author": [
-        "Alexander Sotirov and Mark Dowd"
-      ],
-      "title": "Bypassing Browser Memory Protections: Setting back browser security by 10 years",
-      "url": "https://www.blackhat.com/presentations/bh-usa-08/Sotirov_Dowd/bh08-sotirov-dowd.pdf",
-      "publication_year": "2008",
-      "url_date": "2023-04-26"
-    },
-    {
-      "reference_id": "REF-1332",
-      "author": [
-        "John Richard Moser"
-      ],
-      "title": "Prelink and address space randomization",
-      "url": "https://lwn.net/Articles/190139/",
-      "publication_year": "2006",
-      "publication_month": "--07",
-      "publication_day": "---05",
-      "url_date": "2023-04-26"
-    },
-    {
-      "reference_id": "REF-1333",
-      "author": [
-        "Dmitry Evtyushkin, Dmitry Ponomarev, Nael Abu-Ghazaleh"
-      ],
-      "title": "Jump Over ASLR: Attacking Branch Predictors to Bypass ASLR",
-      "url": "http://www.cs.ucr.edu/~nael/pubs/micro16.pdf",
-      "publication_year": "2016",
-      "url_date": "2023-04-26"
-    },
-    {
-      "reference_id": "REF-1334",
-      "author": [
-        "D3FEND"
-      ],
-      "title": "Stack Frame Canary Validation (D3-SFCV)",
-      "url": "https://d3fend.mitre.org/technique/d3f:StackFrameCanaryValidation/",
-      "publication_year": "2023",
-      "url_date": "2023-04-26"
-    },
-    {
-      "reference_id": "REF-1335",
-      "author": [
-        "D3FEND"
-      ],
-      "title": "Segment Address Offset Randomization (D3-SAOR)",
-      "url": "https://d3fend.mitre.org/technique/d3f:SegmentAddressOffsetRandomization/",
-      "publication_year": "2023",
-      "url_date": "2023-04-26"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_organization": "KDM Analytics",
-        "modification_date": "2008-08-01",
-        "modification_comment": "added/updated white box definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Common_Consequences, Other_Notes, Relationship_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Common_Consequences, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Causal_Nature, Likelihood_of_Exploit, Observed_Examples, References, Relationships, Taxonomy_Mappings, White_Box_Definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Potential_Mitigations, References, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-13",
-      "method": "Fuzzing",
-      "description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Heap overflow"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Faulty Buffer Access",
-      "entry_id": "SFP8"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Guarantee that storage for strings has sufficient space for character data and the null terminator",
-      "entry_id": "STR31-C",
-      "mapping_fit": "CWE More Specific"
-    }
-  ],
-  "related_attack_patterns": [
-    "92"
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "Heap-based buffer overflows are usually just as dangerous as stack-based buffer overflows."
-    }
-  ],
-  "affected_resources": [
-    "Memory"
-  ]
+	"id": "122",
+	"name": "Heap-based Buffer Overflow",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "A heap overflow condition is a buffer overflow, where the buffer that can be overwritten is allocated in the heap portion of memory, generally meaning that the buffer was allocated using a routine such as malloc().",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "788",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "787",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart",
+				"DoS: Resource Consumption (CPU)",
+				"DoS: Resource Consumption (Memory)"
+			],
+			"note": "Buffer overflows generally lead to crashes. Other attacks leading to lack of availability are possible, including putting the program into an infinite loop."
+		},
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality",
+				"Availability",
+				"Access Control"
+			],
+			"impact": [
+				"Execute Unauthorized Code or Commands",
+				"Bypass Protection Mechanism",
+				"Modify Memory"
+			],
+			"note": "Buffer overflows often can be used to execute arbitrary code, which is usually outside the scope of a program's implicit security policy. Besides important user data, heap-based overflows can be used to overwrite function pointers that may be living in memory, pointing it to the attacker's code. Even in applications that do not explicitly use function pointers, the run-time will usually leave many in memory. For example, object methods in C++ are generally implemented using function pointers. Even in C programs, there is often a global offset table used by the underlying runtime."
+		},
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality",
+				"Availability",
+				"Access Control",
+				"Other"
+			],
+			"impact": [
+				"Execute Unauthorized Code or Commands",
+				"Bypass Protection Mechanism",
+				"Other"
+			],
+			"note": "When the consequence is arbitrary code execution, this can often be used to subvert any other security service."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"description": [
+				"Pre-design: Use a language or compiler that performs automatic bounds checking."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Use an abstraction library to abstract away risky APIs. Not a complete solution."
+			]
+		},
+		{
+			"mitigation_id": "MIT-10",
+			"phase": [
+				"Operation",
+				"Build and Compilation"
+			],
+			"description": [
+				" \n\t\t<xhtml:p>Use automatic buffer overflow detection mechanisms that are offered by certain compilers or compiler extensions. Examples include: the Microsoft Visual Studio /GS flag, Fedora/Red Hat FORTIFY_SOURCE GCC flag, StackGuard, and ProPolice, which provide various mechanisms including canary-based detection and range/index checking. </xhtml:p> \n\t\t<xhtml:p> D3-SFCV (Stack Frame Canary Validation) from D3FEND [REF-1334] discusses canary-based detection in detail. </xhtml:p> \n\n\t      "
+			],
+			"effectiveness": "Defense in Depth",
+			"effectiveness_notes": " \n\t\t \n\t      ",
+			"strategy": "Environment Hardening"
+		},
+		{
+			"mitigation_id": "MIT-11",
+			"phase": [
+				"Operation",
+				"Build and Compilation"
+			],
+			"description": [
+				"\n\t\t <xhtml:p>Run or compile the software using features or extensions that randomly arrange the positions of a program's executable and libraries in memory. Because this makes the addresses unpredictable, it can prevent an attacker from reliably jumping to exploitable code. </xhtml:p> \n\t\t <xhtml:p> Examples include Address Space Layout Randomization (ASLR) [REF-58] [REF-60] and Position-Independent Executables (PIE) [REF-64]. Imported modules may be similarly realigned if their default memory addresses conflict with other modules, in a process known as \"rebasing\" (for Windows) and \"prelinking\" (for Linux) [REF-1332] using randomly generated addresses. ASLR for libraries cannot be used in conjunction with prelink since it would require relocating the libraries at run-time, defeating the whole purpose of prelinking. </xhtml:p> \n\t\t <xhtml:p> For more information on these techniques see D3-SAOR (Segment Address Offset Randomization) from D3FEND [REF-1335]. </xhtml:p>\n\t       "
+			],
+			"effectiveness": "Defense in Depth",
+			"effectiveness_notes": "These techniques do not provide a complete solution.  For instance, exploits frequently use a bug that discloses memory addresses in order to maximize reliability of code execution [REF-1337]. It has also been shown that a side-channel attack can bypass ASLR [REF-1333]",
+			"strategy": "Environment Hardening"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Implement and perform bounds checking on input."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Do not use dangerous functions such as gets. Look for their safe equivalent, which checks for the boundary."
+			],
+			"strategy": "Libraries or Frameworks"
+		},
+		{
+			"phase": [
+				"Operation"
+			],
+			"description": [
+				"Use OS-level preventative functionality. This is not a complete solution, but it provides some defense in depth."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>While buffer overflow examples can be rather complex, it is possible to have very simple, yet still exploitable, heap-based buffer overflows:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define BUFSIZE 256<xhtml:br/>int main(int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">char *buf;<xhtml:br/>buf = (char *)malloc(sizeof(char)*BUFSIZE);<xhtml:br/>strcpy(buf, argv[1]);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The buffer is allocated heap memory with a fixed size, but there is no guarantee the string in argv[1] will not exceed this size and cause an overflow.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-19",
+			"text": "\n               <Intro_Text>This example applies an encoding procedure to an input string and stores it into a buffer.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char * copy_input(char *user_supplied_string){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int i, dst_index;<xhtml:br/>char *dst_buf = (char*)malloc(4*sizeof(char) * MAX_SIZE);<xhtml:br/>if ( MAX_SIZE &lt;= strlen(user_supplied_string) ){<xhtml:div style=\"margin-left:1em;\">die(\"user string too long, die evil hacker!\");</xhtml:div>}<xhtml:br/>dst_index = 0;<xhtml:br/>for ( i = 0; i &lt; strlen(user_supplied_string); i++ ){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if( '&amp;' == user_supplied_string[i] ){<xhtml:div style=\"margin-left:1em;\">dst_buf[dst_index++] = '&amp;';<xhtml:br/>dst_buf[dst_index++] = 'a';<xhtml:br/>dst_buf[dst_index++] = 'm';<xhtml:br/>dst_buf[dst_index++] = 'p';<xhtml:br/>dst_buf[dst_index++] = ';';</xhtml:div>}<xhtml:br/>else if ('&lt;' == user_supplied_string[i] ){<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>/* encode to &amp;lt; */</xhtml:i>\n                                       <xhtml:br/>\n                                    </xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>else dst_buf[dst_index++] = user_supplied_string[i];</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return dst_buf;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer attempts to encode the ampersand character in the user-controlled string, however the length of the string is validated before the encoding procedure is applied. Furthermore, the programmer assumes encoding expansion will only expand a given character by a factor of 4, while the encoding of the ampersand expands by 5. As a result, when the encoding procedure expands the string it is possible to overflow the destination buffer if the attacker provides a string of many ampersands.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2021-43537",
+			"description": "Chain: in a web browser, an unsigned 64-bit integer is foribly cast to a 32-bit integer (CWE-681) and potentially leading to an integer overflow (CWE-190). If an integer overflow occurs, this can cause heap memory corruption (CWE-122)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-43537"
+		},
+		{
+			"reference": "CVE-2007-4268",
+			"description": "Chain: integer signedness error (CWE-195) passes signed comparison, leading to heap overflow (CWE-122)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4268"
+		},
+		{
+			"reference": "CVE-2009-2523",
+			"description": "Chain: product does not handle when an input string is not NULL terminated (CWE-170), leading to buffer over-read (CWE-125) or heap-based buffer overflow (CWE-122).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2523"
+		},
+		{
+			"reference": "CVE-2021-29529",
+			"description": "Chain: machine-learning product can have a heap-based\n\t      buffer overflow (CWE-122) when some integer-oriented bounds are\n\t      calculated by using ceiling() and floor() on floating point values\n\t      (CWE-1339)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-29529"
+		},
+		{
+			"reference": "CVE-2010-1866",
+			"description": "Chain: integer overflow (CWE-190) causes a negative signed value, which later bypasses a maximum-only check (CWE-839), leading to heap-based buffer overflow (CWE-122).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2010-1866"
+		}
+	],
+	"references": [
+		{
+			"section": "Chapter 5, \"Heap Overruns\" Page 138",
+			"reference_id": "REF-7",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc"
+			],
+			"title": "Writing Secure Code",
+			"url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+			"publication_year": "2002",
+			"publication_month": "--12",
+			"publication_day": "---04",
+			"publisher": "Microsoft Press",
+			"edition": "2nd Edition"
+		},
+		{
+			"section": "\"Sin 5: Buffer Overruns.\" Page 89",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		},
+		{
+			"section": "Chapter 3, \"Nonexecutable Stack\", Page 76",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"section": "Chapter 5, \"Protection Mechanisms\", Page 189",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"reference_id": "REF-58",
+			"author": [
+				"Michael Howard"
+			],
+			"title": "Address Space Layout Randomization in Windows Vista",
+			"url": "https://learn.microsoft.com/en-us/archive/blogs/michael_howard/address-space-layout-randomization-in-windows-vista",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-60",
+			"title": "PaX",
+			"url": "https://en.wikipedia.org/wiki/Executable_space_protection#PaX",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-64",
+			"author": [
+				"Grant Murphy"
+			],
+			"title": "Position Independent Executables (PIE)",
+			"url": "https://www.redhat.com/en/blog/position-independent-executables-pie",
+			"publication_year": "2012",
+			"publication_month": "--11",
+			"publication_day": "---28",
+			"publisher": "Red Hat",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		},
+		{
+			"section": "Memory information leaks",
+			"reference_id": "REF-1337",
+			"author": [
+				"Alexander Sotirov and Mark Dowd"
+			],
+			"title": "Bypassing Browser Memory Protections: Setting back browser security by 10 years",
+			"url": "https://www.blackhat.com/presentations/bh-usa-08/Sotirov_Dowd/bh08-sotirov-dowd.pdf",
+			"publication_year": "2008",
+			"url_date": "2023-04-26"
+		},
+		{
+			"reference_id": "REF-1332",
+			"author": [
+				"John Richard Moser"
+			],
+			"title": "Prelink and address space randomization",
+			"url": "https://lwn.net/Articles/190139/",
+			"publication_year": "2006",
+			"publication_month": "--07",
+			"publication_day": "---05",
+			"url_date": "2023-04-26"
+		},
+		{
+			"reference_id": "REF-1333",
+			"author": [
+				"Dmitry Evtyushkin, Dmitry Ponomarev, Nael Abu-Ghazaleh"
+			],
+			"title": "Jump Over ASLR: Attacking Branch Predictors to Bypass ASLR",
+			"url": "http://www.cs.ucr.edu/~nael/pubs/micro16.pdf",
+			"publication_year": "2016",
+			"url_date": "2023-04-26"
+		},
+		{
+			"reference_id": "REF-1334",
+			"author": [
+				"D3FEND"
+			],
+			"title": "Stack Frame Canary Validation (D3-SFCV)",
+			"url": "https://d3fend.mitre.org/technique/d3f:StackFrameCanaryValidation/",
+			"publication_year": "2023",
+			"url_date": "2023-04-26"
+		},
+		{
+			"reference_id": "REF-1335",
+			"author": [
+				"D3FEND"
+			],
+			"title": "Segment Address Offset Randomization (D3-SAOR)",
+			"url": "https://d3fend.mitre.org/technique/d3f:SegmentAddressOffsetRandomization/",
+			"publication_year": "2023",
+			"url_date": "2023-04-26"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_organization": "KDM Analytics",
+				"modification_date": "2008-08-01",
+				"modification_comment": "added/updated white box definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Common_Consequences, Other_Notes, Relationship_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Common_Consequences, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Causal_Nature, Likelihood_of_Exploit, Observed_Examples, References, Relationships, Taxonomy_Mappings, White_Box_Definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Potential_Mitigations, References, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-13",
+			"method": "Fuzzing",
+			"description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Heap overflow"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Faulty Buffer Access",
+			"entry_id": "SFP8"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Guarantee that storage for strings has sufficient space for character data and the null terminator",
+			"entry_id": "STR31-C",
+			"mapping_fit": "CWE More Specific"
+		}
+	],
+	"related_attack_patterns": [
+		"92"
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "Heap-based buffer overflows are usually just as dangerous as stack-based buffer overflows."
+		}
+	],
+	"affected_resources": [
+		"Memory"
+	]
 }

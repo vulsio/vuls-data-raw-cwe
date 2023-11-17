@@ -1,248 +1,248 @@
 {
-  "id": "454",
-  "name": "External Initialization of Trusted Variables or Data Stores",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product initializes critical internal variables or data stores using inputs that can be modified by untrusted actors.",
-  "extended_description": "A product system should be reluctant to trust variables that have been initialized outside of its trust boundary, especially if they are initialized by users. The variables may have been initialized incorrectly. If an attacker can initialize the variable, then they can influence what the vulnerable system will do.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1419",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanAlsoBe",
-      "cweid": "456",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Sometimes",
-        "name": "PHP"
-      },
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Modify Application Data"
-      ],
-      "note": "An attacker could gain access to and modify sensitive data or system information."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "A product system should be reluctant to trust variables that have been initialized outside of its trust boundary. Ensure adequate checking (e.g. input validation) is performed when relying on input from outside a trust boundary."
-      ],
-      "strategy": "Input Validation"
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Avoid any external control of variables. If necessary, restrict the variables that can be modified using an allowlist, and use a different namespace or naming convention if possible."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the Java example below, a system property controls the debug level of the application.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>int debugLevel = Integer.getInteger(\"com.domain.application.debugLevel\").intValue();</xhtml:div>\n               </Example_Code>\n               <Body_Text>If an attacker is able to modify the system property, then it may be possible to coax the application into divulging sensitive information by virtue of the fact that additional debug information is printed/exposed as the debug level increases.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>This code checks the HTTP POST request for a debug switch, and enables a debug mode if the switch is set.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$debugEnabled = false;<xhtml:br/>if ($_POST[\"debug\"] == \"true\"){<xhtml:div style=\"margin-left:1em;\">$debugEnabled = true;</xhtml:div>}<xhtml:br/>\n                     <xhtml:i>/.../</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>function login($username, $password){<xhtml:div style=\"margin-left:1em;\">if($debugEnabled){<xhtml:div style=\"margin-left:1em;\">echo 'Debug Activated';<xhtml:br/>phpinfo();<xhtml:br/>$isAdmin = True;<xhtml:br/>return True;</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Any user can activate the debug mode, gaining administrator privileges. An attacker may also use the information printed by the phpinfo() function to further exploit the system. .</Body_Text>\n               <Body_Text>This example also exhibits Information Exposure Through Debug Information (CWE-215)</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-43468",
-      "description": "WordPress module sets internal variables based on external inputs, allowing false reporting of the number of views ",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-43468"
-    },
-    {
-      "reference": "CVE-2000-0959",
-      "description": "Does not clear dangerous environment variables, enabling symlink attack.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0959"
-    },
-    {
-      "reference": "CVE-2001-0033",
-      "description": "Specify alternate configuration directory in environment variable, enabling untrusted path.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0033"
-    },
-    {
-      "reference": "CVE-2001-0872",
-      "description": "Dangerous environment variable not cleansed.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0872"
-    },
-    {
-      "reference": "CVE-2001-0084",
-      "description": "Specify arbitrary modules using environment variable.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0084"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Sean Eidemiller",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "added/updated demonstrative examples"
-      },
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Description, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Other_Notes, Relationship_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Description, Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "External Initialization of Trusted Variables or Values",
-        "date": "2008-04-11"
-      },
-      {
-        "text": "External Initialization of Trusted Variables",
-        "date": "2010-02-16"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "External initialization of trusted variables or values"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Tainted input to variable",
-      "entry_id": "SFP25"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "Overlaps Missing variable initialization, especially in PHP."
-    },
-    {
-      "type": "Applicable Platform",
-      "text": "\n               <xhtml:p>This is often found in PHP due to register_globals and the common practice of storing library/include files under the web document root so that they are available using a direct request.</xhtml:p>\n            "
-    }
-  ]
+	"id": "454",
+	"name": "External Initialization of Trusted Variables or Data Stores",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product initializes critical internal variables or data stores using inputs that can be modified by untrusted actors.",
+	"extended_description": "A product system should be reluctant to trust variables that have been initialized outside of its trust boundary, especially if they are initialized by users. The variables may have been initialized incorrectly. If an attacker can initialize the variable, then they can influence what the vulnerable system will do.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1419",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanAlsoBe",
+			"cweid": "456",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Sometimes",
+				"name": "PHP"
+			},
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Modify Application Data"
+			],
+			"note": "An attacker could gain access to and modify sensitive data or system information."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"A product system should be reluctant to trust variables that have been initialized outside of its trust boundary. Ensure adequate checking (e.g. input validation) is performed when relying on input from outside a trust boundary."
+			],
+			"strategy": "Input Validation"
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Avoid any external control of variables. If necessary, restrict the variables that can be modified using an allowlist, and use a different namespace or naming convention if possible."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the Java example below, a system property controls the debug level of the application.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>int debugLevel = Integer.getInteger(\"com.domain.application.debugLevel\").intValue();</xhtml:div>\n               </Example_Code>\n               <Body_Text>If an attacker is able to modify the system property, then it may be possible to coax the application into divulging sensitive information by virtue of the fact that additional debug information is printed/exposed as the debug level increases.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>This code checks the HTTP POST request for a debug switch, and enables a debug mode if the switch is set.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$debugEnabled = false;<xhtml:br/>if ($_POST[\"debug\"] == \"true\"){<xhtml:div style=\"margin-left:1em;\">$debugEnabled = true;</xhtml:div>}<xhtml:br/>\n                     <xhtml:i>/.../</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>function login($username, $password){<xhtml:div style=\"margin-left:1em;\">if($debugEnabled){<xhtml:div style=\"margin-left:1em;\">echo 'Debug Activated';<xhtml:br/>phpinfo();<xhtml:br/>$isAdmin = True;<xhtml:br/>return True;</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Any user can activate the debug mode, gaining administrator privileges. An attacker may also use the information printed by the phpinfo() function to further exploit the system. .</Body_Text>\n               <Body_Text>This example also exhibits Information Exposure Through Debug Information (CWE-215)</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-43468",
+			"description": "WordPress module sets internal variables based on external inputs, allowing false reporting of the number of views ",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-43468"
+		},
+		{
+			"reference": "CVE-2000-0959",
+			"description": "Does not clear dangerous environment variables, enabling symlink attack.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0959"
+		},
+		{
+			"reference": "CVE-2001-0033",
+			"description": "Specify alternate configuration directory in environment variable, enabling untrusted path.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0033"
+		},
+		{
+			"reference": "CVE-2001-0872",
+			"description": "Dangerous environment variable not cleansed.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0872"
+		},
+		{
+			"reference": "CVE-2001-0084",
+			"description": "Specify arbitrary modules using environment variable.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0084"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Sean Eidemiller",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "added/updated demonstrative examples"
+			},
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Description, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Other_Notes, Relationship_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Description, Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "External Initialization of Trusted Variables or Values",
+				"date": "2008-04-11"
+			},
+			{
+				"text": "External Initialization of Trusted Variables",
+				"date": "2010-02-16"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "External initialization of trusted variables or values"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Tainted input to variable",
+			"entry_id": "SFP25"
+		}
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "Overlaps Missing variable initialization, especially in PHP."
+		},
+		{
+			"type": "Applicable Platform",
+			"text": "\n               <xhtml:p>This is often found in PHP due to register_globals and the common practice of storing library/include files under the web document root so that they are available using a direct request.</xhtml:p>\n            "
+		}
+	]
 }

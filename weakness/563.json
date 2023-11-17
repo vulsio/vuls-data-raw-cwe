@@ -1,206 +1,206 @@
 {
-  "id": "563",
-  "name": "Assignment to Variable without Use",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The variable's value is assigned but never used, making it a dead store.",
-  "extended_description": "After the assignment, the variable is either assigned another value or goes out of scope. It is likely that the variable is simply vestigial, but it is also possible that the unused variable points out a bug.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1164",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Quality Degradation",
-        "Varies by Context"
-      ],
-      "note": "This weakness could be an indication of a bug in the program or a deprecated variable that was not removed and is an indication of poor quality. This could lead to further bugs and the introduction of weaknesses."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Remove unused variables from the code."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following code excerpt assigns to the variable r and then overwrites the value without using it.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>r = getName();<xhtml:br/>r = getNewBuffer(buf);</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Anonymous Tool Vendor (under NDA)",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Common_Consequences, Description, Name, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Alternate_Terms, Name, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Unused Variable",
-        "date": "2014-06-23"
-      },
-      {
-        "text": "Assignment to Variable without Use ('Unused Variable')",
-        "date": "2017-11-08"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Indirect"
-    }
-  ],
-  "alternate_terms": [
-    {
-      "term": "Unused Variable"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Compile cleanly at high warning levels",
-      "entry_id": "MSC00-C"
-    },
-    {
-      "taxonomy_name": "SEI CERT Perl Coding Standard",
-      "entry_name": "Detect and remove unused variables",
-      "entry_id": "MSC01-PL",
-      "mapping_fit": "Imprecise"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Unused Entities",
-      "entry_id": "SFP2"
-    }
-  ]
+	"id": "563",
+	"name": "Assignment to Variable without Use",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The variable's value is assigned but never used, making it a dead store.",
+	"extended_description": "After the assignment, the variable is either assigned another value or goes out of scope. It is likely that the variable is simply vestigial, but it is also possible that the unused variable points out a bug.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1164",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Quality Degradation",
+				"Varies by Context"
+			],
+			"note": "This weakness could be an indication of a bug in the program or a deprecated variable that was not removed and is an indication of poor quality. This could lead to further bugs and the introduction of weaknesses."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Remove unused variables from the code."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following code excerpt assigns to the variable r and then overwrites the value without using it.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>r = getName();<xhtml:br/>r = getNewBuffer(buf);</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Anonymous Tool Vendor (under NDA)",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Common_Consequences, Description, Name, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Alternate_Terms, Name, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Unused Variable",
+				"date": "2014-06-23"
+			},
+			{
+				"text": "Assignment to Variable without Use ('Unused Variable')",
+				"date": "2017-11-08"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Indirect"
+		}
+	],
+	"alternate_terms": [
+		{
+			"term": "Unused Variable"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Compile cleanly at high warning levels",
+			"entry_id": "MSC00-C"
+		},
+		{
+			"taxonomy_name": "SEI CERT Perl Coding Standard",
+			"entry_name": "Detect and remove unused variables",
+			"entry_id": "MSC01-PL",
+			"mapping_fit": "Imprecise"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Unused Entities",
+			"entry_id": "SFP2"
+		}
+	]
 }

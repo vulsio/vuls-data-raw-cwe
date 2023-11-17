@@ -1,165 +1,165 @@
 {
-  "id": "588",
-  "name": "Attempt to Access Child of a Non-structure Pointer",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "Casting a non-structure type to a structure type and accessing a field can lead to memory access errors or data corruption.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "704",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "758",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Modify Memory"
-      ],
-      "note": "Adjacent variables in memory may be corrupted by assignments performed on fields after the cast."
-    },
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Crash, Exit, or Restart"
-      ],
-      "note": "Execution may end due to a memory access error."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Requirements"
-      ],
-      "description": [
-        "The choice could be made to use a language that is not susceptible to these issues."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Review of type casting operations can identify locations where incompatible types are cast."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>struct foo<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">int i;</xhtml:div>}<xhtml:br/>...<xhtml:br/>int main(int argc, char **argv)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">*foo = (struct foo *)main;<xhtml:br/>foo-&gt;i = 2;<xhtml:br/>return foo-&gt;i;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2021-3510",
-      "description": "JSON decoder accesses a C union using an invalid offset to an object",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-3510"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Community",
-      "submission_date": "2006-12-15",
-      "submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated Common_Consequences, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Faulty Pointer Use",
-      "entry_id": "SFP7"
-    }
-  ]
+	"id": "588",
+	"name": "Attempt to Access Child of a Non-structure Pointer",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "Casting a non-structure type to a structure type and accessing a field can lead to memory access errors or data corruption.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "704",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "758",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Modify Memory"
+			],
+			"note": "Adjacent variables in memory may be corrupted by assignments performed on fields after the cast."
+		},
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart"
+			],
+			"note": "Execution may end due to a memory access error."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Requirements"
+			],
+			"description": [
+				"The choice could be made to use a language that is not susceptible to these issues."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Review of type casting operations can identify locations where incompatible types are cast."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>struct foo<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">int i;</xhtml:div>}<xhtml:br/>...<xhtml:br/>int main(int argc, char **argv)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">*foo = (struct foo *)main;<xhtml:br/>foo-&gt;i = 2;<xhtml:br/>return foo-&gt;i;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2021-3510",
+			"description": "JSON decoder accesses a C union using an invalid offset to an object",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-3510"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Community",
+			"submission_date": "2006-12-15",
+			"submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated Common_Consequences, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Faulty Pointer Use",
+			"entry_id": "SFP7"
+		}
+	]
 }

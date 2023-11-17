@@ -1,177 +1,177 @@
 {
-  "id": "913",
-  "name": "Improper Control of Dynamically-Managed Code Resources",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product does not properly restrict reading from or writing to dynamically-managed code resources such as variables, objects, classes, attributes, functions, or executable instructions or statements.",
-  "extended_description": "Many languages offer powerful features that allow the programmer to dynamically create or modify existing code, or resources used by code such as variables and objects. While these features can offer significant flexibility and reduce development time, they can be extremely dangerous if attackers can directly influence these code resources in unexpected ways.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "664",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Execute Unauthorized Code or Commands"
-      ]
-    },
-    {
-      "scope": [
-        "Other",
-        "Integrity"
-      ],
-      "impact": [
-        "Varies by Context",
-        "Alter Execution Logic"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "For any externally-influenced input, check the input against an allowlist of acceptable values."
-      ],
-      "strategy": "Input Validation"
-    },
-    {
-      "phase": [
-        "Implementation",
-        "Architecture and Design"
-      ],
-      "description": [
-        "Refactor the code so that it does not need to be dynamically managed."
-      ],
-      "strategy": "Refactoring"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-2054",
-      "description": "Python compiler uses eval() to execute malicious strings as Python code.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-2054"
-    },
-    {
-      "reference": "CVE-2018-1000613",
-      "description": "Cryptography API uses unsafe reflection when deserializing a private key",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2018-1000613"
-    },
-    {
-      "reference": "CVE-2015-8103",
-      "description": "Deserialization issue in commonly-used Java library allows remote execution.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2015-8103"
-    },
-    {
-      "reference": "CVE-2006-7079",
-      "description": "Chain: extract used for register_globals compatibility layer, enables path traversal (CWE-22)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-7079"
-    },
-    {
-      "reference": "CVE-2012-2055",
-      "description": "Source version control product allows modification of trusted key using mass assignment.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2012-2055"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2013-01-26"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-01-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-13",
-      "method": "Fuzzing",
-      "description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
-      "effectiveness": "High"
-    }
-  ]
+	"id": "913",
+	"name": "Improper Control of Dynamically-Managed Code Resources",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product does not properly restrict reading from or writing to dynamically-managed code resources such as variables, objects, classes, attributes, functions, or executable instructions or statements.",
+	"extended_description": "Many languages offer powerful features that allow the programmer to dynamically create or modify existing code, or resources used by code such as variables and objects. While these features can offer significant flexibility and reduce development time, they can be extremely dangerous if attackers can directly influence these code resources in unexpected ways.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "664",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Execute Unauthorized Code or Commands"
+			]
+		},
+		{
+			"scope": [
+				"Other",
+				"Integrity"
+			],
+			"impact": [
+				"Varies by Context",
+				"Alter Execution Logic"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"For any externally-influenced input, check the input against an allowlist of acceptable values."
+			],
+			"strategy": "Input Validation"
+		},
+		{
+			"phase": [
+				"Implementation",
+				"Architecture and Design"
+			],
+			"description": [
+				"Refactor the code so that it does not need to be dynamically managed."
+			],
+			"strategy": "Refactoring"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-2054",
+			"description": "Python compiler uses eval() to execute malicious strings as Python code.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-2054"
+		},
+		{
+			"reference": "CVE-2018-1000613",
+			"description": "Cryptography API uses unsafe reflection when deserializing a private key",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2018-1000613"
+		},
+		{
+			"reference": "CVE-2015-8103",
+			"description": "Deserialization issue in commonly-used Java library allows remote execution.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2015-8103"
+		},
+		{
+			"reference": "CVE-2006-7079",
+			"description": "Chain: extract used for register_globals compatibility layer, enables path traversal (CWE-22)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-7079"
+		},
+		{
+			"reference": "CVE-2012-2055",
+			"description": "Source version control product allows modification of trusted key using mass assignment.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2012-2055"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2013-01-26"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-01-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-13",
+			"method": "Fuzzing",
+			"description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
+			"effectiveness": "High"
+		}
+	]
 }

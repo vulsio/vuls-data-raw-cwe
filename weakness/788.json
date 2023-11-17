@@ -1,265 +1,265 @@
 {
-  "id": "788",
-  "name": "Access of Memory Location After End of Buffer",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product reads or writes to a buffer using an index or pointer that references a memory location after the end of the buffer.",
-  "extended_description": "This typically occurs when a pointer or its index is incremented to a position after the buffer; or when pointer arithmetic results in a position after the buffer.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "119",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "119",
-      "view_id": "1305",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "119",
-      "view_id": "1340",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Memory"
-      ],
-      "note": "For an out-of-bounds read, the attacker may have access to sensitive information. If the sensitive information contains system details, such as the current buffers position in memory, this knowledge can be used to craft further attacks, possibly with more severe consequences."
-    },
-    {
-      "scope": [
-        "Integrity",
-        "Availability"
-      ],
-      "impact": [
-        "Modify Memory",
-        "DoS: Crash, Exit, or Restart"
-      ],
-      "note": "Out of bounds memory access will very likely result in the corruption of relevant memory, and perhaps instructions, possibly leading to a crash. Other attacks leading to lack of availability are possible, including putting the program into an infinite loop."
-    },
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Modify Memory",
-        "Execute Unauthorized Code or Commands"
-      ],
-      "note": "If the memory accessible by the attacker can be effectively controlled, it may be possible to execute arbitrary code, as with a standard buffer overflow. If the attacker can overwrite a pointer's worth of memory (usually 32 or 64 bits), they can redirect a function pointer to their own malicious code. Even when the attacker can only modify a single byte arbitrary code execution can be possible. Sometimes this is because the same problem can be exploited repeatedly to the same effect. Other times it is because the attacker can overwrite security-critical application-specific data -- such as a flag indicating whether the user is an administrator."
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-1",
-      "text": "\n               <Intro_Text>This example takes an IP address from a user, verifies that it is well formed and then looks up the hostname and copies it into a buffer.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void host_lookup(char *user_supplied_addr){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>struct hostent *hp;<xhtml:br/>in_addr_t *addr;<xhtml:br/>char hostname[64];<xhtml:br/>in_addr_t inet_addr(const char *cp);<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/*routine that ensures user_supplied_addr is in the right format for conversion */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>validate_addr_form(user_supplied_addr);<xhtml:br/>addr = inet_addr(user_supplied_addr);<xhtml:br/>hp = gethostbyaddr( addr, sizeof(struct in_addr), AF_INET);<xhtml:br/>strcpy(hostname, hp-&gt;h_name);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This function allocates a buffer of 64 bytes to store the hostname, however there is no guarantee that the hostname will not be larger than 64 bytes. If an attacker specifies an address which resolves to a very large hostname, then the function may overwrite sensitive data or even relinquish control flow to the attacker.</Body_Text>\n               <Body_Text>Note that this example also contains an unchecked return value (CWE-252) that can lead to a NULL pointer dereference (CWE-476).</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-114",
-      "text": "\n               <Intro_Text>In the following example, it is possible to request that memcpy move a much larger segment of memory than assumed:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int returnChunkSize(void *) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>/* if chunk info is valid, return the size of usable memory,</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>* else, return -1 to indicate an error</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>*/</xhtml:i>\n                           <xhtml:br/>...</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>int main() {<xhtml:div style=\"margin-left:1em;\">...<xhtml:br/>memcpy(destBuf, srcBuf, (returnChunkSize(destBuf)-1));<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If returnChunkSize() happens to encounter an error it will return -1. Notice that the return value is not checked before the memcpy operation (CWE-252), so -1 can be passed as the size argument to memcpy() (CWE-805). Because memcpy() assumes that the value is unsigned, it will be interpreted as MAXINT-1 (CWE-195), and therefore will copy far more memory than is likely available to the destination buffer (CWE-787, CWE-788).</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-19",
-      "text": "\n               <Intro_Text>This example applies an encoding procedure to an input string and stores it into a buffer.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char * copy_input(char *user_supplied_string){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int i, dst_index;<xhtml:br/>char *dst_buf = (char*)malloc(4*sizeof(char) * MAX_SIZE);<xhtml:br/>if ( MAX_SIZE &lt;= strlen(user_supplied_string) ){<xhtml:div style=\"margin-left:1em;\">die(\"user string too long, die evil hacker!\");</xhtml:div>}<xhtml:br/>dst_index = 0;<xhtml:br/>for ( i = 0; i &lt; strlen(user_supplied_string); i++ ){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if( '&amp;' == user_supplied_string[i] ){<xhtml:div style=\"margin-left:1em;\">dst_buf[dst_index++] = '&amp;';<xhtml:br/>dst_buf[dst_index++] = 'a';<xhtml:br/>dst_buf[dst_index++] = 'm';<xhtml:br/>dst_buf[dst_index++] = 'p';<xhtml:br/>dst_buf[dst_index++] = ';';</xhtml:div>}<xhtml:br/>else if ('&lt;' == user_supplied_string[i] ){<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>/* encode to &amp;lt; */</xhtml:i>\n                                       <xhtml:br/>\n                                    </xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>else dst_buf[dst_index++] = user_supplied_string[i];</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return dst_buf;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer attempts to encode the ampersand character in the user-controlled string, however the length of the string is validated before the encoding procedure is applied. Furthermore, the programmer assumes encoding expansion will only expand a given character by a factor of 4, while the encoding of the ampersand expands by 5. As a result, when the encoding procedure expands the string it is possible to overflow the destination buffer if the attacker provides a string of many ampersands.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-91",
-      "text": "\n               <Intro_Text>In the following C/C++ example the method processMessageFromSocket() will get a message from a socket, placed into a buffer, and will parse the contents of the buffer into a structure that contains the message length and the message body. A for loop is used to copy the message body into a local character string which will be passed to another method for processing.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int processMessageFromSocket(int socket) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int success;<xhtml:br/>\n                           <xhtml:br/>char buffer[BUFFER_SIZE];<xhtml:br/>char message[MESSAGE_SIZE];<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// get message from socket and store into buffer</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>//Ignoring possibliity that buffer &gt; BUFFER_SIZE</xhtml:i>\n                           <xhtml:br/>if (getMessage(socket, buffer, BUFFER_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>// place contents of the buffer into message structure</xhtml:i>\n                                 <xhtml:br/>ExMessage *msg = recastBuffer(buffer);<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// copy message body into string for processing</xhtml:i>\n                                 <xhtml:br/>int index;<xhtml:br/>for (index = 0; index &lt; msg-&gt;msgLength; index++) {<xhtml:div style=\"margin-left:1em;\">message[index] = msg-&gt;msgBody[index];</xhtml:div>}<xhtml:br/>message[index] = '\\0';<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// process message</xhtml:i>\n                                 <xhtml:br/>success = processMessage(message);</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return success;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the message length variable from the structure is used as the condition for ending the for loop without validating that the message length variable accurately reflects the length of the message body (CWE-606). This can result in a buffer over-read (CWE-125) by reading from memory beyond the bounds of the buffer if the message length variable indicates a length that is longer than the size of a message body (CWE-130).</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2009-2550",
-      "description": "Classic stack-based buffer overflow in media player using a long entry in a playlist",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2550"
-    },
-    {
-      "reference": "CVE-2009-2403",
-      "description": "Heap-based buffer overflow in media player using a long entry in a playlist",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2403"
-    },
-    {
-      "reference": "CVE-2009-0689",
-      "description": "large precision value in a format string triggers overflow",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0689"
-    },
-    {
-      "reference": "CVE-2009-0558",
-      "description": "attacker-controlled array index leads to code execution",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0558"
-    },
-    {
-      "reference": "CVE-2008-4113",
-      "description": "OS kernel trusts userland-supplied length value, allowing reading of sensitive information",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4113"
-    },
-    {
-      "reference": "CVE-2007-4268",
-      "description": "Chain: integer signedness error (CWE-195) passes signed comparison, leading to heap overflow (CWE-122)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4268"
-    }
-  ],
-  "references": [
-    {
-      "section": "ASCRM-CWE-788",
-      "reference_id": "REF-961",
-      "author": [
-        "Object Management Group (OMG)"
-      ],
-      "title": "Automated Source Code Reliability Measure (ASCRM)",
-      "url": "http://www.omg.org/spec/ASCRM/1.0/",
-      "publication_year": "2016",
-      "publication_month": "--01"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2009-10-21"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-05-03",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Feedback",
-        "contribution_name": "Eric Constantin Brinz",
-        "contribution_organization": "GENIA-SEC IT-Sicherheitsmanagement GmbH",
-        "contribution_date": "2022-02-23",
-        "contribution_comment": "Suggested corrections to extended description."
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-13",
-      "method": "Fuzzing",
-      "description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
-      "effectiveness": "High"
-    },
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "OMG ASCRM",
-      "entry_id": "ASCRM-CWE-788"
-    }
-  ]
+	"id": "788",
+	"name": "Access of Memory Location After End of Buffer",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product reads or writes to a buffer using an index or pointer that references a memory location after the end of the buffer.",
+	"extended_description": "This typically occurs when a pointer or its index is incremented to a position after the buffer; or when pointer arithmetic results in a position after the buffer.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "119",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "119",
+			"view_id": "1305",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "119",
+			"view_id": "1340",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Memory"
+			],
+			"note": "For an out-of-bounds read, the attacker may have access to sensitive information. If the sensitive information contains system details, such as the current buffers position in memory, this knowledge can be used to craft further attacks, possibly with more severe consequences."
+		},
+		{
+			"scope": [
+				"Integrity",
+				"Availability"
+			],
+			"impact": [
+				"Modify Memory",
+				"DoS: Crash, Exit, or Restart"
+			],
+			"note": "Out of bounds memory access will very likely result in the corruption of relevant memory, and perhaps instructions, possibly leading to a crash. Other attacks leading to lack of availability are possible, including putting the program into an infinite loop."
+		},
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Modify Memory",
+				"Execute Unauthorized Code or Commands"
+			],
+			"note": "If the memory accessible by the attacker can be effectively controlled, it may be possible to execute arbitrary code, as with a standard buffer overflow. If the attacker can overwrite a pointer's worth of memory (usually 32 or 64 bits), they can redirect a function pointer to their own malicious code. Even when the attacker can only modify a single byte arbitrary code execution can be possible. Sometimes this is because the same problem can be exploited repeatedly to the same effect. Other times it is because the attacker can overwrite security-critical application-specific data -- such as a flag indicating whether the user is an administrator."
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-1",
+			"text": "\n               <Intro_Text>This example takes an IP address from a user, verifies that it is well formed and then looks up the hostname and copies it into a buffer.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void host_lookup(char *user_supplied_addr){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>struct hostent *hp;<xhtml:br/>in_addr_t *addr;<xhtml:br/>char hostname[64];<xhtml:br/>in_addr_t inet_addr(const char *cp);<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/*routine that ensures user_supplied_addr is in the right format for conversion */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>validate_addr_form(user_supplied_addr);<xhtml:br/>addr = inet_addr(user_supplied_addr);<xhtml:br/>hp = gethostbyaddr( addr, sizeof(struct in_addr), AF_INET);<xhtml:br/>strcpy(hostname, hp-&gt;h_name);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This function allocates a buffer of 64 bytes to store the hostname, however there is no guarantee that the hostname will not be larger than 64 bytes. If an attacker specifies an address which resolves to a very large hostname, then the function may overwrite sensitive data or even relinquish control flow to the attacker.</Body_Text>\n               <Body_Text>Note that this example also contains an unchecked return value (CWE-252) that can lead to a NULL pointer dereference (CWE-476).</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-114",
+			"text": "\n               <Intro_Text>In the following example, it is possible to request that memcpy move a much larger segment of memory than assumed:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int returnChunkSize(void *) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>/* if chunk info is valid, return the size of usable memory,</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>* else, return -1 to indicate an error</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>*/</xhtml:i>\n                           <xhtml:br/>...</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>int main() {<xhtml:div style=\"margin-left:1em;\">...<xhtml:br/>memcpy(destBuf, srcBuf, (returnChunkSize(destBuf)-1));<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If returnChunkSize() happens to encounter an error it will return -1. Notice that the return value is not checked before the memcpy operation (CWE-252), so -1 can be passed as the size argument to memcpy() (CWE-805). Because memcpy() assumes that the value is unsigned, it will be interpreted as MAXINT-1 (CWE-195), and therefore will copy far more memory than is likely available to the destination buffer (CWE-787, CWE-788).</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-19",
+			"text": "\n               <Intro_Text>This example applies an encoding procedure to an input string and stores it into a buffer.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char * copy_input(char *user_supplied_string){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int i, dst_index;<xhtml:br/>char *dst_buf = (char*)malloc(4*sizeof(char) * MAX_SIZE);<xhtml:br/>if ( MAX_SIZE &lt;= strlen(user_supplied_string) ){<xhtml:div style=\"margin-left:1em;\">die(\"user string too long, die evil hacker!\");</xhtml:div>}<xhtml:br/>dst_index = 0;<xhtml:br/>for ( i = 0; i &lt; strlen(user_supplied_string); i++ ){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if( '&amp;' == user_supplied_string[i] ){<xhtml:div style=\"margin-left:1em;\">dst_buf[dst_index++] = '&amp;';<xhtml:br/>dst_buf[dst_index++] = 'a';<xhtml:br/>dst_buf[dst_index++] = 'm';<xhtml:br/>dst_buf[dst_index++] = 'p';<xhtml:br/>dst_buf[dst_index++] = ';';</xhtml:div>}<xhtml:br/>else if ('&lt;' == user_supplied_string[i] ){<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>/* encode to &amp;lt; */</xhtml:i>\n                                       <xhtml:br/>\n                                    </xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>else dst_buf[dst_index++] = user_supplied_string[i];</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return dst_buf;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer attempts to encode the ampersand character in the user-controlled string, however the length of the string is validated before the encoding procedure is applied. Furthermore, the programmer assumes encoding expansion will only expand a given character by a factor of 4, while the encoding of the ampersand expands by 5. As a result, when the encoding procedure expands the string it is possible to overflow the destination buffer if the attacker provides a string of many ampersands.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-91",
+			"text": "\n               <Intro_Text>In the following C/C++ example the method processMessageFromSocket() will get a message from a socket, placed into a buffer, and will parse the contents of the buffer into a structure that contains the message length and the message body. A for loop is used to copy the message body into a local character string which will be passed to another method for processing.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int processMessageFromSocket(int socket) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int success;<xhtml:br/>\n                           <xhtml:br/>char buffer[BUFFER_SIZE];<xhtml:br/>char message[MESSAGE_SIZE];<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// get message from socket and store into buffer</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>//Ignoring possibliity that buffer &gt; BUFFER_SIZE</xhtml:i>\n                           <xhtml:br/>if (getMessage(socket, buffer, BUFFER_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>// place contents of the buffer into message structure</xhtml:i>\n                                 <xhtml:br/>ExMessage *msg = recastBuffer(buffer);<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// copy message body into string for processing</xhtml:i>\n                                 <xhtml:br/>int index;<xhtml:br/>for (index = 0; index &lt; msg-&gt;msgLength; index++) {<xhtml:div style=\"margin-left:1em;\">message[index] = msg-&gt;msgBody[index];</xhtml:div>}<xhtml:br/>message[index] = '\\0';<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// process message</xhtml:i>\n                                 <xhtml:br/>success = processMessage(message);</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return success;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the message length variable from the structure is used as the condition for ending the for loop without validating that the message length variable accurately reflects the length of the message body (CWE-606). This can result in a buffer over-read (CWE-125) by reading from memory beyond the bounds of the buffer if the message length variable indicates a length that is longer than the size of a message body (CWE-130).</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2009-2550",
+			"description": "Classic stack-based buffer overflow in media player using a long entry in a playlist",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2550"
+		},
+		{
+			"reference": "CVE-2009-2403",
+			"description": "Heap-based buffer overflow in media player using a long entry in a playlist",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2403"
+		},
+		{
+			"reference": "CVE-2009-0689",
+			"description": "large precision value in a format string triggers overflow",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-0689"
+		},
+		{
+			"reference": "CVE-2009-0558",
+			"description": "attacker-controlled array index leads to code execution",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-0558"
+		},
+		{
+			"reference": "CVE-2008-4113",
+			"description": "OS kernel trusts userland-supplied length value, allowing reading of sensitive information",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-4113"
+		},
+		{
+			"reference": "CVE-2007-4268",
+			"description": "Chain: integer signedness error (CWE-195) passes signed comparison, leading to heap overflow (CWE-122)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4268"
+		}
+	],
+	"references": [
+		{
+			"section": "ASCRM-CWE-788",
+			"reference_id": "REF-961",
+			"author": [
+				"Object Management Group (OMG)"
+			],
+			"title": "Automated Source Code Reliability Measure (ASCRM)",
+			"url": "http://www.omg.org/spec/ASCRM/1.0/",
+			"publication_year": "2016",
+			"publication_month": "--01"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2009-10-21"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-05-03",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Feedback",
+				"contribution_name": "Eric Constantin Brinz",
+				"contribution_organization": "GENIA-SEC IT-Sicherheitsmanagement GmbH",
+				"contribution_date": "2022-02-23",
+				"contribution_comment": "Suggested corrections to extended description."
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-13",
+			"method": "Fuzzing",
+			"description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
+			"effectiveness": "High"
+		},
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "OMG ASCRM",
+			"entry_id": "ASCRM-CWE-788"
+		}
+	]
 }

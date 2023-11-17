@@ -1,149 +1,149 @@
 {
-  "id": "925",
-  "name": "Improper Verification of Intent by Broadcast Receiver",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The Android application uses a Broadcast Receiver that receives an Intent but does not properly verify that the Intent came from an authorized source.",
-  "extended_description": "Certain types of Intents, identified by action string, can only be broadcast by the operating system itself, not by third-party applications. However, when an application registers to receive these implicit system intents, it is also registered to receive any explicit intents. While a malicious application cannot send an implicit system intent, it can send an explicit intent to the target application, which may assume that any received intent is a valid implicit system intent and not an explicit intent from another application. This may lead to unintended behavior.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "940",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Mobile",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity"
-      ],
-      "note": "Another application can impersonate the operating system and cause the software to perform an unintended action."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Before acting on the Intent, check the Intent Action to make sure it matches the expected System action."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;manifest package=\"com.example.vulnerableApplication\"&gt;<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>&lt;application&gt;<xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>&lt;receiver android:name=\".ShutdownReceiver\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;intent-filter&gt;<xhtml:div style=\"margin-left:1em;\">&lt;action android:name=\"android.intent.action.ACTION_SHUTDOWN\" /&gt;</xhtml:div>&lt;/intent-filter&gt;</xhtml:div>&lt;/receiver&gt;</xhtml:div>\n                           </xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>&lt;/application&gt;</xhtml:div>\n                     </xhtml:div>&lt;/manifest&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>The ShutdownReceiver class will handle the intent:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>IntentFilter filter = new IntentFilter(Intent.ACTION_SHUTDOWN);<xhtml:br/>BroadcastReceiver sReceiver = new ShutDownReceiver();<xhtml:br/>registerReceiver(sReceiver, filter);<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>public class ShutdownReceiver extends BroadcastReceiver {<xhtml:div style=\"margin-left:1em;\">@Override<xhtml:br/>public void onReceive(final Context context, final Intent intent) {<xhtml:div style=\"margin-left:1em;\">mainActivity.saveLocalData();<xhtml:br/>mainActivity.stopActivity();</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because the method does not confirm that the intent action is the expected system intent, any received intent will trigger the shutdown procedure, as shown here:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"Java\">\n                  <xhtml:div>window.location = examplescheme://method?parameter=value</xhtml:div>\n               </Example_Code>\n               <Body_Text>An attacker can use this behavior to cause a denial of service.</Body_Text>\n            "
-    }
-  ],
-  "references": [
-    {
-      "section": "3.2.1",
-      "reference_id": "REF-922",
-      "author": [
-        "Erika Chin",
-        "Adrienne Porter Felt",
-        "Kate Greenwood",
-        "David Wagner"
-      ],
-      "title": "Analyzing Inter-Application Communication in Android",
-      "url": "http://www.eecs.berkeley.edu/~daw/papers/intents-mobisys11.pdf"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2013-06-24"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-02-18",
-        "modification_comment": "updated Alternate_Terms, Demonstrative_Examples, Description, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Applicable_Platforms, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "Intent Spoofing"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "related_attack_patterns": [
-    "499"
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "This entry will be made more comprehensive in later CWE versions."
-    }
-  ]
+	"id": "925",
+	"name": "Improper Verification of Intent by Broadcast Receiver",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The Android application uses a Broadcast Receiver that receives an Intent but does not properly verify that the Intent came from an authorized source.",
+	"extended_description": "Certain types of Intents, identified by action string, can only be broadcast by the operating system itself, not by third-party applications. However, when an application registers to receive these implicit system intents, it is also registered to receive any explicit intents. While a malicious application cannot send an implicit system intent, it can send an explicit intent to the target application, which may assume that any received intent is a valid implicit system intent and not an explicit intent from another application. This may lead to unintended behavior.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "940",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Mobile",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity"
+			],
+			"note": "Another application can impersonate the operating system and cause the software to perform an unintended action."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Before acting on the Intent, check the Intent Action to make sure it matches the expected System action."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;manifest package=\"com.example.vulnerableApplication\"&gt;<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>&lt;application&gt;<xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>&lt;receiver android:name=\".ShutdownReceiver\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;intent-filter&gt;<xhtml:div style=\"margin-left:1em;\">&lt;action android:name=\"android.intent.action.ACTION_SHUTDOWN\" /&gt;</xhtml:div>&lt;/intent-filter&gt;</xhtml:div>&lt;/receiver&gt;</xhtml:div>\n                           </xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>&lt;/application&gt;</xhtml:div>\n                     </xhtml:div>&lt;/manifest&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>The ShutdownReceiver class will handle the intent:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>IntentFilter filter = new IntentFilter(Intent.ACTION_SHUTDOWN);<xhtml:br/>BroadcastReceiver sReceiver = new ShutDownReceiver();<xhtml:br/>registerReceiver(sReceiver, filter);<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>public class ShutdownReceiver extends BroadcastReceiver {<xhtml:div style=\"margin-left:1em;\">@Override<xhtml:br/>public void onReceive(final Context context, final Intent intent) {<xhtml:div style=\"margin-left:1em;\">mainActivity.saveLocalData();<xhtml:br/>mainActivity.stopActivity();</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because the method does not confirm that the intent action is the expected system intent, any received intent will trigger the shutdown procedure, as shown here:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"Java\">\n                  <xhtml:div>window.location = examplescheme://method?parameter=value</xhtml:div>\n               </Example_Code>\n               <Body_Text>An attacker can use this behavior to cause a denial of service.</Body_Text>\n            "
+		}
+	],
+	"references": [
+		{
+			"section": "3.2.1",
+			"reference_id": "REF-922",
+			"author": [
+				"Erika Chin",
+				"Adrienne Porter Felt",
+				"Kate Greenwood",
+				"David Wagner"
+			],
+			"title": "Analyzing Inter-Application Communication in Android",
+			"url": "http://www.eecs.berkeley.edu/~daw/papers/intents-mobisys11.pdf"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2013-06-24"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-02-18",
+				"modification_comment": "updated Alternate_Terms, Demonstrative_Examples, Description, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Applicable_Platforms, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "Intent Spoofing"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"related_attack_patterns": [
+		"499"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "This entry will be made more comprehensive in later CWE versions."
+		}
+	]
 }

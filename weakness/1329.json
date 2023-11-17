@@ -1,228 +1,228 @@
 {
-  "id": "1329",
-  "name": "Reliance on Component That is Not Updateable",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product contains a component that cannot be updated or patched in order to remove vulnerabilities or significant bugs.",
-  "extended_description": "\n\t\t\t  <xhtml:p>\n\t\t\t  If the component is discovered to contain a vulnerability or critical bug, but the issue cannot be fixed using an update or patch, then the product's owner will not be able to protect against the issue.  The only option might be replacement of the product, which could be too financially or operationally expensive for the product owner.  As a result, the inability to patch or update can leave the product open to attacker exploitation or critical operation failures. This weakness can be especially difficult to manage when using ROM, firmware, or similar components that traditionally have had limited or no update capabilities.\n\t\t\t  </xhtml:p>\n\t\t\t  <xhtml:p>\n\t\t\t    In industries such as healthcare, \"legacy\"\n\t\t\t    devices can be operated for decades.  As a\n\t\t\t    US task force report [REF-1197] notes, \"the inability\n\t\t\t    to update or replace equipment has both\n\t\t\t    large and small health care delivery\n\t\t\t    organizations struggle with numerous\n\t\t\t    unsupported legacy systems that cannot\n\t\t\t    easily be replaced (hardware, software, and\n\t\t\t    operating systems) with large numbers of\n\t\t\t    vulnerabilities and few modern\n\t\t\t    countermeasures.\"\n\t\t\t    </xhtml:p>\n\t\t\t  <xhtml:p>\n\t\t\t    While hardware can be prone to this weakness, software systems can also be affected, such as when a third-party driver or library is no longer actively maintained or supported but is still critical for the required functionality.</xhtml:p>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1357",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "664",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      },
-      {
-        "class": "ICS/OT",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Requirements",
-      "note": [
-        "Requirements development might not consider the importance of updates over the lifetime of the product or might intentionally exclude this capability due to concerns such as expense or speed to market."
-      ]
-    },
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "Lack of planning during architecture development and design, or external pressures such as speed to market, could ignore the capability to update."
-      ]
-    },
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "Designers might omit capabilities for updating a component due to time pressures to release the product or assumptions about the stability of the component."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "The weakness can appear through oversight during implementation."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Access Control",
-        "Authentication",
-        "Authorization",
-        "Other"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity",
-        "Bypass Protection Mechanism",
-        "Execute Unauthorized Code or Commands",
-        "DoS: Crash, Exit, or Restart",
-        "Quality Degradation",
-        "Reduce Maintainability"
-      ],
-      "note": "If an attacker can identify an exploitable vulnerability in one product that has no means of patching, the attack may be used against all affected versions of that product."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Requirements"
-      ],
-      "description": [
-        "Specify requirements that each component should be updateable, including ROM, firmware, etc."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Design the product to allow for updating of its components. Include the external infrastructure that might be necessary to support updates, such as distribution servers."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation"
-      ],
-      "description": [
-        "\n\t\t\t\t\t    With hardware, support patches that can be programmed in-field or during manufacturing through hardware fuses. This feature can be used for limited patching of devices after shipping, or for the next batch of silicon devices manufactured, without changing the full device ROM.\n                    "
-      ],
-      "effectiveness": "Moderate",
-      "effectiveness_notes": "\n                        Some parts of the hardware initialization or signature verification done to authenticate patches will always be \"not patchable.\"  Hardware-fuse-based patches will also have limitations in terms of size and the number of patches that can be supported.\n                    "
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Implement the necessary functionality to allow each component to be updated."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-145",
-      "text": "\n\t\t\t\t\t<Intro_Text>A refrigerator has an Internet interface for the official purpose of alerting the manufacturer when that refrigerator detects a fault. Because the device is attached to the Internet, the refrigerator is a target for hackers who may wish to use the device other potentially more nefarious purposes.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Other\">The refrigerator has no means of patching and is hacked becoming a spewer of email spam.</Example_Code>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Other\">The device automatically patches itself and provides considerable more protection against being hacked.</Example_Code>\n\t\t\t\t"
-    },
-    {
-      "demonstrative_example_id": "DX-146",
-      "text": "\n\t\t\t\t\t<Intro_Text>\n\t\t\t\t\t\t<xhtml:p>A System-on-Chip (SOC) implements a Root-of-Trust (RoT) in ROM to boot secure code. However, at times this ROM code might have security vulnerabilities and need to be patched. Since ROM is immutable, it can be impossible to patch.</xhtml:p>\n\t\t\t\t\t</Intro_Text>\n\t\t\t\t\t<Body_Text>ROM does not have built-in application-programming interfaces (APIs) to patch if the code is vulnerable. Implement mechanisms to patch the vulnerable ROM code.</Body_Text>\n\t\t\t\t"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2020-9054",
-      "description": "Chain: network-attached storage (NAS) device has a critical OS command injection (CWE-78) vulnerability that is actively exploited to place IoT devices into a botnet, but some products are \"end-of-support\" and cannot be patched (CWE-1277). [REF-1097]",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-9054"
-    }
-  ],
-  "references": [
-    {
-      "section": "Executive Summary",
-      "reference_id": "REF-1197",
-      "author": [
-        "Health Care Industry Cybersecurity Task Force"
-      ],
-      "title": "Report on Improving Cybersecurity in the\n\t\t\tHealth Care Industry",
-      "url": "https://www.phe.gov/Preparedness/planning/CyberTF/Documents/report2017.pdf",
-      "publication_year": "2017",
-      "publication_month": "--06"
-    },
-    {
-      "reference_id": "REF-1097",
-      "author": [
-        "Brian Krebs"
-      ],
-      "title": "Zyxel Flaw Powers New Mirai IoT Botnet Strain",
-      "url": "https://krebsonsecurity.com/2020/03/zxyel-flaw-powers-new-mirai-iot-botnet-strain/",
-      "publication_year": "2020",
-      "publication_month": "--03",
-      "publication_day": "---20"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2020-12-03"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Demonstrative_Examples, Description, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Common_Consequences, Description, Detection_Factors, Maintenance_Notes, Modes_of_Introduction, Observed_Examples, Potential_Mitigations, References, Relationships, Time_of_Introduction, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Applicable_Platforms, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "method": "Architecture or Design Review",
-      "description": "Check the consumer or maintainer documentation, the architecture/design documentation, or the original requirements to ensure that the documentation includes details for how to update the firmware.",
-      "effectiveness": "Moderate"
-    }
-  ]
+	"id": "1329",
+	"name": "Reliance on Component That is Not Updateable",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product contains a component that cannot be updated or patched in order to remove vulnerabilities or significant bugs.",
+	"extended_description": "\n\t\t\t  <xhtml:p>\n\t\t\t  If the component is discovered to contain a vulnerability or critical bug, but the issue cannot be fixed using an update or patch, then the product's owner will not be able to protect against the issue.  The only option might be replacement of the product, which could be too financially or operationally expensive for the product owner.  As a result, the inability to patch or update can leave the product open to attacker exploitation or critical operation failures. This weakness can be especially difficult to manage when using ROM, firmware, or similar components that traditionally have had limited or no update capabilities.\n\t\t\t  </xhtml:p>\n\t\t\t  <xhtml:p>\n\t\t\t    In industries such as healthcare, \"legacy\"\n\t\t\t    devices can be operated for decades.  As a\n\t\t\t    US task force report [REF-1197] notes, \"the inability\n\t\t\t    to update or replace equipment has both\n\t\t\t    large and small health care delivery\n\t\t\t    organizations struggle with numerous\n\t\t\t    unsupported legacy systems that cannot\n\t\t\t    easily be replaced (hardware, software, and\n\t\t\t    operating systems) with large numbers of\n\t\t\t    vulnerabilities and few modern\n\t\t\t    countermeasures.\"\n\t\t\t    </xhtml:p>\n\t\t\t  <xhtml:p>\n\t\t\t    While hardware can be prone to this weakness, software systems can also be affected, such as when a third-party driver or library is no longer actively maintained or supported but is still critical for the required functionality.</xhtml:p>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1357",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "664",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			},
+			{
+				"class": "ICS/OT",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Requirements",
+			"note": [
+				"Requirements development might not consider the importance of updates over the lifetime of the product or might intentionally exclude this capability due to concerns such as expense or speed to market."
+			]
+		},
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"Lack of planning during architecture development and design, or external pressures such as speed to market, could ignore the capability to update."
+			]
+		},
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"Designers might omit capabilities for updating a component due to time pressures to release the product or assumptions about the stability of the component."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"The weakness can appear through oversight during implementation."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Access Control",
+				"Authentication",
+				"Authorization",
+				"Other"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity",
+				"Bypass Protection Mechanism",
+				"Execute Unauthorized Code or Commands",
+				"DoS: Crash, Exit, or Restart",
+				"Quality Degradation",
+				"Reduce Maintainability"
+			],
+			"note": "If an attacker can identify an exploitable vulnerability in one product that has no means of patching, the attack may be used against all affected versions of that product."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Requirements"
+			],
+			"description": [
+				"Specify requirements that each component should be updateable, including ROM, firmware, etc."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Design the product to allow for updating of its components. Include the external infrastructure that might be necessary to support updates, such as distribution servers."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"\n\t\t\t\t\t    With hardware, support patches that can be programmed in-field or during manufacturing through hardware fuses. This feature can be used for limited patching of devices after shipping, or for the next batch of silicon devices manufactured, without changing the full device ROM.\n                    "
+			],
+			"effectiveness": "Moderate",
+			"effectiveness_notes": "\n                        Some parts of the hardware initialization or signature verification done to authenticate patches will always be \"not patchable.\"  Hardware-fuse-based patches will also have limitations in terms of size and the number of patches that can be supported.\n                    "
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Implement the necessary functionality to allow each component to be updated."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-145",
+			"text": "\n\t\t\t\t\t<Intro_Text>A refrigerator has an Internet interface for the official purpose of alerting the manufacturer when that refrigerator detects a fault. Because the device is attached to the Internet, the refrigerator is a target for hackers who may wish to use the device other potentially more nefarious purposes.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Other\">The refrigerator has no means of patching and is hacked becoming a spewer of email spam.</Example_Code>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Other\">The device automatically patches itself and provides considerable more protection against being hacked.</Example_Code>\n\t\t\t\t"
+		},
+		{
+			"demonstrative_example_id": "DX-146",
+			"text": "\n\t\t\t\t\t<Intro_Text>\n\t\t\t\t\t\t<xhtml:p>A System-on-Chip (SOC) implements a Root-of-Trust (RoT) in ROM to boot secure code. However, at times this ROM code might have security vulnerabilities and need to be patched. Since ROM is immutable, it can be impossible to patch.</xhtml:p>\n\t\t\t\t\t</Intro_Text>\n\t\t\t\t\t<Body_Text>ROM does not have built-in application-programming interfaces (APIs) to patch if the code is vulnerable. Implement mechanisms to patch the vulnerable ROM code.</Body_Text>\n\t\t\t\t"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2020-9054",
+			"description": "Chain: network-attached storage (NAS) device has a critical OS command injection (CWE-78) vulnerability that is actively exploited to place IoT devices into a botnet, but some products are \"end-of-support\" and cannot be patched (CWE-1277). [REF-1097]",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-9054"
+		}
+	],
+	"references": [
+		{
+			"section": "Executive Summary",
+			"reference_id": "REF-1197",
+			"author": [
+				"Health Care Industry Cybersecurity Task Force"
+			],
+			"title": "Report on Improving Cybersecurity in the\n\t\t\tHealth Care Industry",
+			"url": "https://www.phe.gov/Preparedness/planning/CyberTF/Documents/report2017.pdf",
+			"publication_year": "2017",
+			"publication_month": "--06"
+		},
+		{
+			"reference_id": "REF-1097",
+			"author": [
+				"Brian Krebs"
+			],
+			"title": "Zyxel Flaw Powers New Mirai IoT Botnet Strain",
+			"url": "https://krebsonsecurity.com/2020/03/zxyel-flaw-powers-new-mirai-iot-botnet-strain/",
+			"publication_year": "2020",
+			"publication_month": "--03",
+			"publication_day": "---20"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2020-12-03"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Demonstrative_Examples, Description, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Common_Consequences, Description, Detection_Factors, Maintenance_Notes, Modes_of_Introduction, Observed_Examples, Potential_Mitigations, References, Relationships, Time_of_Introduction, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Applicable_Platforms, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"method": "Architecture or Design Review",
+			"description": "Check the consumer or maintainer documentation, the architecture/design documentation, or the original requirements to ensure that the documentation includes details for how to update the firmware.",
+			"effectiveness": "Moderate"
+		}
+	]
 }

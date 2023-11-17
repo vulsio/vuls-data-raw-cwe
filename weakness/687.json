@@ -1,184 +1,184 @@
 {
-  "id": "687",
-  "name": "Function Call With Incorrectly Specified Argument Value",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product calls a function, procedure, or routine, but the caller specifies an argument that contains the wrong value, which may lead to resultant weaknesses.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "628",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Quality Degradation"
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-63",
-      "text": "\n               <Intro_Text>This Perl code intends to record whether a user authenticated successfully or not, and to exit if the user fails to authenticate. However, when it calls ReportAuth(), the third argument is specified as 0 instead of 1, so it does not exit.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>sub ReportAuth {<xhtml:div style=\"margin-left:1em;\">my ($username, $result, $fatal) = @_;<xhtml:br/>PrintLog(\"auth: username=%s, result=%d\", $username, $result);<xhtml:br/>if (($result ne \"success\") &amp;&amp; $fatal) {<xhtml:div style=\"margin-left:1em;\">die \"Failed!\\n\";</xhtml:div>}</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>sub PrivilegedFunc<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">my $result = CheckAuth($username);<xhtml:br/>ReportAuth($username, $result, 0);<xhtml:br/>DoReallyImportantStuff();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2008-04-11"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Detection_Factors, Relationships, Other_Notes, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Other_Notes, Relationship_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Detection_Factors"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "method": "Manual Static Analysis",
-      "description": "This might require an understanding of intended program behavior or design to determine whether the value is incorrect."
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not perform zero length allocations",
-      "entry_id": "MEM04-C"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Tainted input to command",
-      "entry_id": "SFP24"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "When primary, this weakness is most likely to occur in rarely-tested code, since the wrong value can change the semantic meaning of the program's execution and lead to obviously-incorrect behavior. It can also be resultant from issues in which the program assigns the wrong value to a variable, and that variable is later used in a function call. In that sense, this issue could be argued as having chaining relationships with many implementation errors in CWE."
-    }
-  ]
+	"id": "687",
+	"name": "Function Call With Incorrectly Specified Argument Value",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product calls a function, procedure, or routine, but the caller specifies an argument that contains the wrong value, which may lead to resultant weaknesses.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "628",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Quality Degradation"
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-63",
+			"text": "\n               <Intro_Text>This Perl code intends to record whether a user authenticated successfully or not, and to exit if the user fails to authenticate. However, when it calls ReportAuth(), the third argument is specified as 0 instead of 1, so it does not exit.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>sub ReportAuth {<xhtml:div style=\"margin-left:1em;\">my ($username, $result, $fatal) = @_;<xhtml:br/>PrintLog(\"auth: username=%s, result=%d\", $username, $result);<xhtml:br/>if (($result ne \"success\") &amp;&amp; $fatal) {<xhtml:div style=\"margin-left:1em;\">die \"Failed!\\n\";</xhtml:div>}</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>sub PrivilegedFunc<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">my $result = CheckAuth($username);<xhtml:br/>ReportAuth($username, $result, 0);<xhtml:br/>DoReallyImportantStuff();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2008-04-11"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Detection_Factors, Relationships, Other_Notes, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Other_Notes, Relationship_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Detection_Factors"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"method": "Manual Static Analysis",
+			"description": "This might require an understanding of intended program behavior or design to determine whether the value is incorrect."
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not perform zero length allocations",
+			"entry_id": "MEM04-C"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Tainted input to command",
+			"entry_id": "SFP24"
+		}
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "When primary, this weakness is most likely to occur in rarely-tested code, since the wrong value can change the semantic meaning of the program's execution and lead to obviously-incorrect behavior. It can also be resultant from issues in which the program assigns the wrong value to a variable, and that variable is later used in a function call. In that sense, this issue could be argued as having chaining relationships with many implementation errors in CWE."
+		}
+	]
 }

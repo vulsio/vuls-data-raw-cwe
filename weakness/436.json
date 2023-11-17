@@ -1,326 +1,326 @@
 {
-  "id": "436",
-  "name": "Interpretation Conflict",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "Product A handles inputs or steps differently than Product B, which causes A to perform incorrect actions based on its perception of B's state.",
-  "extended_description": "This is generally found in proxies, firewalls, anti-virus software, and other intermediary devices that monitor, allow, deny, or modify traffic based on how the client or server is expected to behave.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "435",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Other"
-      ],
-      "impact": [
-        "Unexpected State",
-        "Varies by Context"
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The paper \"Insertion, Evasion, and Denial of Service: Eluding Network Intrusion Detection\" [REF-428] shows that OSes varied widely in how they manage unusual packets, which made it difficult or impossible for intrusion detection systems to properly detect certain attacker manipulations that took advantage of these OS differences.</Intro_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>Null characters have different interpretations in Perl and C, which have security consequences when Perl invokes C functions. Similar problems have been reported in ASP [REF-429] and PHP.</Intro_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2005-1215",
-      "description": "Bypass filters or poison web cache using requests with multiple Content-Length headers, a non-standard behavior.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1215"
-    },
-    {
-      "reference": "CVE-2002-0485",
-      "description": "Anti-virus product allows bypass via Content-Type and Content-Disposition headers that are mixed case, which are still processed by some clients.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0485"
-    },
-    {
-      "reference": "CVE-2002-1978",
-      "description": "FTP clients sending a command with \"PASV\" in the argument can cause firewalls to misinterpret the server's error as a valid response, allowing filter bypass.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1978"
-    },
-    {
-      "reference": "CVE-2002-1979",
-      "description": "FTP clients sending a command with \"PASV\" in the argument can cause firewalls to misinterpret the server's error as a valid response, allowing filter bypass.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1979"
-    },
-    {
-      "reference": "CVE-2002-0637",
-      "description": "Virus product bypass with spaces between MIME header fields and the \":\" separator, a non-standard message that is accepted by some clients.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0637"
-    },
-    {
-      "reference": "CVE-2002-1777",
-      "description": "AV product detection bypass using inconsistency manipulation (file extension in MIME Content-Type vs. Content-Disposition field).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1777"
-    },
-    {
-      "reference": "CVE-2005-3310",
-      "description": "CMS system allows uploads of files with GIF/JPG extensions, but if they contain HTML, Internet Explorer renders them as HTML instead of images.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3310"
-    },
-    {
-      "reference": "CVE-2005-4260",
-      "description": "Interpretation conflict allows XSS via invalid \"<\" when a \">\" is expected, which is treated as \">\" by many web browsers.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-4260"
-    },
-    {
-      "reference": "CVE-2005-4080",
-      "description": "Interpretation conflict (non-standard behavior) enables XSS because browser ignores invalid characters in the middle of tags.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-4080"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-427",
-      "author": [
-        "Steve Christey"
-      ],
-      "title": "On Interpretation Conflict Vulnerabilities",
-      "url": "https://seclists.org/bugtraq/2005/Nov/30",
-      "publication_year": "2005",
-      "publication_month": "--11",
-      "publication_day": "---03",
-      "publication": "Bugtraq",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-428",
-      "author": [
-        "Thomas H. Ptacek",
-        "Timothy N. Newsham"
-      ],
-      "title": "Insertion, Evasion, and Denial of Service: Eluding Network Intrusion Detection",
-      "url": "https://insecure.org/stf/secnet_ids/secnet_ids.pdf",
-      "publication_year": "1998",
-      "publication_month": "--01",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-429",
-      "author": [
-        "Brett Moore"
-      ],
-      "title": "0x00 vs ASP file upload scripts",
-      "url": "http://www.security-assessment.com/Whitepapers/0x00_vs_ASP_File_Uploads.pdf",
-      "publication_year": "2004",
-      "publication_month": "--07",
-      "publication_day": "---13"
-    },
-    {
-      "reference_id": "REF-430",
-      "author": [
-        "Rain Forest Puppy"
-      ],
-      "title": "Poison NULL byte",
-      "publication": "Phrack"
-    },
-    {
-      "reference_id": "REF-431",
-      "author": [
-        "David F. Skoll"
-      ],
-      "title": "Re: Corsaire Security Advisory - Multiple vendor MIME RFC2047 encoding",
-      "url": "http://marc.info/?l=bugtraq&m=109525864717484&w=2",
-      "publication_year": "2004",
-      "publication_month": "--09",
-      "publication_day": "---15",
-      "publication": "Bugtraq"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Applicable_Platforms, Description, Observed_Examples, Other_Notes, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-01-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Multiple Interpretation Error (MIE)",
-        "date": "2008-04-11"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Multiple Interpretation Error (MIE)"
-    },
-    {
-      "taxonomy_name": "WASC",
-      "entry_name": "HTTP Response Smuggling",
-      "entry_id": "27"
-    }
-  ],
-  "related_attack_patterns": [
-    "105",
-    "273",
-    "34"
-  ]
+	"id": "436",
+	"name": "Interpretation Conflict",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "Product A handles inputs or steps differently than Product B, which causes A to perform incorrect actions based on its perception of B's state.",
+	"extended_description": "This is generally found in proxies, firewalls, anti-virus software, and other intermediary devices that monitor, allow, deny, or modify traffic based on how the client or server is expected to behave.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "435",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Other"
+			],
+			"impact": [
+				"Unexpected State",
+				"Varies by Context"
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The paper \"Insertion, Evasion, and Denial of Service: Eluding Network Intrusion Detection\" [REF-428] shows that OSes varied widely in how they manage unusual packets, which made it difficult or impossible for intrusion detection systems to properly detect certain attacker manipulations that took advantage of these OS differences.</Intro_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>Null characters have different interpretations in Perl and C, which have security consequences when Perl invokes C functions. Similar problems have been reported in ASP [REF-429] and PHP.</Intro_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2005-1215",
+			"description": "Bypass filters or poison web cache using requests with multiple Content-Length headers, a non-standard behavior.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1215"
+		},
+		{
+			"reference": "CVE-2002-0485",
+			"description": "Anti-virus product allows bypass via Content-Type and Content-Disposition headers that are mixed case, which are still processed by some clients.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0485"
+		},
+		{
+			"reference": "CVE-2002-1978",
+			"description": "FTP clients sending a command with \"PASV\" in the argument can cause firewalls to misinterpret the server's error as a valid response, allowing filter bypass.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1978"
+		},
+		{
+			"reference": "CVE-2002-1979",
+			"description": "FTP clients sending a command with \"PASV\" in the argument can cause firewalls to misinterpret the server's error as a valid response, allowing filter bypass.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1979"
+		},
+		{
+			"reference": "CVE-2002-0637",
+			"description": "Virus product bypass with spaces between MIME header fields and the \":\" separator, a non-standard message that is accepted by some clients.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0637"
+		},
+		{
+			"reference": "CVE-2002-1777",
+			"description": "AV product detection bypass using inconsistency manipulation (file extension in MIME Content-Type vs. Content-Disposition field).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1777"
+		},
+		{
+			"reference": "CVE-2005-3310",
+			"description": "CMS system allows uploads of files with GIF/JPG extensions, but if they contain HTML, Internet Explorer renders them as HTML instead of images.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3310"
+		},
+		{
+			"reference": "CVE-2005-4260",
+			"description": "Interpretation conflict allows XSS via invalid \"<\" when a \">\" is expected, which is treated as \">\" by many web browsers.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-4260"
+		},
+		{
+			"reference": "CVE-2005-4080",
+			"description": "Interpretation conflict (non-standard behavior) enables XSS because browser ignores invalid characters in the middle of tags.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-4080"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-427",
+			"author": [
+				"Steve Christey"
+			],
+			"title": "On Interpretation Conflict Vulnerabilities",
+			"url": "https://seclists.org/bugtraq/2005/Nov/30",
+			"publication_year": "2005",
+			"publication_month": "--11",
+			"publication_day": "---03",
+			"publication": "Bugtraq",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-428",
+			"author": [
+				"Thomas H. Ptacek",
+				"Timothy N. Newsham"
+			],
+			"title": "Insertion, Evasion, and Denial of Service: Eluding Network Intrusion Detection",
+			"url": "https://insecure.org/stf/secnet_ids/secnet_ids.pdf",
+			"publication_year": "1998",
+			"publication_month": "--01",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-429",
+			"author": [
+				"Brett Moore"
+			],
+			"title": "0x00 vs ASP file upload scripts",
+			"url": "http://www.security-assessment.com/Whitepapers/0x00_vs_ASP_File_Uploads.pdf",
+			"publication_year": "2004",
+			"publication_month": "--07",
+			"publication_day": "---13"
+		},
+		{
+			"reference_id": "REF-430",
+			"author": [
+				"Rain Forest Puppy"
+			],
+			"title": "Poison NULL byte",
+			"publication": "Phrack"
+		},
+		{
+			"reference_id": "REF-431",
+			"author": [
+				"David F. Skoll"
+			],
+			"title": "Re: Corsaire Security Advisory - Multiple vendor MIME RFC2047 encoding",
+			"url": "http://marc.info/?l=bugtraq&m=109525864717484&w=2",
+			"publication_year": "2004",
+			"publication_month": "--09",
+			"publication_day": "---15",
+			"publication": "Bugtraq"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Applicable_Platforms, Description, Observed_Examples, Other_Notes, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-01-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Multiple Interpretation Error (MIE)",
+				"date": "2008-04-11"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Multiple Interpretation Error (MIE)"
+		},
+		{
+			"taxonomy_name": "WASC",
+			"entry_name": "HTTP Response Smuggling",
+			"entry_id": "27"
+		}
+	],
+	"related_attack_patterns": [
+		"105",
+		"273",
+		"34"
+	]
 }

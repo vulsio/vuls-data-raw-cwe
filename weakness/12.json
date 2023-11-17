@@ -1,232 +1,232 @@
 {
-  "id": "12",
-  "name": "ASP.NET Misconfiguration: Missing Custom Error Page",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "An ASP .NET application must enable custom error pages in order to prevent attackers from mining information from the framework's built-in responses.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "756",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "ASP.NET"
-      }
-    ]
-  },
-  "background_details": [
-    "The mode attribute of the &lt;customErrors&gt; tag defines whether custom or default error pages are used."
-  ],
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Application Data"
-      ],
-      "note": "Default error pages gives detailed information about the error that occurred, and should not be used in production environments. Attackers can leverage the additional information provided by a default error page to mount attacks targeted on the framework, database, or other resources used by the application."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "System Configuration"
-      ],
-      "description": [
-        "Handle exceptions appropriately in source code. ASP .NET applications should be configured to use custom error pages instead of the framework default page."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Do not attempt to process an error or attempt to mask it."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Verify return values are correct and do not supply sensitive information about the system."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-75",
-      "text": "\n               <Intro_Text>The mode attribute of the &lt;customErrors&gt; tag in the Web.config file defines whether custom or default error pages are used.</Intro_Text>\n               <Body_Text>In the following insecure ASP.NET application setting, custom error message mode is turned off. An ASP.NET error message with detailed stack trace and platform versions will be returned.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"ASP.NET\">\n                  <xhtml:div>&lt;customErrors mode=\"Off\" /&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>A more secure setting is to set the custom error message mode for remote users only. No defaultRedirect error page is specified. The local user on the web server will see a detailed stack trace. For remote users, an ASP.NET error message with the server customError configuration setting and the platform version will be returned.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"ASP.NET\">\n                  <xhtml:div>&lt;customErrors mode=\"RemoteOnly\" /&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>Another secure option is to set the mode attribute of the &lt;customErrors&gt; tag to use a custom page as follows:</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"ASP.NET\">\n                  <xhtml:div>&lt;customErrors mode=\"On\" defaultRedirect=\"YourErrorPage.htm\" /&gt;</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-6",
-      "author": [
-        "Katrina Tsipenyuk",
-        "Brian Chess",
-        "Gary McGraw"
-      ],
-      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
-      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
-      "publication_year": "2005",
-      "publication_month": "--11",
-      "publication_day": "---07",
-      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
-      "publisher": "NIST"
-    },
-    {
-      "reference_id": "REF-65",
-      "author": [
-        "M. Howard",
-        "D. LeBlanc",
-        "J. Viega"
-      ],
-      "title": "19 Deadly Sins of Software Security",
-      "publication_year": "2005",
-      "publication_month": "--07",
-      "publication_day": "---26",
-      "publisher": "McGraw-Hill/Osborne"
-    },
-    {
-      "reference_id": "REF-66",
-      "author": [
-        "OWASP, Fortify Software"
-      ],
-      "title": "ASP.NET Misconfiguration: Missing Custom Error Handling",
-      "url": "http://www.owasp.org/index.php/ASP.NET_Misconfiguration:_Missing_Custom_Error_Handling"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "7 Pernicious Kingdoms",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated References, Demonstrative_Example, Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes, References, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Common_Consequences, Other_Notes, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated Background_Details, Common_Consequences, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "ASP.NET Misconfiguration: Missing Custom Error Handling",
-        "date": "2009-03-10"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "ASP.NET Misconfiguration: Missing Custom Error Handling"
-    }
-  ]
+	"id": "12",
+	"name": "ASP.NET Misconfiguration: Missing Custom Error Page",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "An ASP .NET application must enable custom error pages in order to prevent attackers from mining information from the framework's built-in responses.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "756",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "ASP.NET"
+			}
+		]
+	},
+	"background_details": [
+		"The mode attribute of the &lt;customErrors&gt; tag defines whether custom or default error pages are used."
+	],
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Application Data"
+			],
+			"note": "Default error pages gives detailed information about the error that occurred, and should not be used in production environments. Attackers can leverage the additional information provided by a default error page to mount attacks targeted on the framework, database, or other resources used by the application."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"System Configuration"
+			],
+			"description": [
+				"Handle exceptions appropriately in source code. ASP .NET applications should be configured to use custom error pages instead of the framework default page."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Do not attempt to process an error or attempt to mask it."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Verify return values are correct and do not supply sensitive information about the system."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-75",
+			"text": "\n               <Intro_Text>The mode attribute of the &lt;customErrors&gt; tag in the Web.config file defines whether custom or default error pages are used.</Intro_Text>\n               <Body_Text>In the following insecure ASP.NET application setting, custom error message mode is turned off. An ASP.NET error message with detailed stack trace and platform versions will be returned.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"ASP.NET\">\n                  <xhtml:div>&lt;customErrors mode=\"Off\" /&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>A more secure setting is to set the custom error message mode for remote users only. No defaultRedirect error page is specified. The local user on the web server will see a detailed stack trace. For remote users, an ASP.NET error message with the server customError configuration setting and the platform version will be returned.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"ASP.NET\">\n                  <xhtml:div>&lt;customErrors mode=\"RemoteOnly\" /&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>Another secure option is to set the mode attribute of the &lt;customErrors&gt; tag to use a custom page as follows:</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"ASP.NET\">\n                  <xhtml:div>&lt;customErrors mode=\"On\" defaultRedirect=\"YourErrorPage.htm\" /&gt;</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-6",
+			"author": [
+				"Katrina Tsipenyuk",
+				"Brian Chess",
+				"Gary McGraw"
+			],
+			"title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+			"url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+			"publication_year": "2005",
+			"publication_month": "--11",
+			"publication_day": "---07",
+			"publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+			"publisher": "NIST"
+		},
+		{
+			"reference_id": "REF-65",
+			"author": [
+				"M. Howard",
+				"D. LeBlanc",
+				"J. Viega"
+			],
+			"title": "19 Deadly Sins of Software Security",
+			"publication_year": "2005",
+			"publication_month": "--07",
+			"publication_day": "---26",
+			"publisher": "McGraw-Hill/Osborne"
+		},
+		{
+			"reference_id": "REF-66",
+			"author": [
+				"OWASP, Fortify Software"
+			],
+			"title": "ASP.NET Misconfiguration: Missing Custom Error Handling",
+			"url": "http://www.owasp.org/index.php/ASP.NET_Misconfiguration:_Missing_Custom_Error_Handling"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "7 Pernicious Kingdoms",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated References, Demonstrative_Example, Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes, References, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Common_Consequences, Other_Notes, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated Background_Details, Common_Consequences, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Demonstrative_Examples, Potential_Mitigations, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "ASP.NET Misconfiguration: Missing Custom Error Handling",
+				"date": "2009-03-10"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "ASP.NET Misconfiguration: Missing Custom Error Handling"
+		}
+	]
 }

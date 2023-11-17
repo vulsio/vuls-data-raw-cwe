@@ -1,219 +1,219 @@
 {
-  "id": "334",
-  "name": "Small Space of Random Values",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The number of possible random values is smaller than needed by the product, making it more susceptible to brute force attacks.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "330",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control",
-        "Other"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism",
-        "Other"
-      ],
-      "note": "An attacker could easily guess the values used. This could lead to unauthorized access to a system if the seed is used for authentication and authorization."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "mitigation_id": "MIT-2",
-      "phase": [
-        "Architecture and Design",
-        "Requirements"
-      ],
-      "description": [
-        "Use products or modules that conform to FIPS 140-2 [REF-267] to avoid obvious entropy problems. Consult FIPS 140-2 Annex C (\"Approved Random Number Generators\")."
-      ],
-      "strategy": "Libraries or Frameworks"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-47",
-      "text": "\n               <Intro_Text>The following XML example code is a deployment descriptor for a Java web application deployed on a Sun Java Application Server. This deployment descriptor includes a session configuration property for configuring the session ID length.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;sun-web-app&gt;<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>...<xhtml:br/>&lt;session-config&gt;<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>&lt;session-properties&gt;<xhtml:div style=\"margin-left:1em;\">&lt;property name=\"idLengthBytes\" value=\"8\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;description&gt;The number of bytes in this web module's session ID.&lt;/description&gt;</xhtml:div>&lt;/property&gt;</xhtml:div>&lt;/session-properties&gt;</xhtml:div>\n                           </xhtml:div>&lt;/session-config&gt;<xhtml:br/>...</xhtml:div>\n                     </xhtml:div>&lt;/sun-web-app&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>This deployment descriptor has set the session ID length for this Java web application to 8 bytes (or 64 bits). The session ID length for Java web applications should be set to 16 bytes (128 bits) to prevent attackers from guessing and/or stealing a session ID and taking over a user's session.</Body_Text>\n               <Body_Text>Note for most application servers including the Sun Java Application Server the session ID length is by default set to 128 bits and should not be changed. And for many application servers the session ID length cannot be changed from this default setting. Check your application server documentation for the session ID length default setting and configuration options to ensure that the session ID length is set to 128 bits.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2002-0583",
-      "description": "Product uses 5 alphanumeric characters for filenames of expense claim reports, stored under web root.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0583"
-    },
-    {
-      "reference": "CVE-2002-0903",
-      "description": "Product uses small number of random numbers for a code to approve an action, and also uses predictable new user IDs, allowing attackers to hijack new accounts.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0903"
-    },
-    {
-      "reference": "CVE-2003-1230",
-      "description": "SYN cookies implementation only uses 32-bit keys, making it easier to brute force ISN.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-1230"
-    },
-    {
-      "reference": "CVE-2004-0230",
-      "description": "Complex predictability / randomness (reduced space).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0230"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-267",
-      "author": [
-        "Information Technology Laboratory, National Institute of Standards and Technology"
-      ],
-      "title": "SECURITY REQUIREMENTS FOR CRYPTOGRAPHIC MODULES",
-      "url": "https://csrc.nist.gov/csrc/media/publications/fips/140/2/final/documents/fips1402.pdf",
-      "publication_year": "2001",
-      "publication_month": "--05",
-      "publication_day": "---25",
-      "url_date": "2023-04-07"
-    },
-    {
-      "section": "\"Sin 20: Weak Random Numbers.\" Page 299",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Potential_Mitigations, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Maintenance_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Small Space of Random Values"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "As of CWE 4.5, terminology related to randomness, entropy, and\n\t   predictability can vary widely. Within the developer and other\n\t   communities, \"randomness\" is used heavily. However, within\n\t   cryptography, \"entropy\" is distinct, typically implied as a\n\t   measurement. There are no commonly-used definitions, even within\n\t   standards documents and cryptography papers. Future versions of\n\t   CWE will attempt to define these terms and, if necessary,\n\t   distinguish between them in ways that are appropriate for\n\t   different communities but do not reduce the usability of CWE for\n\t   mapping, understanding, or other scenarios."
-    }
-  ]
+	"id": "334",
+	"name": "Small Space of Random Values",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The number of possible random values is smaller than needed by the product, making it more susceptible to brute force attacks.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "330",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control",
+				"Other"
+			],
+			"impact": [
+				"Bypass Protection Mechanism",
+				"Other"
+			],
+			"note": "An attacker could easily guess the values used. This could lead to unauthorized access to a system if the seed is used for authentication and authorization."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"mitigation_id": "MIT-2",
+			"phase": [
+				"Architecture and Design",
+				"Requirements"
+			],
+			"description": [
+				"Use products or modules that conform to FIPS 140-2 [REF-267] to avoid obvious entropy problems. Consult FIPS 140-2 Annex C (\"Approved Random Number Generators\")."
+			],
+			"strategy": "Libraries or Frameworks"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-47",
+			"text": "\n               <Intro_Text>The following XML example code is a deployment descriptor for a Java web application deployed on a Sun Java Application Server. This deployment descriptor includes a session configuration property for configuring the session ID length.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;sun-web-app&gt;<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>...<xhtml:br/>&lt;session-config&gt;<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>&lt;session-properties&gt;<xhtml:div style=\"margin-left:1em;\">&lt;property name=\"idLengthBytes\" value=\"8\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;description&gt;The number of bytes in this web module's session ID.&lt;/description&gt;</xhtml:div>&lt;/property&gt;</xhtml:div>&lt;/session-properties&gt;</xhtml:div>\n                           </xhtml:div>&lt;/session-config&gt;<xhtml:br/>...</xhtml:div>\n                     </xhtml:div>&lt;/sun-web-app&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>This deployment descriptor has set the session ID length for this Java web application to 8 bytes (or 64 bits). The session ID length for Java web applications should be set to 16 bytes (128 bits) to prevent attackers from guessing and/or stealing a session ID and taking over a user's session.</Body_Text>\n               <Body_Text>Note for most application servers including the Sun Java Application Server the session ID length is by default set to 128 bits and should not be changed. And for many application servers the session ID length cannot be changed from this default setting. Check your application server documentation for the session ID length default setting and configuration options to ensure that the session ID length is set to 128 bits.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2002-0583",
+			"description": "Product uses 5 alphanumeric characters for filenames of expense claim reports, stored under web root.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0583"
+		},
+		{
+			"reference": "CVE-2002-0903",
+			"description": "Product uses small number of random numbers for a code to approve an action, and also uses predictable new user IDs, allowing attackers to hijack new accounts.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0903"
+		},
+		{
+			"reference": "CVE-2003-1230",
+			"description": "SYN cookies implementation only uses 32-bit keys, making it easier to brute force ISN.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-1230"
+		},
+		{
+			"reference": "CVE-2004-0230",
+			"description": "Complex predictability / randomness (reduced space).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0230"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-267",
+			"author": [
+				"Information Technology Laboratory, National Institute of Standards and Technology"
+			],
+			"title": "SECURITY REQUIREMENTS FOR CRYPTOGRAPHIC MODULES",
+			"url": "https://csrc.nist.gov/csrc/media/publications/fips/140/2/final/documents/fips1402.pdf",
+			"publication_year": "2001",
+			"publication_month": "--05",
+			"publication_day": "---25",
+			"url_date": "2023-04-07"
+		},
+		{
+			"section": "\"Sin 20: Weak Random Numbers.\" Page 299",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Potential_Mitigations, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Maintenance_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Small Space of Random Values"
+		}
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "As of CWE 4.5, terminology related to randomness, entropy, and\n\t   predictability can vary widely. Within the developer and other\n\t   communities, \"randomness\" is used heavily. However, within\n\t   cryptography, \"entropy\" is distinct, typically implied as a\n\t   measurement. There are no commonly-used definitions, even within\n\t   standards documents and cryptography papers. Future versions of\n\t   CWE will attempt to define these terms and, if necessary,\n\t   distinguish between them in ways that are appropriate for\n\t   different communities but do not reduce the usability of CWE for\n\t   mapping, understanding, or other scenarios."
+		}
+	]
 }

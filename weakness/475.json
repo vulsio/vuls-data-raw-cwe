@@ -1,170 +1,170 @@
 {
-  "id": "475",
-  "name": "Undefined Behavior for Input to API",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The behavior of this function is undefined unless its control parameter is set to a specific value.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "573",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Quality Degradation",
-        "Varies by Context"
-      ]
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-6",
-      "author": [
-        "Katrina Tsipenyuk",
-        "Brian Chess",
-        "Gary McGraw"
-      ],
-      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
-      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
-      "publication_year": "2005",
-      "publication_month": "--11",
-      "publication_day": "---07",
-      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
-      "publisher": "NIST"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "7 Pernicious Kingdoms",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Undefined Behavior",
-        "date": "2008-04-11"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Indirect"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "Undefined Behavior"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Glitch in computation",
-      "entry_id": "SFP1"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Other",
-      "text": "The Linux Standard Base Specification 2.0.1 for libc places constraints on the arguments to some internal functions [21]. If the constraints are not met, the behavior of the functions is not defined. It is unusual for this function to be called directly. It is almost always invoked through a macro defined in a system header file, and the macro ensures that the following constraints are met: The value 1 must be passed to the third parameter (the version number) of the following file system function: __xmknod The value 2 must be passed to the third parameter (the group argument) of the following wide character string functions: __wcstod_internal __wcstof_internal __wcstol_internal __wcstold_internal __wcstoul_internal The value 3 must be passed as the first parameter (the version number) of the following file system functions: __xstat __lxstat __fxstat __xstat64 __lxstat64 __fxstat64"
-    }
-  ]
+	"id": "475",
+	"name": "Undefined Behavior for Input to API",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The behavior of this function is undefined unless its control parameter is set to a specific value.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "573",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Quality Degradation",
+				"Varies by Context"
+			]
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-6",
+			"author": [
+				"Katrina Tsipenyuk",
+				"Brian Chess",
+				"Gary McGraw"
+			],
+			"title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+			"url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+			"publication_year": "2005",
+			"publication_month": "--11",
+			"publication_day": "---07",
+			"publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+			"publisher": "NIST"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "7 Pernicious Kingdoms",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Undefined Behavior",
+				"date": "2008-04-11"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Indirect"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "Undefined Behavior"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Glitch in computation",
+			"entry_id": "SFP1"
+		}
+	],
+	"notes": [
+		{
+			"type": "Other",
+			"text": "The Linux Standard Base Specification 2.0.1 for libc places constraints on the arguments to some internal functions [21]. If the constraints are not met, the behavior of the functions is not defined. It is unusual for this function to be called directly. It is almost always invoked through a macro defined in a system header file, and the macro ensures that the following constraints are met: The value 1 must be passed to the third parameter (the version number) of the following file system function: __xmknod The value 2 must be passed to the third parameter (the group argument) of the following wide character string functions: __wcstod_internal __wcstof_internal __wcstol_internal __wcstold_internal __wcstoul_internal The value 3 must be passed as the first parameter (the version number) of the following file system functions: __xstat __lxstat __fxstat __xstat64 __lxstat64 __fxstat64"
+		}
+	]
 }

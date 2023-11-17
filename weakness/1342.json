@@ -1,203 +1,203 @@
 {
-  "id": "1342",
-  "name": "Information Exposure through Microarchitectural State after Transient Execution",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The processor does not properly clear microarchitectural state after incorrect microcode assists or speculative execution, resulting in transient execution.",
-  "extended_description": "\n\t\t\t\t<xhtml:p>In many processor architectures an exception, mis-speculation, or microcode assist results in a flush operation to clear results that are no longer required. This action prevents these results from influencing architectural state that is intended to be visible from software. However, traces of this transient execution may remain in microarchitectural buffers, resulting in a change in microarchitectural state that can expose sensitive information to an attacker using side-channel analysis. For example, Load Value Injection (LVI) [REF-1202] can exploit direct injection of erroneous values into intermediate load and store buffers.</xhtml:p>\n\t\t\t\t<xhtml:p>Several conditions may need to be fulfilled for a successful attack:</xhtml:p>\n\t\t\t    <xhtml:ul>\n\t\t\t\t<xhtml:li>1) incorrect transient execution that results in remanence of sensitive information;</xhtml:li>\n\t\t\t\t<xhtml:li>2) attacker has the ability to provoke microarchitectural exceptions;</xhtml:li>\n\t\t\t\t<xhtml:li>3) operations and structures in victim code that can be exploited must be identified.</xhtml:li>\n\t\t\t    </xhtml:ul>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "226",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "226",
-      "view_id": "1194",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      },
-      {
-        "class": "System on Chip",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Workstation",
-        "prevalence": "Undetermined"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "x86"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "ARM"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Other"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Requirements"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity"
-      ],
-      "impact": [
-        "Modify Memory",
-        "Read Memory",
-        "Execute Unauthorized Code or Commands"
-      ],
-      "likelihood": "Medium"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Requirements"
-      ],
-      "description": [
-        "Hardware ensures that no illegal data flows from faulting micro-ops exists at the microarchitectural level."
-      ],
-      "effectiveness": "High",
-      "effectiveness_notes": "Being implemented in silicon it is expected to fully address the known weaknesses with limited performance impact."
-    },
-    {
-      "phase": [
-        "Build and Compilation"
-      ],
-      "description": [
-        "Include instructions that explicitly remove traces of unneeded computations from software interactions with microarchitectural elements e.g. lfence, sfence, mfence, clflush."
-      ],
-      "effectiveness": "High",
-      "effectiveness_notes": "This effectively forces the processor to complete each memory access before moving on to the next operation. This may have a large performance impact."
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>Faulting loads in a victim domain may trigger incorrect transient forwarding, which leaves secret-dependent traces in the microarchitectural state. Consider this example from [REF-1203].</Intro_Text>\n\t\t\t\t\t<Body_Text>Consider the code gadget:</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"C\">\n\t\t\t\t\t  <xhtml:div>\n\t\t\t\t\t    void call_victim(size_t untrusted_arg) {<xhtml:br/>\n\t\t\t\t\t    <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t      *arg_copy = untrusted_arg;<xhtml:br/>\n\t\t\t\t\t      array[**trusted_ptr * 4096];<xhtml:br/>\n\t\t\t\t\t    </xhtml:div>\n\t\t\t\t\t    }\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text><xhtml:p>A processor with this weakness will store the value of untrusted_arg (which may be provided by an attacker) to the stack, which is trusted memory. Additionally, this store operation will save this value in some microarchitectural buffer, e.g. the store queue.</xhtml:p>\n\t\t\t\t\t<xhtml:p>In this code gadget, \n\t\t\t\t\ttrusted_ptr is dereferenced while the attacker forces a page fault. The faulting load causes the processor to mis-speculate by forwarding untrusted_arg as the (speculative) load result. The processor then uses untrusted_arg for the pointer dereference. After the fault has been handled and the load has been re-issued with the correct argument, secret-dependent information stored at the address of trusted_ptr remains in microarchitectural state and can be extracted by an attacker using a code gadget.</xhtml:p></Body_Text>\n\t\t\t\t"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2020-0551",
-      "description": "Load value injection in some processors utilizing speculative execution may allow an authenticated user to enable information disclosure via a side-channel with local access.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-0551"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1202",
-      "author": [
-        "Jo Van Bulck, Daniel Moghimi, Michael Schwarz, Moritz Lipp, Marina Minkin, Daniel Genkin, Yuval Yarom, Berk Sunar, Daniel Gruss, and Frank Piessens"
-      ],
-      "title": "LVI - Hijacking Transient Execution with Load Value Injection",
-      "url": "https://lviattack.eu/",
-      "publication_year": "2020"
-    },
-    {
-      "reference_id": "REF-1203",
-      "author": [
-        "Jo Van Bulck, Daniel Moghimi, Michael Schwarz, Moritz Lipp, Marina Minkin, Daniel Genkin, Yuval Yarom, Berk Sunar, Daniel Gruss, and Frank Piessens"
-      ],
-      "title": "LVI: Hijacking Transient Execution through Microarchitectural Load Value Injection",
-      "url": "https://lviattack.eu/lvi.pdf",
-      "publication_year": "2020",
-      "publication_month": "--01",
-      "publication_day": "---09"
-    },
-    {
-      "reference_id": "REF-1204",
-      "title": "Hijacking Transient Execution through Microarchitectural Load Value Injection",
-      "url": "https://www.youtube.com/watch?v=99kVz-YGi6Y",
-      "publication_year": "2020",
-      "publication_month": "--05",
-      "publication_day": "---18"
-    },
-    {
-      "reference_id": "REF-1205",
-      "author": [
-        "Stephan van Schaik, Marina Minkin, Andrew Kwong, Daniel Genkin, Yuval Yarom"
-      ],
-      "title": "CacheOut: Leaking Data on Intel CPUs via Cache Evictions",
-      "url": "https://cacheoutattack.com/files/CacheOut.pdf",
-      "publication_year": "2020",
-      "publication_month": "--12",
-      "publication_day": "---28"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Anders Nordstrom, Alric Althoff",
-      "submission_organization": "Tortuga Logic",
-      "submission_date": "2021-09-22"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Demonstrative_Examples, Maintenance_Notes, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "696"
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "\n\t\t\t    CWE-1342 differs from CWE-1303, which is related to misprediction and biasing microarchitectural components, while CWE-1342 addresses illegal data flows and retention. For example, Spectre is an instance of CWE-1303 biasing branch prediction to steer the transient execution indirectly.\n\t\t\t  "
-    },
-    {
-      "type": "Maintenance",
-      "text": "As of CWE 4.9, members of the CWE Hardware SIG are closely analyzing this entry and others to improve CWE's coverage of transient execution weaknesses, which include issues related to Spectre, Meltdown, and other attacks. Additional investigation may include other weaknesses related to microarchitectural state. As a result, this entry might change significantly in CWE 4.10."
-    }
-  ]
+	"id": "1342",
+	"name": "Information Exposure through Microarchitectural State after Transient Execution",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The processor does not properly clear microarchitectural state after incorrect microcode assists or speculative execution, resulting in transient execution.",
+	"extended_description": "\n\t\t\t\t<xhtml:p>In many processor architectures an exception, mis-speculation, or microcode assist results in a flush operation to clear results that are no longer required. This action prevents these results from influencing architectural state that is intended to be visible from software. However, traces of this transient execution may remain in microarchitectural buffers, resulting in a change in microarchitectural state that can expose sensitive information to an attacker using side-channel analysis. For example, Load Value Injection (LVI) [REF-1202] can exploit direct injection of erroneous values into intermediate load and store buffers.</xhtml:p>\n\t\t\t\t<xhtml:p>Several conditions may need to be fulfilled for a successful attack:</xhtml:p>\n\t\t\t    <xhtml:ul>\n\t\t\t\t<xhtml:li>1) incorrect transient execution that results in remanence of sensitive information;</xhtml:li>\n\t\t\t\t<xhtml:li>2) attacker has the ability to provoke microarchitectural exceptions;</xhtml:li>\n\t\t\t\t<xhtml:li>3) operations and structures in victim code that can be exploited must be identified.</xhtml:li>\n\t\t\t    </xhtml:ul>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "226",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "226",
+			"view_id": "1194",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			},
+			{
+				"class": "System on Chip",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Workstation",
+				"prevalence": "Undetermined"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "x86"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "ARM"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Other"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Requirements"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity"
+			],
+			"impact": [
+				"Modify Memory",
+				"Read Memory",
+				"Execute Unauthorized Code or Commands"
+			],
+			"likelihood": "Medium"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Requirements"
+			],
+			"description": [
+				"Hardware ensures that no illegal data flows from faulting micro-ops exists at the microarchitectural level."
+			],
+			"effectiveness": "High",
+			"effectiveness_notes": "Being implemented in silicon it is expected to fully address the known weaknesses with limited performance impact."
+		},
+		{
+			"phase": [
+				"Build and Compilation"
+			],
+			"description": [
+				"Include instructions that explicitly remove traces of unneeded computations from software interactions with microarchitectural elements e.g. lfence, sfence, mfence, clflush."
+			],
+			"effectiveness": "High",
+			"effectiveness_notes": "This effectively forces the processor to complete each memory access before moving on to the next operation. This may have a large performance impact."
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>Faulting loads in a victim domain may trigger incorrect transient forwarding, which leaves secret-dependent traces in the microarchitectural state. Consider this example from [REF-1203].</Intro_Text>\n\t\t\t\t\t<Body_Text>Consider the code gadget:</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"C\">\n\t\t\t\t\t  <xhtml:div>\n\t\t\t\t\t    void call_victim(size_t untrusted_arg) {<xhtml:br/>\n\t\t\t\t\t    <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t      *arg_copy = untrusted_arg;<xhtml:br/>\n\t\t\t\t\t      array[**trusted_ptr * 4096];<xhtml:br/>\n\t\t\t\t\t    </xhtml:div>\n\t\t\t\t\t    }\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text><xhtml:p>A processor with this weakness will store the value of untrusted_arg (which may be provided by an attacker) to the stack, which is trusted memory. Additionally, this store operation will save this value in some microarchitectural buffer, e.g. the store queue.</xhtml:p>\n\t\t\t\t\t<xhtml:p>In this code gadget, \n\t\t\t\t\ttrusted_ptr is dereferenced while the attacker forces a page fault. The faulting load causes the processor to mis-speculate by forwarding untrusted_arg as the (speculative) load result. The processor then uses untrusted_arg for the pointer dereference. After the fault has been handled and the load has been re-issued with the correct argument, secret-dependent information stored at the address of trusted_ptr remains in microarchitectural state and can be extracted by an attacker using a code gadget.</xhtml:p></Body_Text>\n\t\t\t\t"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2020-0551",
+			"description": "Load value injection in some processors utilizing speculative execution may allow an authenticated user to enable information disclosure via a side-channel with local access.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-0551"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1202",
+			"author": [
+				"Jo Van Bulck, Daniel Moghimi, Michael Schwarz, Moritz Lipp, Marina Minkin, Daniel Genkin, Yuval Yarom, Berk Sunar, Daniel Gruss, and Frank Piessens"
+			],
+			"title": "LVI - Hijacking Transient Execution with Load Value Injection",
+			"url": "https://lviattack.eu/",
+			"publication_year": "2020"
+		},
+		{
+			"reference_id": "REF-1203",
+			"author": [
+				"Jo Van Bulck, Daniel Moghimi, Michael Schwarz, Moritz Lipp, Marina Minkin, Daniel Genkin, Yuval Yarom, Berk Sunar, Daniel Gruss, and Frank Piessens"
+			],
+			"title": "LVI: Hijacking Transient Execution through Microarchitectural Load Value Injection",
+			"url": "https://lviattack.eu/lvi.pdf",
+			"publication_year": "2020",
+			"publication_month": "--01",
+			"publication_day": "---09"
+		},
+		{
+			"reference_id": "REF-1204",
+			"title": "Hijacking Transient Execution through Microarchitectural Load Value Injection",
+			"url": "https://www.youtube.com/watch?v=99kVz-YGi6Y",
+			"publication_year": "2020",
+			"publication_month": "--05",
+			"publication_day": "---18"
+		},
+		{
+			"reference_id": "REF-1205",
+			"author": [
+				"Stephan van Schaik, Marina Minkin, Andrew Kwong, Daniel Genkin, Yuval Yarom"
+			],
+			"title": "CacheOut: Leaking Data on Intel CPUs via Cache Evictions",
+			"url": "https://cacheoutattack.com/files/CacheOut.pdf",
+			"publication_year": "2020",
+			"publication_month": "--12",
+			"publication_day": "---28"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Anders Nordstrom, Alric Althoff",
+			"submission_organization": "Tortuga Logic",
+			"submission_date": "2021-09-22"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Demonstrative_Examples, Maintenance_Notes, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"696"
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "\n\t\t\t    CWE-1342 differs from CWE-1303, which is related to misprediction and biasing microarchitectural components, while CWE-1342 addresses illegal data flows and retention. For example, Spectre is an instance of CWE-1303 biasing branch prediction to steer the transient execution indirectly.\n\t\t\t  "
+		},
+		{
+			"type": "Maintenance",
+			"text": "As of CWE 4.9, members of the CWE Hardware SIG are closely analyzing this entry and others to improve CWE's coverage of transient execution weaknesses, which include issues related to Spectre, Meltdown, and other attacks. Additional investigation may include other weaknesses related to microarchitectural state. As a result, this entry might change significantly in CWE 4.10."
+		}
+	]
 }

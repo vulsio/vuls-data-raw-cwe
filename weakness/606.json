@@ -1,231 +1,231 @@
 {
-  "id": "606",
-  "name": "Unchecked Input for Loop Condition",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not properly check inputs that are used for loop conditions, potentially leading to a denial of service or other consequences because of excessive looping.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1284",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "834",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Resource Consumption (CPU)"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Do not use user-controlled data for loop conditions."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Perform input validation."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void iterate(int n){<xhtml:div style=\"margin-left:1em;\">int i;<xhtml:br/>for (i = 0; i &lt; n; i++){<xhtml:div style=\"margin-left:1em;\">foo();</xhtml:div>}</xhtml:div>}<xhtml:br/>void iterateFoo()<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">unsigned int num;<xhtml:br/>scanf(\"%u\",&amp;num);<xhtml:br/>iterate(num);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-91",
-      "text": "\n               <Intro_Text>In the following C/C++ example the method processMessageFromSocket() will get a message from a socket, placed into a buffer, and will parse the contents of the buffer into a structure that contains the message length and the message body. A for loop is used to copy the message body into a local character string which will be passed to another method for processing.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int processMessageFromSocket(int socket) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int success;<xhtml:br/>\n                           <xhtml:br/>char buffer[BUFFER_SIZE];<xhtml:br/>char message[MESSAGE_SIZE];<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// get message from socket and store into buffer</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>//Ignoring possibliity that buffer &gt; BUFFER_SIZE</xhtml:i>\n                           <xhtml:br/>if (getMessage(socket, buffer, BUFFER_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>// place contents of the buffer into message structure</xhtml:i>\n                                 <xhtml:br/>ExMessage *msg = recastBuffer(buffer);<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// copy message body into string for processing</xhtml:i>\n                                 <xhtml:br/>int index;<xhtml:br/>for (index = 0; index &lt; msg-&gt;msgLength; index++) {<xhtml:div style=\"margin-left:1em;\">message[index] = msg-&gt;msgBody[index];</xhtml:div>}<xhtml:br/>message[index] = '\\0';<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// process message</xhtml:i>\n                                 <xhtml:br/>success = processMessage(message);</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return success;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the message length variable from the structure is used as the condition for ending the for loop without validating that the message length variable accurately reflects the length of the message body (CWE-606). This can result in a buffer over-read (CWE-125) by reading from memory beyond the bounds of the buffer if the message length variable indicates a length that is longer than the size of a message body (CWE-130).</Body_Text>\n            "
-    }
-  ],
-  "references": [
-    {
-      "section": "Chapter 7, \"Looping Constructs\", Page 327",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "section": "ASCSM-CWE-606",
-      "reference_id": "REF-962",
-      "author": [
-        "Object Management Group (OMG)"
-      ],
-      "title": "Automated Source Code Security Measure (ASCSM)",
-      "url": "http://www.omg.org/spec/ASCSM/1.0/",
-      "publication_year": "2016",
-      "publication_month": "--01"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Anonymous Tool Vendor (under NDA)",
-      "submission_date": "2007-05-07"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Demonstrative_Examples, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Demonstrative_Examples, Description, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Tainted input to variable",
-      "entry_id": "SFP25"
-    },
-    {
-      "taxonomy_name": "OMG ASCSM",
-      "entry_id": "ASCSM-CWE-606"
-    }
-  ]
+	"id": "606",
+	"name": "Unchecked Input for Loop Condition",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not properly check inputs that are used for loop conditions, potentially leading to a denial of service or other consequences because of excessive looping.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1284",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "834",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Resource Consumption (CPU)"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Do not use user-controlled data for loop conditions."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Perform input validation."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void iterate(int n){<xhtml:div style=\"margin-left:1em;\">int i;<xhtml:br/>for (i = 0; i &lt; n; i++){<xhtml:div style=\"margin-left:1em;\">foo();</xhtml:div>}</xhtml:div>}<xhtml:br/>void iterateFoo()<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">unsigned int num;<xhtml:br/>scanf(\"%u\",&amp;num);<xhtml:br/>iterate(num);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-91",
+			"text": "\n               <Intro_Text>In the following C/C++ example the method processMessageFromSocket() will get a message from a socket, placed into a buffer, and will parse the contents of the buffer into a structure that contains the message length and the message body. A for loop is used to copy the message body into a local character string which will be passed to another method for processing.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int processMessageFromSocket(int socket) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int success;<xhtml:br/>\n                           <xhtml:br/>char buffer[BUFFER_SIZE];<xhtml:br/>char message[MESSAGE_SIZE];<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// get message from socket and store into buffer</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>//Ignoring possibliity that buffer &gt; BUFFER_SIZE</xhtml:i>\n                           <xhtml:br/>if (getMessage(socket, buffer, BUFFER_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>// place contents of the buffer into message structure</xhtml:i>\n                                 <xhtml:br/>ExMessage *msg = recastBuffer(buffer);<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// copy message body into string for processing</xhtml:i>\n                                 <xhtml:br/>int index;<xhtml:br/>for (index = 0; index &lt; msg-&gt;msgLength; index++) {<xhtml:div style=\"margin-left:1em;\">message[index] = msg-&gt;msgBody[index];</xhtml:div>}<xhtml:br/>message[index] = '\\0';<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// process message</xhtml:i>\n                                 <xhtml:br/>success = processMessage(message);</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return success;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the message length variable from the structure is used as the condition for ending the for loop without validating that the message length variable accurately reflects the length of the message body (CWE-606). This can result in a buffer over-read (CWE-125) by reading from memory beyond the bounds of the buffer if the message length variable indicates a length that is longer than the size of a message body (CWE-130).</Body_Text>\n            "
+		}
+	],
+	"references": [
+		{
+			"section": "Chapter 7, \"Looping Constructs\", Page 327",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"section": "ASCSM-CWE-606",
+			"reference_id": "REF-962",
+			"author": [
+				"Object Management Group (OMG)"
+			],
+			"title": "Automated Source Code Security Measure (ASCSM)",
+			"url": "http://www.omg.org/spec/ASCSM/1.0/",
+			"publication_year": "2016",
+			"publication_month": "--01"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Anonymous Tool Vendor (under NDA)",
+			"submission_date": "2007-05-07"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Demonstrative_Examples, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Demonstrative_Examples, Description, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Tainted input to variable",
+			"entry_id": "SFP25"
+		},
+		{
+			"taxonomy_name": "OMG ASCSM",
+			"entry_id": "ASCSM-CWE-606"
+		}
+	]
 }

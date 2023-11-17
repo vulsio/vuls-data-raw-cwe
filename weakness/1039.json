@@ -1,169 +1,169 @@
 {
-  "id": "1039",
-  "name": "Automated Recognition Mechanism with Inadequate Detection or Handling of Adversarial Input Perturbations",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product uses an automated mechanism such as machine learning to recognize complex data inputs (e.g. image or audio) as a particular concept or category, but it does not properly detect or handle inputs that have been modified or constructed in a way that causes the mechanism to detect a different, incorrect concept.",
-  "extended_description": "\n            <xhtml:p>When techniques such as machine learning are used to automatically classify input streams, and those classifications are used for security-critical decisions, then any mistake in classification can introduce a vulnerability that allows attackers to cause the product to make the wrong security decision.  If the automated mechanism is not developed or \"trained\" with enough input data, then attackers may be able to craft malicious input that intentionally triggers the incorrect classification.</xhtml:p>\n            <xhtml:p>Targeted technologies include, but are not necessarily limited to:</xhtml:p>\n            <xhtml:ul>\n               <xhtml:li>automated speech recognition</xhtml:li>\n               <xhtml:li>automated image recognition</xhtml:li>\n            </xhtml:ul>\n            <xhtml:p>For example, an attacker might modify road signs or road surface markings to trick autonomous vehicles into misreading the sign/marking and performing a dangerous action.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "693",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "697",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "This issue can be introduced into the automated algorithm itself."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism"
-      ],
-      "note": "When the automated recognition is used in a protection mechanism, an attacker may be able to craft inputs that are misinterpreted in a way that grants excess privileges."
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-16",
-      "author": [
-        "Christian Szegedy",
-        "Wojciech Zaremba",
-        "Ilya Sutskever",
-        "Joan Bruna",
-        "Dumitru Erhan",
-        "Ian Goodfellow",
-        "Rob Fergus"
-      ],
-      "title": "Intriguing properties of neural networks",
-      "url": "https://arxiv.org/abs/1312.6199",
-      "publication_year": "2014",
-      "publication_month": "--02",
-      "publication_day": "---19"
-    },
-    {
-      "reference_id": "REF-17",
-      "author": [
-        "OpenAI"
-      ],
-      "title": "Attacking Machine Learning with Adversarial Examples",
-      "url": "https://openai.com/research/attacking-machine-learning-with-adversarial-examples",
-      "publication_year": "2017",
-      "publication_month": "--02",
-      "publication_day": "---24",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-15",
-      "author": [
-        "James Vincent"
-      ],
-      "title": "Magic AI: These are the Optical Illusions that Trick, Fool, and Flummox Computers",
-      "url": "https://www.theverge.com/2017/4/12/15271874/ai-adversarial-images-fooling-attacks-artificial-intelligence",
-      "publication_year": "2017",
-      "publication_month": "--04",
-      "publication_day": "---12",
-      "publisher": "The Verge"
-    },
-    {
-      "reference_id": "REF-13",
-      "author": [
-        "Xuejing Yuan",
-        "Yuxuan Chen",
-        "Yue Zhao",
-        "Yunhui Long",
-        "Xiaokang Liu",
-        "Kai Chen",
-        "Shengzhi Zhang",
-        "Heqing Huang",
-        "Xiaofeng Wang",
-        "Carl A. Gunter"
-      ],
-      "title": "CommanderSong: A Systematic Approach for Practical Adversarial Voice Recognition",
-      "url": "https://arxiv.org/pdf/1801.08535.pdf",
-      "publication_year": "2018",
-      "publication_month": "--01",
-      "publication_day": "---24"
-    },
-    {
-      "reference_id": "REF-14",
-      "author": [
-        "Nicholas Carlini",
-        "David Wagner"
-      ],
-      "title": "Audio Adversarial Examples: Targeted Attacks on Speech-to-Text",
-      "url": "https://arxiv.org/abs/1801.01944",
-      "publication_year": "2018",
-      "publication_month": "--01",
-      "publication_day": "---05"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2018-03-12"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary",
-      "description": "This weakness does not depend on other weaknesses and is the result of choices made during optimization."
-    }
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "Further investigation is needed to determine if better relationships exist or if additional organizational entries need to be created.  For example, this issue might be better related to \"recognition of input as an incorrect type,\" which might place it as a sibling of CWE-704 (incorrect type conversion)."
-    }
-  ]
+	"id": "1039",
+	"name": "Automated Recognition Mechanism with Inadequate Detection or Handling of Adversarial Input Perturbations",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product uses an automated mechanism such as machine learning to recognize complex data inputs (e.g. image or audio) as a particular concept or category, but it does not properly detect or handle inputs that have been modified or constructed in a way that causes the mechanism to detect a different, incorrect concept.",
+	"extended_description": "\n            <xhtml:p>When techniques such as machine learning are used to automatically classify input streams, and those classifications are used for security-critical decisions, then any mistake in classification can introduce a vulnerability that allows attackers to cause the product to make the wrong security decision.  If the automated mechanism is not developed or \"trained\" with enough input data, then attackers may be able to craft malicious input that intentionally triggers the incorrect classification.</xhtml:p>\n            <xhtml:p>Targeted technologies include, but are not necessarily limited to:</xhtml:p>\n            <xhtml:ul>\n               <xhtml:li>automated speech recognition</xhtml:li>\n               <xhtml:li>automated image recognition</xhtml:li>\n            </xhtml:ul>\n            <xhtml:p>For example, an attacker might modify road signs or road surface markings to trick autonomous vehicles into misreading the sign/marking and performing a dangerous action.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "693",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "697",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"This issue can be introduced into the automated algorithm itself."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			],
+			"note": "When the automated recognition is used in a protection mechanism, an attacker may be able to craft inputs that are misinterpreted in a way that grants excess privileges."
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-16",
+			"author": [
+				"Christian Szegedy",
+				"Wojciech Zaremba",
+				"Ilya Sutskever",
+				"Joan Bruna",
+				"Dumitru Erhan",
+				"Ian Goodfellow",
+				"Rob Fergus"
+			],
+			"title": "Intriguing properties of neural networks",
+			"url": "https://arxiv.org/abs/1312.6199",
+			"publication_year": "2014",
+			"publication_month": "--02",
+			"publication_day": "---19"
+		},
+		{
+			"reference_id": "REF-17",
+			"author": [
+				"OpenAI"
+			],
+			"title": "Attacking Machine Learning with Adversarial Examples",
+			"url": "https://openai.com/research/attacking-machine-learning-with-adversarial-examples",
+			"publication_year": "2017",
+			"publication_month": "--02",
+			"publication_day": "---24",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-15",
+			"author": [
+				"James Vincent"
+			],
+			"title": "Magic AI: These are the Optical Illusions that Trick, Fool, and Flummox Computers",
+			"url": "https://www.theverge.com/2017/4/12/15271874/ai-adversarial-images-fooling-attacks-artificial-intelligence",
+			"publication_year": "2017",
+			"publication_month": "--04",
+			"publication_day": "---12",
+			"publisher": "The Verge"
+		},
+		{
+			"reference_id": "REF-13",
+			"author": [
+				"Xuejing Yuan",
+				"Yuxuan Chen",
+				"Yue Zhao",
+				"Yunhui Long",
+				"Xiaokang Liu",
+				"Kai Chen",
+				"Shengzhi Zhang",
+				"Heqing Huang",
+				"Xiaofeng Wang",
+				"Carl A. Gunter"
+			],
+			"title": "CommanderSong: A Systematic Approach for Practical Adversarial Voice Recognition",
+			"url": "https://arxiv.org/pdf/1801.08535.pdf",
+			"publication_year": "2018",
+			"publication_month": "--01",
+			"publication_day": "---24"
+		},
+		{
+			"reference_id": "REF-14",
+			"author": [
+				"Nicholas Carlini",
+				"David Wagner"
+			],
+			"title": "Audio Adversarial Examples: Targeted Attacks on Speech-to-Text",
+			"url": "https://arxiv.org/abs/1801.01944",
+			"publication_year": "2018",
+			"publication_month": "--01",
+			"publication_day": "---05"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2018-03-12"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary",
+			"description": "This weakness does not depend on other weaknesses and is the result of choices made during optimization."
+		}
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "Further investigation is needed to determine if better relationships exist or if additional organizational entries need to be created.  For example, this issue might be better related to \"recognition of input as an incorrect type,\" which might place it as a sibling of CWE-704 (incorrect type conversion)."
+		}
+	]
 }

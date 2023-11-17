@@ -1,232 +1,232 @@
 {
-  "id": "290",
-  "name": "Authentication Bypass by Spoofing",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "This attack-focused weakness is caused by incorrectly implemented authentication schemes that are subject to spoofing attacks.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1390",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "287",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism",
-        "Gain Privileges or Assume Identity"
-      ],
-      "note": "This weakness can allow an attacker to access resources which are not otherwise accessible without proper authentication."
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following code authenticates users.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String sourceIP = request.getRemoteAddr();<xhtml:br/>if (sourceIP != null &amp;&amp; sourceIP.equals(APPROVED_IP)) {<xhtml:div style=\"margin-left:1em;\">authenticated = true;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The authentication mechanism implemented relies on an IP address for source validation. If an attacker is able to spoof the IP, they may be able to bypass the authentication mechanism.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-99",
-      "text": "\n               <Intro_Text>Both of these examples check if a request is from a trusted address before responding to the request.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>sd = socket(AF_INET, SOCK_DGRAM, 0);<xhtml:br/>serv.sin_family = AF_INET;<xhtml:br/>serv.sin_addr.s_addr = htonl(INADDR_ANY);<xhtml:br/>servr.sin_port = htons(1008);<xhtml:br/>bind(sd, (struct sockaddr *) &amp; serv, sizeof(serv));<xhtml:br/>\n                     <xhtml:br/>while (1) {<xhtml:div style=\"margin-left:1em;\">memset(msg, 0x0, MAX_MSG);<xhtml:br/>clilen = sizeof(cli);<xhtml:br/>if (inet_ntoa(cli.sin_addr)==getTrustedAddress()) {<xhtml:div style=\"margin-left:1em;\">n = recvfrom(sd, msg, MAX_MSG, 0, (struct sockaddr *) &amp; cli, &amp;clilen);</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>while(true) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>DatagramPacket rp=new DatagramPacket(rData,rData.length);<xhtml:br/>outSock.receive(rp);<xhtml:br/>String in = new String(p.getData(),0, rp.getLength());<xhtml:br/>InetAddress clientIPAddress = rp.getAddress();<xhtml:br/>int port = rp.getPort();<xhtml:br/>\n                           <xhtml:br/>if (isTrustedAddress(clientIPAddress) &amp; secretKey.equals(in)) {<xhtml:div style=\"margin-left:1em;\">out = secret.getBytes();<xhtml:br/>DatagramPacket sp =new DatagramPacket(out,out.length, IPAddress, port); outSock.send(sp);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code only verifies the address as stored in the request packet. An attacker can spoof this address, thus impersonating a trusted client.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-93",
-      "text": "\n               <Intro_Text>The following code samples use a DNS lookup in order to decide whether or not an inbound request is from a trusted host. If an attacker can poison the DNS cache, they can gain trusted status.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>struct hostent *hp;struct in_addr myaddr;<xhtml:br/>char* tHost = \"trustme.example.com\";<xhtml:br/>myaddr.s_addr=inet_addr(ip_addr_string);<xhtml:br/>\n                     <xhtml:br/>hp = gethostbyaddr((char *) &amp;myaddr, sizeof(struct in_addr), AF_INET);<xhtml:br/>if (hp &amp;&amp; !strncmp(hp-&gt;h_name, tHost, sizeof(tHost))) {<xhtml:div style=\"margin-left:1em;\">trusted = true;</xhtml:div>} else {<xhtml:div style=\"margin-left:1em;\">trusted = false;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String ip = request.getRemoteAddr();<xhtml:br/>InetAddress addr = InetAddress.getByName(ip);<xhtml:br/>if (addr.getCanonicalHostName().endsWith(\"trustme.com\")) {<xhtml:div style=\"margin-left:1em;\">trusted = true;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"C#\">\n                  <xhtml:div>IPAddress hostIPAddress = IPAddress.Parse(RemoteIpAddress);<xhtml:br/>IPHostEntry hostInfo = Dns.GetHostByAddress(hostIPAddress);<xhtml:br/>if (hostInfo.HostName.EndsWith(\"trustme.com\")) {<xhtml:div style=\"margin-left:1em;\">trusted = true;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>IP addresses are more reliable than DNS names, but they can also be spoofed. Attackers can easily forge the source IP address of the packets they send, but response packets will return to the forged IP address. To see the response packets, the attacker has to sniff the traffic between the victim machine and the forged IP address. In order to accomplish the required sniffing, attackers typically attempt to locate themselves on the same subnet as the victim machine. Attackers may be able to circumvent this requirement by using source routing, but source routing is disabled across much of the Internet today. In summary, IP address verification can be a useful part of an authentication scheme, but it should not be the single factor required for authentication.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-30319",
-      "description": "S-bus functionality in a home automation product performs access control using an IP allowlist, which can be bypassed by a forged IP address.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-30319"
-    },
-    {
-      "reference": "CVE-2009-1048",
-      "description": "VOIP product allows authentication bypass using 127.0.0.1 in the Host header.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1048"
-    }
-  ],
-  "references": [
-    {
-      "section": "Chapter 3, \"Spoofing and Identification\", Page 72",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Sean Eidemiller",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "added/updated demonstrative examples"
-      },
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Relationships, Relationship_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated Relationship_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Observed_Examples, References, Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-07-17",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-02-18",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-05-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Demonstrative_Examples, Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Modes_of_Introduction, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Authentication bypass by spoofing"
-    }
-  ],
-  "related_attack_patterns": [
-    "21",
-    "22",
-    "459",
-    "461",
-    "473",
-    "476",
-    "59",
-    "60",
-    "667",
-    "94"
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "This can be resultant from insufficient verification."
-    }
-  ]
+	"id": "290",
+	"name": "Authentication Bypass by Spoofing",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "This attack-focused weakness is caused by incorrectly implemented authentication schemes that are subject to spoofing attacks.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1390",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "287",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Bypass Protection Mechanism",
+				"Gain Privileges or Assume Identity"
+			],
+			"note": "This weakness can allow an attacker to access resources which are not otherwise accessible without proper authentication."
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following code authenticates users.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String sourceIP = request.getRemoteAddr();<xhtml:br/>if (sourceIP != null &amp;&amp; sourceIP.equals(APPROVED_IP)) {<xhtml:div style=\"margin-left:1em;\">authenticated = true;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The authentication mechanism implemented relies on an IP address for source validation. If an attacker is able to spoof the IP, they may be able to bypass the authentication mechanism.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-99",
+			"text": "\n               <Intro_Text>Both of these examples check if a request is from a trusted address before responding to the request.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>sd = socket(AF_INET, SOCK_DGRAM, 0);<xhtml:br/>serv.sin_family = AF_INET;<xhtml:br/>serv.sin_addr.s_addr = htonl(INADDR_ANY);<xhtml:br/>servr.sin_port = htons(1008);<xhtml:br/>bind(sd, (struct sockaddr *) &amp; serv, sizeof(serv));<xhtml:br/>\n                     <xhtml:br/>while (1) {<xhtml:div style=\"margin-left:1em;\">memset(msg, 0x0, MAX_MSG);<xhtml:br/>clilen = sizeof(cli);<xhtml:br/>if (inet_ntoa(cli.sin_addr)==getTrustedAddress()) {<xhtml:div style=\"margin-left:1em;\">n = recvfrom(sd, msg, MAX_MSG, 0, (struct sockaddr *) &amp; cli, &amp;clilen);</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>while(true) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>DatagramPacket rp=new DatagramPacket(rData,rData.length);<xhtml:br/>outSock.receive(rp);<xhtml:br/>String in = new String(p.getData(),0, rp.getLength());<xhtml:br/>InetAddress clientIPAddress = rp.getAddress();<xhtml:br/>int port = rp.getPort();<xhtml:br/>\n                           <xhtml:br/>if (isTrustedAddress(clientIPAddress) &amp; secretKey.equals(in)) {<xhtml:div style=\"margin-left:1em;\">out = secret.getBytes();<xhtml:br/>DatagramPacket sp =new DatagramPacket(out,out.length, IPAddress, port); outSock.send(sp);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code only verifies the address as stored in the request packet. An attacker can spoof this address, thus impersonating a trusted client.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-93",
+			"text": "\n               <Intro_Text>The following code samples use a DNS lookup in order to decide whether or not an inbound request is from a trusted host. If an attacker can poison the DNS cache, they can gain trusted status.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>struct hostent *hp;struct in_addr myaddr;<xhtml:br/>char* tHost = \"trustme.example.com\";<xhtml:br/>myaddr.s_addr=inet_addr(ip_addr_string);<xhtml:br/>\n                     <xhtml:br/>hp = gethostbyaddr((char *) &amp;myaddr, sizeof(struct in_addr), AF_INET);<xhtml:br/>if (hp &amp;&amp; !strncmp(hp-&gt;h_name, tHost, sizeof(tHost))) {<xhtml:div style=\"margin-left:1em;\">trusted = true;</xhtml:div>} else {<xhtml:div style=\"margin-left:1em;\">trusted = false;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String ip = request.getRemoteAddr();<xhtml:br/>InetAddress addr = InetAddress.getByName(ip);<xhtml:br/>if (addr.getCanonicalHostName().endsWith(\"trustme.com\")) {<xhtml:div style=\"margin-left:1em;\">trusted = true;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"C#\">\n                  <xhtml:div>IPAddress hostIPAddress = IPAddress.Parse(RemoteIpAddress);<xhtml:br/>IPHostEntry hostInfo = Dns.GetHostByAddress(hostIPAddress);<xhtml:br/>if (hostInfo.HostName.EndsWith(\"trustme.com\")) {<xhtml:div style=\"margin-left:1em;\">trusted = true;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>IP addresses are more reliable than DNS names, but they can also be spoofed. Attackers can easily forge the source IP address of the packets they send, but response packets will return to the forged IP address. To see the response packets, the attacker has to sniff the traffic between the victim machine and the forged IP address. In order to accomplish the required sniffing, attackers typically attempt to locate themselves on the same subnet as the victim machine. Attackers may be able to circumvent this requirement by using source routing, but source routing is disabled across much of the Internet today. In summary, IP address verification can be a useful part of an authentication scheme, but it should not be the single factor required for authentication.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-30319",
+			"description": "S-bus functionality in a home automation product performs access control using an IP allowlist, which can be bypassed by a forged IP address.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-30319"
+		},
+		{
+			"reference": "CVE-2009-1048",
+			"description": "VOIP product allows authentication bypass using 127.0.0.1 in the Host header.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-1048"
+		}
+	],
+	"references": [
+		{
+			"section": "Chapter 3, \"Spoofing and Identification\", Page 72",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Sean Eidemiller",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "added/updated demonstrative examples"
+			},
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Relationships, Relationship_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated Relationship_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, Observed_Examples, References, Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-07-17",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-02-18",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-05-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Demonstrative_Examples, Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Modes_of_Introduction, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Authentication bypass by spoofing"
+		}
+	],
+	"related_attack_patterns": [
+		"21",
+		"22",
+		"459",
+		"461",
+		"473",
+		"476",
+		"59",
+		"60",
+		"667",
+		"94"
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "This can be resultant from insufficient verification."
+		}
+	]
 }

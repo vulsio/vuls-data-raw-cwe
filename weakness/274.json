@@ -1,199 +1,199 @@
 {
-  "id": "274",
-  "name": "Improper Handling of Insufficient Privileges",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not handle or incorrectly handles when it has insufficient privileges to perform an operation, leading to resultant weaknesses.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "755",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "269",
-      "view_id": "1000"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "271",
-      "view_id": "1000"
-    },
-    {
-      "nature": "CanAlsoBe",
-      "cweid": "280",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Other",
-        "Alter Execution Logic"
-      ]
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2001-1564",
-      "description": "System limits are not properly enforced after privileges are dropped.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1564"
-    },
-    {
-      "reference": "CVE-2005-3286",
-      "description": "Firewall crashes when it can't read a critical memory block that was protected by a malicious process.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3286"
-    },
-    {
-      "reference": "CVE-2005-1641",
-      "description": "Does not give admin sufficient privileges to overcome otherwise legitimate user actions.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1641"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Maintenance_Notes, Relationships, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Maintenance_Notes, Theoretical_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Description, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Causal_Nature, Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Relationship_Notes, Theoretical_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description, Relationships, Theoretical_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Insufficient Privileges",
-        "date": "2008-04-11"
-      },
-      {
-        "text": "Failure to Handle Insufficient Privileges",
-        "date": "2009-05-27"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Insufficient privileges"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "CWE-280 and CWE-274 are too similar. It is likely that CWE-274 will be deprecated in the future."
-    },
-    {
-      "type": "Relationship",
-      "text": "Overlaps dropped privileges, insufficient permissions."
-    },
-    {
-      "type": "Theoretical",
-      "text": "This has a layering relationship with Unchecked Error Condition and Unchecked Return Value."
-    },
-    {
-      "type": "Theoretical",
-      "text": "Within the context of vulnerability theory, privileges and permissions are two sides of the same coin. Privileges are associated with actors, and permissions are associated with resources. To perform access control, at some point the product makes a decision about whether the actor (and the privileges that have been assigned to that actor) is allowed to access the resource (based on the permissions that have been specified for that resource)."
-    }
-  ]
+	"id": "274",
+	"name": "Improper Handling of Insufficient Privileges",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not handle or incorrectly handles when it has insufficient privileges to perform an operation, leading to resultant weaknesses.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "755",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "269",
+			"view_id": "1000"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "271",
+			"view_id": "1000"
+		},
+		{
+			"nature": "CanAlsoBe",
+			"cweid": "280",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Other",
+				"Alter Execution Logic"
+			]
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2001-1564",
+			"description": "System limits are not properly enforced after privileges are dropped.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1564"
+		},
+		{
+			"reference": "CVE-2005-3286",
+			"description": "Firewall crashes when it can't read a critical memory block that was protected by a malicious process.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3286"
+		},
+		{
+			"reference": "CVE-2005-1641",
+			"description": "Does not give admin sufficient privileges to overcome otherwise legitimate user actions.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1641"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Maintenance_Notes, Relationships, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Maintenance_Notes, Theoretical_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Description, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Causal_Nature, Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Relationship_Notes, Theoretical_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description, Relationships, Theoretical_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Insufficient Privileges",
+				"date": "2008-04-11"
+			},
+			{
+				"text": "Failure to Handle Insufficient Privileges",
+				"date": "2009-05-27"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Insufficient privileges"
+		}
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "CWE-280 and CWE-274 are too similar. It is likely that CWE-274 will be deprecated in the future."
+		},
+		{
+			"type": "Relationship",
+			"text": "Overlaps dropped privileges, insufficient permissions."
+		},
+		{
+			"type": "Theoretical",
+			"text": "This has a layering relationship with Unchecked Error Condition and Unchecked Return Value."
+		},
+		{
+			"type": "Theoretical",
+			"text": "Within the context of vulnerability theory, privileges and permissions are two sides of the same coin. Privileges are associated with actors, and permissions are associated with resources. To perform access control, at some point the product makes a decision about whether the actor (and the privileges that have been assigned to that actor) is allowed to access the resource (based on the permissions that have been specified for that resource)."
+		}
+	]
 }

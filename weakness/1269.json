@@ -1,170 +1,170 @@
 {
-  "id": "1269",
-  "name": "Product Released in Non-Release Configuration",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product released to market is released in pre-production or manufacturing configuration.",
-  "extended_description": "\n\t\t\t\t<xhtml:p>Products in the pre-production or manufacturing stages are configured to have many debug hooks and debug capabilities, including but not limited to:</xhtml:p>\n\t\t\t\t<xhtml:ul>\n\t\t\t\t<xhtml:li>Ability to override/bypass various cryptographic checks (including authentication, authorization, and integrity)</xhtml:li>\n\t\t\t\t<xhtml:li>Ability to read/write/modify/dump internal state (including registers and memory)</xhtml:li>\n\t\t\t\t<xhtml:li>Ability to change system configurations</xhtml:li>\n\t\t\t\t<xhtml:li>Ability to run hidden or private commands that are not allowed during production (as they expose IP).</xhtml:li></xhtml:ul>\n\t\t\t\t<xhtml:p>The above is by no means an exhaustive list, but it alludes to the greater capability and the greater state of vulnerability of a product during it's preproduction or manufacturing state.</xhtml:p>\n\t\t\t\t<xhtml:p>Complexity increases when multiple parties are involved in executing the tests before the final production version. For example, a chipmaker might fabricate a chip and run its own preproduction tests, following which the chip would be delivered to the Original Equipment Manufacturer (OEM), who would now run a second set of different preproduction tests on the same chip. Only after both of these sets of activities are complete, can the overall manufacturing phase be called \"complete\" and have the \"Manufacturing Complete\" fuse blown. However, if the OEM forgets to blow the Manufacturing Complete fuse, then the system remains in the manufacturing stage, rendering the system both exposed and vulnerable.</xhtml:p>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "693",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "VHDL"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Verilog"
-      },
-      {
-        "class": "Compiled",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Other"
-      },
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Integration"
-    },
-    {
-      "phase": "Manufacturing"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Availability",
-        "Access Control",
-        "Accountability",
-        "Authentication",
-        "Authorization",
-        "Non-Repudiation"
-      ],
-      "impact": [
-        "Other"
-      ],
-      "likelihood": "High"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Ensure that there exists a marker for denoting the Manufacturing Complete stage and that the Manufacturing Complete marker gets updated at the Manufacturing Complete stage (i.e., the Manufacturing Complete fuse gets blown)."
-      ]
-    },
-    {
-      "phase": [
-        "Integration"
-      ],
-      "description": [
-        "Ensure that there exists a marker for denoting the Manufacturing Complete stage and that the Manufacturing Complete marker gets updated at the Manufacturing Complete stage (i.e., the Manufacturing Complete fuse gets blown)."
-      ]
-    },
-    {
-      "phase": [
-        "Manufacturing"
-      ],
-      "description": [
-        "Ensure that there exists a marker for denoting the Manufacturing Complete stage and that the Manufacturing Complete marker gets updated at the Manufacturing Complete stage (i.e., the Manufacturing Complete fuse gets blown)."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>This example shows what happens when a preproduction system is made available for production.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\">Suppose the chipmaker has a way of scanning all the internal memory (containing chipmaker-level secrets) during the manufacturing phase, and the way the chipmaker or the Original Equipment Manufacturer (OEM) marks the end of the manufacturing phase is by blowing a Manufacturing Complete fuse. Now, suppose that whoever blows the Manufacturing Complete fuse inadvertently forgets to execute the step to blow the fuse.</Example_Code>\n\t\t\t\t\t<Body_Text>An attacker will now be able to scan all the internal memory (containing chipmaker-level secrets).</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\">Blow the Manufacturing Complete fuse.</Example_Code>\n\t\t\t\t"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2019-13945",
-      "description": "Regarding SSA-686531, a hardware based manufacturing access on S7-1200 and\nS7-200 SMART has occurred. A vulnerability has been identified in SIMATIC S7-1200 CPU family (incl. SIPLUS variants) (All versions), SIMATIC S7-200 SMART CPU family (All versions). There is an access mode used during manufacturing of S7-1200 CPUs that allows additional diagnostic functionality. The security vulnerability could be exploited by an attacker with physical access to the UART interface during boot process. At the time of advisory publication, no public exploitation of this security vulnerability was known.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2019-13945"
-    },
-    {
-      "reference": "CVE-2018-4251",
-      "description": "Laptops with Intel chipsets were found to be running in Manufacturing Mode. After this information was reported to the OEM, the vulnerability (CVE-2018-4251) was patched disallowing access to the interface.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2018-4251"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1103",
-      "author": [
-        "Lucian Armasu"
-      ],
-      "title": "Intel ME's Undocumented Manufacturing Mode Suggests CPU Hacking Risks",
-      "url": "https://www.tomshardware.com/news/intel-me-cpu-undocumented-manufacturing-mode,37883.html",
-      "publication_year": "2018",
-      "publication_month": "--10",
-      "publication_day": "---03"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
-      "submission_organization": "Intel Corporation",
-      "submission_date": "2020-05-31"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Description, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "439"
-  ]
+	"id": "1269",
+	"name": "Product Released in Non-Release Configuration",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product released to market is released in pre-production or manufacturing configuration.",
+	"extended_description": "\n\t\t\t\t<xhtml:p>Products in the pre-production or manufacturing stages are configured to have many debug hooks and debug capabilities, including but not limited to:</xhtml:p>\n\t\t\t\t<xhtml:ul>\n\t\t\t\t<xhtml:li>Ability to override/bypass various cryptographic checks (including authentication, authorization, and integrity)</xhtml:li>\n\t\t\t\t<xhtml:li>Ability to read/write/modify/dump internal state (including registers and memory)</xhtml:li>\n\t\t\t\t<xhtml:li>Ability to change system configurations</xhtml:li>\n\t\t\t\t<xhtml:li>Ability to run hidden or private commands that are not allowed during production (as they expose IP).</xhtml:li></xhtml:ul>\n\t\t\t\t<xhtml:p>The above is by no means an exhaustive list, but it alludes to the greater capability and the greater state of vulnerability of a product during it's preproduction or manufacturing state.</xhtml:p>\n\t\t\t\t<xhtml:p>Complexity increases when multiple parties are involved in executing the tests before the final production version. For example, a chipmaker might fabricate a chip and run its own preproduction tests, following which the chip would be delivered to the Original Equipment Manufacturer (OEM), who would now run a second set of different preproduction tests on the same chip. Only after both of these sets of activities are complete, can the overall manufacturing phase be called \"complete\" and have the \"Manufacturing Complete\" fuse blown. However, if the OEM forgets to blow the Manufacturing Complete fuse, then the system remains in the manufacturing stage, rendering the system both exposed and vulnerable.</xhtml:p>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "693",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "VHDL"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Verilog"
+			},
+			{
+				"class": "Compiled",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Other"
+			},
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Integration"
+		},
+		{
+			"phase": "Manufacturing"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Availability",
+				"Access Control",
+				"Accountability",
+				"Authentication",
+				"Authorization",
+				"Non-Repudiation"
+			],
+			"impact": [
+				"Other"
+			],
+			"likelihood": "High"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Ensure that there exists a marker for denoting the Manufacturing Complete stage and that the Manufacturing Complete marker gets updated at the Manufacturing Complete stage (i.e., the Manufacturing Complete fuse gets blown)."
+			]
+		},
+		{
+			"phase": [
+				"Integration"
+			],
+			"description": [
+				"Ensure that there exists a marker for denoting the Manufacturing Complete stage and that the Manufacturing Complete marker gets updated at the Manufacturing Complete stage (i.e., the Manufacturing Complete fuse gets blown)."
+			]
+		},
+		{
+			"phase": [
+				"Manufacturing"
+			],
+			"description": [
+				"Ensure that there exists a marker for denoting the Manufacturing Complete stage and that the Manufacturing Complete marker gets updated at the Manufacturing Complete stage (i.e., the Manufacturing Complete fuse gets blown)."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>This example shows what happens when a preproduction system is made available for production.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\">Suppose the chipmaker has a way of scanning all the internal memory (containing chipmaker-level secrets) during the manufacturing phase, and the way the chipmaker or the Original Equipment Manufacturer (OEM) marks the end of the manufacturing phase is by blowing a Manufacturing Complete fuse. Now, suppose that whoever blows the Manufacturing Complete fuse inadvertently forgets to execute the step to blow the fuse.</Example_Code>\n\t\t\t\t\t<Body_Text>An attacker will now be able to scan all the internal memory (containing chipmaker-level secrets).</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\">Blow the Manufacturing Complete fuse.</Example_Code>\n\t\t\t\t"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2019-13945",
+			"description": "Regarding SSA-686531, a hardware based manufacturing access on S7-1200 and\nS7-200 SMART has occurred. A vulnerability has been identified in SIMATIC S7-1200 CPU family (incl. SIPLUS variants) (All versions), SIMATIC S7-200 SMART CPU family (All versions). There is an access mode used during manufacturing of S7-1200 CPUs that allows additional diagnostic functionality. The security vulnerability could be exploited by an attacker with physical access to the UART interface during boot process. At the time of advisory publication, no public exploitation of this security vulnerability was known.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-13945"
+		},
+		{
+			"reference": "CVE-2018-4251",
+			"description": "Laptops with Intel chipsets were found to be running in Manufacturing Mode. After this information was reported to the OEM, the vulnerability (CVE-2018-4251) was patched disallowing access to the interface.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2018-4251"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1103",
+			"author": [
+				"Lucian Armasu"
+			],
+			"title": "Intel ME's Undocumented Manufacturing Mode Suggests CPU Hacking Risks",
+			"url": "https://www.tomshardware.com/news/intel-me-cpu-undocumented-manufacturing-mode,37883.html",
+			"publication_year": "2018",
+			"publication_month": "--10",
+			"publication_day": "---03"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+			"submission_organization": "Intel Corporation",
+			"submission_date": "2020-05-31"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Description, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"439"
+	]
 }

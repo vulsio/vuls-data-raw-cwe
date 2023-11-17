@@ -1,392 +1,392 @@
 {
-  "id": "444",
-  "name": "Inconsistent Interpretation of HTTP Requests ('HTTP Request/Response Smuggling')",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product acts as an intermediary HTTP agent\n         (such as a proxy or firewall) in the data flow between two\n         entities such as a client and server, but it does not\n         interpret malformed HTTP requests or responses in ways that\n         are consistent with how the messages will be processed by\n         those entities that are at the ultimate destination.",
-  "extended_description": "\n\t   <xhtml:p>HTTP requests or responses (\"messages\") can be\n\t   malformed or unexpected in ways that cause web servers or\n\t   clients to interpret the messages in different ways than\n\t   intermediary HTTP agents such as load balancers, reverse\n\t   proxies, web caching proxies, application firewalls,\n\t   etc. For example, an adversary may be able to add duplicate\n\t   or different header fields that a client or server might\n\t   interpret as one set of messages, whereas the intermediary\n\t   might interpret the same sequence of bytes as a different\n\t   set of messages. For example, discrepancies can arise in\n\t   how to handle duplicate headers like two Transfer-encoding\n\t   (TE) or two Content-length (CL), or the malicious HTTP\n\t   message will have different headers for TE and\n\t   CL.</xhtml:p>\n\t   <xhtml:p>The inconsistent parsing and interpretation of messages\n\t   can allow the adversary to \"smuggle\" a message to the\n\t   client/server without the intermediary being aware of it.</xhtml:p>\n\t   <xhtml:p>This weakness is usually the result of the usage\n\t   of outdated or incompatible HTTP protocol versions in the\n\t   HTTP agents.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "436",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "436",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Web Based",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Non-Repudiation",
-        "Access Control"
-      ],
-      "impact": [
-        "Unexpected State",
-        "Hide Activities",
-        "Bypass Protection Mechanism"
-      ],
-      "note": "An attacker could create HTTP messages to exploit a number of weaknesses including 1) the message can trick the web server to associate a URL with another URL's webpage and caching the contents of the webpage (web cache poisoning attack), 2) the message can be structured to bypass the firewall protection mechanisms and gain unauthorized access to a web application, and 3) the message can invoke a script or a page that returns client credentials (similar to a Cross Site Scripting attack)."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Use a web server that employs a strict HTTP parsing procedure, such as Apache [REF-433]."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Use only SSL communication."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Terminate the client session after each request."
-      ]
-    },
-    {
-      "phase": [
-        "System Configuration"
-      ],
-      "description": [
-        "Turn all pages to non-cacheable."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the following example, a malformed HTTP request is sent to a website that includes a proxy server and a web server with the intent of poisoning the cache to associate one webpage with another malicious webpage.</Intro_Text>\n               <Example_Code Nature=\"Attack\">\n                  POST http://www.website.com/foobar.html HTTP/1.1<xhtml:br/>\n\t\t Host: www.website.com<xhtml:br/>\n\t\t Connection: Keep-Alive<xhtml:br/>\n\t\t Content-Type: application/x-www-form-urlencoded<xhtml:br/>\n\t\t Content-Length: 0<xhtml:br/>\n\t\t Content-Length: 54<xhtml:br/>\n\t\t <xhtml:br/>\n                 GET /poison.html HTTP/1.1<xhtml:br/>\n\t\t Host: www.website.com<xhtml:br/>\n\t\t Bla: GET http://www.website.com/page_to_poison.html HTTP/1.1<xhtml:br/>\n\t\t Host: www.website.com<xhtml:br/>\n\t\t Connection: Keep-Alive<xhtml:br/>\n               </Example_Code>\n               <Body_Text>When this request is sent to the proxy server, the proxy server parses the first four lines of the POST request and encounters the two \"Content-Length\" headers. The proxy server ignores the first header, so it assumes the request has a body of length 54 bytes. Therefore, it treats the data in the next three lines that contain exactly 54 bytes as the first request's body:</Body_Text>\n\t       <Example_Code Nature=\"Result\">\n\t\tGET /poison.html HTTP/1.1<xhtml:br/>\n\t\tHost: www.website.com<xhtml:br/>\n\t\tBla:<xhtml:br/>\n\t       </Example_Code>\n\t       <Body_Text>The proxy then parses the remaining bytes, which it treats as the client's second request:</Body_Text>\n\t       <Example_Code Nature=\"Attack\">\n\t\tGET http://www.website.com/page_to_poison.html HTTP/1.1<xhtml:br/>\n\t\tHost: www.website.com<xhtml:br/>\n\t\tConnection: Keep-Alive<xhtml:br/>\n\t       </Example_Code>\n               <Body_Text>The original request is forwarded by the proxy server to the web server. Unlike the proxy, the web server uses the first \"Content-Length\" header and considers that the first POST request has no body.</Body_Text>\n\t       <Example_Code Nature=\"Attack\">\n\t\tPOST http://www.website.com/foobar.html HTTP/1.1<xhtml:br/>\n\t\tHost: www.website.com<xhtml:br/>\n\t\tConnection: Keep-Alive<xhtml:br/>\n\t\tContent-Type: application/x-www-form-urlencoded<xhtml:br/>\n\t\tContent-Length: 0<xhtml:br/>\n\t\t<xhtml:i>Content-Length: 54 (ignored by server)</xhtml:i><xhtml:br/>\n\t       </Example_Code>\n\t       <Body_Text>Because the web server has assumed the original POST request was length 0, it parses the second request that follows, i.e. for GET /poison.html:</Body_Text>\n\t       <Example_Code Nature=\"Attack\">\n\t\tGET /poison.html HTTP/1.1<xhtml:br/>\n\t\tHost: www.website.com<xhtml:br/>\n\t\tBla: GET http://www.website.com/page_to_poison.html HTTP/1.1<xhtml:br/>\n\t\tHost: www.website.com<xhtml:br/>\n\t\tConnection: Keep-Alive<xhtml:br/>\n\t       </Example_Code>\n\t       <Body_Text>Note that the \"Bla:\" header is treated as a regular header, so it is not parsed as a separate GET request.</Body_Text>\n               <Body_Text>The requests the web server sees are \"POST /foobar.html\" and \"GET /poison.html\", so it sends back two responses with the contents of the \"foobar.html\" page and the \"poison.html\" page, respectively. The proxy matches these responses to the two requests it thinks were sent by the client - \"POST /foobar.html\" and \"GET /page_to_poison.html\". If the response is cacheable, the proxy caches the contents of \"poison.html\" under the URL \"page_to_poison.html\", and the cache is poisoned! Any client requesting \"page_to_poison.html\" from the proxy would receive the \"poison.html\" page.</Body_Text>\n               <Body_Text>When a website includes both a proxy server and a web server, some protection against this type of attack can be achieved by installing a web application firewall, or using a web server that includes a stricter HTTP parsing procedure or make all webpages non-cacheable.</Body_Text>\n               <Body_Text>Additionally, if a web application includes a Java servlet for processing requests, the servlet can check for multiple \"Content-Length\" headers and if they are found the servlet can return an error response thereby preventing the poison page to be cached, as shown below.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n                    <xhtml:div>\n                      <xhtml:br/>\n                      <xhtml:i>// Set up response writer object</xhtml:i>\n                      <xhtml:br/>...<xhtml:br/>try {\n\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t<xhtml:div>\n                          <xhtml:i>// check for multiple content length headers</xhtml:i>\n                          <xhtml:br/>Enumeration contentLengthHeaders = request.getHeaders(\"Content-Length\");\n\t\t\t\t\t\t  <xhtml:br/>int count = 0;\n\t\t\t\t\t\t  <xhtml:br/>while (contentLengthHeaders.hasMoreElements()) {\n\t\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">count++;\n\t\t\t\t\t\t  </xhtml:div>}\n\t\t\t\t\t\t  <xhtml:br/>if (count &gt; 1) {\n\t\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t<xhtml:i>// output error response</xhtml:i>\n\t\t\t\t\t\t\t</xhtml:div>}\n\t\t\t\t\t\t\t<xhtml:br/>else {\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t  <xhtml:div>\n\t\t\t\t\t\t\t\t<xhtml:i>// process request</xhtml:i>\n\t\t\t\t\t\t\t  </xhtml:div>\n\t\t\t\t\t\t\t  </xhtml:div>}\n\t\t\t\t\t\t\t  <xhtml:br/>\n                        </xhtml:div>\n                    </xhtml:div>} catch (Exception ex) {...}</xhtml:div>\n\t\t\t\t\t</xhtml:div>}\n\t\t\t\t  </xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>In the following example, a malformed HTTP request is sent to a website that includes a web server with a firewall with the intent of bypassing the web server firewall to smuggle malicious code into the system.</Intro_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>POST /page.asp HTTP/1.1<xhtml:br/>Host: www.website.com<xhtml:br/>Connection: Keep-Alive<xhtml:br/>Content-Length: 49223<xhtml:br/>\n                     <xhtml:br/>zzz...zzz [\"z\" x 49152]<xhtml:br/>POST /page.asp HTTP/1.0<xhtml:br/>Connection: Keep-Alive<xhtml:br/>Content-Length: 30<xhtml:br/>\n                     <xhtml:br/>POST /page.asp HTTP/1.0<xhtml:br/>Bla: POST /page.asp?cmd.exe HTTP/1.0<xhtml:br/>Connection: Keep-Alive</xhtml:div>\n               </Example_Code>\n               <Body_Text>When this request is sent to the web server, the first POST request has a content-length of 49,223 bytes, and the firewall treats the line with 49,152 copies of \"z\" and the lines with an additional lines with 71 bytes as its body (49,152+71=49,223). The firewall then continues to parse what it thinks is the second request starting with the line with the third POST request.</Body_Text>\n               <Body_Text>Note that there is no CRLF after the \"Bla: \" header so the POST in the line is parsed as the value of the \"Bla:\" header. Although the line contains the pattern identified with a worm (\"cmd.exe\"), it is not blocked, since it is considered part of a header value. Therefore, \"cmd.exe\" is smuggled through the firewall.</Body_Text>\n               <Body_Text>When the request is passed through the firewall the web server the first request is ignored because the web server does not find an expected \"Content-Type: application/x-www-form-urlencoded\" header, and starts parsing the second request.</Body_Text>\n               <Body_Text>This second request has a content-length of 30 bytes, which is exactly the length of the next two lines up to the space after the \"Bla:\" header. And unlike the firewall, the web server processes the final POST as a separate third request and the \"cmd.exe\" worm is smuggled through the firewall to the web server.</Body_Text>\n               <Body_Text>To avoid this attack a Web server firewall product must be used that is designed to prevent this type of attack.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>\n\t\t The interpretation of HTTP responses can be manipulated if response headers include a space between the header name and colon, or if HTTP 1.1 headers are sent through a proxy configured for HTTP 1.0, allowing for HTTP response smuggling. This can be exploited in web browsers and other applications when used in combination with various proxy servers. For instance, the HTTP response interpreted by the front-end/client HTTP agent/entity - in this case the web browser - can interpret a single response from an adversary-compromised web server as being two responses from two different web sites. In the Example below, notice the extra space after the Content-Length and Set-Cookie headers.</Intro_Text>\n               <Example_Code Nature=\"Attack\">\n\t\tHTTP/1.1 200 OK<xhtml:br/>\n\t\tDate: Fri, 08 Aug 2016 08:12:31 GMT<xhtml:br/>\n\t\tServer: Apache (Unix)<xhtml:br/>\n\t\tConnection: Keep-Alive<xhtml:br/>\n\t\tContent-Encoding: gzip<xhtml:br/>\n\t\tContent-Type: text/html<xhtml:br/>\n\t\t<xhtml:b>Content-Length :</xhtml:b> 2345<xhtml:br/>\n\t\tTransfer-Encoding: chunked<xhtml:br/>\n\t\t<xhtml:b>Set-Cookie :</xhtml:b> token=\"Malicious Code\"<xhtml:br/>\n\t\t<xhtml:br/>\n\t\t&lt;HTML&gt; ... \"Malicious Code\"<xhtml:br/>\n               </Example_Code>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-24766",
-      "description": "SSL/TLS-capable proxy allows HTTP smuggling when used in tandem with HTTP/1.0 services, due to inconsistent interpretation and input sanitization of HTTP messages within the body of another message",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-24766"
-    },
-    {
-      "reference": "CVE-2021-37147",
-      "description": "Chain: caching proxy server has improper input validation (CWE-20) of headers, allowing HTTP response smuggling (CWE-444) using an \"LF line ending\"",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-37147"
-    },
-    {
-      "reference": "CVE-2020-8287",
-      "description": "Node.js platform allows request smuggling via two Transfer-Encoding headers",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-8287"
-    },
-    {
-      "reference": "CVE-2006-6276",
-      "description": "Web servers allow request smuggling via inconsistent HTTP headers.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-6276"
-    },
-    {
-      "reference": "CVE-2005-2088",
-      "description": "HTTP server allows request smuggling with both a \"Transfer-Encoding: chunked\" header and a Content-Length header",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2088"
-    },
-    {
-      "reference": "CVE-2005-2089",
-      "description": "HTTP server allows request smuggling with both a \"Transfer-Encoding: chunked\" header and a Content-Length header",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2089"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-433",
-      "author": [
-        "Chaim Linhart",
-        "Amit Klein",
-        "Ronen Heled",
-        "Steve Orrin"
-      ],
-      "title": "HTTP Request Smuggling",
-      "url": "https://www.cgisecurity.com/lib/HTTP-Request-Smuggling.pdf",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1273",
-      "author": [
-        "Robert Auger"
-      ],
-      "title": "HTTP Response Smuggling",
-      "url": "http://projects.webappsec.org/w/page/13246930/HTTP%20Response%20Smuggling",
-      "publication_year": "2011",
-      "publication_month": "--02",
-      "publication_day": "---01"
-    },
-    {
-      "reference_id": "REF-1274",
-      "author": [
-        "Dzevad Alibegovic"
-      ],
-      "title": "HTTP Request Smuggling: Complete Guide to Attack Types and Prevention",
-      "url": "https://brightsec.com/blog/http-request-smuggling-hrs/",
-      "publication_year": "2021",
-      "publication_month": "--08",
-      "publication_day": "---23"
-    },
-    {
-      "reference_id": "REF-1275",
-      "author": [
-        "Busra Demir"
-      ],
-      "title": "A Pentester's Guide to HTTP Request Smuggling",
-      "url": "https://www.cobalt.io/blog/a-pentesters-guide-to-http-request-smuggling",
-      "publication_year": "2020",
-      "publication_month": "--10",
-      "publication_day": "---15"
-    },
-    {
-      "reference_id": "REF-1276",
-      "author": [
-        "Edi Kogan",
-        "Daniel Kerman"
-      ],
-      "title": "HTTP Desync Attacks in the Wild and How to Defend Against Them",
-      "url": "https://www.imperva.com/blog/http-desync-attacks-and-defence-methods/",
-      "publication_year": "2019",
-      "publication_month": "--10",
-      "publication_day": "---29"
-    },
-    {
-      "reference_id": "REF-1277",
-      "author": [
-        "James Kettle"
-      ],
-      "title": "HTTP Desync Attacks: Request Smuggling Reborn",
-      "url": "https://portswigger.net/research/http-desync-attacks-request-smuggling-reborn",
-      "publication_year": "2019",
-      "publication_month": "--08",
-      "publication_day": "---07",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1278",
-      "author": [
-        "PortSwigger"
-      ],
-      "title": "HTTP request smuggling",
-      "url": "https://portswigger.net/web-security/request-smuggling",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Name, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Name, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Other_Notes, Potential_Mitigations, Theoretical_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Applicable_Platforms, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "Extended the abstraction of this entry to include both HTTP request and response smuggling.",
-        "modification_importance": "Critical"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Alternate_Terms, Common_Consequences, Demonstrative_Examples, Description, Name, Observed_Examples, References, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "HTTP Request Smuggling",
-        "date": "2008-04-11"
-      },
-      {
-        "text": "Interpretation Conflict in Web Traffic (aka 'HTTP Request Smuggling')",
-        "date": "2008-09-09"
-      },
-      {
-        "text": "Inconsistent Interpretation of HTTP Requests (aka 'HTTP Request Smuggling')",
-        "date": "2009-05-27"
-      },
-      {
-        "text": "Inconsistent Interpretation of HTTP Requests ('HTTP Request Smuggling')",
-        "date": "2022-06-28"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "HTTP Request Smuggling"
-    },
-    {
-      "term": "HTTP Response Smuggling"
-    },
-    {
-      "term": "HTTP Smuggling"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "HTTP Request Smuggling"
-    },
-    {
-      "taxonomy_name": "WASC",
-      "entry_name": "HTTP Request Smuggling",
-      "entry_id": "26"
-    },
-    {
-      "taxonomy_name": "WASC",
-      "entry_name": "HTTP Response Smuggling",
-      "entry_id": "27"
-    }
-  ],
-  "related_attack_patterns": [
-    "273",
-    "33"
-  ],
-  "notes": [
-    {
-      "type": "Theoretical",
-      "text": "Request smuggling can be performed due to a multiple interpretation error, where the target is an intermediary or monitor, via a consistency manipulation (Transfer-Encoding and Content-Length headers)."
-    }
-  ]
+	"id": "444",
+	"name": "Inconsistent Interpretation of HTTP Requests ('HTTP Request/Response Smuggling')",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product acts as an intermediary HTTP agent\n         (such as a proxy or firewall) in the data flow between two\n         entities such as a client and server, but it does not\n         interpret malformed HTTP requests or responses in ways that\n         are consistent with how the messages will be processed by\n         those entities that are at the ultimate destination.",
+	"extended_description": "\n\t   <xhtml:p>HTTP requests or responses (\"messages\") can be\n\t   malformed or unexpected in ways that cause web servers or\n\t   clients to interpret the messages in different ways than\n\t   intermediary HTTP agents such as load balancers, reverse\n\t   proxies, web caching proxies, application firewalls,\n\t   etc. For example, an adversary may be able to add duplicate\n\t   or different header fields that a client or server might\n\t   interpret as one set of messages, whereas the intermediary\n\t   might interpret the same sequence of bytes as a different\n\t   set of messages. For example, discrepancies can arise in\n\t   how to handle duplicate headers like two Transfer-encoding\n\t   (TE) or two Content-length (CL), or the malicious HTTP\n\t   message will have different headers for TE and\n\t   CL.</xhtml:p>\n\t   <xhtml:p>The inconsistent parsing and interpretation of messages\n\t   can allow the adversary to \"smuggle\" a message to the\n\t   client/server without the intermediary being aware of it.</xhtml:p>\n\t   <xhtml:p>This weakness is usually the result of the usage\n\t   of outdated or incompatible HTTP protocol versions in the\n\t   HTTP agents.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "436",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "436",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Web Based",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Non-Repudiation",
+				"Access Control"
+			],
+			"impact": [
+				"Unexpected State",
+				"Hide Activities",
+				"Bypass Protection Mechanism"
+			],
+			"note": "An attacker could create HTTP messages to exploit a number of weaknesses including 1) the message can trick the web server to associate a URL with another URL's webpage and caching the contents of the webpage (web cache poisoning attack), 2) the message can be structured to bypass the firewall protection mechanisms and gain unauthorized access to a web application, and 3) the message can invoke a script or a page that returns client credentials (similar to a Cross Site Scripting attack)."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Use a web server that employs a strict HTTP parsing procedure, such as Apache [REF-433]."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Use only SSL communication."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Terminate the client session after each request."
+			]
+		},
+		{
+			"phase": [
+				"System Configuration"
+			],
+			"description": [
+				"Turn all pages to non-cacheable."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the following example, a malformed HTTP request is sent to a website that includes a proxy server and a web server with the intent of poisoning the cache to associate one webpage with another malicious webpage.</Intro_Text>\n               <Example_Code Nature=\"Attack\">\n                  POST http://www.website.com/foobar.html HTTP/1.1<xhtml:br/>\n\t\t Host: www.website.com<xhtml:br/>\n\t\t Connection: Keep-Alive<xhtml:br/>\n\t\t Content-Type: application/x-www-form-urlencoded<xhtml:br/>\n\t\t Content-Length: 0<xhtml:br/>\n\t\t Content-Length: 54<xhtml:br/>\n\t\t <xhtml:br/>\n                 GET /poison.html HTTP/1.1<xhtml:br/>\n\t\t Host: www.website.com<xhtml:br/>\n\t\t Bla: GET http://www.website.com/page_to_poison.html HTTP/1.1<xhtml:br/>\n\t\t Host: www.website.com<xhtml:br/>\n\t\t Connection: Keep-Alive<xhtml:br/>\n               </Example_Code>\n               <Body_Text>When this request is sent to the proxy server, the proxy server parses the first four lines of the POST request and encounters the two \"Content-Length\" headers. The proxy server ignores the first header, so it assumes the request has a body of length 54 bytes. Therefore, it treats the data in the next three lines that contain exactly 54 bytes as the first request's body:</Body_Text>\n\t       <Example_Code Nature=\"Result\">\n\t\tGET /poison.html HTTP/1.1<xhtml:br/>\n\t\tHost: www.website.com<xhtml:br/>\n\t\tBla:<xhtml:br/>\n\t       </Example_Code>\n\t       <Body_Text>The proxy then parses the remaining bytes, which it treats as the client's second request:</Body_Text>\n\t       <Example_Code Nature=\"Attack\">\n\t\tGET http://www.website.com/page_to_poison.html HTTP/1.1<xhtml:br/>\n\t\tHost: www.website.com<xhtml:br/>\n\t\tConnection: Keep-Alive<xhtml:br/>\n\t       </Example_Code>\n               <Body_Text>The original request is forwarded by the proxy server to the web server. Unlike the proxy, the web server uses the first \"Content-Length\" header and considers that the first POST request has no body.</Body_Text>\n\t       <Example_Code Nature=\"Attack\">\n\t\tPOST http://www.website.com/foobar.html HTTP/1.1<xhtml:br/>\n\t\tHost: www.website.com<xhtml:br/>\n\t\tConnection: Keep-Alive<xhtml:br/>\n\t\tContent-Type: application/x-www-form-urlencoded<xhtml:br/>\n\t\tContent-Length: 0<xhtml:br/>\n\t\t<xhtml:i>Content-Length: 54 (ignored by server)</xhtml:i><xhtml:br/>\n\t       </Example_Code>\n\t       <Body_Text>Because the web server has assumed the original POST request was length 0, it parses the second request that follows, i.e. for GET /poison.html:</Body_Text>\n\t       <Example_Code Nature=\"Attack\">\n\t\tGET /poison.html HTTP/1.1<xhtml:br/>\n\t\tHost: www.website.com<xhtml:br/>\n\t\tBla: GET http://www.website.com/page_to_poison.html HTTP/1.1<xhtml:br/>\n\t\tHost: www.website.com<xhtml:br/>\n\t\tConnection: Keep-Alive<xhtml:br/>\n\t       </Example_Code>\n\t       <Body_Text>Note that the \"Bla:\" header is treated as a regular header, so it is not parsed as a separate GET request.</Body_Text>\n               <Body_Text>The requests the web server sees are \"POST /foobar.html\" and \"GET /poison.html\", so it sends back two responses with the contents of the \"foobar.html\" page and the \"poison.html\" page, respectively. The proxy matches these responses to the two requests it thinks were sent by the client - \"POST /foobar.html\" and \"GET /page_to_poison.html\". If the response is cacheable, the proxy caches the contents of \"poison.html\" under the URL \"page_to_poison.html\", and the cache is poisoned! Any client requesting \"page_to_poison.html\" from the proxy would receive the \"poison.html\" page.</Body_Text>\n               <Body_Text>When a website includes both a proxy server and a web server, some protection against this type of attack can be achieved by installing a web application firewall, or using a web server that includes a stricter HTTP parsing procedure or make all webpages non-cacheable.</Body_Text>\n               <Body_Text>Additionally, if a web application includes a Java servlet for processing requests, the servlet can check for multiple \"Content-Length\" headers and if they are found the servlet can return an error response thereby preventing the poison page to be cached, as shown below.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>protected void processRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n                    <xhtml:div>\n                      <xhtml:br/>\n                      <xhtml:i>// Set up response writer object</xhtml:i>\n                      <xhtml:br/>...<xhtml:br/>try {\n\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t<xhtml:div>\n                          <xhtml:i>// check for multiple content length headers</xhtml:i>\n                          <xhtml:br/>Enumeration contentLengthHeaders = request.getHeaders(\"Content-Length\");\n\t\t\t\t\t\t  <xhtml:br/>int count = 0;\n\t\t\t\t\t\t  <xhtml:br/>while (contentLengthHeaders.hasMoreElements()) {\n\t\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">count++;\n\t\t\t\t\t\t  </xhtml:div>}\n\t\t\t\t\t\t  <xhtml:br/>if (count &gt; 1) {\n\t\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t<xhtml:i>// output error response</xhtml:i>\n\t\t\t\t\t\t\t</xhtml:div>}\n\t\t\t\t\t\t\t<xhtml:br/>else {\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t  <xhtml:div>\n\t\t\t\t\t\t\t\t<xhtml:i>// process request</xhtml:i>\n\t\t\t\t\t\t\t  </xhtml:div>\n\t\t\t\t\t\t\t  </xhtml:div>}\n\t\t\t\t\t\t\t  <xhtml:br/>\n                        </xhtml:div>\n                    </xhtml:div>} catch (Exception ex) {...}</xhtml:div>\n\t\t\t\t\t</xhtml:div>}\n\t\t\t\t  </xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>In the following example, a malformed HTTP request is sent to a website that includes a web server with a firewall with the intent of bypassing the web server firewall to smuggle malicious code into the system.</Intro_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>POST /page.asp HTTP/1.1<xhtml:br/>Host: www.website.com<xhtml:br/>Connection: Keep-Alive<xhtml:br/>Content-Length: 49223<xhtml:br/>\n                     <xhtml:br/>zzz...zzz [\"z\" x 49152]<xhtml:br/>POST /page.asp HTTP/1.0<xhtml:br/>Connection: Keep-Alive<xhtml:br/>Content-Length: 30<xhtml:br/>\n                     <xhtml:br/>POST /page.asp HTTP/1.0<xhtml:br/>Bla: POST /page.asp?cmd.exe HTTP/1.0<xhtml:br/>Connection: Keep-Alive</xhtml:div>\n               </Example_Code>\n               <Body_Text>When this request is sent to the web server, the first POST request has a content-length of 49,223 bytes, and the firewall treats the line with 49,152 copies of \"z\" and the lines with an additional lines with 71 bytes as its body (49,152+71=49,223). The firewall then continues to parse what it thinks is the second request starting with the line with the third POST request.</Body_Text>\n               <Body_Text>Note that there is no CRLF after the \"Bla: \" header so the POST in the line is parsed as the value of the \"Bla:\" header. Although the line contains the pattern identified with a worm (\"cmd.exe\"), it is not blocked, since it is considered part of a header value. Therefore, \"cmd.exe\" is smuggled through the firewall.</Body_Text>\n               <Body_Text>When the request is passed through the firewall the web server the first request is ignored because the web server does not find an expected \"Content-Type: application/x-www-form-urlencoded\" header, and starts parsing the second request.</Body_Text>\n               <Body_Text>This second request has a content-length of 30 bytes, which is exactly the length of the next two lines up to the space after the \"Bla:\" header. And unlike the firewall, the web server processes the final POST as a separate third request and the \"cmd.exe\" worm is smuggled through the firewall to the web server.</Body_Text>\n               <Body_Text>To avoid this attack a Web server firewall product must be used that is designed to prevent this type of attack.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>\n\t\t The interpretation of HTTP responses can be manipulated if response headers include a space between the header name and colon, or if HTTP 1.1 headers are sent through a proxy configured for HTTP 1.0, allowing for HTTP response smuggling. This can be exploited in web browsers and other applications when used in combination with various proxy servers. For instance, the HTTP response interpreted by the front-end/client HTTP agent/entity - in this case the web browser - can interpret a single response from an adversary-compromised web server as being two responses from two different web sites. In the Example below, notice the extra space after the Content-Length and Set-Cookie headers.</Intro_Text>\n               <Example_Code Nature=\"Attack\">\n\t\tHTTP/1.1 200 OK<xhtml:br/>\n\t\tDate: Fri, 08 Aug 2016 08:12:31 GMT<xhtml:br/>\n\t\tServer: Apache (Unix)<xhtml:br/>\n\t\tConnection: Keep-Alive<xhtml:br/>\n\t\tContent-Encoding: gzip<xhtml:br/>\n\t\tContent-Type: text/html<xhtml:br/>\n\t\t<xhtml:b>Content-Length :</xhtml:b> 2345<xhtml:br/>\n\t\tTransfer-Encoding: chunked<xhtml:br/>\n\t\t<xhtml:b>Set-Cookie :</xhtml:b> token=\"Malicious Code\"<xhtml:br/>\n\t\t<xhtml:br/>\n\t\t&lt;HTML&gt; ... \"Malicious Code\"<xhtml:br/>\n               </Example_Code>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-24766",
+			"description": "SSL/TLS-capable proxy allows HTTP smuggling when used in tandem with HTTP/1.0 services, due to inconsistent interpretation and input sanitization of HTTP messages within the body of another message",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-24766"
+		},
+		{
+			"reference": "CVE-2021-37147",
+			"description": "Chain: caching proxy server has improper input validation (CWE-20) of headers, allowing HTTP response smuggling (CWE-444) using an \"LF line ending\"",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-37147"
+		},
+		{
+			"reference": "CVE-2020-8287",
+			"description": "Node.js platform allows request smuggling via two Transfer-Encoding headers",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-8287"
+		},
+		{
+			"reference": "CVE-2006-6276",
+			"description": "Web servers allow request smuggling via inconsistent HTTP headers.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-6276"
+		},
+		{
+			"reference": "CVE-2005-2088",
+			"description": "HTTP server allows request smuggling with both a \"Transfer-Encoding: chunked\" header and a Content-Length header",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2088"
+		},
+		{
+			"reference": "CVE-2005-2089",
+			"description": "HTTP server allows request smuggling with both a \"Transfer-Encoding: chunked\" header and a Content-Length header",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2089"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-433",
+			"author": [
+				"Chaim Linhart",
+				"Amit Klein",
+				"Ronen Heled",
+				"Steve Orrin"
+			],
+			"title": "HTTP Request Smuggling",
+			"url": "https://www.cgisecurity.com/lib/HTTP-Request-Smuggling.pdf",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1273",
+			"author": [
+				"Robert Auger"
+			],
+			"title": "HTTP Response Smuggling",
+			"url": "http://projects.webappsec.org/w/page/13246930/HTTP%20Response%20Smuggling",
+			"publication_year": "2011",
+			"publication_month": "--02",
+			"publication_day": "---01"
+		},
+		{
+			"reference_id": "REF-1274",
+			"author": [
+				"Dzevad Alibegovic"
+			],
+			"title": "HTTP Request Smuggling: Complete Guide to Attack Types and Prevention",
+			"url": "https://brightsec.com/blog/http-request-smuggling-hrs/",
+			"publication_year": "2021",
+			"publication_month": "--08",
+			"publication_day": "---23"
+		},
+		{
+			"reference_id": "REF-1275",
+			"author": [
+				"Busra Demir"
+			],
+			"title": "A Pentester's Guide to HTTP Request Smuggling",
+			"url": "https://www.cobalt.io/blog/a-pentesters-guide-to-http-request-smuggling",
+			"publication_year": "2020",
+			"publication_month": "--10",
+			"publication_day": "---15"
+		},
+		{
+			"reference_id": "REF-1276",
+			"author": [
+				"Edi Kogan",
+				"Daniel Kerman"
+			],
+			"title": "HTTP Desync Attacks in the Wild and How to Defend Against Them",
+			"url": "https://www.imperva.com/blog/http-desync-attacks-and-defence-methods/",
+			"publication_year": "2019",
+			"publication_month": "--10",
+			"publication_day": "---29"
+		},
+		{
+			"reference_id": "REF-1277",
+			"author": [
+				"James Kettle"
+			],
+			"title": "HTTP Desync Attacks: Request Smuggling Reborn",
+			"url": "https://portswigger.net/research/http-desync-attacks-request-smuggling-reborn",
+			"publication_year": "2019",
+			"publication_month": "--08",
+			"publication_day": "---07",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1278",
+			"author": [
+				"PortSwigger"
+			],
+			"title": "HTTP request smuggling",
+			"url": "https://portswigger.net/web-security/request-smuggling",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Name, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Name, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Other_Notes, Potential_Mitigations, Theoretical_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Applicable_Platforms, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "Extended the abstraction of this entry to include both HTTP request and response smuggling.",
+				"modification_importance": "Critical"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Alternate_Terms, Common_Consequences, Demonstrative_Examples, Description, Name, Observed_Examples, References, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "HTTP Request Smuggling",
+				"date": "2008-04-11"
+			},
+			{
+				"text": "Interpretation Conflict in Web Traffic (aka 'HTTP Request Smuggling')",
+				"date": "2008-09-09"
+			},
+			{
+				"text": "Inconsistent Interpretation of HTTP Requests (aka 'HTTP Request Smuggling')",
+				"date": "2009-05-27"
+			},
+			{
+				"text": "Inconsistent Interpretation of HTTP Requests ('HTTP Request Smuggling')",
+				"date": "2022-06-28"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "HTTP Request Smuggling"
+		},
+		{
+			"term": "HTTP Response Smuggling"
+		},
+		{
+			"term": "HTTP Smuggling"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "HTTP Request Smuggling"
+		},
+		{
+			"taxonomy_name": "WASC",
+			"entry_name": "HTTP Request Smuggling",
+			"entry_id": "26"
+		},
+		{
+			"taxonomy_name": "WASC",
+			"entry_name": "HTTP Response Smuggling",
+			"entry_id": "27"
+		}
+	],
+	"related_attack_patterns": [
+		"273",
+		"33"
+	],
+	"notes": [
+		{
+			"type": "Theoretical",
+			"text": "Request smuggling can be performed due to a multiple interpretation error, where the target is an intermediary or monitor, via a consistency manipulation (Transfer-Encoding and Content-Length headers)."
+		}
+	]
 }

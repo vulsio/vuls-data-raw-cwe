@@ -1,123 +1,123 @@
 {
-  "id": "1041",
-  "name": "Use of Redundant Code",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product has multiple functions, methods, procedures, macros, etc. that\n\t\t\t\t\tcontain the same code.",
-  "extended_description": "<xhtml:p>This issue makes it more difficult to maintain the product, which indirectly affects security by making it more difficult or time-consuming to find and/or fix vulnerabilities.  For example, if there are two copies of the same code, the programmer might fix a weakness in one copy while forgetting to fix the same weakness in another copy.</xhtml:p>",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "710",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Reduce Maintainability"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Merge common functionality into a single function and then call that function from across the entire code base."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the following Java example the code performs some complex math when specific test conditions are met. The math is the same in each case and the equations are repeated within the code. Unfortunately if a future change needs to be made then that change needs to be made in all locations. This opens the door to mistakes being made and the changes not being made in the same way in each instance.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class Main {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">public static void main(String[] args) {\n                        <xhtml:div style=\"margin-left:1em;\">double s = 10.0;\n                        <xhtml:br/>double r = 1.0;\n                        <xhtml:br/>double pi = 3.14159;\n                        <xhtml:br/>double surface_area;<xhtml:br/>\n                        <xhtml:br/>if(r &gt; 0.0) {\n                           <xhtml:div style=\"margin-left:1em;\">// complex math equations\n                           <xhtml:br/>surface_area = pi * r * s + pi * Math.pow(r, 2);</xhtml:div>\n                        <xhtml:br/>}<xhtml:br/>\n                        <xhtml:br/>if(r &gt; 1.0) {\n                           <xhtml:div style=\"margin-left:1em;\">// a complex set of math\n                           <xhtml:br/>surface_area = pi * r * s + pi * Math.pow(r, 2);</xhtml:div>\n                        <xhtml:br/>}</xhtml:div>\n                     <xhtml:br/>}</xhtml:div><xhtml:br/>\n                  <xhtml:br/>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>It is recommended to place the complex math into its own function and then call that function whenever necessary.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public class Main {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">private double ComplexMath(double r, double s) {\n                        <xhtml:div style=\"margin-left:1em;\">//complex math equations\n                        <xhtml:br/>double pi = Math.PI;\n                        <xhtml:br/>double surface_area = pi * r * s + pi * Math.pow(r, 2);\n                        <xhtml:br/>return surface_area;</xhtml:div>\n                     <xhtml:br/>}</xhtml:div><xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">public static void main(String[] args) {\n                        <xhtml:div style=\"margin-left:1em;\">double s = 10.0;\n                        <xhtml:br/>double r = 1.0;\n                        <xhtml:br/>double surface_area;<xhtml:br/>\n                        <xhtml:br/>if(r &gt; 0.0) {\n                           <xhtml:div style=\"margin-left:1em;\">surface_area = ComplexMath(r, s);</xhtml:div>\n                        <xhtml:br/>}<xhtml:br/>\n                        <xhtml:br/>if(r &gt; 1.0) {\n                           <xhtml:div style=\"margin-left:1em;\">surface_area = ComplexMath(r, s);</xhtml:div>\n                        <xhtml:br/>}</xhtml:div>\n                     <xhtml:br/>}</xhtml:div><xhtml:br/>\n                  <xhtml:br/>}</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "references": [
-    {
-      "section": "ASCMM-MNT-19",
-      "reference_id": "REF-960",
-      "author": [
-        "Object Management Group (OMG)"
-      ],
-      "title": "Automated Source Code Maintainability Measure (ASCMM)",
-      "url": "https://www.omg.org/spec/ASCMM/",
-      "publication_year": "2016",
-      "publication_month": "--01",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2018-07-02",
-      "submission_comment": "Entry derived from Common Quality Enumeration (CQE) Draft 0.9."
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "Drew Buttner",
-        "contribution_date": "2022-08-15",
-        "contribution_comment": "Suggested new demonstrative examples, mitigations, and applicable platforms."
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Indirect"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "OMG ASCMM",
-      "entry_id": "ASCMM-MNT-19"
-    }
-  ]
+	"id": "1041",
+	"name": "Use of Redundant Code",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product has multiple functions, methods, procedures, macros, etc. that\n\t\t\t\t\tcontain the same code.",
+	"extended_description": "<xhtml:p>This issue makes it more difficult to maintain the product, which indirectly affects security by making it more difficult or time-consuming to find and/or fix vulnerabilities.  For example, if there are two copies of the same code, the programmer might fix a weakness in one copy while forgetting to fix the same weakness in another copy.</xhtml:p>",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "710",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Reduce Maintainability"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Merge common functionality into a single function and then call that function from across the entire code base."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the following Java example the code performs some complex math when specific test conditions are met. The math is the same in each case and the equations are repeated within the code. Unfortunately if a future change needs to be made then that change needs to be made in all locations. This opens the door to mistakes being made and the changes not being made in the same way in each instance.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class Main {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">public static void main(String[] args) {\n                        <xhtml:div style=\"margin-left:1em;\">double s = 10.0;\n                        <xhtml:br/>double r = 1.0;\n                        <xhtml:br/>double pi = 3.14159;\n                        <xhtml:br/>double surface_area;<xhtml:br/>\n                        <xhtml:br/>if(r &gt; 0.0) {\n                           <xhtml:div style=\"margin-left:1em;\">// complex math equations\n                           <xhtml:br/>surface_area = pi * r * s + pi * Math.pow(r, 2);</xhtml:div>\n                        <xhtml:br/>}<xhtml:br/>\n                        <xhtml:br/>if(r &gt; 1.0) {\n                           <xhtml:div style=\"margin-left:1em;\">// a complex set of math\n                           <xhtml:br/>surface_area = pi * r * s + pi * Math.pow(r, 2);</xhtml:div>\n                        <xhtml:br/>}</xhtml:div>\n                     <xhtml:br/>}</xhtml:div><xhtml:br/>\n                  <xhtml:br/>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>It is recommended to place the complex math into its own function and then call that function whenever necessary.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public class Main {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">private double ComplexMath(double r, double s) {\n                        <xhtml:div style=\"margin-left:1em;\">//complex math equations\n                        <xhtml:br/>double pi = Math.PI;\n                        <xhtml:br/>double surface_area = pi * r * s + pi * Math.pow(r, 2);\n                        <xhtml:br/>return surface_area;</xhtml:div>\n                     <xhtml:br/>}</xhtml:div><xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">public static void main(String[] args) {\n                        <xhtml:div style=\"margin-left:1em;\">double s = 10.0;\n                        <xhtml:br/>double r = 1.0;\n                        <xhtml:br/>double surface_area;<xhtml:br/>\n                        <xhtml:br/>if(r &gt; 0.0) {\n                           <xhtml:div style=\"margin-left:1em;\">surface_area = ComplexMath(r, s);</xhtml:div>\n                        <xhtml:br/>}<xhtml:br/>\n                        <xhtml:br/>if(r &gt; 1.0) {\n                           <xhtml:div style=\"margin-left:1em;\">surface_area = ComplexMath(r, s);</xhtml:div>\n                        <xhtml:br/>}</xhtml:div>\n                     <xhtml:br/>}</xhtml:div><xhtml:br/>\n                  <xhtml:br/>}</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"references": [
+		{
+			"section": "ASCMM-MNT-19",
+			"reference_id": "REF-960",
+			"author": [
+				"Object Management Group (OMG)"
+			],
+			"title": "Automated Source Code Maintainability Measure (ASCMM)",
+			"url": "https://www.omg.org/spec/ASCMM/",
+			"publication_year": "2016",
+			"publication_month": "--01",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2018-07-02",
+			"submission_comment": "Entry derived from Common Quality Enumeration (CQE) Draft 0.9."
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Drew Buttner",
+				"contribution_date": "2022-08-15",
+				"contribution_comment": "Suggested new demonstrative examples, mitigations, and applicable platforms."
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Indirect"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "OMG ASCMM",
+			"entry_id": "ASCMM-MNT-19"
+		}
+	]
 }

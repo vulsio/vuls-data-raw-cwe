@@ -1,129 +1,129 @@
 {
-  "id": "777",
-  "name": "Regular Expression without Anchors",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product uses a regular expression to perform neutralization, but the regular expression is not anchored and may allow malicious or malformed data to slip through.",
-  "extended_description": "When performing tasks such as validating against a set of allowed inputs (allowlist), data is examined and possibly modified to ensure that it is well-formed and adheres to a list of safe values. If the regular expression is not anchored, malicious or malformed data may be included before or after any string matching the regular expression. The type of malicious data that is allowed will depend on the context of the application and which anchors are omitted from the regular expression.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "625",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "background_details": [
-    "Regular expressions are typically used to match a pattern of text. Anchors are used in regular expressions to specify where the pattern should match: at the beginning, the end, or both (the whole input)."
-  ],
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability",
-        "Confidentiality",
-        "Access Control"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism"
-      ],
-      "note": "An unanchored regular expression in the context of an allowlist will possibly result in a protection mechanism failure, allowing malicious or malformed data to enter trusted regions of the program. The specific consequences will depend on what functionality the allowlist was protecting."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Be sure to understand both what will be matched and what will not be matched by a regular expression. Anchoring the ends of the expression will allow the programmer to define an allowlist strictly limited to what is matched by the text in the regular expression. If you are using a package that only matches one line by default, ensure that you can match multi-line inputs if necessary."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>Consider a web application that supports multiple languages. It selects messages for an appropriate language by using the lang parameter.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$dir = \"/home/cwe/languages\";<xhtml:br/>$lang = $_GET['lang'];<xhtml:br/>if (preg_match(\"/[A-Za-z0-9]+/\", $lang)) {<xhtml:div style=\"margin-left:1em;\">include(\"$dir/$lang\");</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">echo \"You shall not pass!\\n\";</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The previous code attempts to match only alphanumeric values so that language values such as \"english\" and \"french\" are valid while also protecting against path traversal, CWE-22. However, the regular expression anchors are omitted, so any text containing at least one alphanumeric character will now pass the validation step. For example, the attack string below will match the regular expression.</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>../../etc/passwd</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the attacker can inject code sequences into a file, such as the web server's HTTP request log, then the attacker may be able to redirect the lang parameter to the log file and execute arbitrary code.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-154",
-      "text": "\n\t      <Intro_Text>This code uses a regular expression to validate an IP string prior to using it in a call to the \"ping\" command.</Intro_Text>\n\t      <Example_Code Nature=\"Bad\" Language=\"Python\">\n\t\t<xhtml:div>\n\t\t  import subprocess<xhtml:br/>\n\t\t  import re<xhtml:br/>\n\t\t  <xhtml:br/>\n\t\t  def validate_ip_regex(ip: str):<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t    ip_validator = re.compile(r\"((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}\")<xhtml:br/>\n\t\t    if ip_validator.match(ip):<xhtml:br/>\n\t\t    <xhtml:div style=\"margin-left:1em;\">\n\t\t      return ip<xhtml:br/>\n\t\t    </xhtml:div>\n\t\t    else:<xhtml:br/>\n\t\t    <xhtml:div style=\"margin-left:1em;\">\n\t\t      raise ValueError(\"IP address does not match valid pattern.\")<xhtml:br/>\n\t\t    </xhtml:div>\n\t\t  </xhtml:div>\n\t\t  <xhtml:br/>\n\t\t  def run_ping_regex(ip: str):<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t    validated = validate_ip_regex(ip)<xhtml:br/>\n\t\t    <xhtml:i># The ping command treats zero-prepended IP addresses as octal</xhtml:i><xhtml:br/>\n\t\t    result = subprocess.call([\"ping\", validated])<xhtml:br/>\n\t\t    print(result)<xhtml:br/>\n\t\t  </xhtml:div>\n\t\t</xhtml:div>\n\t      </Example_Code>\n\t      <Body_Text>Since the regular expression does not have anchors (CWE-777), i.e. is unbounded without ^ or $ characters, then prepending a 0 or 0x to the beginning of the IP address will still result in a matched regex pattern. Since the ping command supports octal and hex prepended IP addresses, it will use the unexpectedly valid IP address (CWE-1389). For example, \"0x63.63.63.63\" would be considered equivalent to \"99.63.63.63\". As a result, the attacker could potentially ping systems that the attacker cannot reach directly.</Body_Text>\n\t    "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-30034",
-      "description": "Chain: Web UI for a Python RPC framework does not use regex anchors to validate user login emails (CWE-777), potentially allowing bypass of OAuth (CWE-1390).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-30034"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2009-06-30"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Likelihood_of_Exploit"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Common_Consequences, Description, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  }
+	"id": "777",
+	"name": "Regular Expression without Anchors",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product uses a regular expression to perform neutralization, but the regular expression is not anchored and may allow malicious or malformed data to slip through.",
+	"extended_description": "When performing tasks such as validating against a set of allowed inputs (allowlist), data is examined and possibly modified to ensure that it is well-formed and adheres to a list of safe values. If the regular expression is not anchored, malicious or malformed data may be included before or after any string matching the regular expression. The type of malicious data that is allowed will depend on the context of the application and which anchors are omitted from the regular expression.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "625",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"background_details": [
+		"Regular expressions are typically used to match a pattern of text. Anchors are used in regular expressions to specify where the pattern should match: at the beginning, the end, or both (the whole input)."
+	],
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability",
+				"Confidentiality",
+				"Access Control"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			],
+			"note": "An unanchored regular expression in the context of an allowlist will possibly result in a protection mechanism failure, allowing malicious or malformed data to enter trusted regions of the program. The specific consequences will depend on what functionality the allowlist was protecting."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Be sure to understand both what will be matched and what will not be matched by a regular expression. Anchoring the ends of the expression will allow the programmer to define an allowlist strictly limited to what is matched by the text in the regular expression. If you are using a package that only matches one line by default, ensure that you can match multi-line inputs if necessary."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>Consider a web application that supports multiple languages. It selects messages for an appropriate language by using the lang parameter.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$dir = \"/home/cwe/languages\";<xhtml:br/>$lang = $_GET['lang'];<xhtml:br/>if (preg_match(\"/[A-Za-z0-9]+/\", $lang)) {<xhtml:div style=\"margin-left:1em;\">include(\"$dir/$lang\");</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">echo \"You shall not pass!\\n\";</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The previous code attempts to match only alphanumeric values so that language values such as \"english\" and \"french\" are valid while also protecting against path traversal, CWE-22. However, the regular expression anchors are omitted, so any text containing at least one alphanumeric character will now pass the validation step. For example, the attack string below will match the regular expression.</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>../../etc/passwd</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the attacker can inject code sequences into a file, such as the web server's HTTP request log, then the attacker may be able to redirect the lang parameter to the log file and execute arbitrary code.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-154",
+			"text": "\n\t      <Intro_Text>This code uses a regular expression to validate an IP string prior to using it in a call to the \"ping\" command.</Intro_Text>\n\t      <Example_Code Nature=\"Bad\" Language=\"Python\">\n\t\t<xhtml:div>\n\t\t  import subprocess<xhtml:br/>\n\t\t  import re<xhtml:br/>\n\t\t  <xhtml:br/>\n\t\t  def validate_ip_regex(ip: str):<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t    ip_validator = re.compile(r\"((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}\")<xhtml:br/>\n\t\t    if ip_validator.match(ip):<xhtml:br/>\n\t\t    <xhtml:div style=\"margin-left:1em;\">\n\t\t      return ip<xhtml:br/>\n\t\t    </xhtml:div>\n\t\t    else:<xhtml:br/>\n\t\t    <xhtml:div style=\"margin-left:1em;\">\n\t\t      raise ValueError(\"IP address does not match valid pattern.\")<xhtml:br/>\n\t\t    </xhtml:div>\n\t\t  </xhtml:div>\n\t\t  <xhtml:br/>\n\t\t  def run_ping_regex(ip: str):<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t    validated = validate_ip_regex(ip)<xhtml:br/>\n\t\t    <xhtml:i># The ping command treats zero-prepended IP addresses as octal</xhtml:i><xhtml:br/>\n\t\t    result = subprocess.call([\"ping\", validated])<xhtml:br/>\n\t\t    print(result)<xhtml:br/>\n\t\t  </xhtml:div>\n\t\t</xhtml:div>\n\t      </Example_Code>\n\t      <Body_Text>Since the regular expression does not have anchors (CWE-777), i.e. is unbounded without ^ or $ characters, then prepending a 0 or 0x to the beginning of the IP address will still result in a matched regex pattern. Since the ping command supports octal and hex prepended IP addresses, it will use the unexpectedly valid IP address (CWE-1389). For example, \"0x63.63.63.63\" would be considered equivalent to \"99.63.63.63\". As a result, the attacker could potentially ping systems that the attacker cannot reach directly.</Body_Text>\n\t    "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-30034",
+			"description": "Chain: Web UI for a Python RPC framework does not use regex anchors to validate user login emails (CWE-777), potentially allowing bypass of OAuth (CWE-1390).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-30034"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2009-06-30"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Likelihood_of_Exploit"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Common_Consequences, Description, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	}
 }

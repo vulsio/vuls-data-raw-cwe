@@ -1,193 +1,193 @@
 {
-  "id": "675",
-  "name": "Multiple Operations on Resource in Single-Operation Context",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product performs the same operation on a resource two or more times, when the operation should only be applied once.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "573",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "586",
-      "view_id": "1000"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "102",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Other"
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-149",
-      "text": "\n             <Intro_Text>The following code shows a simple example of a double free vulnerability.</Intro_Text>\n             <Example_Code Nature=\"Bad\" Language=\"C\">\n               <xhtml:div>char* ptr = (char*)malloc (SIZE);<xhtml:br/>...<xhtml:br/>if (abrt) {<xhtml:div style=\"margin-left:1em;\">free(ptr);</xhtml:div>}<xhtml:br/>...<xhtml:br/>free(ptr);</xhtml:div>\n             </Example_Code>\n             <Body_Text>Double free vulnerabilities have two common (and sometimes overlapping) causes:</Body_Text>\n             <Body_Text>\n               <xhtml:ul>\n                 <xhtml:li>\n                   <xhtml:div>Error conditions and other exceptional circumstances</xhtml:div>\n                 </xhtml:li>\n                 <xhtml:li>\n                   <xhtml:div>Confusion over which part of the program is responsible for freeing the memory</xhtml:div>\n                 </xhtml:li>\n               </xhtml:ul>\n             </Body_Text>\n             <Body_Text>Although some double free vulnerabilities are not much more complicated than this example, most are spread out across hundreds of lines of code or even different files. Programmers seem particularly susceptible to freeing global variables more than once.</Body_Text>\n           "
-    },
-    {
-      "demonstrative_example_id": "DX-184",
-      "text": "\n             <Intro_Text>This code binds a server socket to port 21, allowing the server to listen for traffic on that port.</Intro_Text>\n             <Example_Code Nature=\"Bad\" Language=\"C\">\n               <xhtml:div>void bind_socket(void) {<xhtml:div style=\"margin-left:1em;\">\n               <xhtml:div>\n                 <xhtml:br/>int server_sockfd;<xhtml:br/>int server_len;<xhtml:br/>struct sockaddr_in server_address;<xhtml:br/>\n                 <xhtml:br/>\n                 <xhtml:i>/*unlink the socket if already bound to avoid an error when bind() is called*/</xhtml:i>\n                 <xhtml:br/>\n                 <xhtml:br/>unlink(\"server_socket\");<xhtml:br/>server_sockfd = socket(AF_INET, SOCK_STREAM, 0);<xhtml:br/>\n                 <xhtml:br/>server_address.sin_family = AF_INET;<xhtml:br/>server_address.sin_port = 21;<xhtml:br/>server_address.sin_addr.s_addr = htonl(INADDR_ANY);<xhtml:br/>server_len = sizeof(struct sockaddr_in);<xhtml:br/>\n               <xhtml:br/>bind(server_sockfd, (struct sockaddr *) &amp;s1, server_len);</xhtml:div>\n               </xhtml:div>}</xhtml:div>\n             </Example_Code>\n             <Body_Text>This code may result in two servers binding a socket to same port, thus receiving each other's traffic. This could be used by an attacker to steal packets meant for another process, such as a secure FTP server.</Body_Text>\n           "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2009-0935",
-      "description": "Attacker provides invalid address to a memory-reading function, causing a mutex to be unlocked twice",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0935"
-    },
-    {
-      "reference": "CVE-2019-13351",
-      "description": "file descriptor double close can cause the wrong file to be associated with a file descriptor.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2019-13351"
-    },
-    {
-      "reference": "CVE-2004-1939",
-      "description": "XSS protection mechanism attempts to remove \"/\" that could be used to close tags, but it can be bypassed using double encoded slashes (%252F)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1939"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2008-04-11"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Other_Notes, Relationship_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-01-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Relationships, Relevant_Properties, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Duplicate Operations on Resource",
-        "date": "2021-10-28"
-      }
-    ]
-  },
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "This weakness is probably closely associated with other issues related to doubling, such as CWE-462 (duplicate key in alist) or CWE-102 (Struts duplicate validation forms). It's usually a case of an API contract violation (CWE-227)."
-    }
-  ]
+	"id": "675",
+	"name": "Multiple Operations on Resource in Single-Operation Context",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product performs the same operation on a resource two or more times, when the operation should only be applied once.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "573",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "586",
+			"view_id": "1000"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "102",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Other"
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-149",
+			"text": "\n             <Intro_Text>The following code shows a simple example of a double free vulnerability.</Intro_Text>\n             <Example_Code Nature=\"Bad\" Language=\"C\">\n               <xhtml:div>char* ptr = (char*)malloc (SIZE);<xhtml:br/>...<xhtml:br/>if (abrt) {<xhtml:div style=\"margin-left:1em;\">free(ptr);</xhtml:div>}<xhtml:br/>...<xhtml:br/>free(ptr);</xhtml:div>\n             </Example_Code>\n             <Body_Text>Double free vulnerabilities have two common (and sometimes overlapping) causes:</Body_Text>\n             <Body_Text>\n               <xhtml:ul>\n                 <xhtml:li>\n                   <xhtml:div>Error conditions and other exceptional circumstances</xhtml:div>\n                 </xhtml:li>\n                 <xhtml:li>\n                   <xhtml:div>Confusion over which part of the program is responsible for freeing the memory</xhtml:div>\n                 </xhtml:li>\n               </xhtml:ul>\n             </Body_Text>\n             <Body_Text>Although some double free vulnerabilities are not much more complicated than this example, most are spread out across hundreds of lines of code or even different files. Programmers seem particularly susceptible to freeing global variables more than once.</Body_Text>\n           "
+		},
+		{
+			"demonstrative_example_id": "DX-184",
+			"text": "\n             <Intro_Text>This code binds a server socket to port 21, allowing the server to listen for traffic on that port.</Intro_Text>\n             <Example_Code Nature=\"Bad\" Language=\"C\">\n               <xhtml:div>void bind_socket(void) {<xhtml:div style=\"margin-left:1em;\">\n               <xhtml:div>\n                 <xhtml:br/>int server_sockfd;<xhtml:br/>int server_len;<xhtml:br/>struct sockaddr_in server_address;<xhtml:br/>\n                 <xhtml:br/>\n                 <xhtml:i>/*unlink the socket if already bound to avoid an error when bind() is called*/</xhtml:i>\n                 <xhtml:br/>\n                 <xhtml:br/>unlink(\"server_socket\");<xhtml:br/>server_sockfd = socket(AF_INET, SOCK_STREAM, 0);<xhtml:br/>\n                 <xhtml:br/>server_address.sin_family = AF_INET;<xhtml:br/>server_address.sin_port = 21;<xhtml:br/>server_address.sin_addr.s_addr = htonl(INADDR_ANY);<xhtml:br/>server_len = sizeof(struct sockaddr_in);<xhtml:br/>\n               <xhtml:br/>bind(server_sockfd, (struct sockaddr *) &amp;s1, server_len);</xhtml:div>\n               </xhtml:div>}</xhtml:div>\n             </Example_Code>\n             <Body_Text>This code may result in two servers binding a socket to same port, thus receiving each other's traffic. This could be used by an attacker to steal packets meant for another process, such as a secure FTP server.</Body_Text>\n           "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2009-0935",
+			"description": "Attacker provides invalid address to a memory-reading function, causing a mutex to be unlocked twice",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-0935"
+		},
+		{
+			"reference": "CVE-2019-13351",
+			"description": "file descriptor double close can cause the wrong file to be associated with a file descriptor.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-13351"
+		},
+		{
+			"reference": "CVE-2004-1939",
+			"description": "XSS protection mechanism attempts to remove \"/\" that could be used to close tags, but it can be bypassed using double encoded slashes (%252F)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-1939"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2008-04-11"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Other_Notes, Relationship_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-01-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Relationships, Relevant_Properties, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Duplicate Operations on Resource",
+				"date": "2021-10-28"
+			}
+		]
+	},
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "This weakness is probably closely associated with other issues related to doubling, such as CWE-462 (duplicate key in alist) or CWE-102 (Struts duplicate validation forms). It's usually a case of an API contract violation (CWE-227)."
+		}
+	]
 }

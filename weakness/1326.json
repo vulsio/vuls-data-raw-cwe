@@ -1,246 +1,246 @@
 {
-  "id": "1326",
-  "name": "Missing Immutable Root of Trust in Hardware",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "A missing immutable root of trust in the hardware results in the ability to bypass secure boot or execute untrusted or adversarial boot code.",
-  "extended_description": "\n\t\t\t\t<xhtml:p>A System-on-Chip (SoC) implements secure boot by verifying or authenticating signed boot code. The signing of the code is achieved by an entity that the SoC trusts.  Before executing the boot code, the SoC verifies that the code or the public key with which the code has been signed has not been tampered with. The other data upon which the SoC depends are system-hardware settings in fuses such as whether \"Secure Boot is enabled\". These data play a crucial role in establishing a Root of Trust (RoT) to execute secure-boot flows.</xhtml:p>\n\t\t\t\t<xhtml:p>One of the many ways RoT is achieved is by storing the code and data in memory or fuses. This memory should be immutable, i.e., once the RoT is programmed/provisioned in memory, that memory should be locked and prevented from further programming or writes. If the memory contents (i.e., RoT) are mutable, then an adversary can modify the RoT to execute their choice of code, resulting in a compromised secure boot.</xhtml:p>\n\t\t\t\t<xhtml:p>Note that, for components like ROM, secure patching/update features should be supported to allow authenticated and authorized updates in the field. </xhtml:p>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "693",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Security Hardware"
-      },
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "Such issues could be introduced during policy definition, hardware architecture, design, manufacturing, and/or provisioning. They can be identified later during testing or system configuration phases."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Authentication",
-        "Authorization"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity",
-        "Execute Unauthorized Code or Commands",
-        "Modify Memory"
-      ],
-      "likelihood": "High"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "When architecting the system, the RoT should be designated for storage in a memory that does not allow further programming/writes."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "During implementation and test, the RoT memory location should be demonstrated to not allow further programming/writes. "
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>The RoT is stored in memory. This memory can be modified by an adversary. For example, if an SoC implements \"Secure Boot\" by storing the boot code in an off-chip/on-chip flash, the contents of the flash can be modified by using a flash programmer. Similarly, if the boot code is stored in ROM (Read-Only Memory) but the public key or the hash of the public key (used to enable \"Secure Boot\") is stored in Flash or a memory that is susceptible to modifications or writes, the implementation is vulnerable.</Intro_Text>\n\t\t\t\t\t<Body_Text>In general, if the boot code, key materials and data that enable \"Secure Boot\" are all mutable, the implementation is vulnerable.</Body_Text>\n\t\t\t\t\t<Body_Text>Good architecture defines RoT as immutable in hardware. One of the best ways to achieve immutability is to store boot code, public key or hash of the public key and other relevant data in Read-Only Memory (ROM) or One-Time Programmable (OTP) memory that prevents further programming or writes.</Body_Text>\n\t\t\t\t"
-    },
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>The example code below is a snippet from the bootrom of the HACK@DAC'19 buggy OpenPiton SoC [REF-1348]. The contents of the bootrom are critical in implementing the hardware root of trust.</Intro_Text>\n\t\t\t\t\t<Body_Text>It performs security-critical functions such as defining the system's device tree, validating the hardware cryptographic accelerators in the system, etc. Hence, write access to bootrom should be strictly limited to authorized users or removed completely so that bootrom is immutable. In this example (see the vulnerable code source), the boot instructions are stored in bootrom memory, mem. This memory can be read using the read address, addr_i, but write access should be restricted or removed.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t\t<xhtml:div>...<xhtml:br/>\n                            <xhtml:div style=\"margin-left:1em;\">always_ff @(posedge clk_i) begin<xhtml:br/>\n                                <xhtml:div style=\"margin-left:1em;\">if (req_i) begin<xhtml:br/>\n                                    <xhtml:div style=\"margin-left:1em;\">if (!we_i) begin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">raddr_q &lt;= addr_i[$clog2(RomSize)-1+3:3];</xhtml:div>\n\t\t\t\t\t\t\t\t\t\tend else begin\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\"><xhtml:b>mem[addr_i[$clog2(RomSize)-1+3:3]] &lt;= wdata_i;</xhtml:b></xhtml:div>\n\t\t\t\t\t\t\t\t\t\tend</xhtml:div>\n\t\t\t\t\t\t\t\t\tend</xhtml:div>\n\t\t\t\t\t\t\t\tend</xhtml:div>\n                        \t...</xhtml:div><xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div>\n\t\t\t\t\t\t\t\t// this prevents spurious Xes from propagating into the speculative fetch stage of the core\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t<xhtml:div>assign rdata_o = (raddr_q &lt; RomSize) ? mem[raddr_q] : '0;<xhtml:br/>\n\t\t\t\t\t\t\t...\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>The vulnerable code shows an insecure implementation of the bootrom where bootrom can be written directly by enabling write enable, we_i, and using write address, addr_i, and write data, wdata_i.  </Body_Text>\n\t\t\t\t\t<Body_Text>To mitigate this issue, remove the write access to bootrom memory. [REF-1349]</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\t\t<xhtml:div>...<xhtml:br/>\n                            <xhtml:div style=\"margin-left:1em;\">always_ff @(posedge clk_i) begin<xhtml:br/>\n                                <xhtml:div style=\"margin-left:1em;\"><xhtml:b>if (req_i) begin</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">raddr_q &lt;= addr_i[$clog2(RomSize)-1+3:3];</xhtml:div>\n\t\t\t\t\t\t\t\t\tend</xhtml:div>\n\t\t\t\t\t\t\t\tend</xhtml:div>\n                        \t...</xhtml:div><xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div>\n\t\t\t\t\t\t\t\t// this prevents spurious Xes from propagating into the speculative fetch stage of the core\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t<xhtml:div>assign rdata_o = (raddr_q &lt; RomSize) ? mem[raddr_q] : '0;<xhtml:br/>\n\t\t\t\t\t\t\t...\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1152",
-      "author": [
-        "Trusted Computing Group"
-      ],
-      "title": "TCG Roots of Trust Specification",
-      "url": "https://trustedcomputinggroup.org/wp-content/uploads/TCG_Roots_of_Trust_Specification_v0p20_PUBLIC_REVIEW.pdf",
-      "publication_year": "2018",
-      "publication_month": "--07"
-    },
-    {
-      "reference_id": "REF-1153",
-      "author": [
-        "GlobalPlatform Security Task Force"
-      ],
-      "title": "Root of Trust Definitions and Requirements",
-      "url": "https://globalplatform.org/wp-content/uploads/2018/06/GP_RoT_Definitions_and_Requirements_v1.0.1_PublicRelease_CC.pdf",
-      "publication_year": "2017",
-      "publication_month": "--03"
-    },
-    {
-      "reference_id": "REF-1348",
-      "title": "bootrom.sv",
-      "url": "https://github.com/HACK-EVENT/hackatdac19/blob/619e9fb0ef32ee1e01ad76b8732a156572c65700/bootrom/bootrom.sv#L263C19-L263C19",
-      "publication_year": "2019",
-      "url_date": "2023-09-18"
-    },
-    {
-      "reference_id": "REF-1349",
-      "title": "bootrom.sv",
-      "url": "https://github.com/HACK-EVENT/hackatdac19/blob/ba6abf58586b2bf4401e9f4d46e3f084c664ff88/bootrom/bootrom.sv#L259C9-L259C9",
-      "publication_year": "2019",
-      "url_date": "2023-09-18"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna",
-      "submission_organization": "Intel Corporation",
-      "submission_date": "2020-04-25"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Applicable_Platforms, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Demonstrative_Examples, References"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "Shaza Zeitoni",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Mohamadreza Rostami",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Pouya Mahmoody",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Ahmad-Reza Sadeghi",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Rahul Kande",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Chen Chen",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Jeyavijayan Rajendran",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "method": "Automated Dynamic Analysis",
-      "description": "Automated testing can verify that RoT components are immutable.",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Architecture or Design Review",
-      "description": "Root of trust elements and memory should be part of architecture and design reviews.",
-      "effectiveness": "High"
-    }
-  ],
-  "related_attack_patterns": [
-    "679",
-    "68"
-  ]
+	"id": "1326",
+	"name": "Missing Immutable Root of Trust in Hardware",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "A missing immutable root of trust in the hardware results in the ability to bypass secure boot or execute untrusted or adversarial boot code.",
+	"extended_description": "\n\t\t\t\t<xhtml:p>A System-on-Chip (SoC) implements secure boot by verifying or authenticating signed boot code. The signing of the code is achieved by an entity that the SoC trusts.  Before executing the boot code, the SoC verifies that the code or the public key with which the code has been signed has not been tampered with. The other data upon which the SoC depends are system-hardware settings in fuses such as whether \"Secure Boot is enabled\". These data play a crucial role in establishing a Root of Trust (RoT) to execute secure-boot flows.</xhtml:p>\n\t\t\t\t<xhtml:p>One of the many ways RoT is achieved is by storing the code and data in memory or fuses. This memory should be immutable, i.e., once the RoT is programmed/provisioned in memory, that memory should be locked and prevented from further programming or writes. If the memory contents (i.e., RoT) are mutable, then an adversary can modify the RoT to execute their choice of code, resulting in a compromised secure boot.</xhtml:p>\n\t\t\t\t<xhtml:p>Note that, for components like ROM, secure patching/update features should be supported to allow authenticated and authorized updates in the field. </xhtml:p>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "693",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Security Hardware"
+			},
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"Such issues could be introduced during policy definition, hardware architecture, design, manufacturing, and/or provisioning. They can be identified later during testing or system configuration phases."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Authentication",
+				"Authorization"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity",
+				"Execute Unauthorized Code or Commands",
+				"Modify Memory"
+			],
+			"likelihood": "High"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"When architecting the system, the RoT should be designated for storage in a memory that does not allow further programming/writes."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"During implementation and test, the RoT memory location should be demonstrated to not allow further programming/writes. "
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>The RoT is stored in memory. This memory can be modified by an adversary. For example, if an SoC implements \"Secure Boot\" by storing the boot code in an off-chip/on-chip flash, the contents of the flash can be modified by using a flash programmer. Similarly, if the boot code is stored in ROM (Read-Only Memory) but the public key or the hash of the public key (used to enable \"Secure Boot\") is stored in Flash or a memory that is susceptible to modifications or writes, the implementation is vulnerable.</Intro_Text>\n\t\t\t\t\t<Body_Text>In general, if the boot code, key materials and data that enable \"Secure Boot\" are all mutable, the implementation is vulnerable.</Body_Text>\n\t\t\t\t\t<Body_Text>Good architecture defines RoT as immutable in hardware. One of the best ways to achieve immutability is to store boot code, public key or hash of the public key and other relevant data in Read-Only Memory (ROM) or One-Time Programmable (OTP) memory that prevents further programming or writes.</Body_Text>\n\t\t\t\t"
+		},
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>The example code below is a snippet from the bootrom of the HACK@DAC'19 buggy OpenPiton SoC [REF-1348]. The contents of the bootrom are critical in implementing the hardware root of trust.</Intro_Text>\n\t\t\t\t\t<Body_Text>It performs security-critical functions such as defining the system's device tree, validating the hardware cryptographic accelerators in the system, etc. Hence, write access to bootrom should be strictly limited to authorized users or removed completely so that bootrom is immutable. In this example (see the vulnerable code source), the boot instructions are stored in bootrom memory, mem. This memory can be read using the read address, addr_i, but write access should be restricted or removed.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t\t<xhtml:div>...<xhtml:br/>\n                            <xhtml:div style=\"margin-left:1em;\">always_ff @(posedge clk_i) begin<xhtml:br/>\n                                <xhtml:div style=\"margin-left:1em;\">if (req_i) begin<xhtml:br/>\n                                    <xhtml:div style=\"margin-left:1em;\">if (!we_i) begin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">raddr_q &lt;= addr_i[$clog2(RomSize)-1+3:3];</xhtml:div>\n\t\t\t\t\t\t\t\t\t\tend else begin\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\"><xhtml:b>mem[addr_i[$clog2(RomSize)-1+3:3]] &lt;= wdata_i;</xhtml:b></xhtml:div>\n\t\t\t\t\t\t\t\t\t\tend</xhtml:div>\n\t\t\t\t\t\t\t\t\tend</xhtml:div>\n\t\t\t\t\t\t\t\tend</xhtml:div>\n                        \t...</xhtml:div><xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div>\n\t\t\t\t\t\t\t\t// this prevents spurious Xes from propagating into the speculative fetch stage of the core\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t<xhtml:div>assign rdata_o = (raddr_q &lt; RomSize) ? mem[raddr_q] : '0;<xhtml:br/>\n\t\t\t\t\t\t\t...\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>The vulnerable code shows an insecure implementation of the bootrom where bootrom can be written directly by enabling write enable, we_i, and using write address, addr_i, and write data, wdata_i.  </Body_Text>\n\t\t\t\t\t<Body_Text>To mitigate this issue, remove the write access to bootrom memory. [REF-1349]</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\t\t<xhtml:div>...<xhtml:br/>\n                            <xhtml:div style=\"margin-left:1em;\">always_ff @(posedge clk_i) begin<xhtml:br/>\n                                <xhtml:div style=\"margin-left:1em;\"><xhtml:b>if (req_i) begin</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">raddr_q &lt;= addr_i[$clog2(RomSize)-1+3:3];</xhtml:div>\n\t\t\t\t\t\t\t\t\tend</xhtml:div>\n\t\t\t\t\t\t\t\tend</xhtml:div>\n                        \t...</xhtml:div><xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div>\n\t\t\t\t\t\t\t\t// this prevents spurious Xes from propagating into the speculative fetch stage of the core\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t<xhtml:div>assign rdata_o = (raddr_q &lt; RomSize) ? mem[raddr_q] : '0;<xhtml:br/>\n\t\t\t\t\t\t\t...\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1152",
+			"author": [
+				"Trusted Computing Group"
+			],
+			"title": "TCG Roots of Trust Specification",
+			"url": "https://trustedcomputinggroup.org/wp-content/uploads/TCG_Roots_of_Trust_Specification_v0p20_PUBLIC_REVIEW.pdf",
+			"publication_year": "2018",
+			"publication_month": "--07"
+		},
+		{
+			"reference_id": "REF-1153",
+			"author": [
+				"GlobalPlatform Security Task Force"
+			],
+			"title": "Root of Trust Definitions and Requirements",
+			"url": "https://globalplatform.org/wp-content/uploads/2018/06/GP_RoT_Definitions_and_Requirements_v1.0.1_PublicRelease_CC.pdf",
+			"publication_year": "2017",
+			"publication_month": "--03"
+		},
+		{
+			"reference_id": "REF-1348",
+			"title": "bootrom.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac19/blob/619e9fb0ef32ee1e01ad76b8732a156572c65700/bootrom/bootrom.sv#L263C19-L263C19",
+			"publication_year": "2019",
+			"url_date": "2023-09-18"
+		},
+		{
+			"reference_id": "REF-1349",
+			"title": "bootrom.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac19/blob/ba6abf58586b2bf4401e9f4d46e3f084c664ff88/bootrom/bootrom.sv#L259C9-L259C9",
+			"publication_year": "2019",
+			"url_date": "2023-09-18"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna",
+			"submission_organization": "Intel Corporation",
+			"submission_date": "2020-04-25"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Applicable_Platforms, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Applicable_Platforms, Modes_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Demonstrative_Examples, References"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitoni",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Mohamadreza Rostami",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Pouya Mahmoody",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Rahul Kande",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"method": "Automated Dynamic Analysis",
+			"description": "Automated testing can verify that RoT components are immutable.",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Architecture or Design Review",
+			"description": "Root of trust elements and memory should be part of architecture and design reviews.",
+			"effectiveness": "High"
+		}
+	],
+	"related_attack_patterns": [
+		"679",
+		"68"
+	]
 }

@@ -1,201 +1,201 @@
 {
-  "id": "258",
-  "name": "Empty Password in Configuration File",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "Using an empty string as a password is insecure.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "260",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "521",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "System Configuration"
-      ],
-      "description": [
-        "Passwords should be at least eight characters long -- the longer the better. Avoid passwords that are in any way similar to other passwords you have. Avoid using words that may be found in a dictionary, names book, on a map, etc. Consider incorporating numbers and/or punctuation into your password. If you do use common words, consider replacing letters in that word with numbers and punctuation. However, do not use \"similar-looking\" punctuation. For example, it is not a good idea to change cat to c@t, ca+, (@+, or anything similar. Finally, it is never appropriate to use an empty string as a password."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following examples show a portion of properties and configuration files for Java and ASP.NET applications. The files include username and password information but the password is provided as an empty string.</Intro_Text>\n               <Body_Text>This Java example shows a properties file with an empty password string.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i># Java Web App ResourceBundle properties file</xhtml:i>\n                     <xhtml:br/>...<xhtml:br/>webapp.ldap.username=secretUsername<xhtml:br/>webapp.ldap.password=<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The following example shows a portion of a configuration file for an ASP.Net application. This configuration file includes username and password information for a connection to a database and the password is provided as an empty string.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"ASP.NET\">\n                  <xhtml:div>...<xhtml:br/>&lt;connectionStrings&gt;<xhtml:br/>&lt;add name=\"ud_DEV\" connectionString=\"connectDB=uDB; uid=db2admin; pwd=; dbalias=uDB;\" providerName=\"System.Data.Odbc\" /&gt;<xhtml:br/>&lt;/connectionStrings&gt;<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>An empty string should never be used as a password as this can allow unauthorized access to the application. Username and password information should not be included in a configuration file or a properties file in clear text. If possible, encrypt this information and avoid CWE-260 and CWE-13.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-26117",
-      "description": "Network access control (NAC) product has a configuration file with an empty password",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-26117"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-6",
-      "author": [
-        "Katrina Tsipenyuk",
-        "Brian Chess",
-        "Gary McGraw"
-      ],
-      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
-      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
-      "publication_year": "2005",
-      "publication_month": "--11",
-      "publication_day": "---07",
-      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
-      "publisher": "NIST"
-    },
-    {
-      "reference_id": "REF-207",
-      "author": [
-        "John Viega",
-        "Gary McGraw"
-      ],
-      "title": "Building Secure Software: How to Avoid Security Problems the Right Way",
-      "publication_year": "2002",
-      "publisher": "Addison-Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "7 Pernicious Kingdoms",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Other_Notes, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Causal_Nature, Likelihood_of_Exploit, Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "Password Management: Empty Password in Configuration File"
-    }
-  ]
+	"id": "258",
+	"name": "Empty Password in Configuration File",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "Using an empty string as a password is insecure.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "260",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "521",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"System Configuration"
+			],
+			"description": [
+				"Passwords should be at least eight characters long -- the longer the better. Avoid passwords that are in any way similar to other passwords you have. Avoid using words that may be found in a dictionary, names book, on a map, etc. Consider incorporating numbers and/or punctuation into your password. If you do use common words, consider replacing letters in that word with numbers and punctuation. However, do not use \"similar-looking\" punctuation. For example, it is not a good idea to change cat to c@t, ca+, (@+, or anything similar. Finally, it is never appropriate to use an empty string as a password."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following examples show a portion of properties and configuration files for Java and ASP.NET applications. The files include username and password information but the password is provided as an empty string.</Intro_Text>\n               <Body_Text>This Java example shows a properties file with an empty password string.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i># Java Web App ResourceBundle properties file</xhtml:i>\n                     <xhtml:br/>...<xhtml:br/>webapp.ldap.username=secretUsername<xhtml:br/>webapp.ldap.password=<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The following example shows a portion of a configuration file for an ASP.Net application. This configuration file includes username and password information for a connection to a database and the password is provided as an empty string.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"ASP.NET\">\n                  <xhtml:div>...<xhtml:br/>&lt;connectionStrings&gt;<xhtml:br/>&lt;add name=\"ud_DEV\" connectionString=\"connectDB=uDB; uid=db2admin; pwd=; dbalias=uDB;\" providerName=\"System.Data.Odbc\" /&gt;<xhtml:br/>&lt;/connectionStrings&gt;<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>An empty string should never be used as a password as this can allow unauthorized access to the application. Username and password information should not be included in a configuration file or a properties file in clear text. If possible, encrypt this information and avoid CWE-260 and CWE-13.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-26117",
+			"description": "Network access control (NAC) product has a configuration file with an empty password",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-26117"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-6",
+			"author": [
+				"Katrina Tsipenyuk",
+				"Brian Chess",
+				"Gary McGraw"
+			],
+			"title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+			"url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+			"publication_year": "2005",
+			"publication_month": "--11",
+			"publication_day": "---07",
+			"publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+			"publisher": "NIST"
+		},
+		{
+			"reference_id": "REF-207",
+			"author": [
+				"John Viega",
+				"Gary McGraw"
+			],
+			"title": "Building Secure Software: How to Avoid Security Problems the Right Way",
+			"publication_year": "2002",
+			"publisher": "Addison-Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "7 Pernicious Kingdoms",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Other_Notes, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Causal_Nature, Likelihood_of_Exploit, Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "Password Management: Empty Password in Configuration File"
+		}
+	]
 }

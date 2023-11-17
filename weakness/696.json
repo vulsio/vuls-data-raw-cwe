@@ -1,192 +1,192 @@
 {
-  "id": "696",
-  "name": "Incorrect Behavior Order",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product performs multiple related behaviors, but the behaviors are performed in the wrong order in ways which may produce resultant weaknesses.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "691",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Alter Execution Logic"
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-35",
-      "text": "\n               <Intro_Text>The following code attempts to validate a given input path by checking it against an allowlist and then return the canonical path. In this specific case, the path is considered valid if it starts with the string \"/safe_dir/\".</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String path = getInputPath();<xhtml:br/>if (path.startsWith(\"/safe_dir/\"))<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">File f = new File(path);<xhtml:br/>return f.getCanonicalPath();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The problem with the above code is that the validation step occurs before canonicalization occurs. An attacker could provide an input path of \"/safe_dir/../\" that would pass the validation step. However, the canonicalization process sees the double dot as a traversal to the parent directory and hence when canonicized the path would become just \"/\".</Body_Text>\n               <Body_Text>To avoid this problem, validation should occur after canonicalization takes place. In this case canonicalization occurs during the initialization of the File object. The code below fixes the issue.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>String path = getInputPath();<xhtml:br/>File f = new File(path);<xhtml:br/>if (f.getCanonicalPath().startsWith(\"/safe_dir/\"))<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">return f.getCanonicalPath();</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-157",
-      "text": "\n               <Intro_Text>This data prints the contents of a specified file requested by a user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function printFile($username,$filename){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>//read file into string</xhtml:i>\n                           <xhtml:br/>$file = file_get_contents($filename);<xhtml:br/>if ($file &amp;&amp; isOwnerOf($username,$filename)){<xhtml:div style=\"margin-left:1em;\">echo $file;<xhtml:br/>return true;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">echo 'You are not authorized to view this file';</xhtml:div>}<xhtml:br/>return false;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code first reads a specified file into memory, then prints the file if the user is authorized to see its contents. The read of the file into memory may be resource intensive and is unnecessary if the user is not allowed to see the file anyway.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-187",
-      "text": "\n\t\t\t  <Intro_Text>Assume that the module foo_bar implements a protected register. The register content is the asset. Only transactions made by user id (indicated by signal usr_id) 0x4 are allowed to modify the register contents. The signal grant_access is used to provide access. </Intro_Text>\n\t\t\t  <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n       \t\t\tmodule foo_bar(data_out, usr_id, data_in, clk, rst_n);<xhtml:br/>\n       \t\t\toutput reg [7:0] data_out;<xhtml:br/>\n       \t\t\tinput wire [2:0] usr_id;<xhtml:br/>\n       \t\t\tinput wire [7:0] data_in; <xhtml:br/>\n       \t\t\tinput wire clk, rst_n;<xhtml:br/>\n       \t\t\twire grant_access;<xhtml:br/>\n       \t\t\talways @ (posedge clk or negedge rst_n)<xhtml:br/>\n       \t\t\tbegin<xhtml:br/>\n       \t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t  if (!rst_n)<xhtml:br/>\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tdata_out = 0;\n\t\t\t\t  </xhtml:div>\n\t\t\t\t  else\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tdata_out = (grant_access) ? data_in : data_out;<xhtml:br/>\n\t\t\t\t\tassign grant_access = (usr_id == 3'h4) ? 1'b1 : 1'b0;<xhtml:br/>\n\t\t\t\t  </xhtml:div>\n\t\t\t    </xhtml:div>\n\t\t\t    end<xhtml:br/>\n\t\t\t    endmodule\n\t\t\t  </Example_Code>\n\t\t\t  <Body_Text>This code uses Verilog blocking assignments for data_out and grant_access. Therefore, these assignments happen sequentially (i.e., data_out is updated to new value first, and grant_access is updated the next cycle) and not in parallel. Therefore, the asset data_out is allowed to be modified even before the access control check is complete and grant_access signal is set. Since grant_access does not have a reset value, it will be meta-stable and will randomly go to either 0 or 1.</Body_Text>\n\t\t\t  <Body_Text>Flipping the order of the assignment of data_out and grant_access should solve the problem. The correct snippet of code is shown below.</Body_Text>\n\t\t\t  <Example_Code Nature=\"Good\" Language=\"Verilog\">\n       \t\t\talways @ (posedge clk or negedge rst_n)<xhtml:br/>\n       \t\t\tbegin<xhtml:br/>\n\t\t\t    <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t  if (!rst_n)<xhtml:br/>\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tdata_out = 0;<xhtml:br/>\n\t\t\t\t  </xhtml:div>\n\t\t\t\t  else<xhtml:br/>\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tassign grant_access = (usr_id == 3'h4) ? 1'b1 : 1'b0;<xhtml:br/>\n\t\t\t\t\tdata_out = (grant_access) ? data_in : data_out;<xhtml:br/>\n\t\t\t\t  </xhtml:div>\n\t\t\t    </xhtml:div>\n\t\t\t    end<xhtml:br/>\n       \t\t\tendmodule\n\t\t\t  </Example_Code>\n\t\t\t"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2019-9805",
-      "description": "Chain: Creation of the packet client occurs before initialization is complete (CWE-696) resulting in a read from uninitialized memory (CWE-908), causing memory corruption.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2019-9805"
-    },
-    {
-      "reference": "CVE-2007-5191",
-      "description": "file-system management programs call the setuid and setgid functions in the wrong order and do not check the return values, allowing attackers to gain unintended privileges",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-5191"
-    },
-    {
-      "reference": "CVE-2007-1588",
-      "description": "C++ web server program calls Process::setuid before calling Process::setgid, preventing it from dropping privileges, potentially allowing CGI programs to be called with higher privileges than intended",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-1588"
-    },
-    {
-      "reference": "CVE-2022-37734",
-      "description": "Chain: lexer in Java-based GraphQL server does not enforce maximum of tokens early enough (CWE-696), allowing excessive CPU consumption (CWE-1176)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-37734"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2008-09-09"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-05-03",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Description, Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Observe correct revocation order while relinquishing privileges",
-      "entry_id": "POS36-C",
-      "mapping_fit": "CWE More Abstract"
-    }
-  ],
-  "related_attack_patterns": [
-    "463"
-  ]
+	"id": "696",
+	"name": "Incorrect Behavior Order",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product performs multiple related behaviors, but the behaviors are performed in the wrong order in ways which may produce resultant weaknesses.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "691",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Alter Execution Logic"
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-35",
+			"text": "\n               <Intro_Text>The following code attempts to validate a given input path by checking it against an allowlist and then return the canonical path. In this specific case, the path is considered valid if it starts with the string \"/safe_dir/\".</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String path = getInputPath();<xhtml:br/>if (path.startsWith(\"/safe_dir/\"))<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">File f = new File(path);<xhtml:br/>return f.getCanonicalPath();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The problem with the above code is that the validation step occurs before canonicalization occurs. An attacker could provide an input path of \"/safe_dir/../\" that would pass the validation step. However, the canonicalization process sees the double dot as a traversal to the parent directory and hence when canonicized the path would become just \"/\".</Body_Text>\n               <Body_Text>To avoid this problem, validation should occur after canonicalization takes place. In this case canonicalization occurs during the initialization of the File object. The code below fixes the issue.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>String path = getInputPath();<xhtml:br/>File f = new File(path);<xhtml:br/>if (f.getCanonicalPath().startsWith(\"/safe_dir/\"))<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">return f.getCanonicalPath();</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-157",
+			"text": "\n               <Intro_Text>This data prints the contents of a specified file requested by a user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function printFile($username,$filename){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>//read file into string</xhtml:i>\n                           <xhtml:br/>$file = file_get_contents($filename);<xhtml:br/>if ($file &amp;&amp; isOwnerOf($username,$filename)){<xhtml:div style=\"margin-left:1em;\">echo $file;<xhtml:br/>return true;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">echo 'You are not authorized to view this file';</xhtml:div>}<xhtml:br/>return false;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code first reads a specified file into memory, then prints the file if the user is authorized to see its contents. The read of the file into memory may be resource intensive and is unnecessary if the user is not allowed to see the file anyway.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-187",
+			"text": "\n\t\t\t  <Intro_Text>Assume that the module foo_bar implements a protected register. The register content is the asset. Only transactions made by user id (indicated by signal usr_id) 0x4 are allowed to modify the register contents. The signal grant_access is used to provide access. </Intro_Text>\n\t\t\t  <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n       \t\t\tmodule foo_bar(data_out, usr_id, data_in, clk, rst_n);<xhtml:br/>\n       \t\t\toutput reg [7:0] data_out;<xhtml:br/>\n       \t\t\tinput wire [2:0] usr_id;<xhtml:br/>\n       \t\t\tinput wire [7:0] data_in; <xhtml:br/>\n       \t\t\tinput wire clk, rst_n;<xhtml:br/>\n       \t\t\twire grant_access;<xhtml:br/>\n       \t\t\talways @ (posedge clk or negedge rst_n)<xhtml:br/>\n       \t\t\tbegin<xhtml:br/>\n       \t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t  if (!rst_n)<xhtml:br/>\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tdata_out = 0;\n\t\t\t\t  </xhtml:div>\n\t\t\t\t  else\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tdata_out = (grant_access) ? data_in : data_out;<xhtml:br/>\n\t\t\t\t\tassign grant_access = (usr_id == 3'h4) ? 1'b1 : 1'b0;<xhtml:br/>\n\t\t\t\t  </xhtml:div>\n\t\t\t    </xhtml:div>\n\t\t\t    end<xhtml:br/>\n\t\t\t    endmodule\n\t\t\t  </Example_Code>\n\t\t\t  <Body_Text>This code uses Verilog blocking assignments for data_out and grant_access. Therefore, these assignments happen sequentially (i.e., data_out is updated to new value first, and grant_access is updated the next cycle) and not in parallel. Therefore, the asset data_out is allowed to be modified even before the access control check is complete and grant_access signal is set. Since grant_access does not have a reset value, it will be meta-stable and will randomly go to either 0 or 1.</Body_Text>\n\t\t\t  <Body_Text>Flipping the order of the assignment of data_out and grant_access should solve the problem. The correct snippet of code is shown below.</Body_Text>\n\t\t\t  <Example_Code Nature=\"Good\" Language=\"Verilog\">\n       \t\t\talways @ (posedge clk or negedge rst_n)<xhtml:br/>\n       \t\t\tbegin<xhtml:br/>\n\t\t\t    <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t  if (!rst_n)<xhtml:br/>\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tdata_out = 0;<xhtml:br/>\n\t\t\t\t  </xhtml:div>\n\t\t\t\t  else<xhtml:br/>\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tassign grant_access = (usr_id == 3'h4) ? 1'b1 : 1'b0;<xhtml:br/>\n\t\t\t\t\tdata_out = (grant_access) ? data_in : data_out;<xhtml:br/>\n\t\t\t\t  </xhtml:div>\n\t\t\t    </xhtml:div>\n\t\t\t    end<xhtml:br/>\n       \t\t\tendmodule\n\t\t\t  </Example_Code>\n\t\t\t"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2019-9805",
+			"description": "Chain: Creation of the packet client occurs before initialization is complete (CWE-696) resulting in a read from uninitialized memory (CWE-908), causing memory corruption.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-9805"
+		},
+		{
+			"reference": "CVE-2007-5191",
+			"description": "file-system management programs call the setuid and setgid functions in the wrong order and do not check the return values, allowing attackers to gain unintended privileges",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-5191"
+		},
+		{
+			"reference": "CVE-2007-1588",
+			"description": "C++ web server program calls Process::setuid before calling Process::setgid, preventing it from dropping privileges, potentially allowing CGI programs to be called with higher privileges than intended",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-1588"
+		},
+		{
+			"reference": "CVE-2022-37734",
+			"description": "Chain: lexer in Java-based GraphQL server does not enforce maximum of tokens early enough (CWE-696), allowing excessive CPU consumption (CWE-1176)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-37734"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2008-09-09"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-05-03",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Description, Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Observe correct revocation order while relinquishing privileges",
+			"entry_id": "POS36-C",
+			"mapping_fit": "CWE More Abstract"
+		}
+	],
+	"related_attack_patterns": [
+		"463"
+	]
 }

@@ -1,179 +1,179 @@
 {
-  "id": "1259",
-  "name": "Improper Restriction of Security Token Assignment",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The System-On-A-Chip (SoC) implements a Security Token mechanism to differentiate what actions are allowed or disallowed when a transaction originates from an entity. However, the Security Tokens are improperly protected.",
-  "extended_description": "Systems-On-A-Chip (Integrated circuits and hardware engines) implement Security Tokens to differentiate and identify which actions originated from which agent. These actions may be one of the directives: 'read', 'write', 'program', 'reset', 'fetch', 'compute', etc. Security Tokens are assigned to every agent in the System that is capable of generating an action or receiving an action from another agent. Multiple Security Tokens may be assigned to an agent and may be unique based on the agent's trust level or allowed privileges. Since the Security Tokens are integral for the maintenance of security in an SoC, they need to be protected properly. A common weakness afflicting Security Tokens is improperly restricting the assignment to trusted components. Consequently, an improperly protected Security Token may be able to be programmed by a malicious agent (i.e., the Security Token is mutable) to spoof the action as if it originated from a trusted agent.\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "284",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "1294",
-      "view_id": "1194",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined",
-        "name": "Processor Hardware"
-      },
-      {
-        "class": "System on Chip",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Availability",
-        "Access Control"
-      ],
-      "impact": [
-        "Modify Files or Directories",
-        "Execute Unauthorized Code or Commands",
-        "Bypass Protection Mechanism",
-        "Gain Privileges or Assume Identity",
-        "Modify Memory",
-        "Modify Memory",
-        "DoS: Crash, Exit, or Restart"
-      ],
-      "likelihood": "High"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation"
-      ],
-      "description": [
-        "\n\t\t\t\t\t\t<xhtml:ul>\n\t\t\t\t\t\t\t<xhtml:li>Security Token assignment review checks for design inconsistency and common weaknesses.</xhtml:li>\n\t\t\t\t\t\t\t<xhtml:li>Security-Token definition and programming flow is tested in both pre-silicon and post-silicon testing.</xhtml:li>\n\t\t\t\t\t\t</xhtml:ul>\n\t\t\t\t\t"
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>For example, consider a system with a register for storing an AES key for encryption and decryption. The key is of 128 bits implemented as a set of four 32-bit registers. The key register assets have an associated control register, AES_KEY_ACCESS_POLICY, which provides the necessary access controls. This access-policy register defines which agents may engage in a transaction, and the type of transaction, with the AES-key registers. Each bit in this 32-bit register defines a security Token. There could be a maximum of 32 security Tokens that are allowed access to the AES-key registers. The number of the bit when set (i.e., \"1\") allows respective action from an agent whose identity matches the number of the bit and, if \"0\" (i.e., Clear), disallows the respective action to that corresponding agent.</Intro_Text>\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t<Body_Text>Let's assume the system has two agents: a Main-controller and an Aux-controller. The respective Security Tokens are \"1\" and \"2\".\n\t\t\t\t\t\n\t\t\t\t\t<xhtml:table>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:th>Register</xhtml:th>\n\t\t\t\t\t\t\t<xhtml:th>Description</xhtml:th>\n\t\t\t\t\t\t\t<xhtml:th>Default</xhtml:th>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:td>AES_ENC_DEC_KEY_0</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>AES key [0:31] for encryption or decryption</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>0x00000000</xhtml:td>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:td>AES_ENC_DEC_KEY_1</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>AES key [32:63] for encryption or decryption</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>0x00000000</xhtml:td>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:td>AES_ENC_DEC_KEY_2</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>AES key [64:95] for encryption or decryption</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>0x00000000</xhtml:td>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:td>AES_ENC_DEC_KEY_3</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>AES key [96:127] for encryption or decryption</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>0x00000000</xhtml:td>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:td>AES_KEY_ACCESS_POLICY</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>AES key access register [31:0]</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>0x00000002</xhtml:td>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t</xhtml:table>\n\t\t\t\t</Body_Text>\n\t\t\t\t\t\n\t\t\t\t\t<Body_Text>An agent with Security Token \"1\" has access to AES_ENC_DEC_KEY_0 through AES_ENC_DEC_KEY_3 registers. As per the above access policy, the AES-Key-access policy allows access to the AES-key registers if the security Token is \"1\".</Body_Text>\n\t\t\t\t\t\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Other\">The Aux-controller could program its Security Token to \"1\" from \"2\".</Example_Code>\n\t\t\t\t\t<Body_Text>The SoC does not properly protect the Security Token of the agents, and, hence, the Aux-controller in the above example can spoof the transaction (i.e., send the transaction as if it is coming from the Main-controller to access the AES-Key registers)</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Other\">The SoC needs to protect the Security Tokens. None of the agents in the SoC should have the ability to change the Security Token.</Example_Code>\n\t\t\t\t"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
-      "submission_organization": "Intel Corporation",
-      "submission_date": "2020-03-06"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Demonstrative_Examples, Description, Modes_of_Introduction, Name, Potential_Mitigations, Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Maintenance_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Applicable_Platforms, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Improper Protection of Security Identifiers",
-        "date": "2020-08-20"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Feedback",
-        "contribution_name": "MaineK00n",
-        "contribution_date": "2022-10-31",
-        "contribution_comment": "corrected a typo in extended description"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "121",
-    "681"
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "\n          This entry is still under development and will continue to see updates and content improvements. Currently it is expressed as a general absence of a protection mechanism as opposed to a specific mistake, and the entry's name and description could be interpreted as applying to software.\n        "
-    }
-  ]
+	"id": "1259",
+	"name": "Improper Restriction of Security Token Assignment",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The System-On-A-Chip (SoC) implements a Security Token mechanism to differentiate what actions are allowed or disallowed when a transaction originates from an entity. However, the Security Tokens are improperly protected.",
+	"extended_description": "Systems-On-A-Chip (Integrated circuits and hardware engines) implement Security Tokens to differentiate and identify which actions originated from which agent. These actions may be one of the directives: 'read', 'write', 'program', 'reset', 'fetch', 'compute', etc. Security Tokens are assigned to every agent in the System that is capable of generating an action or receiving an action from another agent. Multiple Security Tokens may be assigned to an agent and may be unique based on the agent's trust level or allowed privileges. Since the Security Tokens are integral for the maintenance of security in an SoC, they need to be protected properly. A common weakness afflicting Security Tokens is improperly restricting the assignment to trusted components. Consequently, an improperly protected Security Token may be able to be programmed by a malicious agent (i.e., the Security Token is mutable) to spoof the action as if it originated from a trusted agent.\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "284",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "1294",
+			"view_id": "1194",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined",
+				"name": "Processor Hardware"
+			},
+			{
+				"class": "System on Chip",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Availability",
+				"Access Control"
+			],
+			"impact": [
+				"Modify Files or Directories",
+				"Execute Unauthorized Code or Commands",
+				"Bypass Protection Mechanism",
+				"Gain Privileges or Assume Identity",
+				"Modify Memory",
+				"Modify Memory",
+				"DoS: Crash, Exit, or Restart"
+			],
+			"likelihood": "High"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"\n\t\t\t\t\t\t<xhtml:ul>\n\t\t\t\t\t\t\t<xhtml:li>Security Token assignment review checks for design inconsistency and common weaknesses.</xhtml:li>\n\t\t\t\t\t\t\t<xhtml:li>Security-Token definition and programming flow is tested in both pre-silicon and post-silicon testing.</xhtml:li>\n\t\t\t\t\t\t</xhtml:ul>\n\t\t\t\t\t"
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>For example, consider a system with a register for storing an AES key for encryption and decryption. The key is of 128 bits implemented as a set of four 32-bit registers. The key register assets have an associated control register, AES_KEY_ACCESS_POLICY, which provides the necessary access controls. This access-policy register defines which agents may engage in a transaction, and the type of transaction, with the AES-key registers. Each bit in this 32-bit register defines a security Token. There could be a maximum of 32 security Tokens that are allowed access to the AES-key registers. The number of the bit when set (i.e., \"1\") allows respective action from an agent whose identity matches the number of the bit and, if \"0\" (i.e., Clear), disallows the respective action to that corresponding agent.</Intro_Text>\n\t\t\t\t\t\n\t\t\t\t\t\n\t\t\t\t\t<Body_Text>Let's assume the system has two agents: a Main-controller and an Aux-controller. The respective Security Tokens are \"1\" and \"2\".\n\t\t\t\t\t\n\t\t\t\t\t<xhtml:table>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:th>Register</xhtml:th>\n\t\t\t\t\t\t\t<xhtml:th>Description</xhtml:th>\n\t\t\t\t\t\t\t<xhtml:th>Default</xhtml:th>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:td>AES_ENC_DEC_KEY_0</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>AES key [0:31] for encryption or decryption</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>0x00000000</xhtml:td>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:td>AES_ENC_DEC_KEY_1</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>AES key [32:63] for encryption or decryption</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>0x00000000</xhtml:td>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:td>AES_ENC_DEC_KEY_2</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>AES key [64:95] for encryption or decryption</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>0x00000000</xhtml:td>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:td>AES_ENC_DEC_KEY_3</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>AES key [96:127] for encryption or decryption</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>0x00000000</xhtml:td>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t\t<xhtml:tr>\n\t\t\t\t\t\t\t<xhtml:td>AES_KEY_ACCESS_POLICY</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>AES key access register [31:0]</xhtml:td>\n\t\t\t\t\t\t\t<xhtml:td>0x00000002</xhtml:td>\n\t\t\t\t\t\t</xhtml:tr>\n\t\t\t\t\t</xhtml:table>\n\t\t\t\t</Body_Text>\n\t\t\t\t\t\n\t\t\t\t\t<Body_Text>An agent with Security Token \"1\" has access to AES_ENC_DEC_KEY_0 through AES_ENC_DEC_KEY_3 registers. As per the above access policy, the AES-Key-access policy allows access to the AES-key registers if the security Token is \"1\".</Body_Text>\n\t\t\t\t\t\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Other\">The Aux-controller could program its Security Token to \"1\" from \"2\".</Example_Code>\n\t\t\t\t\t<Body_Text>The SoC does not properly protect the Security Token of the agents, and, hence, the Aux-controller in the above example can spoof the transaction (i.e., send the transaction as if it is coming from the Main-controller to access the AES-Key registers)</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Other\">The SoC needs to protect the Security Tokens. None of the agents in the SoC should have the ability to change the Security Token.</Example_Code>\n\t\t\t\t"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+			"submission_organization": "Intel Corporation",
+			"submission_date": "2020-03-06"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Demonstrative_Examples, Description, Modes_of_Introduction, Name, Potential_Mitigations, Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Maintenance_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Applicable_Platforms, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Improper Protection of Security Identifiers",
+				"date": "2020-08-20"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Feedback",
+				"contribution_name": "MaineK00n",
+				"contribution_date": "2022-10-31",
+				"contribution_comment": "corrected a typo in extended description"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"121",
+		"681"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "\n          This entry is still under development and will continue to see updates and content improvements. Currently it is expressed as a general absence of a protection mechanism as opposed to a specific mistake, and the entry's name and description could be interpreted as applying to software.\n        "
+		}
+	]
 }

@@ -1,240 +1,240 @@
 {
-  "id": "648",
-  "name": "Incorrect Use of Privileged APIs",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product does not conform to the API requirements for a function call that requires extra privileges. This could allow attackers to gain privileges by causing the function to be called incorrectly.",
-  "extended_description": "\n            <xhtml:p>When a product contains certain functions that perform operations requiring an elevated level of privilege, the caller of a privileged API must be careful to:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>ensure that assumptions made by the APIs are valid, such as validity of arguments</xhtml:li>\n                  <xhtml:li>account for known weaknesses in the design/implementation of the API</xhtml:li>\n                  <xhtml:li>call the API from a safe context</xhtml:li>\n               </xhtml:ul>\n            <xhtml:p>If the caller of the API does not follow these requirements, then it may allow a malicious user or process to elevate their privilege, hijack the process, or steal sensitive data.</xhtml:p>\n            <xhtml:p>For instance, it is important to know if privileged APIs do not shed their privileges before returning to the caller or if the privileged function might make certain assumptions about the data, context or state information passed to it by the caller. It is important to always know when and how privileged APIs can be called in order to ensure that their elevated level of privilege cannot be exploited.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "269",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "likelihood_of_exploit": "Low",
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity"
-      ],
-      "note": "An attacker may be able to elevate privileges."
-    },
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Application Data"
-      ],
-      "note": "An attacker may be able to obtain sensitive information."
-    },
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality",
-        "Availability"
-      ],
-      "impact": [
-        "Execute Unauthorized Code or Commands"
-      ],
-      "note": "An attacker may be able to execute code."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Before calling privileged APIs, always ensure that the assumptions made by the privileged code hold true prior to making the call."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Know architecture and implementation weaknesses of the privileged APIs and make sure to account for these weaknesses before calling the privileged APIs to ensure that they can be called safely."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "If privileged APIs make certain assumptions about data, context or state validity that are passed by the caller, the calling code must ensure that these assumptions have been validated prior to making the call."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "If privileged APIs do not shed their privilege prior to returning to the calling code, then calling code needs to shed these privileges immediately and safely right after the call to the privileged APIs. In particular, the calling code needs to ensure that a privileged thread of execution will never be returned to the user or made available to user-controlled processes."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Only call privileged APIs from safe, consistent and expected state."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Ensure that a failure or an error will not leave a system in a state where privileges are not properly shed and privilege escalation is possible (i.e. fail securely with regards to handling of privileges)."
-      ]
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2003-0645",
-      "description": "A Unix utility that displays online help files, if installed setuid, could allow a local attacker to gain privileges when a particular file-opening function is called.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0645"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Evgeny Lebanidze",
-      "submission_organization": "Cigital",
-      "submission_date": "2008-01-30"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Common_Consequences, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Description, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Name, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Common_Consequences, Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Description, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Enabling_Factors_for_Exploitation, Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Improper Use of Privileged APIs",
-        "date": "2009-05-27"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "107",
-    "234"
-  ]
+	"id": "648",
+	"name": "Incorrect Use of Privileged APIs",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product does not conform to the API requirements for a function call that requires extra privileges. This could allow attackers to gain privileges by causing the function to be called incorrectly.",
+	"extended_description": "\n            <xhtml:p>When a product contains certain functions that perform operations requiring an elevated level of privilege, the caller of a privileged API must be careful to:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>ensure that assumptions made by the APIs are valid, such as validity of arguments</xhtml:li>\n                  <xhtml:li>account for known weaknesses in the design/implementation of the API</xhtml:li>\n                  <xhtml:li>call the API from a safe context</xhtml:li>\n               </xhtml:ul>\n            <xhtml:p>If the caller of the API does not follow these requirements, then it may allow a malicious user or process to elevate their privilege, hijack the process, or steal sensitive data.</xhtml:p>\n            <xhtml:p>For instance, it is important to know if privileged APIs do not shed their privileges before returning to the caller or if the privileged function might make certain assumptions about the data, context or state information passed to it by the caller. It is important to always know when and how privileged APIs can be called in order to ensure that their elevated level of privilege cannot be exploited.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "269",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"likelihood_of_exploit": "Low",
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity"
+			],
+			"note": "An attacker may be able to elevate privileges."
+		},
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Application Data"
+			],
+			"note": "An attacker may be able to obtain sensitive information."
+		},
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality",
+				"Availability"
+			],
+			"impact": [
+				"Execute Unauthorized Code or Commands"
+			],
+			"note": "An attacker may be able to execute code."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Before calling privileged APIs, always ensure that the assumptions made by the privileged code hold true prior to making the call."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Know architecture and implementation weaknesses of the privileged APIs and make sure to account for these weaknesses before calling the privileged APIs to ensure that they can be called safely."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"If privileged APIs make certain assumptions about data, context or state validity that are passed by the caller, the calling code must ensure that these assumptions have been validated prior to making the call."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"If privileged APIs do not shed their privilege prior to returning to the calling code, then calling code needs to shed these privileges immediately and safely right after the call to the privileged APIs. In particular, the calling code needs to ensure that a privileged thread of execution will never be returned to the user or made available to user-controlled processes."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Only call privileged APIs from safe, consistent and expected state."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Ensure that a failure or an error will not leave a system in a state where privileges are not properly shed and privilege escalation is possible (i.e. fail securely with regards to handling of privileges)."
+			]
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2003-0645",
+			"description": "A Unix utility that displays online help files, if installed setuid, could allow a local attacker to gain privileges when a particular file-opening function is called.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0645"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Evgeny Lebanidze",
+			"submission_organization": "Cigital",
+			"submission_date": "2008-01-30"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Common_Consequences, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Description, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Name, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Common_Consequences, Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Description, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Enabling_Factors_for_Exploitation, Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Improper Use of Privileged APIs",
+				"date": "2009-05-27"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"107",
+		"234"
+	]
 }

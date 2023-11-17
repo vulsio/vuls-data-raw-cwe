@@ -1,473 +1,473 @@
 {
-  "id": "95",
-  "name": "Improper Neutralization of Directives in Dynamically Evaluated Code ('Eval Injection')",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product receives input from an upstream component, but it does not neutralize or incorrectly neutralizes code syntax before using the input in a dynamic evaluation call (e.g. \"eval\").",
-  "extended_description": "This may allow an attacker to execute arbitrary code, or at least modify what code can be executed.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "94",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "JavaScript"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Python"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Perl"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "PHP"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Ruby"
-      },
-      {
-        "class": "Interpreted",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "This weakness is prevalent in handler/dispatch procedures that might want to invoke a large number of functions, or set a large number of variables."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Files or Directories",
-        "Read Application Data"
-      ],
-      "note": "The injected code could access restricted data / files."
-    },
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism"
-      ],
-      "note": "In some cases, injectable code controls authentication; this may lead to a remote vulnerability."
-    },
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity"
-      ],
-      "note": "Injected code can access resources that the attacker is directly prevented from accessing."
-    },
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality",
-        "Availability",
-        "Other"
-      ],
-      "impact": [
-        "Execute Unauthorized Code or Commands"
-      ],
-      "note": "Code injection attacks can lead to loss of data integrity in nearly all cases as the control-plane data injected is always incidental to data recall or writing. Additionally, code injection can often result in the execution of arbitrary code."
-    },
-    {
-      "scope": [
-        "Non-Repudiation"
-      ],
-      "impact": [
-        "Hide Activities"
-      ],
-      "note": "Often the actions performed by injected control code are unlogged."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation"
-      ],
-      "description": [
-        "If possible, refactor your code so that it does not need to use eval() at all."
-      ]
-    },
-    {
-      "mitigation_id": "MIT-5",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n               "
-      ],
-      "strategy": "Input Validation"
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Inputs should be decoded and canonicalized to the application's current internal representation before being validated (CWE-180, CWE-181). Make sure that your application does not inadvertently decode the same input twice (CWE-174). Such errors could be used to bypass allowlist schemes by introducing dangerous inputs after they have been checked. Use libraries such as the OWASP ESAPI Canonicalization control.</xhtml:p>\n                  <xhtml:p>Consider performing repeated canonicalization until your input does not change any more. This will avoid double-decoding and similar scenarios, but it might inadvertently modify inputs that are allowed to contain properly-encoded dangerous content.</xhtml:p>\n               "
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-31",
-      "text": "\n               <Intro_Text>edit-config.pl: This CGI script is used to modify settings in a configuration file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>use CGI qw(:standard);<xhtml:br/>\n                     <xhtml:br/>sub config_file_add_key {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>my ($fname, $key, $arg) = @_;<xhtml:br/>\n                           <xhtml:i># code to add a field/key to a file goes here</xhtml:i><xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>sub config_file_set_key {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>my ($fname, $key, $arg) = @_;<xhtml:br/>\n                           <xhtml:i># code to set key to a particular file goes here</xhtml:i><xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>sub config_file_delete_key {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>my ($fname, $key, $arg) = @_;<xhtml:br/>\n                           <xhtml:i># code to delete key from a particular file goes here</xhtml:i><xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>sub handleConfigAction {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>my ($fname, $action) = @_;<xhtml:br/>my $key = param('key');<xhtml:br/>my $val = param('val');<xhtml:br/>\n                        \n                           <xhtml:i># this is super-efficient code, especially if you have to invoke</xhtml:i><xhtml:br/>\n                           <xhtml:i># any one of dozens of different functions!</xhtml:i><xhtml:br/>\n                           <xhtml:br/>my $code = \"config_file_$action_key(\\$fname, \\$key, \\$val);\";<xhtml:br/>eval($code);</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>$configfile = \"/home/cwe/config.txt\";<xhtml:br/>print header;<xhtml:br/>if (defined(param('action'))) {<xhtml:div style=\"margin-left:1em;\">handleConfigAction($configfile, param('action'));</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">print \"No action specified!\\n\";</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The script intends to take the 'action' parameter and invoke one of a variety of functions based on the value of that parameter - config_file_add_key(), config_file_set_key(), or config_file_delete_key(). It could set up a conditional to invoke each function separately, but eval() is a powerful way of doing the same thing in fewer lines of code, especially when a large number of functions or variables are involved. Unfortunately, in this case, the attacker can provide other values in the action parameter, such as:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>add_key(\",\",\"); system(\"/bin/ls\");</xhtml:div>\n               </Example_Code>\n               <Body_Text>This would produce the following string in handleConfigAction():</Body_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>config_file_add_key(\",\",\"); system(\"/bin/ls\");</xhtml:div>\n               </Example_Code>\n               <Body_Text>Any arbitrary Perl code could be added after the attacker has \"closed off\" the construction of the original function call, in order to prevent parsing errors from causing the malicious eval() to fail before the attacker's payload is activated. This particular manipulation would fail after the system() call, because the \"_key(\\$fname, \\$key, \\$val)\" portion of the string would cause an error, but this is irrelevant to the attack because the payload has already been activated.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-156",
-      "text": "\n               <Intro_Text>This simple script asks a user to supply a list of numbers as input and adds them together.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>\n                  def main():<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                     sum = 0<xhtml:br/>\n                     numbers = eval(input(\"Enter a space-separated list of numbers: \"))<xhtml:br/>\n                     for num in numbers:<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        sum = sum + num<xhtml:br/>\n                        </xhtml:div>\n                     print(f\"Sum of {numbers} = {sum}\")\n                     </xhtml:div>\n                  main()\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>The eval() function can take the user-supplied list and convert it into a Python list object, therefore allowing the programmer to use list comprehension methods to work with the data. However, if code is supplied to the eval() function, it will execute that code. For example, a malicious user could supply the following string:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>__import__('subprocess').getoutput('rm -r *')</xhtml:div>\n               </Example_Code>\n               <Body_Text>This would delete all the files in the current directory. For this reason, it is not recommended to use eval() with untrusted input.</Body_Text>\n\t       <Body_Text>A way to accomplish this without the use of eval() is to apply an integer conversion on the input within a try/except block. If the user-supplied input is not numeric, this will raise a ValueError. By avoiding eval(), there is no opportunity for the input string to be executed as code.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Python\">\n                  <xhtml:div>\n                  def main():<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                     sum = 0<xhtml:br/>\n                     numbers = input(\"Enter a space-separated list of numbers: \").split(\" \")<xhtml:br/>\n                     try:<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        for num in numbers:<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                           sum = sum + int(num)<xhtml:br/>\n                           </xhtml:div>\n                        print(f\"Sum of {numbers} = {sum}\")\n                        </xhtml:div>\n                     except ValueError:<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        print(\"Error: invalid input\")<xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>\n                  main()\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>An alternative option is to use the ast.literal_eval() function from Python's ast module. This function considers only Python literals as valid data types and will not execute any code contained within the user input.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-2054",
-      "description": "Python compiler uses eval() to execute malicious strings as Python code.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-2054"
-    },
-    {
-      "reference": "CVE-2021-22204",
-      "description": "Chain: regex in EXIF processor code does not correctly determine where a string ends (CWE-625), enabling eval injection (CWE-95), as exploited in the wild per CISA KEV.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-22204"
-    },
-    {
-      "reference": "CVE-2021-22205",
-      "description": "Chain: backslash followed by a newline can bypass a validation step (CWE-20), leading to eval injection (CWE-95), as exploited in the wild per CISA KEV.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-22205"
-    },
-    {
-      "reference": "CVE-2008-5071",
-      "description": "Eval injection in PHP program.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-5071"
-    },
-    {
-      "reference": "CVE-2002-1750",
-      "description": "Eval injection in Perl program.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1750"
-    },
-    {
-      "reference": "CVE-2008-5305",
-      "description": "Eval injection in Perl program using an ID that should only contain hyphens and numbers.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-5305"
-    },
-    {
-      "reference": "CVE-2002-1752",
-      "description": "Direct code injection into Perl eval function.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1752"
-    },
-    {
-      "reference": "CVE-2002-1753",
-      "description": "Eval injection in Perl program.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1753"
-    },
-    {
-      "reference": "CVE-2005-1527",
-      "description": "Direct code injection into Perl eval function.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1527"
-    },
-    {
-      "reference": "CVE-2005-2837",
-      "description": "Direct code injection into Perl eval function.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2837"
-    },
-    {
-      "reference": "CVE-2005-1921",
-      "description": "MFV. code injection into PHP eval statement using nested constructs that should not be nested.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1921"
-    },
-    {
-      "reference": "CVE-2005-2498",
-      "description": "MFV. code injection into PHP eval statement using nested constructs that should not be nested.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2498"
-    },
-    {
-      "reference": "CVE-2005-3302",
-      "description": "Code injection into Python eval statement from a field in a formatted file.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3302"
-    },
-    {
-      "reference": "CVE-2007-1253",
-      "description": "Eval injection in Python program.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-1253"
-    },
-    {
-      "reference": "CVE-2001-1471",
-      "description": "chain: Resultant eval injection. An invalid value prevents initialization of variables, which can be modified by attacker and later injected into PHP eval statement.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1471"
-    },
-    {
-      "reference": "CVE-2007-2713",
-      "description": "Chain: Execution after redirect triggers eval injection.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-2713"
-    }
-  ],
-  "references": [
-    {
-      "section": "Chapter 18, \"Inline Evaluation\", Page 1095",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_organization": "Veracode",
-        "modification_date": "2008-08-15",
-        "modification_comment": "Suggested OWASP Top Ten 2004 mapping"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Description, Modes_of_Introduction, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Description, Observed_Examples, Other_Notes, Research_Gaps"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Alternate_Terms, Applicable_Platforms, Demonstrative_Examples, Description, Name, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Description, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Causal_Nature, Modes_of_Introduction, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Research_Gaps"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Demonstrative_Examples, Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Demonstrative_Examples, Detection_Factors, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Direct Dynamic Code Evaluation ('Eval Injection')",
-        "date": "2008-04-11"
-      },
-      {
-        "text": "Insufficient Control of Directives in Dynamically Evaluated Code (aka 'Eval Injection')",
-        "date": "2009-05-27"
-      },
-      {
-        "text": "Improper Sanitization of Directives in Dynamically Evaluated Code ('Eval Injection')",
-        "date": "2010-06-21"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Direct Dynamic Code Evaluation ('Eval Injection')"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2007",
-      "entry_name": "Malicious File Execution",
-      "entry_id": "A3",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2004",
-      "entry_name": "Injection Flaws",
-      "entry_id": "A6",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Tainted input to command",
-      "entry_id": "SFP24"
-    },
-    {
-      "taxonomy_name": "SEI CERT Perl Coding Standard",
-      "entry_name": "Do not invoke the eval form with a string argument",
-      "entry_id": "IDS35-PL",
-      "mapping_fit": "Exact"
-    }
-  ],
-  "related_attack_patterns": [
-    "35"
-  ],
-  "notes": [
-    {
-      "type": "Other",
-      "text": "Factors: special character errors can play a role in increasing the variety of code that can be injected, although some vulnerabilities do not require special characters at all, e.g. when a single function without arguments can be referenced and a terminator character is not necessary."
-    }
-  ]
+	"id": "95",
+	"name": "Improper Neutralization of Directives in Dynamically Evaluated Code ('Eval Injection')",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product receives input from an upstream component, but it does not neutralize or incorrectly neutralizes code syntax before using the input in a dynamic evaluation call (e.g. \"eval\").",
+	"extended_description": "This may allow an attacker to execute arbitrary code, or at least modify what code can be executed.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "94",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "JavaScript"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Python"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Perl"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "PHP"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Ruby"
+			},
+			{
+				"class": "Interpreted",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"This weakness is prevalent in handler/dispatch procedures that might want to invoke a large number of functions, or set a large number of variables."
+			]
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Files or Directories",
+				"Read Application Data"
+			],
+			"note": "The injected code could access restricted data / files."
+		},
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			],
+			"note": "In some cases, injectable code controls authentication; this may lead to a remote vulnerability."
+		},
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity"
+			],
+			"note": "Injected code can access resources that the attacker is directly prevented from accessing."
+		},
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality",
+				"Availability",
+				"Other"
+			],
+			"impact": [
+				"Execute Unauthorized Code or Commands"
+			],
+			"note": "Code injection attacks can lead to loss of data integrity in nearly all cases as the control-plane data injected is always incidental to data recall or writing. Additionally, code injection can often result in the execution of arbitrary code."
+		},
+		{
+			"scope": [
+				"Non-Repudiation"
+			],
+			"impact": [
+				"Hide Activities"
+			],
+			"note": "Often the actions performed by injected control code are unlogged."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"If possible, refactor your code so that it does not need to use eval() at all."
+			]
+		},
+		{
+			"mitigation_id": "MIT-5",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n               "
+			],
+			"strategy": "Input Validation"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Inputs should be decoded and canonicalized to the application's current internal representation before being validated (CWE-180, CWE-181). Make sure that your application does not inadvertently decode the same input twice (CWE-174). Such errors could be used to bypass allowlist schemes by introducing dangerous inputs after they have been checked. Use libraries such as the OWASP ESAPI Canonicalization control.</xhtml:p>\n                  <xhtml:p>Consider performing repeated canonicalization until your input does not change any more. This will avoid double-decoding and similar scenarios, but it might inadvertently modify inputs that are allowed to contain properly-encoded dangerous content.</xhtml:p>\n               "
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-31",
+			"text": "\n               <Intro_Text>edit-config.pl: This CGI script is used to modify settings in a configuration file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>use CGI qw(:standard);<xhtml:br/>\n                     <xhtml:br/>sub config_file_add_key {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>my ($fname, $key, $arg) = @_;<xhtml:br/>\n                           <xhtml:i># code to add a field/key to a file goes here</xhtml:i><xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>sub config_file_set_key {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>my ($fname, $key, $arg) = @_;<xhtml:br/>\n                           <xhtml:i># code to set key to a particular file goes here</xhtml:i><xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>sub config_file_delete_key {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>my ($fname, $key, $arg) = @_;<xhtml:br/>\n                           <xhtml:i># code to delete key from a particular file goes here</xhtml:i><xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>sub handleConfigAction {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>my ($fname, $action) = @_;<xhtml:br/>my $key = param('key');<xhtml:br/>my $val = param('val');<xhtml:br/>\n                        \n                           <xhtml:i># this is super-efficient code, especially if you have to invoke</xhtml:i><xhtml:br/>\n                           <xhtml:i># any one of dozens of different functions!</xhtml:i><xhtml:br/>\n                           <xhtml:br/>my $code = \"config_file_$action_key(\\$fname, \\$key, \\$val);\";<xhtml:br/>eval($code);</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>$configfile = \"/home/cwe/config.txt\";<xhtml:br/>print header;<xhtml:br/>if (defined(param('action'))) {<xhtml:div style=\"margin-left:1em;\">handleConfigAction($configfile, param('action'));</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">print \"No action specified!\\n\";</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The script intends to take the 'action' parameter and invoke one of a variety of functions based on the value of that parameter - config_file_add_key(), config_file_set_key(), or config_file_delete_key(). It could set up a conditional to invoke each function separately, but eval() is a powerful way of doing the same thing in fewer lines of code, especially when a large number of functions or variables are involved. Unfortunately, in this case, the attacker can provide other values in the action parameter, such as:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>add_key(\",\",\"); system(\"/bin/ls\");</xhtml:div>\n               </Example_Code>\n               <Body_Text>This would produce the following string in handleConfigAction():</Body_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>config_file_add_key(\",\",\"); system(\"/bin/ls\");</xhtml:div>\n               </Example_Code>\n               <Body_Text>Any arbitrary Perl code could be added after the attacker has \"closed off\" the construction of the original function call, in order to prevent parsing errors from causing the malicious eval() to fail before the attacker's payload is activated. This particular manipulation would fail after the system() call, because the \"_key(\\$fname, \\$key, \\$val)\" portion of the string would cause an error, but this is irrelevant to the attack because the payload has already been activated.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-156",
+			"text": "\n               <Intro_Text>This simple script asks a user to supply a list of numbers as input and adds them together.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>\n                  def main():<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                     sum = 0<xhtml:br/>\n                     numbers = eval(input(\"Enter a space-separated list of numbers: \"))<xhtml:br/>\n                     for num in numbers:<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        sum = sum + num<xhtml:br/>\n                        </xhtml:div>\n                     print(f\"Sum of {numbers} = {sum}\")\n                     </xhtml:div>\n                  main()\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>The eval() function can take the user-supplied list and convert it into a Python list object, therefore allowing the programmer to use list comprehension methods to work with the data. However, if code is supplied to the eval() function, it will execute that code. For example, a malicious user could supply the following string:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>__import__('subprocess').getoutput('rm -r *')</xhtml:div>\n               </Example_Code>\n               <Body_Text>This would delete all the files in the current directory. For this reason, it is not recommended to use eval() with untrusted input.</Body_Text>\n\t       <Body_Text>A way to accomplish this without the use of eval() is to apply an integer conversion on the input within a try/except block. If the user-supplied input is not numeric, this will raise a ValueError. By avoiding eval(), there is no opportunity for the input string to be executed as code.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Python\">\n                  <xhtml:div>\n                  def main():<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                     sum = 0<xhtml:br/>\n                     numbers = input(\"Enter a space-separated list of numbers: \").split(\" \")<xhtml:br/>\n                     try:<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        for num in numbers:<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                           sum = sum + int(num)<xhtml:br/>\n                           </xhtml:div>\n                        print(f\"Sum of {numbers} = {sum}\")\n                        </xhtml:div>\n                     except ValueError:<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        print(\"Error: invalid input\")<xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>\n                  main()\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>An alternative option is to use the ast.literal_eval() function from Python's ast module. This function considers only Python literals as valid data types and will not execute any code contained within the user input.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-2054",
+			"description": "Python compiler uses eval() to execute malicious strings as Python code.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-2054"
+		},
+		{
+			"reference": "CVE-2021-22204",
+			"description": "Chain: regex in EXIF processor code does not correctly determine where a string ends (CWE-625), enabling eval injection (CWE-95), as exploited in the wild per CISA KEV.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-22204"
+		},
+		{
+			"reference": "CVE-2021-22205",
+			"description": "Chain: backslash followed by a newline can bypass a validation step (CWE-20), leading to eval injection (CWE-95), as exploited in the wild per CISA KEV.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-22205"
+		},
+		{
+			"reference": "CVE-2008-5071",
+			"description": "Eval injection in PHP program.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-5071"
+		},
+		{
+			"reference": "CVE-2002-1750",
+			"description": "Eval injection in Perl program.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1750"
+		},
+		{
+			"reference": "CVE-2008-5305",
+			"description": "Eval injection in Perl program using an ID that should only contain hyphens and numbers.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-5305"
+		},
+		{
+			"reference": "CVE-2002-1752",
+			"description": "Direct code injection into Perl eval function.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1752"
+		},
+		{
+			"reference": "CVE-2002-1753",
+			"description": "Eval injection in Perl program.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1753"
+		},
+		{
+			"reference": "CVE-2005-1527",
+			"description": "Direct code injection into Perl eval function.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1527"
+		},
+		{
+			"reference": "CVE-2005-2837",
+			"description": "Direct code injection into Perl eval function.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2837"
+		},
+		{
+			"reference": "CVE-2005-1921",
+			"description": "MFV. code injection into PHP eval statement using nested constructs that should not be nested.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1921"
+		},
+		{
+			"reference": "CVE-2005-2498",
+			"description": "MFV. code injection into PHP eval statement using nested constructs that should not be nested.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2498"
+		},
+		{
+			"reference": "CVE-2005-3302",
+			"description": "Code injection into Python eval statement from a field in a formatted file.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3302"
+		},
+		{
+			"reference": "CVE-2007-1253",
+			"description": "Eval injection in Python program.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-1253"
+		},
+		{
+			"reference": "CVE-2001-1471",
+			"description": "chain: Resultant eval injection. An invalid value prevents initialization of variables, which can be modified by attacker and later injected into PHP eval statement.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1471"
+		},
+		{
+			"reference": "CVE-2007-2713",
+			"description": "Chain: Execution after redirect triggers eval injection.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-2713"
+		}
+	],
+	"references": [
+		{
+			"section": "Chapter 18, \"Inline Evaluation\", Page 1095",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_organization": "Veracode",
+				"modification_date": "2008-08-15",
+				"modification_comment": "Suggested OWASP Top Ten 2004 mapping"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Description, Modes_of_Introduction, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Description, Observed_Examples, Other_Notes, Research_Gaps"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Alternate_Terms, Applicable_Platforms, Demonstrative_Examples, Description, Name, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Description, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Causal_Nature, Modes_of_Introduction, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Research_Gaps"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Demonstrative_Examples, Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Demonstrative_Examples, Detection_Factors, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Direct Dynamic Code Evaluation ('Eval Injection')",
+				"date": "2008-04-11"
+			},
+			{
+				"text": "Insufficient Control of Directives in Dynamically Evaluated Code (aka 'Eval Injection')",
+				"date": "2009-05-27"
+			},
+			{
+				"text": "Improper Sanitization of Directives in Dynamically Evaluated Code ('Eval Injection')",
+				"date": "2010-06-21"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Direct Dynamic Code Evaluation ('Eval Injection')"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2007",
+			"entry_name": "Malicious File Execution",
+			"entry_id": "A3",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2004",
+			"entry_name": "Injection Flaws",
+			"entry_id": "A6",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Tainted input to command",
+			"entry_id": "SFP24"
+		},
+		{
+			"taxonomy_name": "SEI CERT Perl Coding Standard",
+			"entry_name": "Do not invoke the eval form with a string argument",
+			"entry_id": "IDS35-PL",
+			"mapping_fit": "Exact"
+		}
+	],
+	"related_attack_patterns": [
+		"35"
+	],
+	"notes": [
+		{
+			"type": "Other",
+			"text": "Factors: special character errors can play a role in increasing the variety of code that can be injected, although some vulnerabilities do not require special characters at all, e.g. when a single function without arguments can be referenced and a terminator character is not necessary."
+		}
+	]
 }

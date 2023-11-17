@@ -1,222 +1,222 @@
 {
-  "id": "354",
-  "name": "Improper Validation of Integrity Check Value",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not validate or incorrectly validates the integrity check values or \"checksums\" of a message. This may prevent it from detecting if the data has been modified or corrupted in transmission.",
-  "extended_description": "Improper validation of checksums before use results in an unnecessary risk that can easily be mitigated. The protocol specification describes the algorithm used for calculating the checksum. It is then a simple matter of implementing the calculation and verifying that the calculated checksum and the received checksum match. Improper verification of the calculated checksum and the received checksum can lead to far greater consequences.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "345",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "345",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "754",
-      "view_id": "1000"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "353",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Other"
-      ],
-      "impact": [
-        "Modify Application Data",
-        "Other"
-      ],
-      "note": "Integrity checks usually use a secret key that helps authenticate the data origin. Skipping integrity checking generally opens up the possibility that new data from an invalid source can be injected."
-    },
-    {
-      "scope": [
-        "Integrity",
-        "Other"
-      ],
-      "impact": [
-        "Other"
-      ],
-      "note": "Data that is parsed and used may be corrupted."
-    },
-    {
-      "scope": [
-        "Non-Repudiation",
-        "Other"
-      ],
-      "impact": [
-        "Hide Activities",
-        "Other"
-      ],
-      "note": "Without a checksum check, it is impossible to determine if any changes have been made to the data after it was sent."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Ensure that the checksums present in messages are properly checked in accordance with the protocol specification before they are parsed and used."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>sd = socket(AF_INET, SOCK_DGRAM, 0); serv.sin_family = AF_INET;<xhtml:br/>serv.sin_addr.s_addr = htonl(INADDR_ANY);<xhtml:br/>servr.sin_port = htons(1008);<xhtml:br/>bind(sd, (struct sockaddr *) &amp; serv, sizeof(serv));<xhtml:br/>while (1) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>memset(msg, 0x0, MAX_MSG);<xhtml:br/>clilen = sizeof(cli);<xhtml:br/>if (inet_ntoa(cli.sin_addr)==...) n = recvfrom(sd, msg, MAX_MSG, 0, (struct sockaddr *) &amp; cli, &amp;clilen);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>while(true) {<xhtml:div style=\"margin-left:1em;\">DatagramPacket packet = new DatagramPacket(data,data.length,IPAddress, port);<xhtml:br/>socket.send(sendPacket);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Description, Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Description, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Failure to Check Integrity Check Value",
-        "date": "2009-03-10"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Failure to check integrity check value"
-    }
-  ],
-  "related_attack_patterns": [
-    "145",
-    "463",
-    "75"
-  ]
+	"id": "354",
+	"name": "Improper Validation of Integrity Check Value",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not validate or incorrectly validates the integrity check values or \"checksums\" of a message. This may prevent it from detecting if the data has been modified or corrupted in transmission.",
+	"extended_description": "Improper validation of checksums before use results in an unnecessary risk that can easily be mitigated. The protocol specification describes the algorithm used for calculating the checksum. It is then a simple matter of implementing the calculation and verifying that the calculated checksum and the received checksum match. Improper verification of the calculated checksum and the received checksum can lead to far greater consequences.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "345",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "345",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "754",
+			"view_id": "1000"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "353",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Other"
+			],
+			"impact": [
+				"Modify Application Data",
+				"Other"
+			],
+			"note": "Integrity checks usually use a secret key that helps authenticate the data origin. Skipping integrity checking generally opens up the possibility that new data from an invalid source can be injected."
+		},
+		{
+			"scope": [
+				"Integrity",
+				"Other"
+			],
+			"impact": [
+				"Other"
+			],
+			"note": "Data that is parsed and used may be corrupted."
+		},
+		{
+			"scope": [
+				"Non-Repudiation",
+				"Other"
+			],
+			"impact": [
+				"Hide Activities",
+				"Other"
+			],
+			"note": "Without a checksum check, it is impossible to determine if any changes have been made to the data after it was sent."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Ensure that the checksums present in messages are properly checked in accordance with the protocol specification before they are parsed and used."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>sd = socket(AF_INET, SOCK_DGRAM, 0); serv.sin_family = AF_INET;<xhtml:br/>serv.sin_addr.s_addr = htonl(INADDR_ANY);<xhtml:br/>servr.sin_port = htons(1008);<xhtml:br/>bind(sd, (struct sockaddr *) &amp; serv, sizeof(serv));<xhtml:br/>while (1) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>memset(msg, 0x0, MAX_MSG);<xhtml:br/>clilen = sizeof(cli);<xhtml:br/>if (inet_ntoa(cli.sin_addr)==...) n = recvfrom(sd, msg, MAX_MSG, 0, (struct sockaddr *) &amp; cli, &amp;clilen);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>while(true) {<xhtml:div style=\"margin-left:1em;\">DatagramPacket packet = new DatagramPacket(data,data.length,IPAddress, port);<xhtml:br/>socket.send(sendPacket);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Description, Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Description, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Failure to Check Integrity Check Value",
+				"date": "2009-03-10"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Failure to check integrity check value"
+		}
+	],
+	"related_attack_patterns": [
+		"145",
+		"463",
+		"75"
+	]
 }

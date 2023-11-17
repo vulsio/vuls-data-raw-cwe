@@ -1,311 +1,311 @@
 {
-  "id": "194",
-  "name": "Unexpected Sign Extension",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product performs an operation on a number that causes it to be sign extended when it is transformed into a larger data type. When the original number is negative, this can produce unexpected values that lead to resultant weaknesses.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "681",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "681",
-      "view_id": "1305",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "681",
-      "view_id": "1340",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality",
-        "Availability",
-        "Other"
-      ],
-      "impact": [
-        "Read Memory",
-        "Modify Memory",
-        "Other"
-      ],
-      "note": "When an unexpected sign extension occurs in code that operates directly on memory buffers, such as a size value or a memory index, then it could cause the program to write or read outside the boundaries of the intended buffer. If the numeric value is associated with an application-level resource, such as a quantity or price for a product in an e-commerce site, then the sign extension could produce a value that is much higher (or lower) than the application's allowable range."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Avoid using signed variables if you don't need to represent negative values. When negative values are needed, perform validation after you save those values to larger data types, or before passing them to functions that are expecting unsigned values."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-23",
-      "text": "\n               <Intro_Text>The following code reads a maximum size and performs a sanity check on that size. It then performs a strncpy, assuming it will not exceed the boundaries of the array. While the use of \"short s\" is forced in this particular example, short int's are frequently used within real-world code, such as code that processes structured data.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int GetUntrustedInt () {<xhtml:div style=\"margin-left:1em;\">return(0x0000FFFF);</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>void main (int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char path[256];<xhtml:br/>char *input;<xhtml:br/>int i;<xhtml:br/>short s;<xhtml:br/>unsigned int sz;<xhtml:br/>\n                           <xhtml:br/>i = GetUntrustedInt();<xhtml:br/>s = i;<xhtml:br/>/* s is -1 so it passes the safety check - CWE-697 */<xhtml:br/>if (s &gt; 256) {<xhtml:div style=\"margin-left:1em;\">DiePainfully(\"go away!\\n\");</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>/* s is sign-extended and saved in sz */<xhtml:br/>sz = s;<xhtml:br/>\n                           <xhtml:br/>/* output: i=65535, s=-1, sz=4294967295 - your mileage may vary */<xhtml:br/>printf(\"i=%d, s=%d, sz=%u\\n\", i, s, sz);<xhtml:br/>\n                           <xhtml:br/>input = GetUserInput(\"Enter pathname:\");<xhtml:br/>\n                           <xhtml:br/>/* strncpy interprets s as unsigned int, so it's treated as MAX_INT<xhtml:br/>(CWE-195), enabling buffer overflow (CWE-119) */<xhtml:br/>strncpy(path, input, s);<xhtml:br/>path[255] = '\\0'; /* don't want CWE-170 */<xhtml:br/>printf(\"Path is: %s\\n\", path);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code first exhibits an example of CWE-839, allowing \"s\" to be a negative number. When the negative short \"s\" is converted to an unsigned integer, it becomes an extremely large positive integer. When this converted integer is used by strncpy() it will lead to a buffer overflow (CWE-119).</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2018-10887",
-      "description": "Chain: unexpected sign extension (CWE-194) leads to integer overflow (CWE-190), causing an out-of-bounds read (CWE-125)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2018-10887"
-    },
-    {
-      "reference": "CVE-1999-0234",
-      "description": "Sign extension error produces -1 value that is treated as a command separator, enabling OS command injection.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0234"
-    },
-    {
-      "reference": "CVE-2003-0161",
-      "description": "Product uses \"char\" type for input character. When char is implemented as a signed type, ASCII value 0xFF (255), a sign extension produces a -1 value that is treated as a program-specific separator value, effectively disabling a length check and leading to a buffer overflow. This is also a multiple interpretation error.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0161"
-    },
-    {
-      "reference": "CVE-2007-4988",
-      "description": "chain: signed short width value in image processor is sign extended during conversion to unsigned int, which leads to integer overflow and heap-based buffer overflow.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4988"
-    },
-    {
-      "reference": "CVE-2006-1834",
-      "description": "chain: signedness error allows bypass of a length check; later sign extension makes exploitation easier.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-1834"
-    },
-    {
-      "reference": "CVE-2005-2753",
-      "description": "Sign extension when manipulating Pascal-style strings leads to integer overflow and improper memory copy.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2753"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-161",
-      "author": [
-        "John McDonald",
-        "Mark Dowd",
-        "Justin Schuh"
-      ],
-      "title": "C Language Issues for Application Security",
-      "url": "http://www.informit.com/articles/article.aspx?p=686170&seqNum=6",
-      "publication_year": "2008",
-      "publication_month": "--01",
-      "publication_day": "---25"
-    },
-    {
-      "reference_id": "REF-162",
-      "author": [
-        "Robert Seacord"
-      ],
-      "title": "Integral Security",
-      "url": "https://drdobbs.com/cpp/integral-security/193501774",
-      "publication_year": "2006",
-      "publication_month": "--11",
-      "publication_day": "---03",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Description, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-05",
-        "modification_comment": "complete rewrite of the entire entry"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Maintenance_Notes, Name, Observed_Examples, Potential_Mitigations, References, Relationship_Notes, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated References, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Potential_Mitigations, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Sign Extension Error",
-        "date": "2008-04-11"
-      },
-      {
-        "text": "Incorrect Sign Extension",
-        "date": "2008-11-24"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Sign extension error"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Glitch in computation",
-      "entry_id": "SFP1"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Ensure that integer conversions do not result in lost or misinterpreted data",
-      "entry_id": "INT31-C",
-      "mapping_fit": "CWE More Specific"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "Sign extension errors can lead to buffer overflows and other memory-based problems. They are also likely to be factors in other weaknesses that are not based on memory operations, but rely on numeric calculation."
-    },
-    {
-      "type": "Maintenance",
-      "text": "This entry is closely associated with signed-to-unsigned conversion errors (CWE-195) and other numeric errors. These relationships need to be more closely examined within CWE."
-    }
-  ]
+	"id": "194",
+	"name": "Unexpected Sign Extension",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product performs an operation on a number that causes it to be sign extended when it is transformed into a larger data type. When the original number is negative, this can produce unexpected values that lead to resultant weaknesses.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "681",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "681",
+			"view_id": "1305",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "681",
+			"view_id": "1340",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality",
+				"Availability",
+				"Other"
+			],
+			"impact": [
+				"Read Memory",
+				"Modify Memory",
+				"Other"
+			],
+			"note": "When an unexpected sign extension occurs in code that operates directly on memory buffers, such as a size value or a memory index, then it could cause the program to write or read outside the boundaries of the intended buffer. If the numeric value is associated with an application-level resource, such as a quantity or price for a product in an e-commerce site, then the sign extension could produce a value that is much higher (or lower) than the application's allowable range."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Avoid using signed variables if you don't need to represent negative values. When negative values are needed, perform validation after you save those values to larger data types, or before passing them to functions that are expecting unsigned values."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-23",
+			"text": "\n               <Intro_Text>The following code reads a maximum size and performs a sanity check on that size. It then performs a strncpy, assuming it will not exceed the boundaries of the array. While the use of \"short s\" is forced in this particular example, short int's are frequently used within real-world code, such as code that processes structured data.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int GetUntrustedInt () {<xhtml:div style=\"margin-left:1em;\">return(0x0000FFFF);</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>void main (int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char path[256];<xhtml:br/>char *input;<xhtml:br/>int i;<xhtml:br/>short s;<xhtml:br/>unsigned int sz;<xhtml:br/>\n                           <xhtml:br/>i = GetUntrustedInt();<xhtml:br/>s = i;<xhtml:br/>/* s is -1 so it passes the safety check - CWE-697 */<xhtml:br/>if (s &gt; 256) {<xhtml:div style=\"margin-left:1em;\">DiePainfully(\"go away!\\n\");</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>/* s is sign-extended and saved in sz */<xhtml:br/>sz = s;<xhtml:br/>\n                           <xhtml:br/>/* output: i=65535, s=-1, sz=4294967295 - your mileage may vary */<xhtml:br/>printf(\"i=%d, s=%d, sz=%u\\n\", i, s, sz);<xhtml:br/>\n                           <xhtml:br/>input = GetUserInput(\"Enter pathname:\");<xhtml:br/>\n                           <xhtml:br/>/* strncpy interprets s as unsigned int, so it's treated as MAX_INT<xhtml:br/>(CWE-195), enabling buffer overflow (CWE-119) */<xhtml:br/>strncpy(path, input, s);<xhtml:br/>path[255] = '\\0'; /* don't want CWE-170 */<xhtml:br/>printf(\"Path is: %s\\n\", path);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code first exhibits an example of CWE-839, allowing \"s\" to be a negative number. When the negative short \"s\" is converted to an unsigned integer, it becomes an extremely large positive integer. When this converted integer is used by strncpy() it will lead to a buffer overflow (CWE-119).</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2018-10887",
+			"description": "Chain: unexpected sign extension (CWE-194) leads to integer overflow (CWE-190), causing an out-of-bounds read (CWE-125)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2018-10887"
+		},
+		{
+			"reference": "CVE-1999-0234",
+			"description": "Sign extension error produces -1 value that is treated as a command separator, enabling OS command injection.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-0234"
+		},
+		{
+			"reference": "CVE-2003-0161",
+			"description": "Product uses \"char\" type for input character. When char is implemented as a signed type, ASCII value 0xFF (255), a sign extension produces a -1 value that is treated as a program-specific separator value, effectively disabling a length check and leading to a buffer overflow. This is also a multiple interpretation error.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0161"
+		},
+		{
+			"reference": "CVE-2007-4988",
+			"description": "chain: signed short width value in image processor is sign extended during conversion to unsigned int, which leads to integer overflow and heap-based buffer overflow.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4988"
+		},
+		{
+			"reference": "CVE-2006-1834",
+			"description": "chain: signedness error allows bypass of a length check; later sign extension makes exploitation easier.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-1834"
+		},
+		{
+			"reference": "CVE-2005-2753",
+			"description": "Sign extension when manipulating Pascal-style strings leads to integer overflow and improper memory copy.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2753"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-161",
+			"author": [
+				"John McDonald",
+				"Mark Dowd",
+				"Justin Schuh"
+			],
+			"title": "C Language Issues for Application Security",
+			"url": "http://www.informit.com/articles/article.aspx?p=686170&seqNum=6",
+			"publication_year": "2008",
+			"publication_month": "--01",
+			"publication_day": "---25"
+		},
+		{
+			"reference_id": "REF-162",
+			"author": [
+				"Robert Seacord"
+			],
+			"title": "Integral Security",
+			"url": "https://drdobbs.com/cpp/integral-security/193501774",
+			"publication_year": "2006",
+			"publication_month": "--11",
+			"publication_day": "---03",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Description, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-05",
+				"modification_comment": "complete rewrite of the entire entry"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Maintenance_Notes, Name, Observed_Examples, Potential_Mitigations, References, Relationship_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated References, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Potential_Mitigations, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Sign Extension Error",
+				"date": "2008-04-11"
+			},
+			{
+				"text": "Incorrect Sign Extension",
+				"date": "2008-11-24"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Sign extension error"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Glitch in computation",
+			"entry_id": "SFP1"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Ensure that integer conversions do not result in lost or misinterpreted data",
+			"entry_id": "INT31-C",
+			"mapping_fit": "CWE More Specific"
+		}
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "Sign extension errors can lead to buffer overflows and other memory-based problems. They are also likely to be factors in other weaknesses that are not based on memory operations, but rely on numeric calculation."
+		},
+		{
+			"type": "Maintenance",
+			"text": "This entry is closely associated with signed-to-unsigned conversion errors (CWE-195) and other numeric errors. These relationships need to be more closely examined within CWE."
+		}
+	]
 }

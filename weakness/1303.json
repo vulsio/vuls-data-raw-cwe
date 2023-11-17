@@ -1,212 +1,212 @@
 {
-  "id": "1303",
-  "name": "Non-Transparent Sharing of Microarchitectural Resources",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "Hardware structures shared across execution contexts (e.g., caches and branch predictors) can violate the expected architecture isolation between contexts.",
-  "extended_description": "\n\t\t\t\t<xhtml:p>Modern processors use techniques such as out-of-order execution, speculation, prefetching, data forwarding, and caching to increase performance. Details about the implementation of these techniques are hidden from the programmer's view. This is problematic when the hardware implementation of these techniques results in resources being shared across supposedly isolated contexts. Contention for shared resources between different contexts opens covert channels that allow malicious programs executing in one context to recover information from another context.</xhtml:p>\n\t\t\t\t\n\t\t\t\t<xhtml:p>Some examples of shared micro-architectural resources that have been used to leak information between contexts are caches, branch prediction logic, and load or store buffers. Speculative and out-of-order execution provides an attacker with increased control over which data is leaked through the covert channel.</xhtml:p>\n\t\t\t\t\n\t\t\t\t<xhtml:p>If the extent of resource sharing between contexts in the design microarchitecture is undocumented, it is extremely difficult to ensure system assets are protected against disclosure.</xhtml:p>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1189",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "203",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "Such issues could be introduced during hardware architecture and design and identified later during Testing or System Configuration phases."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "Such issues could be introduced during implementation and identified later during Testing or System Configuration phases."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Application Data",
-        "Read Memory"
-      ],
-      "note": "Microarchitectural side-channels have been used to leak specific information such as cryptographic keys, and Address Space Layout Randomization (ALSR) offsets as well as arbitrary memory."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Microarchitectural covert channels can be addressed using a mixture of hardware and software mitigation techniques. These include partitioned caches, new barrier and flush instructions, and disabling high resolution performance counters and timers."
-      ]
-    },
-    {
-      "phase": [
-        "Requirements"
-      ],
-      "description": [
-        "Microarchitectural covert channels can be addressed using a mixture of hardware and software mitigation techniques. These include partitioned caches, new barrier and flush instructions, and disabling high resolution performance counters and timers."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>On some processors the hardware indirect branch predictor is shared between execution contexts, for example, between sibling SMT threads. When SMT thread A executes an indirect branch to a target address X, this target may be temporarily stored by the indirect branch predictor. A subsequent indirect branch mis-prediction for SMT thread B could speculatively execute instructions at X (or at a location in B's address space that partially aliases X). Even though the processor rolls back the architectural effects of the mis-predicted indirect branch, the memory accesses alter data cache state, which is not rolled back after the indirect branch is resolved.</Intro_Text>\n\t\t\t\t"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1121",
-      "author": [
-        "Moritz Lipp",
-        "Michael Schwarz",
-        "Daniel Gruss",
-        "Thomas Prescher",
-        "Werner Haas",
-        "Anders Fogh",
-        "Jann Horn",
-        "Stegfan Mangard",
-        "Paul Kocher",
-        "Daniel Genkin",
-        "Yuval Yarom",
-        "Mike Hamberg"
-      ],
-      "title": "Meltdown: Reading Kernel Memory from User Space",
-      "url": "https://meltdownattack.com/meltdown.pdf",
-      "publication_year": "2018",
-      "publication_month": "--01",
-      "publication_day": "---03"
-    },
-    {
-      "reference_id": "REF-1122",
-      "author": [
-        "Moritz Lipp",
-        "Michael Schwarz",
-        "Daniel Gruss",
-        "Thomas Prescher",
-        "Werner Haas",
-        "Anders Fogh",
-        "Jann Horn",
-        "Stegfan Mangard",
-        "Paul Kocher",
-        "Daniel Genkin",
-        "Yuval Yarom",
-        "Mike Hamberg"
-      ],
-      "title": "Spectre Attacks: Exploiting Speculative Execution",
-      "url": "https://spectreattack.com/spectre.pdf",
-      "publication_year": "2018",
-      "publication_month": "--01",
-      "publication_day": "---03"
-    },
-    {
-      "reference_id": "REF-1123",
-      "author": [
-        "Dmitry Evtyushkin",
-        "Dmitry Ponomarev",
-        "Nael Abu-Ghazaleh"
-      ],
-      "title": "Jump Over ASLR: Attacking Branch Predictors to Bypass ASLR",
-      "url": "https://ieeexplore.ieee.org/abstract/document/7783743/",
-      "publication_year": "2016",
-      "publication_month": "--10",
-      "publication_day": "---19"
-    },
-    {
-      "reference_id": "REF-1124",
-      "author": [
-        "Qian Ge",
-        "Yuval Yarom",
-        "David Cock",
-        "Gernot Heiser"
-      ],
-      "title": "A Survey of Microarchitectural Timing Attacks and Countermeasures on Contemporary Hardware",
-      "url": "https://eprint.iacr.org/2016/613.pdf",
-      "publication_year": "2016",
-      "publication_month": "--10",
-      "publication_day": "---24"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Nicole Fern",
-      "submission_organization": "Tortuga Logic",
-      "submission_date": "2020-05-08"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Demonstrative_Examples, Maintenance_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "663"
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "As of CWE 4.9, members of the CWE Hardware SIG are closely analyzing this entry and others to improve CWE's coverage of transient execution weaknesses, which include issues related to Spectre, Meltdown, and other attacks. Additional investigation may include other weaknesses related to microarchitectural state. Finally, this entry's demonstrative example might not be appropriate. As a result, this entry might change significantly in CWE 4.10."
-    }
-  ]
+	"id": "1303",
+	"name": "Non-Transparent Sharing of Microarchitectural Resources",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "Hardware structures shared across execution contexts (e.g., caches and branch predictors) can violate the expected architecture isolation between contexts.",
+	"extended_description": "\n\t\t\t\t<xhtml:p>Modern processors use techniques such as out-of-order execution, speculation, prefetching, data forwarding, and caching to increase performance. Details about the implementation of these techniques are hidden from the programmer's view. This is problematic when the hardware implementation of these techniques results in resources being shared across supposedly isolated contexts. Contention for shared resources between different contexts opens covert channels that allow malicious programs executing in one context to recover information from another context.</xhtml:p>\n\t\t\t\t\n\t\t\t\t<xhtml:p>Some examples of shared micro-architectural resources that have been used to leak information between contexts are caches, branch prediction logic, and load or store buffers. Speculative and out-of-order execution provides an attacker with increased control over which data is leaked through the covert channel.</xhtml:p>\n\t\t\t\t\n\t\t\t\t<xhtml:p>If the extent of resource sharing between contexts in the design microarchitecture is undocumented, it is extremely difficult to ensure system assets are protected against disclosure.</xhtml:p>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1189",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "203",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"Such issues could be introduced during hardware architecture and design and identified later during Testing or System Configuration phases."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"Such issues could be introduced during implementation and identified later during Testing or System Configuration phases."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Application Data",
+				"Read Memory"
+			],
+			"note": "Microarchitectural side-channels have been used to leak specific information such as cryptographic keys, and Address Space Layout Randomization (ALSR) offsets as well as arbitrary memory."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Microarchitectural covert channels can be addressed using a mixture of hardware and software mitigation techniques. These include partitioned caches, new barrier and flush instructions, and disabling high resolution performance counters and timers."
+			]
+		},
+		{
+			"phase": [
+				"Requirements"
+			],
+			"description": [
+				"Microarchitectural covert channels can be addressed using a mixture of hardware and software mitigation techniques. These include partitioned caches, new barrier and flush instructions, and disabling high resolution performance counters and timers."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>On some processors the hardware indirect branch predictor is shared between execution contexts, for example, between sibling SMT threads. When SMT thread A executes an indirect branch to a target address X, this target may be temporarily stored by the indirect branch predictor. A subsequent indirect branch mis-prediction for SMT thread B could speculatively execute instructions at X (or at a location in B's address space that partially aliases X). Even though the processor rolls back the architectural effects of the mis-predicted indirect branch, the memory accesses alter data cache state, which is not rolled back after the indirect branch is resolved.</Intro_Text>\n\t\t\t\t"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1121",
+			"author": [
+				"Moritz Lipp",
+				"Michael Schwarz",
+				"Daniel Gruss",
+				"Thomas Prescher",
+				"Werner Haas",
+				"Anders Fogh",
+				"Jann Horn",
+				"Stegfan Mangard",
+				"Paul Kocher",
+				"Daniel Genkin",
+				"Yuval Yarom",
+				"Mike Hamberg"
+			],
+			"title": "Meltdown: Reading Kernel Memory from User Space",
+			"url": "https://meltdownattack.com/meltdown.pdf",
+			"publication_year": "2018",
+			"publication_month": "--01",
+			"publication_day": "---03"
+		},
+		{
+			"reference_id": "REF-1122",
+			"author": [
+				"Moritz Lipp",
+				"Michael Schwarz",
+				"Daniel Gruss",
+				"Thomas Prescher",
+				"Werner Haas",
+				"Anders Fogh",
+				"Jann Horn",
+				"Stegfan Mangard",
+				"Paul Kocher",
+				"Daniel Genkin",
+				"Yuval Yarom",
+				"Mike Hamberg"
+			],
+			"title": "Spectre Attacks: Exploiting Speculative Execution",
+			"url": "https://spectreattack.com/spectre.pdf",
+			"publication_year": "2018",
+			"publication_month": "--01",
+			"publication_day": "---03"
+		},
+		{
+			"reference_id": "REF-1123",
+			"author": [
+				"Dmitry Evtyushkin",
+				"Dmitry Ponomarev",
+				"Nael Abu-Ghazaleh"
+			],
+			"title": "Jump Over ASLR: Attacking Branch Predictors to Bypass ASLR",
+			"url": "https://ieeexplore.ieee.org/abstract/document/7783743/",
+			"publication_year": "2016",
+			"publication_month": "--10",
+			"publication_day": "---19"
+		},
+		{
+			"reference_id": "REF-1124",
+			"author": [
+				"Qian Ge",
+				"Yuval Yarom",
+				"David Cock",
+				"Gernot Heiser"
+			],
+			"title": "A Survey of Microarchitectural Timing Attacks and Countermeasures on Contemporary Hardware",
+			"url": "https://eprint.iacr.org/2016/613.pdf",
+			"publication_year": "2016",
+			"publication_month": "--10",
+			"publication_day": "---24"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Nicole Fern",
+			"submission_organization": "Tortuga Logic",
+			"submission_date": "2020-05-08"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Demonstrative_Examples, Maintenance_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"663"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "As of CWE 4.9, members of the CWE Hardware SIG are closely analyzing this entry and others to improve CWE's coverage of transient execution weaknesses, which include issues related to Spectre, Meltdown, and other attacks. Additional investigation may include other weaknesses related to microarchitectural state. Finally, this entry's demonstrative example might not be appropriate. As a result, this entry might change significantly in CWE 4.10."
+		}
+	]
 }

@@ -1,259 +1,259 @@
 {
-  "id": "248",
-  "name": "Uncaught Exception",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "An exception is thrown from a function, but it is not caught.",
-  "extended_description": "When an exception is not caught, it may cause the program to crash or expose sensitive information.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "705",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "755",
-      "view_id": "1000"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "703",
-      "view_id": "1305",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "703",
-      "view_id": "1340",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C#"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability",
-        "Confidentiality"
-      ],
-      "impact": [
-        "DoS: Crash, Exit, or Restart",
-        "Read Application Data"
-      ],
-      "note": "An uncaught exception could cause the system to be placed in a state that could lead to a crash, exposure of sensitive information or other unintended behaviors."
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-39",
-      "text": "\n               <Intro_Text>The following example attempts to resolve a hostname.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>protected void doPost (HttpServletRequest req, HttpServletResponse res) throws IOException {<xhtml:div style=\"margin-left:1em;\">String ip = req.getRemoteAddr();<xhtml:br/>InetAddress addr = InetAddress.getByName(ip);<xhtml:br/>...<xhtml:br/>out.println(\"hello \" + addr.getHostName());</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>A DNS lookup failure will cause the Servlet to throw an exception.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>The _alloca() function allocates memory on the stack. If an allocation request is too large for the available stack space, _alloca() throws an exception. If the exception is not caught, the program will crash, potentially enabling a denial of service attack. _alloca() has been deprecated as of Microsoft Visual Studio 2005(R). It has been replaced with the more secure _alloca_s().</Intro_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>EnterCriticalSection() can raise an exception, potentially causing the program to crash. Under operating systems prior to Windows 2000, the EnterCriticalSection() function can raise an exception in low memory situations. If the exception is not caught, the program will crash, potentially enabling a denial of service attack.</Intro_Text>\n            "
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-6",
-      "author": [
-        "Katrina Tsipenyuk",
-        "Brian Chess",
-        "Gary McGraw"
-      ],
-      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
-      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
-      "publication_year": "2005",
-      "publication_month": "--11",
-      "publication_day": "---07",
-      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
-      "publisher": "NIST"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "7 Pernicious Kingdoms",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_organization": "Veracode",
-        "modification_date": "2008-08-15",
-        "modification_comment": "Suggested OWASP Top Ten 2004 mapping"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-24",
-        "modification_comment": "Removed C from Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Description, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Demonstrative_Examples, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Often Misused: Exception Handling",
-        "date": "2008-01-30"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "Often Misused: Exception Handling"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not let checked exceptions escape from a finally block",
-      "entry_id": "ERR05-J"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not throw undeclared checked exceptions",
-      "entry_id": "ERR06-J"
-    },
-    {
-      "taxonomy_name": "SEI CERT Perl Coding Standard",
-      "entry_name": "Do not suppress or ignore exceptions",
-      "entry_id": "EXP31-PL",
-      "mapping_fit": "Exact"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Unchecked Status Condition",
-      "entry_id": "SFP4"
-    }
-  ]
+	"id": "248",
+	"name": "Uncaught Exception",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "An exception is thrown from a function, but it is not caught.",
+	"extended_description": "When an exception is not caught, it may cause the program to crash or expose sensitive information.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "705",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "755",
+			"view_id": "1000"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "703",
+			"view_id": "1305",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "703",
+			"view_id": "1340",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C#"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability",
+				"Confidentiality"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart",
+				"Read Application Data"
+			],
+			"note": "An uncaught exception could cause the system to be placed in a state that could lead to a crash, exposure of sensitive information or other unintended behaviors."
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-39",
+			"text": "\n               <Intro_Text>The following example attempts to resolve a hostname.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>protected void doPost (HttpServletRequest req, HttpServletResponse res) throws IOException {<xhtml:div style=\"margin-left:1em;\">String ip = req.getRemoteAddr();<xhtml:br/>InetAddress addr = InetAddress.getByName(ip);<xhtml:br/>...<xhtml:br/>out.println(\"hello \" + addr.getHostName());</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>A DNS lookup failure will cause the Servlet to throw an exception.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>The _alloca() function allocates memory on the stack. If an allocation request is too large for the available stack space, _alloca() throws an exception. If the exception is not caught, the program will crash, potentially enabling a denial of service attack. _alloca() has been deprecated as of Microsoft Visual Studio 2005(R). It has been replaced with the more secure _alloca_s().</Intro_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>EnterCriticalSection() can raise an exception, potentially causing the program to crash. Under operating systems prior to Windows 2000, the EnterCriticalSection() function can raise an exception in low memory situations. If the exception is not caught, the program will crash, potentially enabling a denial of service attack.</Intro_Text>\n            "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-6",
+			"author": [
+				"Katrina Tsipenyuk",
+				"Brian Chess",
+				"Gary McGraw"
+			],
+			"title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+			"url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+			"publication_year": "2005",
+			"publication_month": "--11",
+			"publication_day": "---07",
+			"publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+			"publisher": "NIST"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "7 Pernicious Kingdoms",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_organization": "Veracode",
+				"modification_date": "2008-08-15",
+				"modification_comment": "Suggested OWASP Top Ten 2004 mapping"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-24",
+				"modification_comment": "Removed C from Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Description, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Demonstrative_Examples, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Often Misused: Exception Handling",
+				"date": "2008-01-30"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "Often Misused: Exception Handling"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not let checked exceptions escape from a finally block",
+			"entry_id": "ERR05-J"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not throw undeclared checked exceptions",
+			"entry_id": "ERR06-J"
+		},
+		{
+			"taxonomy_name": "SEI CERT Perl Coding Standard",
+			"entry_name": "Do not suppress or ignore exceptions",
+			"entry_id": "EXP31-PL",
+			"mapping_fit": "Exact"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Unchecked Status Condition",
+			"entry_id": "SFP4"
+		}
+	]
 }

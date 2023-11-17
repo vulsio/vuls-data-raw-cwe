@@ -1,166 +1,166 @@
 {
-  "id": "1327",
-  "name": "Binding to an Unrestricted IP Address",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product assigns the address 0.0.0.0 for a database server, a cloud service/instance, or any computing resource that communicates remotely.",
-  "extended_description": "\n\t\t\t\t<xhtml:p>When a server binds to the address 0.0.0.0, it allows connections from every IP address on the local machine, effectively exposing the server to every possible network. This might be much broader access than intended by the developer or administrator, who might only be expecting the server to be reachable from a single interface/network.</xhtml:p>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "668",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Other"
-      }
-    ],
-    "technology": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Web Server"
-      },
-      {
-        "class": "Client Server",
-        "prevalence": "Undetermined"
-      },
-      {
-        "class": "Cloud Computing",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "System Configuration"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Amplification"
-      ],
-      "likelihood": "High"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "System Configuration"
-      ],
-      "description": [
-        "Assign IP addresses that are not 0.0.0.0."
-      ],
-      "effectiveness": "High"
-    },
-    {
-      "phase": [
-        "System Configuration"
-      ],
-      "description": [
-        "Unwanted connections to the configured server may be denied through a firewall or other packet filtering measures."
-      ],
-      "effectiveness": "High",
-      "strategy": "Firewall"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>The following code snippet uses 0.0.0.0 in a Puppet script.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Other\">\n\t\t\t\t\tsigningserver::instance {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t  \"nightly-key-signing-server\":\n\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t  listenaddr     =&gt; \"0.0.0.0\",<xhtml:br/>\n\t\t\t\t\t  port           =&gt; \"9100\",<xhtml:br/>\n\t\t\t\t\t  code_tag       =&gt; \"SIGNING_SERVER\",<xhtml:br/>\n\t\t\t\t\t  </xhtml:div>\n\t\t\t\t\t  }<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>The Puppet code snippet is used to provision a signing server that will use 0.0.0.0 to accept traffic. However, as 0.0.0.0 is unrestricted, malicious users may use this IP address to launch frequent requests and cause denial of service attacks.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Other\">\n\t\t\t\t\tsigningserver::instance {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t  \"nightly-key-signing-server\":\n\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t  listenaddr     =&gt; \"127.0.0.1\",<xhtml:br/>\n\t\t\t\t\t  port           =&gt; \"9100\",<xhtml:br/>\n\t\t\t\t\t  code_tag       =&gt; \"SIGNING_SERVER\",<xhtml:br/>\n\t\t\t\t\t  </xhtml:div>\n\t\t\t\t\t  }<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-21947",
-      "description": "Desktop manager for Kubernetes and container management binds a service to 0.0.0.0, allowing users on the network to make requests to a dashboard API.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-21947"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1158",
-      "author": [
-        "Akond Rahman",
-        "Md Rayhanur Rahman",
-        "Chris Parnin",
-        "Laurie Williams"
-      ],
-      "title": "Security Smells in Ansible and Chef Scripts: A Replication Study",
-      "url": "https://arxiv.org/pdf/1907.07159.pdf",
-      "publication_year": "2020",
-      "publication_month": "--06",
-      "publication_day": "---20"
-    },
-    {
-      "reference_id": "REF-1159",
-      "author": [
-        "Akond Rahman",
-        "Chris Parnin",
-        "Laurie Williams"
-      ],
-      "title": "The Seven Sins: Security Smells in Infrastructure as Code Scripts",
-      "url": "https://dl.acm.org/doi/10.1109/ICSE.2019.00033",
-      "publication_year": "2019",
-      "publication_month": "--05",
-      "publication": "ICSE '19: Proceedings of the 41st International Conference on Software Engineering",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Akond Rahman",
-      "submission_organization": "Tennessee Technological University",
-      "submission_date": "2020-09-08"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "1"
-  ]
+	"id": "1327",
+	"name": "Binding to an Unrestricted IP Address",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product assigns the address 0.0.0.0 for a database server, a cloud service/instance, or any computing resource that communicates remotely.",
+	"extended_description": "\n\t\t\t\t<xhtml:p>When a server binds to the address 0.0.0.0, it allows connections from every IP address on the local machine, effectively exposing the server to every possible network. This might be much broader access than intended by the developer or administrator, who might only be expecting the server to be reachable from a single interface/network.</xhtml:p>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "668",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Other"
+			}
+		],
+		"technology": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Web Server"
+			},
+			{
+				"class": "Client Server",
+				"prevalence": "Undetermined"
+			},
+			{
+				"class": "Cloud Computing",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "System Configuration"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Amplification"
+			],
+			"likelihood": "High"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"System Configuration"
+			],
+			"description": [
+				"Assign IP addresses that are not 0.0.0.0."
+			],
+			"effectiveness": "High"
+		},
+		{
+			"phase": [
+				"System Configuration"
+			],
+			"description": [
+				"Unwanted connections to the configured server may be denied through a firewall or other packet filtering measures."
+			],
+			"effectiveness": "High",
+			"strategy": "Firewall"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>The following code snippet uses 0.0.0.0 in a Puppet script.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Other\">\n\t\t\t\t\tsigningserver::instance {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t  \"nightly-key-signing-server\":\n\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t  listenaddr     =&gt; \"0.0.0.0\",<xhtml:br/>\n\t\t\t\t\t  port           =&gt; \"9100\",<xhtml:br/>\n\t\t\t\t\t  code_tag       =&gt; \"SIGNING_SERVER\",<xhtml:br/>\n\t\t\t\t\t  </xhtml:div>\n\t\t\t\t\t  }<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>The Puppet code snippet is used to provision a signing server that will use 0.0.0.0 to accept traffic. However, as 0.0.0.0 is unrestricted, malicious users may use this IP address to launch frequent requests and cause denial of service attacks.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Other\">\n\t\t\t\t\tsigningserver::instance {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t  \"nightly-key-signing-server\":\n\t\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t  listenaddr     =&gt; \"127.0.0.1\",<xhtml:br/>\n\t\t\t\t\t  port           =&gt; \"9100\",<xhtml:br/>\n\t\t\t\t\t  code_tag       =&gt; \"SIGNING_SERVER\",<xhtml:br/>\n\t\t\t\t\t  </xhtml:div>\n\t\t\t\t\t  }<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-21947",
+			"description": "Desktop manager for Kubernetes and container management binds a service to 0.0.0.0, allowing users on the network to make requests to a dashboard API.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-21947"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1158",
+			"author": [
+				"Akond Rahman",
+				"Md Rayhanur Rahman",
+				"Chris Parnin",
+				"Laurie Williams"
+			],
+			"title": "Security Smells in Ansible and Chef Scripts: A Replication Study",
+			"url": "https://arxiv.org/pdf/1907.07159.pdf",
+			"publication_year": "2020",
+			"publication_month": "--06",
+			"publication_day": "---20"
+		},
+		{
+			"reference_id": "REF-1159",
+			"author": [
+				"Akond Rahman",
+				"Chris Parnin",
+				"Laurie Williams"
+			],
+			"title": "The Seven Sins: Security Smells in Infrastructure as Code Scripts",
+			"url": "https://dl.acm.org/doi/10.1109/ICSE.2019.00033",
+			"publication_year": "2019",
+			"publication_month": "--05",
+			"publication": "ICSE '19: Proceedings of the 41st International Conference on Software Engineering",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Akond Rahman",
+			"submission_organization": "Tennessee Technological University",
+			"submission_date": "2020-09-08"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"1"
+	]
 }

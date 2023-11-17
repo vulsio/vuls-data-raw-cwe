@@ -1,438 +1,438 @@
 {
-  "id": "193",
-  "name": "Off-by-one Error",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "A product calculates or uses an incorrect maximum or minimum value that is 1 more, or 1 less, than the correct value.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "682",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "682",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "617",
-      "view_id": "1000"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "170",
-      "view_id": "1000"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "119",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Crash, Exit, or Restart",
-        "DoS: Resource Consumption (CPU)",
-        "DoS: Resource Consumption (Memory)",
-        "DoS: Instability"
-      ],
-      "note": "This weakness will generally lead to undefined behavior and therefore crashes. In the case of overflows involving loop index variables, the likelihood of infinite loops is also high."
-    },
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Modify Memory"
-      ],
-      "note": "If the value in question is important to data (as opposed to flow), simple data corruption has occurred. Also, if the wrap around results in other conditions such as buffer overflows, further memory corruption may occur."
-    },
-    {
-      "scope": [
-        "Confidentiality",
-        "Availability",
-        "Access Control"
-      ],
-      "impact": [
-        "Execute Unauthorized Code or Commands",
-        "Bypass Protection Mechanism"
-      ],
-      "note": "This weakness can sometimes trigger buffer overflows which can be used to execute arbitrary code. This is usually outside the scope of a program's implicit security policy."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "When copying character arrays or using character manipulation methods, the correct size parameter must be used to account for the null terminator that needs to be added at the end of the array. Some examples of functions susceptible to this weakness in C include strcpy(), strncpy(), strcat(), strncat(), printf(), sprintf(), scanf() and sscanf()."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-20",
-      "text": "\n               <Intro_Text>The following code allocates memory for a maximum number of widgets. It then gets a user-specified number of widgets, making sure that the user does not request too many. It then initializes the elements of the array using InitializeWidget(). Because the number of widgets can vary for each request, the code inserts a NULL pointer to signify the location of the last widget.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int i;<xhtml:br/>unsigned int numWidgets;<xhtml:br/>Widget **WidgetList;<xhtml:br/>\n                     <xhtml:br/>numWidgets = GetUntrustedSizeValue();<xhtml:br/>if ((numWidgets == 0) || (numWidgets &gt; MAX_NUM_WIDGETS)) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Incorrect number of widgets requested!\");</xhtml:div>}<xhtml:br/>WidgetList = (Widget **)malloc(numWidgets * sizeof(Widget *));<xhtml:br/>printf(\"WidgetList ptr=%p\\n\", WidgetList);<xhtml:br/>for(i=0; i&lt;numWidgets; i++) {<xhtml:div style=\"margin-left:1em;\">WidgetList[i] = InitializeWidget();</xhtml:div>}<xhtml:br/>WidgetList[numWidgets] = NULL;<xhtml:br/>showWidgets(WidgetList);</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, this code contains an off-by-one calculation error (CWE-193). It allocates exactly enough space to contain the specified number of widgets, but it does not include the space for the NULL pointer. As a result, the allocated buffer is smaller than it is supposed to be (CWE-131). So if the user ever requests MAX_NUM_WIDGETS, there is an out-of-bounds write (CWE-787) when the NULL is assigned. Depending on the environment and compilation settings, this could cause memory corruption.</Body_Text>\n            "
-    },
-    {
-      "text": "\n\t      <Intro_Text>In this example, the code does not account for the terminating null character, and it writes one byte beyond the end of the buffer.</Intro_Text>\n\t      <Body_Text>The first call to strncat() appends up to 20 characters plus a terminating null character to fullname[]. There is plenty of allocated space for this, and there is no weakness associated with this first call. However, the second call to strncat() potentially appends another 20 characters. The code does not account for the terminating null character that is automatically added by strncat(). This terminating null character would be written one byte beyond the end of the fullname[] buffer. Therefore an off-by-one error exists with the second strncat() call, as the third argument should be 19.</Body_Text>\n\t      <Example_Code Nature=\"Bad\" Language=\"C\">\n\t\t<xhtml:div>char firstname[20];<xhtml:br/>char lastname[20];<xhtml:br/>char fullname[40];<xhtml:br/><xhtml:br/>fullname[0] = '\\0';<xhtml:br/><xhtml:br/>strncat(fullname, firstname, 20);<xhtml:br/>strncat(fullname, lastname, 20);</xhtml:div>\n\t      </Example_Code>\n\t      <Body_Text>When using a function like strncat() one must leave a free byte at the end of the buffer for a terminating null character, thus avoiding the off-by-one weakness. Additionally, the last argument to strncat() is the number of characters to append, which must be less than the remaining space in the buffer. Be careful not to just use the total size of the buffer.</Body_Text>\n\t      <Example_Code Nature=\"Good\" Language=\"C\">\n\t\t<xhtml:div>char firstname[20];<xhtml:br/>char lastname[20];<xhtml:br/>char fullname[40];<xhtml:br/><xhtml:br/>fullname[0] = '\\0';<xhtml:br/><xhtml:br/>strncat(fullname, firstname, sizeof(fullname)-strlen(fullname)-1);<xhtml:br/>strncat(fullname, lastname, sizeof(fullname)-strlen(fullname)-1);</xhtml:div>\n              </Example_Code>\n\t      "
-    },
-    {
-      "text": "\n               <Intro_Text>The Off-by-one error can also be manifested when reading characters from a character array within a for loop that has an incorrect continuation condition.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define PATH_SIZE 60<xhtml:br/>\n                     <xhtml:br/>char filename[PATH_SIZE];<xhtml:br/>\n                     <xhtml:br/>for(i=0; i&lt;=PATH_SIZE; i++) {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char c = getc();<xhtml:br/>if (c == 'EOF') {<xhtml:div style=\"margin-left:1em;\">filename[i] = '\\0';</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>filename[i] = getc();</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In this case, the correct continuation condition is shown below.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>for(i=0; i&lt;PATH_SIZE; i++) {<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>As another example the Off-by-one error can occur when using the sprintf library function to copy a string variable to a formatted string variable and the original string variable comes from an untrusted source. As in the following example where a local function, setFilename is used to store the value of a filename to a database but first uses sprintf to format the filename. The setFilename function includes an input parameter with the name of the file that is used as the copy source in the sprintf function. The sprintf function will copy the file name to a char array of size 20 and specifies the format of the new variable as 16 characters followed by the file extension .dat.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int setFilename(char *filename) {<xhtml:div style=\"margin-left:1em;\">char name[20];<xhtml:br/>sprintf(name, \"%16s.dat\", filename);<xhtml:br/>int success = saveFormattedFilenameToDB(name);<xhtml:br/>return success;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However this will cause an Off-by-one error if the original filename is exactly 16 characters or larger because the format of 16 characters with the file extension is exactly 20 characters and does not take into account the required null terminator that will be placed at the end of the string.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2003-0252",
-      "description": "Off-by-one error allows remote attackers to cause a denial of service and possibly execute arbitrary code via requests that do not contain newlines.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0252"
-    },
-    {
-      "reference": "CVE-2001-1391",
-      "description": "Off-by-one vulnerability in driver allows users to modify kernel memory.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1391"
-    },
-    {
-      "reference": "CVE-2002-0083",
-      "description": "Off-by-one error allows local users or remote malicious servers to gain privileges.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0083"
-    },
-    {
-      "reference": "CVE-2002-0653",
-      "description": "Off-by-one buffer overflow in function usd by server allows local users to execute arbitrary code as the server user via .htaccess files with long entries.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0653"
-    },
-    {
-      "reference": "CVE-2002-0844",
-      "description": "Off-by-one buffer overflow in version control system allows local users to execute arbitrary code.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0844"
-    },
-    {
-      "reference": "CVE-1999-1568",
-      "description": "Off-by-one error in FTP server allows a remote attacker to cause a denial of service (crash) via a long PORT command.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1568"
-    },
-    {
-      "reference": "CVE-2004-0346",
-      "description": "Off-by-one buffer overflow in FTP server allows local users to gain privileges via a 1024 byte RETR command.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0346"
-    },
-    {
-      "reference": "CVE-2004-0005",
-      "description": "Multiple buffer overflows in chat client allow remote attackers to cause a denial of service and possibly execute arbitrary code.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0005"
-    },
-    {
-      "reference": "CVE-2003-0356",
-      "description": "Multiple off-by-one vulnerabilities in product allow remote attackers to cause a denial of service and possibly execute arbitrary code.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0356"
-    },
-    {
-      "reference": "CVE-2001-1496",
-      "description": "Off-by-one buffer overflow in server allows remote attackers to cause a denial of service and possibly execute arbitrary code.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1496"
-    },
-    {
-      "reference": "CVE-2004-0342",
-      "description": "This is an interesting example that might not be an off-by-one.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0342"
-    },
-    {
-      "reference": "CVE-2001-0609",
-      "description": "An off-by-one enables a terminating null to be overwritten, which causes 2 strings to be merged and enable a format string.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0609"
-    },
-    {
-      "reference": "CVE-2002-1745",
-      "description": "Off-by-one error allows source code disclosure of files with 4 letter extensions that match an accepted 3-letter extension.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1745"
-    },
-    {
-      "reference": "CVE-2002-1816",
-      "description": "Off-by-one buffer overflow.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1816"
-    },
-    {
-      "reference": "CVE-2002-1721",
-      "description": "Off-by-one error causes an snprintf call to overwrite a critical internal variable with a null value.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1721"
-    },
-    {
-      "reference": "CVE-2003-0466",
-      "description": "Off-by-one error in function used in many products leads to a buffer overflow during pathname management, as demonstrated using multiple commands in an FTP server.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0466"
-    },
-    {
-      "reference": "CVE-2003-0625",
-      "description": "Off-by-one error allows read of sensitive memory via a malformed request.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0625"
-    },
-    {
-      "reference": "CVE-2006-4574",
-      "description": "Chain: security monitoring product has an off-by-one error that leads to unexpected length values, triggering an assertion.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4574"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-155",
-      "author": [
-        "Halvar Flake"
-      ],
-      "title": "Third Generation Exploits",
-      "url": "https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fwww.blackhat.com%2Fpresentations%2Fbh-europe-01%2Fhalvar-flake%2Fbh-europe-01-halvarflake.ppt&wdOrigin=BROWSELINK",
-      "publication": "presentation at Black Hat Europe 2001",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-156",
-      "author": [
-        "Steve Christey"
-      ],
-      "title": "Off-by-one errors: a brief explanation",
-      "url": "http://marc.info/?l=secprog&m=108379742110553&w=2",
-      "publication_year": "2004",
-      "publication_month": "--05",
-      "publication_day": "---05",
-      "publication": "Secprog and SC-L mailing list posts"
-    },
-    {
-      "reference_id": "REF-157",
-      "author": [
-        "klog"
-      ],
-      "title": "The Frame Pointer Overwrite",
-      "url": "https://kaizo.org/mirrors/phrack/phrack55/P55-08",
-      "publication_year": "1999",
-      "publication_month": "--09",
-      "publication_day": "---09",
-      "publication": "Phrack Issue 55, Chapter 8",
-      "url_date": "2023-04-07"
-    },
-    {
-      "section": "Chapter 7, \"Buffer Overflow\"",
-      "reference_id": "REF-140",
-      "author": [
-        "Greg Hoglund",
-        "Gary McGraw"
-      ],
-      "title": "Exploiting Software: How to Break Code",
-      "url": "https://www.amazon.com/Exploiting-Software-How-Break-Code/dp/0201786958",
-      "publication_year": "2004",
-      "publication_month": "--02",
-      "publication_day": "---27",
-      "publisher": "Addison-Wesley",
-      "url_date": "2023-04-07"
-    },
-    {
-      "section": "\"Sin 5: Buffer Overruns.\" Page 89",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    },
-    {
-      "section": "Chapter 5, \"Off-by-One Errors\", Page 180",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Alternate_Terms, Common_Consequences, Relationships, Observed_Example, Relationship_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Observed_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-05-03",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, References, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Research_Gaps"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "off-by-five",
-      "description": "An \"off-by-five\" error was reported for sudo in 2002 (CVE-2002-0184), but that is more like a \"length calculation\" error."
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Off-by-one Error"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Guarantee that storage for strings has sufficient space for character data and the null terminator",
-      "entry_id": "STR31-C"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "This is not always a buffer overflow. For example, an off-by-one error could be a factor in a partial comparison, a read from the wrong memory location, an incorrect conditional, etc."
-    }
-  ]
+	"id": "193",
+	"name": "Off-by-one Error",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "A product calculates or uses an incorrect maximum or minimum value that is 1 more, or 1 less, than the correct value.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "682",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "682",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "617",
+			"view_id": "1000"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "170",
+			"view_id": "1000"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "119",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart",
+				"DoS: Resource Consumption (CPU)",
+				"DoS: Resource Consumption (Memory)",
+				"DoS: Instability"
+			],
+			"note": "This weakness will generally lead to undefined behavior and therefore crashes. In the case of overflows involving loop index variables, the likelihood of infinite loops is also high."
+		},
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Modify Memory"
+			],
+			"note": "If the value in question is important to data (as opposed to flow), simple data corruption has occurred. Also, if the wrap around results in other conditions such as buffer overflows, further memory corruption may occur."
+		},
+		{
+			"scope": [
+				"Confidentiality",
+				"Availability",
+				"Access Control"
+			],
+			"impact": [
+				"Execute Unauthorized Code or Commands",
+				"Bypass Protection Mechanism"
+			],
+			"note": "This weakness can sometimes trigger buffer overflows which can be used to execute arbitrary code. This is usually outside the scope of a program's implicit security policy."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"When copying character arrays or using character manipulation methods, the correct size parameter must be used to account for the null terminator that needs to be added at the end of the array. Some examples of functions susceptible to this weakness in C include strcpy(), strncpy(), strcat(), strncat(), printf(), sprintf(), scanf() and sscanf()."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-20",
+			"text": "\n               <Intro_Text>The following code allocates memory for a maximum number of widgets. It then gets a user-specified number of widgets, making sure that the user does not request too many. It then initializes the elements of the array using InitializeWidget(). Because the number of widgets can vary for each request, the code inserts a NULL pointer to signify the location of the last widget.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int i;<xhtml:br/>unsigned int numWidgets;<xhtml:br/>Widget **WidgetList;<xhtml:br/>\n                     <xhtml:br/>numWidgets = GetUntrustedSizeValue();<xhtml:br/>if ((numWidgets == 0) || (numWidgets &gt; MAX_NUM_WIDGETS)) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Incorrect number of widgets requested!\");</xhtml:div>}<xhtml:br/>WidgetList = (Widget **)malloc(numWidgets * sizeof(Widget *));<xhtml:br/>printf(\"WidgetList ptr=%p\\n\", WidgetList);<xhtml:br/>for(i=0; i&lt;numWidgets; i++) {<xhtml:div style=\"margin-left:1em;\">WidgetList[i] = InitializeWidget();</xhtml:div>}<xhtml:br/>WidgetList[numWidgets] = NULL;<xhtml:br/>showWidgets(WidgetList);</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, this code contains an off-by-one calculation error (CWE-193). It allocates exactly enough space to contain the specified number of widgets, but it does not include the space for the NULL pointer. As a result, the allocated buffer is smaller than it is supposed to be (CWE-131). So if the user ever requests MAX_NUM_WIDGETS, there is an out-of-bounds write (CWE-787) when the NULL is assigned. Depending on the environment and compilation settings, this could cause memory corruption.</Body_Text>\n            "
+		},
+		{
+			"text": "\n\t      <Intro_Text>In this example, the code does not account for the terminating null character, and it writes one byte beyond the end of the buffer.</Intro_Text>\n\t      <Body_Text>The first call to strncat() appends up to 20 characters plus a terminating null character to fullname[]. There is plenty of allocated space for this, and there is no weakness associated with this first call. However, the second call to strncat() potentially appends another 20 characters. The code does not account for the terminating null character that is automatically added by strncat(). This terminating null character would be written one byte beyond the end of the fullname[] buffer. Therefore an off-by-one error exists with the second strncat() call, as the third argument should be 19.</Body_Text>\n\t      <Example_Code Nature=\"Bad\" Language=\"C\">\n\t\t<xhtml:div>char firstname[20];<xhtml:br/>char lastname[20];<xhtml:br/>char fullname[40];<xhtml:br/><xhtml:br/>fullname[0] = '\\0';<xhtml:br/><xhtml:br/>strncat(fullname, firstname, 20);<xhtml:br/>strncat(fullname, lastname, 20);</xhtml:div>\n\t      </Example_Code>\n\t      <Body_Text>When using a function like strncat() one must leave a free byte at the end of the buffer for a terminating null character, thus avoiding the off-by-one weakness. Additionally, the last argument to strncat() is the number of characters to append, which must be less than the remaining space in the buffer. Be careful not to just use the total size of the buffer.</Body_Text>\n\t      <Example_Code Nature=\"Good\" Language=\"C\">\n\t\t<xhtml:div>char firstname[20];<xhtml:br/>char lastname[20];<xhtml:br/>char fullname[40];<xhtml:br/><xhtml:br/>fullname[0] = '\\0';<xhtml:br/><xhtml:br/>strncat(fullname, firstname, sizeof(fullname)-strlen(fullname)-1);<xhtml:br/>strncat(fullname, lastname, sizeof(fullname)-strlen(fullname)-1);</xhtml:div>\n              </Example_Code>\n\t      "
+		},
+		{
+			"text": "\n               <Intro_Text>The Off-by-one error can also be manifested when reading characters from a character array within a for loop that has an incorrect continuation condition.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define PATH_SIZE 60<xhtml:br/>\n                     <xhtml:br/>char filename[PATH_SIZE];<xhtml:br/>\n                     <xhtml:br/>for(i=0; i&lt;=PATH_SIZE; i++) {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char c = getc();<xhtml:br/>if (c == 'EOF') {<xhtml:div style=\"margin-left:1em;\">filename[i] = '\\0';</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>filename[i] = getc();</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In this case, the correct continuation condition is shown below.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>for(i=0; i&lt;PATH_SIZE; i++) {<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>As another example the Off-by-one error can occur when using the sprintf library function to copy a string variable to a formatted string variable and the original string variable comes from an untrusted source. As in the following example where a local function, setFilename is used to store the value of a filename to a database but first uses sprintf to format the filename. The setFilename function includes an input parameter with the name of the file that is used as the copy source in the sprintf function. The sprintf function will copy the file name to a char array of size 20 and specifies the format of the new variable as 16 characters followed by the file extension .dat.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int setFilename(char *filename) {<xhtml:div style=\"margin-left:1em;\">char name[20];<xhtml:br/>sprintf(name, \"%16s.dat\", filename);<xhtml:br/>int success = saveFormattedFilenameToDB(name);<xhtml:br/>return success;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However this will cause an Off-by-one error if the original filename is exactly 16 characters or larger because the format of 16 characters with the file extension is exactly 20 characters and does not take into account the required null terminator that will be placed at the end of the string.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2003-0252",
+			"description": "Off-by-one error allows remote attackers to cause a denial of service and possibly execute arbitrary code via requests that do not contain newlines.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0252"
+		},
+		{
+			"reference": "CVE-2001-1391",
+			"description": "Off-by-one vulnerability in driver allows users to modify kernel memory.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1391"
+		},
+		{
+			"reference": "CVE-2002-0083",
+			"description": "Off-by-one error allows local users or remote malicious servers to gain privileges.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0083"
+		},
+		{
+			"reference": "CVE-2002-0653",
+			"description": "Off-by-one buffer overflow in function usd by server allows local users to execute arbitrary code as the server user via .htaccess files with long entries.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0653"
+		},
+		{
+			"reference": "CVE-2002-0844",
+			"description": "Off-by-one buffer overflow in version control system allows local users to execute arbitrary code.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0844"
+		},
+		{
+			"reference": "CVE-1999-1568",
+			"description": "Off-by-one error in FTP server allows a remote attacker to cause a denial of service (crash) via a long PORT command.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-1568"
+		},
+		{
+			"reference": "CVE-2004-0346",
+			"description": "Off-by-one buffer overflow in FTP server allows local users to gain privileges via a 1024 byte RETR command.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0346"
+		},
+		{
+			"reference": "CVE-2004-0005",
+			"description": "Multiple buffer overflows in chat client allow remote attackers to cause a denial of service and possibly execute arbitrary code.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0005"
+		},
+		{
+			"reference": "CVE-2003-0356",
+			"description": "Multiple off-by-one vulnerabilities in product allow remote attackers to cause a denial of service and possibly execute arbitrary code.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0356"
+		},
+		{
+			"reference": "CVE-2001-1496",
+			"description": "Off-by-one buffer overflow in server allows remote attackers to cause a denial of service and possibly execute arbitrary code.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1496"
+		},
+		{
+			"reference": "CVE-2004-0342",
+			"description": "This is an interesting example that might not be an off-by-one.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0342"
+		},
+		{
+			"reference": "CVE-2001-0609",
+			"description": "An off-by-one enables a terminating null to be overwritten, which causes 2 strings to be merged and enable a format string.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0609"
+		},
+		{
+			"reference": "CVE-2002-1745",
+			"description": "Off-by-one error allows source code disclosure of files with 4 letter extensions that match an accepted 3-letter extension.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1745"
+		},
+		{
+			"reference": "CVE-2002-1816",
+			"description": "Off-by-one buffer overflow.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1816"
+		},
+		{
+			"reference": "CVE-2002-1721",
+			"description": "Off-by-one error causes an snprintf call to overwrite a critical internal variable with a null value.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1721"
+		},
+		{
+			"reference": "CVE-2003-0466",
+			"description": "Off-by-one error in function used in many products leads to a buffer overflow during pathname management, as demonstrated using multiple commands in an FTP server.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0466"
+		},
+		{
+			"reference": "CVE-2003-0625",
+			"description": "Off-by-one error allows read of sensitive memory via a malformed request.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0625"
+		},
+		{
+			"reference": "CVE-2006-4574",
+			"description": "Chain: security monitoring product has an off-by-one error that leads to unexpected length values, triggering an assertion.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-4574"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-155",
+			"author": [
+				"Halvar Flake"
+			],
+			"title": "Third Generation Exploits",
+			"url": "https://view.officeapps.live.com/op/view.aspx?src=https%3A%2F%2Fwww.blackhat.com%2Fpresentations%2Fbh-europe-01%2Fhalvar-flake%2Fbh-europe-01-halvarflake.ppt&wdOrigin=BROWSELINK",
+			"publication": "presentation at Black Hat Europe 2001",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-156",
+			"author": [
+				"Steve Christey"
+			],
+			"title": "Off-by-one errors: a brief explanation",
+			"url": "http://marc.info/?l=secprog&m=108379742110553&w=2",
+			"publication_year": "2004",
+			"publication_month": "--05",
+			"publication_day": "---05",
+			"publication": "Secprog and SC-L mailing list posts"
+		},
+		{
+			"reference_id": "REF-157",
+			"author": [
+				"klog"
+			],
+			"title": "The Frame Pointer Overwrite",
+			"url": "https://kaizo.org/mirrors/phrack/phrack55/P55-08",
+			"publication_year": "1999",
+			"publication_month": "--09",
+			"publication_day": "---09",
+			"publication": "Phrack Issue 55, Chapter 8",
+			"url_date": "2023-04-07"
+		},
+		{
+			"section": "Chapter 7, \"Buffer Overflow\"",
+			"reference_id": "REF-140",
+			"author": [
+				"Greg Hoglund",
+				"Gary McGraw"
+			],
+			"title": "Exploiting Software: How to Break Code",
+			"url": "https://www.amazon.com/Exploiting-Software-How-Break-Code/dp/0201786958",
+			"publication_year": "2004",
+			"publication_month": "--02",
+			"publication_day": "---27",
+			"publisher": "Addison-Wesley",
+			"url_date": "2023-04-07"
+		},
+		{
+			"section": "\"Sin 5: Buffer Overruns.\" Page 89",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		},
+		{
+			"section": "Chapter 5, \"Off-by-One Errors\", Page 180",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Alternate_Terms, Common_Consequences, Relationships, Observed_Example, Relationship_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Observed_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-05-03",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, References, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Research_Gaps"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "off-by-five",
+			"description": "An \"off-by-five\" error was reported for sudo in 2002 (CVE-2002-0184), but that is more like a \"length calculation\" error."
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Off-by-one Error"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Guarantee that storage for strings has sufficient space for character data and the null terminator",
+			"entry_id": "STR31-C"
+		}
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "This is not always a buffer overflow. For example, an off-by-one error could be a factor in a partial comparison, a read from the wrong memory location, an incorrect conditional, etc."
+		}
+	]
 }

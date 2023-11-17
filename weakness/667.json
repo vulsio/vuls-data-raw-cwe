@@ -1,461 +1,461 @@
 {
-  "id": "667",
-  "name": "Improper Locking",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not properly acquire or release a lock on a resource, leading to unexpected resource state changes and behaviors.",
-  "extended_description": "\n\t   <xhtml:p>Locking is a type of synchronization behavior that ensures that multiple independently-operating processes or threads do not interfere with each other when accessing the same resource. All processes/threads are expected to follow the same steps for locking. If these steps are not followed precisely - or if no locking is done at all - then another process/thread could modify the shared resource in a way that is not visible or predictable to the original process.  This can lead to data or memory corruption, denial of service, etc.</xhtml:p>",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "662",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "662",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "662",
-      "view_id": "1305",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "662",
-      "view_id": "1340",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Resource Consumption (CPU)"
-      ],
-      "note": "Inconsistent locking discipline can lead to deadlock."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Use industry standard APIs to implement locking mechanism."
-      ],
-      "strategy": "Libraries or Frameworks"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the following Java snippet, methods are defined to get and set a long field in an instance of a class that is shared across multiple threads. Because operations on double and long are nonatomic in Java, concurrent access may cause unexpected behavior. Thus, all operations on long and double fields should be synchronized.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>private long someLongValue;<xhtml:br/>public long getLongValue() {<xhtml:div style=\"margin-left:1em;\">return someLongValue;</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>public void setLongValue(long l) {<xhtml:div style=\"margin-left:1em;\">someLongValue = l;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-69",
-      "text": "\n               <Intro_Text>This code tries to obtain a lock for a file, then writes to it.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function writeToLog($message){<xhtml:div style=\"margin-left:1em;\">$logfile = fopen(\"logFile.log\", \"a\");<xhtml:br/>\n                        <xhtml:i>//attempt to get logfile lock</xhtml:i>\n                        <xhtml:br/>if (flock($logfile, LOCK_EX)) {<xhtml:div style=\"margin-left:1em;\">fwrite($logfile,$message);<xhtml:br/>\n                           <xhtml:i>// unlock logfile</xhtml:i>\n                           <xhtml:br/>flock($logfile, LOCK_UN);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">print \"Could not obtain lock on logFile.log, message not recorded\\n\";</xhtml:div>}</xhtml:div>}<xhtml:br/>fclose($logFile);</xhtml:div>\n               </Example_Code>\n               <Body_Text>PHP by default will wait indefinitely until a file lock is released. If an attacker is able to obtain the file lock, this code will pause execution, possibly leading to denial of service for other users. Note that in this case, if an attacker can perform an flock() on the file, they may already have privileges to destroy the log file. However, this still impacts the execution of other programs that depend on flock().</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-24",
-      "text": "\n               <Intro_Text>The following function attempts to acquire a lock in order to perform operations on a shared resource.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void f(pthread_mutex_t *mutex) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>pthread_mutex_lock(mutex);<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* access shared resource */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:br/>pthread_mutex_unlock(mutex);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the code does not check the value returned by pthread_mutex_lock() for errors. If pthread_mutex_lock() cannot acquire the mutex for any reason, the function may introduce a race condition into the program and result in undefined behavior.</Body_Text>\n               <Body_Text>In order to avoid data races, correctly written programs must check the result of thread synchronization functions and appropriately handle all errors, either by attempting to recover from them or reporting them to higher levels.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>int f(pthread_mutex_t *mutex) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int result;<xhtml:br/>\n                           <xhtml:br/>result = pthread_mutex_lock(mutex);<xhtml:br/>if (0 != result)<xhtml:div style=\"margin-left:1em;\">return result;</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* access shared resource */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:br/>return pthread_mutex_unlock(mutex);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-70",
-      "text": "\n               <Intro_Text>It may seem that the following bit of code achieves thread safety while avoiding unnecessary synchronization...</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>if (helper == null) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>synchronized (this) {<xhtml:div style=\"margin-left:1em;\">if (helper == null) {<xhtml:div style=\"margin-left:1em;\">helper = new Helper();</xhtml:div>}</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>return helper;</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer wants to guarantee that only one Helper() object is ever allocated, but does not want to pay the cost of synchronization every time this code is called.</Body_Text>\n               <Body_Text>Suppose that helper is not initialized. Then, thread A sees that helper==null and enters the synchronized block and begins to execute:</Body_Text>\n               <Example_Code Nature=\"Bad\">\n                  <xhtml:div>helper = new Helper();</xhtml:div>\n               </Example_Code>\n               <Body_Text>If a second thread, thread B, takes over in the middle of this call and helper has not finished running the constructor, then thread B may make calls on helper while its fields hold incorrect values.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2021-1782",
-      "description": "Chain: improper locking (CWE-667) leads to race condition (CWE-362), as exploited in the wild per CISA KEV.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-1782"
-    },
-    {
-      "reference": "CVE-2009-0935",
-      "description": "Attacker provides invalid address to a memory-reading function, causing a mutex to be unlocked twice",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0935"
-    },
-    {
-      "reference": "CVE-2010-4210",
-      "description": "function in OS kernel unlocks a mutex that was not previously locked, causing a panic or overwrite of arbitrary memory.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2010-4210"
-    },
-    {
-      "reference": "CVE-2008-4302",
-      "description": "Chain: OS kernel does not properly handle a failure of a function call (CWE-755), leading to an unlock of a resource that was not locked (CWE-832), with resultant crash.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4302"
-    },
-    {
-      "reference": "CVE-2009-1243",
-      "description": "OS kernel performs an unlock in some incorrect circumstances, leading to panic.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1243"
-    },
-    {
-      "reference": "CVE-2009-2857",
-      "description": "OS deadlock",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2857"
-    },
-    {
-      "reference": "CVE-2009-1961",
-      "description": "OS deadlock involving 3 separate functions",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1961"
-    },
-    {
-      "reference": "CVE-2009-2699",
-      "description": "deadlock in library",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2699"
-    },
-    {
-      "reference": "CVE-2009-4272",
-      "description": "deadlock triggered by packets that force collisions in a routing table",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-4272"
-    },
-    {
-      "reference": "CVE-2002-1850",
-      "description": "read/write deadlock between web server and script",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1850"
-    },
-    {
-      "reference": "CVE-2004-0174",
-      "description": "web server deadlock involving multiple listening connections",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0174"
-    },
-    {
-      "reference": "CVE-2009-1388",
-      "description": "multiple simultaneous calls to the same function trigger deadlock.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1388"
-    },
-    {
-      "reference": "CVE-2006-5158",
-      "description": "chain: other weakness leads to NULL pointer dereference (CWE-476) or deadlock (CWE-833).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-5158"
-    },
-    {
-      "reference": "CVE-2006-4342",
-      "description": "deadlock when an operation is performed on a resource while it is being removed.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4342"
-    },
-    {
-      "reference": "CVE-2006-2374",
-      "description": "Deadlock in device driver triggered by using file handle of a related device.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-2374"
-    },
-    {
-      "reference": "CVE-2006-2275",
-      "description": "Deadlock when large number of small messages cannot be processed quickly enough.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-2275"
-    },
-    {
-      "reference": "CVE-2005-3847",
-      "description": "OS kernel has deadlock triggered by a signal during a core dump.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3847"
-    },
-    {
-      "reference": "CVE-2005-3106",
-      "description": "Race condition leads to deadlock.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3106"
-    },
-    {
-      "reference": "CVE-2005-2456",
-      "description": "Chain: array index error (CWE-129) leads to deadlock (CWE-833)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2456"
-    },
-    {
-      "reference": "CVE-2001-0682",
-      "description": "Program can not execute when attacker obtains a mutex.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0682"
-    },
-    {
-      "reference": "CVE-2002-1914",
-      "description": "Program can not execute when attacker obtains a lock on a critical output file.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1914"
-    },
-    {
-      "reference": "CVE-2002-1915",
-      "description": "Program can not execute when attacker obtains a lock on a critical output file.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1915"
-    },
-    {
-      "reference": "CVE-2002-0051",
-      "description": "Critical file can be opened with exclusive read access by user, preventing application of security policy. Possibly related to improper permissions, large-window race condition.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0051"
-    },
-    {
-      "reference": "CVE-2000-0338",
-      "description": "Chain: predictable file names used for locking, allowing attacker to create the lock beforehand. Resultant from permissions and randomness.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0338"
-    },
-    {
-      "reference": "CVE-2000-1198",
-      "description": "Chain: Lock files with predictable names. Resultant from randomness.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-1198"
-    },
-    {
-      "reference": "CVE-2002-1869",
-      "description": "Product does not check if it can write to a log file, allowing attackers to avoid logging by accessing the file using an exclusive lock. Overlaps unchecked error condition. This is not quite CWE-412, but close.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1869"
-    }
-  ],
-  "references": [
-    {
-      "section": "ASCSM-CWE-667",
-      "reference_id": "REF-962",
-      "author": [
-        "Object Management Group (OMG)"
-      ],
-      "title": "Automated Source Code Security Measure (ASCSM)",
-      "url": "http://www.omg.org/spec/ASCSM/1.0/",
-      "publication_year": "2016",
-      "publication_month": "--01"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2008-04-11"
-    },
-    "modification": [
-      {
-        "modification_name": "Sean Eidemiller",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "added/updated demonstrative examples"
-      },
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Description, Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-05-03",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-23",
-        "modification_comment": "updated Description, Maintenance_Notes, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Insufficient Locking",
-        "date": "2010-12-13"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not destroy a mutex while it is locked",
-      "entry_id": "CON31-C",
-      "mapping_fit": "CWE More Abstract"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not unlock or destroy another POSIX thread's mutex",
-      "entry_id": "POS48-C",
-      "mapping_fit": "CWE More Abstract"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Ensure visibility when accessing shared primitive variables",
-      "entry_id": "VNA00-J"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Ensure that compound operations on shared variables are atomic",
-      "entry_id": "VNA02-J"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Ensure atomicity when reading and writing 64-bit values",
-      "entry_id": "VNA05-J"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not use an instance lock to protect shared static data",
-      "entry_id": "LCK06-J"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Missing Lock",
-      "entry_id": "SFP19"
-    },
-    {
-      "taxonomy_name": "OMG ASCSM",
-      "entry_id": "ASCSM-CWE-667"
-    }
-  ],
-  "related_attack_patterns": [
-    "25",
-    "26",
-    "27"
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "Deeper research is necessary for synchronization and related mechanisms, including locks, mutexes, semaphores, and other mechanisms. Multiple entries are dependent on this research, which includes relationships to concurrency, race conditions, reentrant functions, etc.  CWE-662 and its children - including CWE-667, CWE-820, CWE-821, and others - may need to be modified significantly, along with their relationships."
-    }
-  ]
+	"id": "667",
+	"name": "Improper Locking",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not properly acquire or release a lock on a resource, leading to unexpected resource state changes and behaviors.",
+	"extended_description": "\n\t   <xhtml:p>Locking is a type of synchronization behavior that ensures that multiple independently-operating processes or threads do not interfere with each other when accessing the same resource. All processes/threads are expected to follow the same steps for locking. If these steps are not followed precisely - or if no locking is done at all - then another process/thread could modify the shared resource in a way that is not visible or predictable to the original process.  This can lead to data or memory corruption, denial of service, etc.</xhtml:p>",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "662",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "662",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "662",
+			"view_id": "1305",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "662",
+			"view_id": "1340",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Resource Consumption (CPU)"
+			],
+			"note": "Inconsistent locking discipline can lead to deadlock."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Use industry standard APIs to implement locking mechanism."
+			],
+			"strategy": "Libraries or Frameworks"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the following Java snippet, methods are defined to get and set a long field in an instance of a class that is shared across multiple threads. Because operations on double and long are nonatomic in Java, concurrent access may cause unexpected behavior. Thus, all operations on long and double fields should be synchronized.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>private long someLongValue;<xhtml:br/>public long getLongValue() {<xhtml:div style=\"margin-left:1em;\">return someLongValue;</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>public void setLongValue(long l) {<xhtml:div style=\"margin-left:1em;\">someLongValue = l;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-69",
+			"text": "\n               <Intro_Text>This code tries to obtain a lock for a file, then writes to it.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function writeToLog($message){<xhtml:div style=\"margin-left:1em;\">$logfile = fopen(\"logFile.log\", \"a\");<xhtml:br/>\n                        <xhtml:i>//attempt to get logfile lock</xhtml:i>\n                        <xhtml:br/>if (flock($logfile, LOCK_EX)) {<xhtml:div style=\"margin-left:1em;\">fwrite($logfile,$message);<xhtml:br/>\n                           <xhtml:i>// unlock logfile</xhtml:i>\n                           <xhtml:br/>flock($logfile, LOCK_UN);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">print \"Could not obtain lock on logFile.log, message not recorded\\n\";</xhtml:div>}</xhtml:div>}<xhtml:br/>fclose($logFile);</xhtml:div>\n               </Example_Code>\n               <Body_Text>PHP by default will wait indefinitely until a file lock is released. If an attacker is able to obtain the file lock, this code will pause execution, possibly leading to denial of service for other users. Note that in this case, if an attacker can perform an flock() on the file, they may already have privileges to destroy the log file. However, this still impacts the execution of other programs that depend on flock().</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-24",
+			"text": "\n               <Intro_Text>The following function attempts to acquire a lock in order to perform operations on a shared resource.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void f(pthread_mutex_t *mutex) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>pthread_mutex_lock(mutex);<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* access shared resource */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:br/>pthread_mutex_unlock(mutex);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the code does not check the value returned by pthread_mutex_lock() for errors. If pthread_mutex_lock() cannot acquire the mutex for any reason, the function may introduce a race condition into the program and result in undefined behavior.</Body_Text>\n               <Body_Text>In order to avoid data races, correctly written programs must check the result of thread synchronization functions and appropriately handle all errors, either by attempting to recover from them or reporting them to higher levels.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>int f(pthread_mutex_t *mutex) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int result;<xhtml:br/>\n                           <xhtml:br/>result = pthread_mutex_lock(mutex);<xhtml:br/>if (0 != result)<xhtml:div style=\"margin-left:1em;\">return result;</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* access shared resource */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:br/>return pthread_mutex_unlock(mutex);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-70",
+			"text": "\n               <Intro_Text>It may seem that the following bit of code achieves thread safety while avoiding unnecessary synchronization...</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>if (helper == null) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>synchronized (this) {<xhtml:div style=\"margin-left:1em;\">if (helper == null) {<xhtml:div style=\"margin-left:1em;\">helper = new Helper();</xhtml:div>}</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>return helper;</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer wants to guarantee that only one Helper() object is ever allocated, but does not want to pay the cost of synchronization every time this code is called.</Body_Text>\n               <Body_Text>Suppose that helper is not initialized. Then, thread A sees that helper==null and enters the synchronized block and begins to execute:</Body_Text>\n               <Example_Code Nature=\"Bad\">\n                  <xhtml:div>helper = new Helper();</xhtml:div>\n               </Example_Code>\n               <Body_Text>If a second thread, thread B, takes over in the middle of this call and helper has not finished running the constructor, then thread B may make calls on helper while its fields hold incorrect values.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2021-1782",
+			"description": "Chain: improper locking (CWE-667) leads to race condition (CWE-362), as exploited in the wild per CISA KEV.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-1782"
+		},
+		{
+			"reference": "CVE-2009-0935",
+			"description": "Attacker provides invalid address to a memory-reading function, causing a mutex to be unlocked twice",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-0935"
+		},
+		{
+			"reference": "CVE-2010-4210",
+			"description": "function in OS kernel unlocks a mutex that was not previously locked, causing a panic or overwrite of arbitrary memory.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2010-4210"
+		},
+		{
+			"reference": "CVE-2008-4302",
+			"description": "Chain: OS kernel does not properly handle a failure of a function call (CWE-755), leading to an unlock of a resource that was not locked (CWE-832), with resultant crash.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-4302"
+		},
+		{
+			"reference": "CVE-2009-1243",
+			"description": "OS kernel performs an unlock in some incorrect circumstances, leading to panic.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-1243"
+		},
+		{
+			"reference": "CVE-2009-2857",
+			"description": "OS deadlock",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2857"
+		},
+		{
+			"reference": "CVE-2009-1961",
+			"description": "OS deadlock involving 3 separate functions",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-1961"
+		},
+		{
+			"reference": "CVE-2009-2699",
+			"description": "deadlock in library",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2699"
+		},
+		{
+			"reference": "CVE-2009-4272",
+			"description": "deadlock triggered by packets that force collisions in a routing table",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-4272"
+		},
+		{
+			"reference": "CVE-2002-1850",
+			"description": "read/write deadlock between web server and script",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1850"
+		},
+		{
+			"reference": "CVE-2004-0174",
+			"description": "web server deadlock involving multiple listening connections",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0174"
+		},
+		{
+			"reference": "CVE-2009-1388",
+			"description": "multiple simultaneous calls to the same function trigger deadlock.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-1388"
+		},
+		{
+			"reference": "CVE-2006-5158",
+			"description": "chain: other weakness leads to NULL pointer dereference (CWE-476) or deadlock (CWE-833).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-5158"
+		},
+		{
+			"reference": "CVE-2006-4342",
+			"description": "deadlock when an operation is performed on a resource while it is being removed.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-4342"
+		},
+		{
+			"reference": "CVE-2006-2374",
+			"description": "Deadlock in device driver triggered by using file handle of a related device.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-2374"
+		},
+		{
+			"reference": "CVE-2006-2275",
+			"description": "Deadlock when large number of small messages cannot be processed quickly enough.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-2275"
+		},
+		{
+			"reference": "CVE-2005-3847",
+			"description": "OS kernel has deadlock triggered by a signal during a core dump.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3847"
+		},
+		{
+			"reference": "CVE-2005-3106",
+			"description": "Race condition leads to deadlock.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3106"
+		},
+		{
+			"reference": "CVE-2005-2456",
+			"description": "Chain: array index error (CWE-129) leads to deadlock (CWE-833)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2456"
+		},
+		{
+			"reference": "CVE-2001-0682",
+			"description": "Program can not execute when attacker obtains a mutex.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0682"
+		},
+		{
+			"reference": "CVE-2002-1914",
+			"description": "Program can not execute when attacker obtains a lock on a critical output file.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1914"
+		},
+		{
+			"reference": "CVE-2002-1915",
+			"description": "Program can not execute when attacker obtains a lock on a critical output file.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1915"
+		},
+		{
+			"reference": "CVE-2002-0051",
+			"description": "Critical file can be opened with exclusive read access by user, preventing application of security policy. Possibly related to improper permissions, large-window race condition.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0051"
+		},
+		{
+			"reference": "CVE-2000-0338",
+			"description": "Chain: predictable file names used for locking, allowing attacker to create the lock beforehand. Resultant from permissions and randomness.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0338"
+		},
+		{
+			"reference": "CVE-2000-1198",
+			"description": "Chain: Lock files with predictable names. Resultant from randomness.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-1198"
+		},
+		{
+			"reference": "CVE-2002-1869",
+			"description": "Product does not check if it can write to a log file, allowing attackers to avoid logging by accessing the file using an exclusive lock. Overlaps unchecked error condition. This is not quite CWE-412, but close.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1869"
+		}
+	],
+	"references": [
+		{
+			"section": "ASCSM-CWE-667",
+			"reference_id": "REF-962",
+			"author": [
+				"Object Management Group (OMG)"
+			],
+			"title": "Automated Source Code Security Measure (ASCSM)",
+			"url": "http://www.omg.org/spec/ASCSM/1.0/",
+			"publication_year": "2016",
+			"publication_month": "--01"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2008-04-11"
+		},
+		"modification": [
+			{
+				"modification_name": "Sean Eidemiller",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "added/updated demonstrative examples"
+			},
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Description, Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-05-03",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-23",
+				"modification_comment": "updated Description, Maintenance_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Insufficient Locking",
+				"date": "2010-12-13"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not destroy a mutex while it is locked",
+			"entry_id": "CON31-C",
+			"mapping_fit": "CWE More Abstract"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not unlock or destroy another POSIX thread's mutex",
+			"entry_id": "POS48-C",
+			"mapping_fit": "CWE More Abstract"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Ensure visibility when accessing shared primitive variables",
+			"entry_id": "VNA00-J"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Ensure that compound operations on shared variables are atomic",
+			"entry_id": "VNA02-J"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Ensure atomicity when reading and writing 64-bit values",
+			"entry_id": "VNA05-J"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not use an instance lock to protect shared static data",
+			"entry_id": "LCK06-J"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Missing Lock",
+			"entry_id": "SFP19"
+		},
+		{
+			"taxonomy_name": "OMG ASCSM",
+			"entry_id": "ASCSM-CWE-667"
+		}
+	],
+	"related_attack_patterns": [
+		"25",
+		"26",
+		"27"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "Deeper research is necessary for synchronization and related mechanisms, including locks, mutexes, semaphores, and other mechanisms. Multiple entries are dependent on this research, which includes relationships to concurrency, race conditions, reentrant functions, etc.  CWE-662 and its children - including CWE-667, CWE-820, CWE-821, and others - may need to be modified significantly, along with their relationships."
+		}
+	]
 }

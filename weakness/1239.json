@@ -1,160 +1,160 @@
 {
-  "id": "1239",
-  "name": "Improper Zeroization of Hardware Register",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The hardware product does not properly clear sensitive information from built-in registers when the user of the hardware block changes.",
-  "extended_description": "Hardware logic operates on data stored in registers local to the hardware block. Most hardware IPs, including cryptographic accelerators, rely on registers to buffer I/O, store intermediate values, and interface with software. The result of this is that sensitive information, such as passwords or encryption keys, can exist in locations not transparent to the user of the hardware logic. When a different entity obtains access to the IP due to a change in operating mode or conditions, the new entity can extract information belonging to the previous user if no mechanisms are in place to clear register contents. It is important to clear information stored in the hardware if a physical attack on the product is detected, or if the user of the hardware block changes. The process of clearing register contents in a hardware IP is referred to as zeroization in standards for cryptographic hardware modules such as FIPS-140-2 [REF-267].",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "226",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "226",
-      "view_id": "1194",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "System on Chip",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "Lack of hardware mechanisms to zeroize or clear registers in the design or specification."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "Mechanisms to zeroize and clear registers are in the design but implemented incorrectly."
-      ]
-    },
-    {
-      "phase": "Operation",
-      "note": [
-        "Hardware-provided zeroization mechanisms are not used appropriately by the IP user (ex. firmware), or data remanence issues are not taken into account."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Varies by Context"
-      ],
-      "note": "The consequences will depend on the information disclosed due to the vulnerability."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Every register potentially containing sensitive information must have a policy specifying how and when information is cleared, in addition to clarifying if it is the responsibility of the hardware logic or IP user to initiate the zeroization procedure at the appropriate time."
-      ],
-      "effectiveness_notes": "Unfortunately, data disclosure can occur even after information has been overwritten/zeroized from the digital perspective. Physical characteristics of the memory can reveal the history of previously written data.  For example, if the same value is written repeatedly to a memory location, the corresponding memory cells can become physically altered to a degree that even if the original data is erased it can still be recovered through physical characterization of the memory cells [REF-1055]."
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>Suppose a hardware IP for implementing an encryption routine works as expected, but it leaves the intermediate results in some registers that can be accessed. Exactly why this access happens is immaterial - it might be unintentional or intentional, where the designer wanted a \"quick fix\" for something.  </Intro_Text>\n\t\t\t\t"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-267",
-      "author": [
-        "Information Technology Laboratory, National Institute of Standards and Technology"
-      ],
-      "title": "SECURITY REQUIREMENTS FOR CRYPTOGRAPHIC MODULES",
-      "url": "https://csrc.nist.gov/csrc/media/publications/fips/140/2/final/documents/fips1402.pdf",
-      "publication_year": "2001",
-      "publication_month": "--05",
-      "publication_day": "---25",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1055",
-      "author": [
-        "Peter Gutmann"
-      ],
-      "title": "Data Remanence in Semiconductor Devices",
-      "url": "https://www.usenix.org/legacy/events/sec01/full_papers/gutmann/gutmann.pdf",
-      "publication_year": "2001",
-      "publication_month": "--08",
-      "publication": "10th USENIX Security Symposium"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Nicole Fern",
-      "submission_organization": "Tortuga Logic",
-      "submission_date": "2020-02-08"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "150",
-    "204",
-    "37",
-    "545"
-  ]
+	"id": "1239",
+	"name": "Improper Zeroization of Hardware Register",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The hardware product does not properly clear sensitive information from built-in registers when the user of the hardware block changes.",
+	"extended_description": "Hardware logic operates on data stored in registers local to the hardware block. Most hardware IPs, including cryptographic accelerators, rely on registers to buffer I/O, store intermediate values, and interface with software. The result of this is that sensitive information, such as passwords or encryption keys, can exist in locations not transparent to the user of the hardware logic. When a different entity obtains access to the IP due to a change in operating mode or conditions, the new entity can extract information belonging to the previous user if no mechanisms are in place to clear register contents. It is important to clear information stored in the hardware if a physical attack on the product is detected, or if the user of the hardware block changes. The process of clearing register contents in a hardware IP is referred to as zeroization in standards for cryptographic hardware modules such as FIPS-140-2 [REF-267].",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "226",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "226",
+			"view_id": "1194",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "System on Chip",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"Lack of hardware mechanisms to zeroize or clear registers in the design or specification."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"Mechanisms to zeroize and clear registers are in the design but implemented incorrectly."
+			]
+		},
+		{
+			"phase": "Operation",
+			"note": [
+				"Hardware-provided zeroization mechanisms are not used appropriately by the IP user (ex. firmware), or data remanence issues are not taken into account."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Varies by Context"
+			],
+			"note": "The consequences will depend on the information disclosed due to the vulnerability."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Every register potentially containing sensitive information must have a policy specifying how and when information is cleared, in addition to clarifying if it is the responsibility of the hardware logic or IP user to initiate the zeroization procedure at the appropriate time."
+			],
+			"effectiveness_notes": "Unfortunately, data disclosure can occur even after information has been overwritten/zeroized from the digital perspective. Physical characteristics of the memory can reveal the history of previously written data.  For example, if the same value is written repeatedly to a memory location, the corresponding memory cells can become physically altered to a degree that even if the original data is erased it can still be recovered through physical characterization of the memory cells [REF-1055]."
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>Suppose a hardware IP for implementing an encryption routine works as expected, but it leaves the intermediate results in some registers that can be accessed. Exactly why this access happens is immaterial - it might be unintentional or intentional, where the designer wanted a \"quick fix\" for something.  </Intro_Text>\n\t\t\t\t"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-267",
+			"author": [
+				"Information Technology Laboratory, National Institute of Standards and Technology"
+			],
+			"title": "SECURITY REQUIREMENTS FOR CRYPTOGRAPHIC MODULES",
+			"url": "https://csrc.nist.gov/csrc/media/publications/fips/140/2/final/documents/fips1402.pdf",
+			"publication_year": "2001",
+			"publication_month": "--05",
+			"publication_day": "---25",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1055",
+			"author": [
+				"Peter Gutmann"
+			],
+			"title": "Data Remanence in Semiconductor Devices",
+			"url": "https://www.usenix.org/legacy/events/sec01/full_papers/gutmann/gutmann.pdf",
+			"publication_year": "2001",
+			"publication_month": "--08",
+			"publication": "10th USENIX Security Symposium"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Nicole Fern",
+			"submission_organization": "Tortuga Logic",
+			"submission_date": "2020-02-08"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"150",
+		"204",
+		"37",
+		"545"
+	]
 }

@@ -1,544 +1,544 @@
 {
-  "id": "134",
-  "name": "Use of Externally-Controlled Format String",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product uses a function that accepts a format string as an argument, but the format string originates from an external source.",
-  "extended_description": "\n            <xhtml:p>When an attacker can modify an externally-controlled format string, this can lead to buffer overflows, denial of service, or data representation problems.</xhtml:p>\n            <xhtml:p>It should be noted that in some circumstances, such as internationalization, the set of format strings is externally controlled by design. If the source of these format strings is trusted (e.g. only contained in library files that are only modifiable by the system administrator), then the external control might not itself pose a vulnerability.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "668",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "668",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "123",
-      "view_id": "1000"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "20",
-      "view_id": "700",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Often",
-        "name": "C"
-      },
-      {
-        "prevalence": "Often",
-        "name": "C++"
-      },
-      {
-        "prevalence": "Rarely",
-        "name": "Perl"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "The programmer rarely intends for a format string to be externally-controlled at all. This weakness is frequently introduced in code that constructs log messages, where a constant format string is omitted."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "In cases such as localization and internationalization, the language-specific message repositories could be an avenue for exploitation, but the format string issue would be resultant, since attacker control of those repositories would also allow modification of message length, format, and content."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Memory"
-      ],
-      "note": "Format string problems allow for information disclosure which can severely simplify exploitation of the program."
-    },
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality",
-        "Availability"
-      ],
-      "impact": [
-        "Modify Memory",
-        "Execute Unauthorized Code or Commands"
-      ],
-      "note": "Format string problems can result in the execution of arbitrary code."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Requirements"
-      ],
-      "description": [
-        "Choose a language that is not subject to this flaw."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Ensure that all format string functions are passed a static string which cannot be controlled by the user, and that the proper number of arguments are always sent to that function as well. If at all possible, use functions that do not support the %n operator in format strings. [REF-116] [REF-117]"
-      ]
-    },
-    {
-      "phase": [
-        "Build and Compilation"
-      ],
-      "description": [
-        "Run compilers and linkers with high warning levels, since they may detect incorrect usage."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following program prints a string provided as an argument.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#include &lt;stdio.h&gt;<xhtml:br/>\n                     <xhtml:br/>void printWrapper(char *string) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>printf(string);</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main(int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>char buf[5012];<xhtml:br/>memcpy(buf, argv[1], 5012);<xhtml:br/>printWrapper(argv[1]);<xhtml:br/>return (0);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The example is exploitable, because of the call to printf() in the printWrapper() function. Note: The stack buffer was added to make exploitation more simple.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>The following code copies a command line argument into a buffer using snprintf().</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int main(int argc, char **argv){<xhtml:div style=\"margin-left:1em;\">char buf[128];<xhtml:br/>...<xhtml:br/>snprintf(buf,128,argv[1]);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code allows an attacker to view the contents of the stack and write to the stack using a command line argument containing a sequence of formatting directives. The attacker can read from the stack by providing more formatting directives, such as %x, than the function takes as arguments to be formatted. (In this example, the function takes no arguments to be formatted.) By using the %n formatting directive, the attacker can write to the stack, causing snprintf() to write the number of bytes output thus far to the specified argument (rather than reading a value from the argument, which is the intended behavior). A sophisticated version of this attack will use four staggered writes to completely control the value of a pointer on the stack.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>Certain implementations make more advanced attacks even easier by providing format directives that control the location in memory to read from or write to. An example of these directives is shown in the following code, written for glibc:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>printf(\"%d %d %1$d %1$d\\n\", 5, 9);</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code produces the following output: 5 9 5 5 It is also possible to use half-writes (%hn) to accurately control arbitrary DWORDS in memory, which greatly reduces the complexity needed to execute an attack that would otherwise require four staggered writes, such as the one mentioned in the first example.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2002-1825",
-      "description": "format string in Perl program",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1825"
-    },
-    {
-      "reference": "CVE-2001-0717",
-      "description": "format string in bad call to syslog function",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0717"
-    },
-    {
-      "reference": "CVE-2002-0573",
-      "description": "format string in bad call to syslog function",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0573"
-    },
-    {
-      "reference": "CVE-2002-1788",
-      "description": "format strings in NNTP server responses",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1788"
-    },
-    {
-      "reference": "CVE-2006-2480",
-      "description": "Format string vulnerability exploited by triggering errors or warnings, as demonstrated via format string specifiers in a .bmp filename.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-2480"
-    },
-    {
-      "reference": "CVE-2007-2027",
-      "description": "Chain: untrusted search path enabling resultant format string by loading malicious internationalization messages",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-2027"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-116",
-      "author": [
-        "Steve Christey"
-      ],
-      "title": "Format String Vulnerabilities in Perl Programs",
-      "url": "https://seclists.org/fulldisclosure/2005/Dec/91",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-117",
-      "author": [
-        "Hal Burch",
-        "Robert C. Seacord"
-      ],
-      "title": "Programming Language Format String Vulnerabilities",
-      "url": "https://drdobbs.com/security/programming-language-format-string-vulne/197002914",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-118",
-      "author": [
-        "Tim Newsham"
-      ],
-      "title": "Format String Attacks",
-      "url": "http://www.thenewsh.com/~newsham/format-string-attacks.pdf",
-      "publication_year": "2000",
-      "publication_month": "--09",
-      "publication_day": "---09",
-      "publisher": "Guardent"
-    },
-    {
-      "section": "Chapter 5, \"Format String Bugs\" Page 147",
-      "reference_id": "REF-7",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc"
-      ],
-      "title": "Writing Secure Code",
-      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
-      "publication_year": "2002",
-      "publication_month": "--12",
-      "publication_day": "---04",
-      "publisher": "Microsoft Press",
-      "edition": "2nd Edition"
-    },
-    {
-      "section": "\"Sin 6: Format String Problems.\" Page 109",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    },
-    {
-      "section": "Chapter 8, \"C Format Strings\", Page 422",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "section": "ASCSM-CWE-134",
-      "reference_id": "REF-962",
-      "author": [
-        "Object Management Group (OMG)"
-      ],
-      "title": "Automated Source Code Security Measure (ASCSM)",
-      "url": "http://www.omg.org/spec/ASCSM/1.0/",
-      "publication_year": "2016",
-      "publication_month": "--01"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_organization": "KDM Analytics",
-        "modification_date": "2008-08-01",
-        "modification_comment": "added/updated white box definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Detection_Factors, Modes_of_Introduction, Relationships, Other_Notes, Research_Gaps, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "KDM Analytics",
-        "modification_date": "2009-07-17",
-        "modification_comment": "Improved the White_Box_Definition"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated White_Box_Definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Detection_Factors, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Potential_Mitigations, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Observed_Examples, References, Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Demonstrative_Examples, Detection_Factors, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Description, Modes_of_Introduction, Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Causal_Nature, Functional_Areas, Likelihood_of_Exploit, Other_Notes, References, Relationships, Taxonomy_Mappings, White_Box_Definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Common_Consequences, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Uncontrolled Format String",
-        "date": "2015-12-07"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-1",
-      "method": "Automated Static Analysis",
-      "description": "This weakness can often be detected using automated static analysis tools. Many modern tools use data flow analysis or constraint-based techniques to minimize the number of false positives."
-    },
-    {
-      "method": "Black Box",
-      "description": "Since format strings often occur in rarely-occurring erroneous conditions (e.g. for error message logging), they can be difficult to detect using black box methods. It is highly likely that many latent issues exist in executables that do not have associated source code (or equivalent source.",
-      "effectiveness": "Limited"
-    },
-    {
-      "method": "Automated Static Analysis - Binary or Bytecode",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                           <xhtml:li>Binary Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode simple extractor - strings, ELF readers, etc.</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Manual Static Analysis - Binary or Bytecode",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Automated Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Manual Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Manual Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Automated Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Warning Flags</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Architecture or Design Review",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Format string vulnerability"
-    },
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "Format String"
-    },
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Format string problem"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Exclude user input from format strings",
-      "entry_id": "FIO30-C",
-      "mapping_fit": "Exact"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Use valid format strings",
-      "entry_id": "FIO47-C",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2004",
-      "entry_name": "Unvalidated Input",
-      "entry_id": "A1",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "WASC",
-      "entry_name": "Format String",
-      "entry_id": "6"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Exclude user input from format strings",
-      "entry_id": "IDS06-J"
-    },
-    {
-      "taxonomy_name": "SEI CERT Perl Coding Standard",
-      "entry_name": "Exclude user input from format strings",
-      "entry_id": "IDS30-PL",
-      "mapping_fit": "Exact"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Tainted input to command",
-      "entry_id": "SFP24"
-    },
-    {
-      "taxonomy_name": "OMG ASCSM",
-      "entry_id": "ASCSM-CWE-134"
-    }
-  ],
-  "related_attack_patterns": [
-    "135",
-    "67"
-  ],
-  "notes": [
-    {
-      "type": "Applicable Platform",
-      "text": "\n               <xhtml:p>This weakness is possible in any programming language that support format strings.</xhtml:p>\n            "
-    },
-    {
-      "type": "Other",
-      "text": "\n               <xhtml:p>While Format String vulnerabilities typically fall under the Buffer Overflow category, technically they are not overflowed buffers. The Format String vulnerability is fairly new (circa 1999) and stems from the fact that there is no realistic way for a function that takes a variable number of arguments to determine just how many arguments were passed in. The most common functions that take a variable number of arguments, including C-runtime functions, are the printf() family of calls. The Format String problem appears in a number of ways. A *printf() call without a format specifier is dangerous and can be exploited. For example, printf(input); is exploitable, while printf(y, input); is not exploitable in that context. The result of the first call, used incorrectly, allows for an attacker to be able to peek at stack memory since the input string will be used as the format specifier. The attacker can stuff the input string with format specifiers and begin reading stack values, since the remaining parameters will be pulled from the stack. Worst case, this improper use may give away enough control to allow an arbitrary value (or values in the case of an exploit program) to be written into the memory of the running program.</xhtml:p>\n               <xhtml:p>Frequently targeted entities are file names, process names, identifiers.</xhtml:p>\n               <xhtml:p>Format string problems are a classic C/C++ issue that are now rare due to the ease of discovery. One main reason format string vulnerabilities can be exploited is due to the %n operator. The %n operator will write the number of characters, which have been printed by the format string therefore far, to the memory pointed to by its argument. Through skilled creation of a format string, a malicious user may use values on the stack to create a write-what-where condition. Once this is achieved, they can execute arbitrary code. Other operators can be used as well; for example, a %9999s operator could also trigger a buffer overflow, or when used in file-formatting functions like fprintf, it can generate a much larger output than intended.</xhtml:p>\n            "
-    },
-    {
-      "type": "Research Gap",
-      "text": "Format string issues are under-studied for languages other than C. Memory or disk consumption, control flow or variable alteration, and data corruption may result from format string exploitation in applications written in other languages such as Perl, PHP, Python, etc."
-    }
-  ],
-  "affected_resources": [
-    "Memory"
-  ],
-  "functional_areas": [
-    "Logging",
-    "Error Handling",
-    "String Processing"
-  ]
+	"id": "134",
+	"name": "Use of Externally-Controlled Format String",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product uses a function that accepts a format string as an argument, but the format string originates from an external source.",
+	"extended_description": "\n            <xhtml:p>When an attacker can modify an externally-controlled format string, this can lead to buffer overflows, denial of service, or data representation problems.</xhtml:p>\n            <xhtml:p>It should be noted that in some circumstances, such as internationalization, the set of format strings is externally controlled by design. If the source of these format strings is trusted (e.g. only contained in library files that are only modifiable by the system administrator), then the external control might not itself pose a vulnerability.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "668",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "668",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "123",
+			"view_id": "1000"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "20",
+			"view_id": "700",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Often",
+				"name": "C"
+			},
+			{
+				"prevalence": "Often",
+				"name": "C++"
+			},
+			{
+				"prevalence": "Rarely",
+				"name": "Perl"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"The programmer rarely intends for a format string to be externally-controlled at all. This weakness is frequently introduced in code that constructs log messages, where a constant format string is omitted."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"In cases such as localization and internationalization, the language-specific message repositories could be an avenue for exploitation, but the format string issue would be resultant, since attacker control of those repositories would also allow modification of message length, format, and content."
+			]
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Memory"
+			],
+			"note": "Format string problems allow for information disclosure which can severely simplify exploitation of the program."
+		},
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality",
+				"Availability"
+			],
+			"impact": [
+				"Modify Memory",
+				"Execute Unauthorized Code or Commands"
+			],
+			"note": "Format string problems can result in the execution of arbitrary code."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Requirements"
+			],
+			"description": [
+				"Choose a language that is not subject to this flaw."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Ensure that all format string functions are passed a static string which cannot be controlled by the user, and that the proper number of arguments are always sent to that function as well. If at all possible, use functions that do not support the %n operator in format strings. [REF-116] [REF-117]"
+			]
+		},
+		{
+			"phase": [
+				"Build and Compilation"
+			],
+			"description": [
+				"Run compilers and linkers with high warning levels, since they may detect incorrect usage."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following program prints a string provided as an argument.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#include &lt;stdio.h&gt;<xhtml:br/>\n                     <xhtml:br/>void printWrapper(char *string) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>printf(string);</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main(int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>char buf[5012];<xhtml:br/>memcpy(buf, argv[1], 5012);<xhtml:br/>printWrapper(argv[1]);<xhtml:br/>return (0);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The example is exploitable, because of the call to printf() in the printWrapper() function. Note: The stack buffer was added to make exploitation more simple.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>The following code copies a command line argument into a buffer using snprintf().</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int main(int argc, char **argv){<xhtml:div style=\"margin-left:1em;\">char buf[128];<xhtml:br/>...<xhtml:br/>snprintf(buf,128,argv[1]);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code allows an attacker to view the contents of the stack and write to the stack using a command line argument containing a sequence of formatting directives. The attacker can read from the stack by providing more formatting directives, such as %x, than the function takes as arguments to be formatted. (In this example, the function takes no arguments to be formatted.) By using the %n formatting directive, the attacker can write to the stack, causing snprintf() to write the number of bytes output thus far to the specified argument (rather than reading a value from the argument, which is the intended behavior). A sophisticated version of this attack will use four staggered writes to completely control the value of a pointer on the stack.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>Certain implementations make more advanced attacks even easier by providing format directives that control the location in memory to read from or write to. An example of these directives is shown in the following code, written for glibc:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>printf(\"%d %d %1$d %1$d\\n\", 5, 9);</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code produces the following output: 5 9 5 5 It is also possible to use half-writes (%hn) to accurately control arbitrary DWORDS in memory, which greatly reduces the complexity needed to execute an attack that would otherwise require four staggered writes, such as the one mentioned in the first example.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2002-1825",
+			"description": "format string in Perl program",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1825"
+		},
+		{
+			"reference": "CVE-2001-0717",
+			"description": "format string in bad call to syslog function",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0717"
+		},
+		{
+			"reference": "CVE-2002-0573",
+			"description": "format string in bad call to syslog function",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0573"
+		},
+		{
+			"reference": "CVE-2002-1788",
+			"description": "format strings in NNTP server responses",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1788"
+		},
+		{
+			"reference": "CVE-2006-2480",
+			"description": "Format string vulnerability exploited by triggering errors or warnings, as demonstrated via format string specifiers in a .bmp filename.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-2480"
+		},
+		{
+			"reference": "CVE-2007-2027",
+			"description": "Chain: untrusted search path enabling resultant format string by loading malicious internationalization messages",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-2027"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-116",
+			"author": [
+				"Steve Christey"
+			],
+			"title": "Format String Vulnerabilities in Perl Programs",
+			"url": "https://seclists.org/fulldisclosure/2005/Dec/91",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-117",
+			"author": [
+				"Hal Burch",
+				"Robert C. Seacord"
+			],
+			"title": "Programming Language Format String Vulnerabilities",
+			"url": "https://drdobbs.com/security/programming-language-format-string-vulne/197002914",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-118",
+			"author": [
+				"Tim Newsham"
+			],
+			"title": "Format String Attacks",
+			"url": "http://www.thenewsh.com/~newsham/format-string-attacks.pdf",
+			"publication_year": "2000",
+			"publication_month": "--09",
+			"publication_day": "---09",
+			"publisher": "Guardent"
+		},
+		{
+			"section": "Chapter 5, \"Format String Bugs\" Page 147",
+			"reference_id": "REF-7",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc"
+			],
+			"title": "Writing Secure Code",
+			"url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+			"publication_year": "2002",
+			"publication_month": "--12",
+			"publication_day": "---04",
+			"publisher": "Microsoft Press",
+			"edition": "2nd Edition"
+		},
+		{
+			"section": "\"Sin 6: Format String Problems.\" Page 109",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		},
+		{
+			"section": "Chapter 8, \"C Format Strings\", Page 422",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"section": "ASCSM-CWE-134",
+			"reference_id": "REF-962",
+			"author": [
+				"Object Management Group (OMG)"
+			],
+			"title": "Automated Source Code Security Measure (ASCSM)",
+			"url": "http://www.omg.org/spec/ASCSM/1.0/",
+			"publication_year": "2016",
+			"publication_month": "--01"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_organization": "KDM Analytics",
+				"modification_date": "2008-08-01",
+				"modification_comment": "added/updated white box definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Detection_Factors, Modes_of_Introduction, Relationships, Other_Notes, Research_Gaps, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "KDM Analytics",
+				"modification_date": "2009-07-17",
+				"modification_comment": "Improved the White_Box_Definition"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated White_Box_Definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Detection_Factors, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Potential_Mitigations, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Observed_Examples, References, Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Demonstrative_Examples, Detection_Factors, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Description, Modes_of_Introduction, Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Causal_Nature, Functional_Areas, Likelihood_of_Exploit, Other_Notes, References, Relationships, Taxonomy_Mappings, White_Box_Definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Common_Consequences, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Uncontrolled Format String",
+				"date": "2015-12-07"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-1",
+			"method": "Automated Static Analysis",
+			"description": "This weakness can often be detected using automated static analysis tools. Many modern tools use data flow analysis or constraint-based techniques to minimize the number of false positives."
+		},
+		{
+			"method": "Black Box",
+			"description": "Since format strings often occur in rarely-occurring erroneous conditions (e.g. for error message logging), they can be difficult to detect using black box methods. It is highly likely that many latent issues exist in executables that do not have associated source code (or equivalent source.",
+			"effectiveness": "Limited"
+		},
+		{
+			"method": "Automated Static Analysis - Binary or Bytecode",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                           <xhtml:li>Binary Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode simple extractor - strings, ELF readers, etc.</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Manual Static Analysis - Binary or Bytecode",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Automated Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Manual Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Manual Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Automated Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Warning Flags</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Architecture or Design Review",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Format string vulnerability"
+		},
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "Format String"
+		},
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Format string problem"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Exclude user input from format strings",
+			"entry_id": "FIO30-C",
+			"mapping_fit": "Exact"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Use valid format strings",
+			"entry_id": "FIO47-C",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2004",
+			"entry_name": "Unvalidated Input",
+			"entry_id": "A1",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "WASC",
+			"entry_name": "Format String",
+			"entry_id": "6"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Exclude user input from format strings",
+			"entry_id": "IDS06-J"
+		},
+		{
+			"taxonomy_name": "SEI CERT Perl Coding Standard",
+			"entry_name": "Exclude user input from format strings",
+			"entry_id": "IDS30-PL",
+			"mapping_fit": "Exact"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Tainted input to command",
+			"entry_id": "SFP24"
+		},
+		{
+			"taxonomy_name": "OMG ASCSM",
+			"entry_id": "ASCSM-CWE-134"
+		}
+	],
+	"related_attack_patterns": [
+		"135",
+		"67"
+	],
+	"notes": [
+		{
+			"type": "Applicable Platform",
+			"text": "\n               <xhtml:p>This weakness is possible in any programming language that support format strings.</xhtml:p>\n            "
+		},
+		{
+			"type": "Other",
+			"text": "\n               <xhtml:p>While Format String vulnerabilities typically fall under the Buffer Overflow category, technically they are not overflowed buffers. The Format String vulnerability is fairly new (circa 1999) and stems from the fact that there is no realistic way for a function that takes a variable number of arguments to determine just how many arguments were passed in. The most common functions that take a variable number of arguments, including C-runtime functions, are the printf() family of calls. The Format String problem appears in a number of ways. A *printf() call without a format specifier is dangerous and can be exploited. For example, printf(input); is exploitable, while printf(y, input); is not exploitable in that context. The result of the first call, used incorrectly, allows for an attacker to be able to peek at stack memory since the input string will be used as the format specifier. The attacker can stuff the input string with format specifiers and begin reading stack values, since the remaining parameters will be pulled from the stack. Worst case, this improper use may give away enough control to allow an arbitrary value (or values in the case of an exploit program) to be written into the memory of the running program.</xhtml:p>\n               <xhtml:p>Frequently targeted entities are file names, process names, identifiers.</xhtml:p>\n               <xhtml:p>Format string problems are a classic C/C++ issue that are now rare due to the ease of discovery. One main reason format string vulnerabilities can be exploited is due to the %n operator. The %n operator will write the number of characters, which have been printed by the format string therefore far, to the memory pointed to by its argument. Through skilled creation of a format string, a malicious user may use values on the stack to create a write-what-where condition. Once this is achieved, they can execute arbitrary code. Other operators can be used as well; for example, a %9999s operator could also trigger a buffer overflow, or when used in file-formatting functions like fprintf, it can generate a much larger output than intended.</xhtml:p>\n            "
+		},
+		{
+			"type": "Research Gap",
+			"text": "Format string issues are under-studied for languages other than C. Memory or disk consumption, control flow or variable alteration, and data corruption may result from format string exploitation in applications written in other languages such as Perl, PHP, Python, etc."
+		}
+	],
+	"affected_resources": [
+		"Memory"
+	],
+	"functional_areas": [
+		"Logging",
+		"Error Handling",
+		"String Processing"
+	]
 }

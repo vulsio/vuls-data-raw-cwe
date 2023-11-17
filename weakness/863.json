@@ -1,447 +1,447 @@
 {
-  "id": "863",
-  "name": "Incorrect Authorization",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product performs an authorization check when an actor attempts to access a resource or perform an action, but it does not correctly perform the check. This allows attackers to bypass intended access restrictions.",
-  "extended_description": "\n            <xhtml:p>Assuming a user with a given identity, authorization is the process of determining whether that user can access a given resource, based on the user's privileges and any permissions or other access-control specifications that apply to the resource.</xhtml:p>\n            <xhtml:p>When access control checks are incorrectly applied, users are able to access data or perform actions that they should not be allowed to perform. This can lead to a wide range of problems, including information exposures, denial of service, and arbitrary code execution.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "285",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "284",
-      "view_id": "1340",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "prevalence": "Often",
-        "name": "Web Server"
-      },
-      {
-        "prevalence": "Often",
-        "name": "Database Server"
-      }
-    ]
-  },
-  "background_details": [
-    "An access control list (ACL) represents who/what has permissions to a given object. Different operating systems implement (ACLs) in different ways. In UNIX, there are three types of permissions: read, write, and execute. Users are divided into three classes for file access: owner, group owner, and all other users where each class has a separate set of rights. In Windows NT, there are four basic types of permissions for files: \"No access\", \"Read access\", \"Change access\", and \"Full control\". Windows NT extends the concept of three types of users in UNIX to include a list of users and groups along with their associated permissions. A user can create an object (file) and assign specified permissions to that object."
-  ],
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "Authorization weaknesses may arise when a single-user application is ported to a multi-user environment."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "\n                  <xhtml:p>REALIZATION: This weakness is caused during implementation of an architectural security tactic.</xhtml:p>\n                  <xhtml:p>A developer may introduce authorization weaknesses because of a lack of understanding about the underlying technologies. For example, a developer may assume that attackers cannot modify certain inputs such as headers or cookies.</xhtml:p>\n               "
-      ]
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Application Data",
-        "Read Files or Directories"
-      ],
-      "note": "An attacker could read sensitive data, either by reading the data directly from a data store that is not correctly restricted, or by accessing insufficiently-protected, privileged functionality to read the data."
-    },
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Modify Application Data",
-        "Modify Files or Directories"
-      ],
-      "note": "An attacker could modify sensitive data, either by writing the data directly to a data store that is not correctly restricted, or by accessing insufficiently-protected, privileged functionality to write the data."
-    },
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity",
-        "Bypass Protection Mechanism"
-      ],
-      "note": "An attacker could gain privileges by modifying or reading critical data directly, or by accessing privileged functionality."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Divide the product into anonymous, normal, privileged, and administrative areas. Reduce the attack surface by carefully mapping roles with data and functionality. Use role-based access control (RBAC) [REF-229] to enforce the roles at the appropriate boundaries.</xhtml:p>\n                  <xhtml:p>Note that this approach may not protect against horizontal authorization, i.e., it will not protect a user from attacking others with the same role.</xhtml:p>\n               "
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Ensure that access control checks are performed related to the business logic. These checks may be different than the access control checks that are applied to more generic resources such as files, connections, processes, memory, and database records. For example, a database may restrict access for medical records to a specific database user, but each record might only be intended to be accessible to the patient and the patient's doctor [REF-7]."
-      ]
-    },
-    {
-      "mitigation_id": "MIT-4.4",
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>For example, consider using authorization frameworks such as the JAAS Authorization Framework [REF-233] and the OWASP ESAPI Access Control feature [REF-45].</xhtml:p>\n               "
-      ],
-      "strategy": "Libraries or Frameworks"
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "\n                  <xhtml:p>For web applications, make sure that the access control mechanism is enforced correctly at the server side on every page. Users should not be able to access any unauthorized functionality or information by simply requesting direct access to that page.</xhtml:p>\n                  <xhtml:p>One way to do this is to ensure that all pages containing sensitive information are not cached, and that all such pages restrict access to requests that are accompanied by an active and authenticated session token associated with a user who has the required permissions to access that page.</xhtml:p>\n               "
-      ]
-    },
-    {
-      "phase": [
-        "System Configuration",
-        "Installation"
-      ],
-      "description": [
-        "Use the access control capabilities of your operating system and server environment and define your access control lists accordingly. Use a \"default deny\" policy when defining these ACLs."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following code could be for a medical records application. It displays a record to already authenticated users, confirming the user's authorization using a value stored in a cookie.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$role = $_COOKIES['role'];<xhtml:br/>if (!$role) {<xhtml:div style=\"margin-left:1em;\">$role = getRole('user');<xhtml:br/>if ($role) {<xhtml:div style=\"margin-left:1em;\">// save the cookie to send out in future responses<xhtml:br/>setcookie(\"role\", $role, time()+60*60*2);</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">ShowLoginScreen();<xhtml:br/>die(\"\\n\");</xhtml:div>}</xhtml:div>}<xhtml:br/>if ($role == 'Reader') {<xhtml:div style=\"margin-left:1em;\">DisplayMedicalHistory($_POST['patient_ID']);</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">die(\"You are not Authorized to view this record\\n\");</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer expects that the cookie will only be set when getRole() succeeds. The programmer even diligently specifies a 2-hour expiration for the cookie. However, the attacker can easily set the \"role\" cookie to the value \"Reader\". As a result, the $role variable is \"Reader\", and getRole() is never invoked. The attacker has bypassed the authorization system.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2021-39155",
-      "description": "Chain: A microservice integration and management platform compares the hostname in the HTTP Host header in a case-sensitive way (CWE-178, CWE-1289), allowing bypass of the authorization policy (CWE-863) using a hostname with mixed case or other variations.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-39155"
-    },
-    {
-      "reference": "CVE-2019-15900",
-      "description": "Chain: sscanf() call is used to check if a username and group exists, but the return value of sscanf() call is not checked (CWE-252), causing an uninitialized variable to be checked (CWE-457), returning success to allow authorization bypass for executing a privileged (CWE-863).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2019-15900"
-    },
-    {
-      "reference": "CVE-2009-2213",
-      "description": "Gateway uses default \"Allow\" configuration for its authorization settings.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2213"
-    },
-    {
-      "reference": "CVE-2009-0034",
-      "description": "Chain: product does not properly interpret a configuration option for a system group, allowing users to gain privileges.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0034"
-    },
-    {
-      "reference": "CVE-2008-6123",
-      "description": "Chain: SNMP product does not properly parse a configuration option for which hosts are allowed to connect, allowing unauthorized IP addresses to connect.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-6123"
-    },
-    {
-      "reference": "CVE-2008-7109",
-      "description": "Chain: reliance on client-side security (CWE-602) allows attackers to bypass authorization using a custom client.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-7109"
-    },
-    {
-      "reference": "CVE-2008-3424",
-      "description": "Chain: product does not properly handle wildcards in an authorization policy list, allowing unintended access.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-3424"
-    },
-    {
-      "reference": "CVE-2008-4577",
-      "description": "ACL-based protection mechanism treats negative access rights as if they are positive, allowing bypass of intended restrictions.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4577"
-    },
-    {
-      "reference": "CVE-2006-6679",
-      "description": "Product relies on the X-Forwarded-For HTTP header for authorization, allowing unintended access by spoofing the header.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-6679"
-    },
-    {
-      "reference": "CVE-2005-2801",
-      "description": "Chain: file-system code performs an incorrect comparison (CWE-697), preventing default ACLs from being properly applied.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2801"
-    },
-    {
-      "reference": "CVE-2001-1155",
-      "description": "Chain: product does not properly check the result of a reverse DNS lookup because of operator precedence (CWE-783), allowing bypass of DNS-based access restrictions.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1155"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-229",
-      "author": [
-        "NIST"
-      ],
-      "title": "Role Based Access Control and Role Based Security",
-      "url": "https://csrc.nist.gov/projects/role-based-access-control",
-      "url_date": "2023-04-07"
-    },
-    {
-      "section": "Chapter 4, \"Authorization\" Page 114; Chapter 6, \"Determining\n                  Appropriate Access Control\" Page 171",
-      "reference_id": "REF-7",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc"
-      ],
-      "title": "Writing Secure Code",
-      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
-      "publication_year": "2002",
-      "publication_month": "--12",
-      "publication_day": "---04",
-      "publisher": "Microsoft Press",
-      "edition": "2nd Edition"
-    },
-    {
-      "reference_id": "REF-231",
-      "author": [
-        "Frank Kim"
-      ],
-      "title": "Top 25 Series - Rank 5 - Improper Access Control (Authorization)",
-      "url": "https://www.sans.org/blog/top-25-series-rank-5-improper-access-control-authorization/",
-      "publication_year": "2010",
-      "publication_month": "--03",
-      "publication_day": "---04",
-      "publisher": "SANS Software Security Institute",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-233",
-      "author": [
-        "Rahul Bhattacharjee"
-      ],
-      "title": "Authentication using JAAS",
-      "url": "https://javaranch.com/journal/2008/04/authentication-using-JAAS.html",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-45",
-      "author": [
-        "OWASP"
-      ],
-      "title": "OWASP Enterprise Security API (ESAPI) Project",
-      "url": "http://www.owasp.org/index.php/ESAPI"
-    },
-    {
-      "section": "Chapter 2, \"Common Vulnerabilities of Authorization\", Page 39",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2011-05-24"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Potential_Mitigations, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Detection_Factors"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Alternate_Terms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "AuthZ",
-      "description": "\"AuthZ\" is typically used as an abbreviation of \"authorization\" within the web application security community. It is distinct from \"AuthN\" (or, sometimes, \"AuthC\") which is an abbreviation of \"authentication.\" The use of \"Auth\" as an abbreviation is discouraged, since it could be used for either authentication or authorization."
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-6",
-      "method": "Automated Static Analysis",
-      "description": "\n                  <xhtml:p>Automated static analysis is useful for detecting commonly-used idioms for authorization. A tool may be able to analyze related configuration files, such as .htaccess in Apache web servers, or detect the usage of commonly-used authorization libraries.</xhtml:p>\n                  <xhtml:p>Generally, automated static analysis tools have difficulty detecting custom authorization schemes. Even if they can be customized to recognize these schemes, they might not be able to tell whether the scheme correctly performs the authorization in a way that cannot be bypassed or subverted by an attacker.</xhtml:p>\n               ",
-      "effectiveness": "Limited"
-    },
-    {
-      "method": "Automated Dynamic Analysis",
-      "description": "Automated dynamic analysis may not be able to find interfaces that are protected by authorization checks, even if those checks contain weaknesses."
-    },
-    {
-      "method": "Manual Analysis",
-      "description": "\n                  <xhtml:p>This weakness can be detected using tools and techniques that require manual (human) analysis, such as penetration testing, threat modeling, and interactive tools that allow the tester to record and modify an active session.</xhtml:p>\n                  <xhtml:p>Specifically, manual static analysis is useful for evaluating the correctness of custom authorization mechanisms.</xhtml:p>\n               ",
-      "effectiveness": "Moderate",
-      "effectiveness_notes": "These may be more effective than strictly automated techniques. This is especially the case with weaknesses that are related to design and business rules. However, manual efforts might not achieve desired code coverage within limited time constraints."
-    },
-    {
-      "method": "Manual Static Analysis - Binary or Bytecode",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Automated Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Manual Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Host Application Interface Scanner</xhtml:li>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                           <xhtml:li>Forced Path Execution</xhtml:li>\n                           <xhtml:li>Monitored Virtual Environment - run potentially malicious code in sandbox / wrapper / virtual machine, see if it does anything suspicious</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Manual Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Automated Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Architecture or Design Review",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    }
-  ]
+	"id": "863",
+	"name": "Incorrect Authorization",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product performs an authorization check when an actor attempts to access a resource or perform an action, but it does not correctly perform the check. This allows attackers to bypass intended access restrictions.",
+	"extended_description": "\n            <xhtml:p>Assuming a user with a given identity, authorization is the process of determining whether that user can access a given resource, based on the user's privileges and any permissions or other access-control specifications that apply to the resource.</xhtml:p>\n            <xhtml:p>When access control checks are incorrectly applied, users are able to access data or perform actions that they should not be allowed to perform. This can lead to a wide range of problems, including information exposures, denial of service, and arbitrary code execution.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "285",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "284",
+			"view_id": "1340",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"prevalence": "Often",
+				"name": "Web Server"
+			},
+			{
+				"prevalence": "Often",
+				"name": "Database Server"
+			}
+		]
+	},
+	"background_details": [
+		"An access control list (ACL) represents who/what has permissions to a given object. Different operating systems implement (ACLs) in different ways. In UNIX, there are three types of permissions: read, write, and execute. Users are divided into three classes for file access: owner, group owner, and all other users where each class has a separate set of rights. In Windows NT, there are four basic types of permissions for files: \"No access\", \"Read access\", \"Change access\", and \"Full control\". Windows NT extends the concept of three types of users in UNIX to include a list of users and groups along with their associated permissions. A user can create an object (file) and assign specified permissions to that object."
+	],
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"Authorization weaknesses may arise when a single-user application is ported to a multi-user environment."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"\n                  <xhtml:p>REALIZATION: This weakness is caused during implementation of an architectural security tactic.</xhtml:p>\n                  <xhtml:p>A developer may introduce authorization weaknesses because of a lack of understanding about the underlying technologies. For example, a developer may assume that attackers cannot modify certain inputs such as headers or cookies.</xhtml:p>\n               "
+			]
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Application Data",
+				"Read Files or Directories"
+			],
+			"note": "An attacker could read sensitive data, either by reading the data directly from a data store that is not correctly restricted, or by accessing insufficiently-protected, privileged functionality to read the data."
+		},
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Modify Application Data",
+				"Modify Files or Directories"
+			],
+			"note": "An attacker could modify sensitive data, either by writing the data directly to a data store that is not correctly restricted, or by accessing insufficiently-protected, privileged functionality to write the data."
+		},
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity",
+				"Bypass Protection Mechanism"
+			],
+			"note": "An attacker could gain privileges by modifying or reading critical data directly, or by accessing privileged functionality."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"\n                  <xhtml:p>Divide the product into anonymous, normal, privileged, and administrative areas. Reduce the attack surface by carefully mapping roles with data and functionality. Use role-based access control (RBAC) [REF-229] to enforce the roles at the appropriate boundaries.</xhtml:p>\n                  <xhtml:p>Note that this approach may not protect against horizontal authorization, i.e., it will not protect a user from attacking others with the same role.</xhtml:p>\n               "
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Ensure that access control checks are performed related to the business logic. These checks may be different than the access control checks that are applied to more generic resources such as files, connections, processes, memory, and database records. For example, a database may restrict access for medical records to a specific database user, but each record might only be intended to be accessible to the patient and the patient's doctor [REF-7]."
+			]
+		},
+		{
+			"mitigation_id": "MIT-4.4",
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"\n                  <xhtml:p>Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>For example, consider using authorization frameworks such as the JAAS Authorization Framework [REF-233] and the OWASP ESAPI Access Control feature [REF-45].</xhtml:p>\n               "
+			],
+			"strategy": "Libraries or Frameworks"
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"\n                  <xhtml:p>For web applications, make sure that the access control mechanism is enforced correctly at the server side on every page. Users should not be able to access any unauthorized functionality or information by simply requesting direct access to that page.</xhtml:p>\n                  <xhtml:p>One way to do this is to ensure that all pages containing sensitive information are not cached, and that all such pages restrict access to requests that are accompanied by an active and authenticated session token associated with a user who has the required permissions to access that page.</xhtml:p>\n               "
+			]
+		},
+		{
+			"phase": [
+				"System Configuration",
+				"Installation"
+			],
+			"description": [
+				"Use the access control capabilities of your operating system and server environment and define your access control lists accordingly. Use a \"default deny\" policy when defining these ACLs."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following code could be for a medical records application. It displays a record to already authenticated users, confirming the user's authorization using a value stored in a cookie.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$role = $_COOKIES['role'];<xhtml:br/>if (!$role) {<xhtml:div style=\"margin-left:1em;\">$role = getRole('user');<xhtml:br/>if ($role) {<xhtml:div style=\"margin-left:1em;\">// save the cookie to send out in future responses<xhtml:br/>setcookie(\"role\", $role, time()+60*60*2);</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">ShowLoginScreen();<xhtml:br/>die(\"\\n\");</xhtml:div>}</xhtml:div>}<xhtml:br/>if ($role == 'Reader') {<xhtml:div style=\"margin-left:1em;\">DisplayMedicalHistory($_POST['patient_ID']);</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">die(\"You are not Authorized to view this record\\n\");</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer expects that the cookie will only be set when getRole() succeeds. The programmer even diligently specifies a 2-hour expiration for the cookie. However, the attacker can easily set the \"role\" cookie to the value \"Reader\". As a result, the $role variable is \"Reader\", and getRole() is never invoked. The attacker has bypassed the authorization system.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2021-39155",
+			"description": "Chain: A microservice integration and management platform compares the hostname in the HTTP Host header in a case-sensitive way (CWE-178, CWE-1289), allowing bypass of the authorization policy (CWE-863) using a hostname with mixed case or other variations.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-39155"
+		},
+		{
+			"reference": "CVE-2019-15900",
+			"description": "Chain: sscanf() call is used to check if a username and group exists, but the return value of sscanf() call is not checked (CWE-252), causing an uninitialized variable to be checked (CWE-457), returning success to allow authorization bypass for executing a privileged (CWE-863).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-15900"
+		},
+		{
+			"reference": "CVE-2009-2213",
+			"description": "Gateway uses default \"Allow\" configuration for its authorization settings.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2213"
+		},
+		{
+			"reference": "CVE-2009-0034",
+			"description": "Chain: product does not properly interpret a configuration option for a system group, allowing users to gain privileges.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-0034"
+		},
+		{
+			"reference": "CVE-2008-6123",
+			"description": "Chain: SNMP product does not properly parse a configuration option for which hosts are allowed to connect, allowing unauthorized IP addresses to connect.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-6123"
+		},
+		{
+			"reference": "CVE-2008-7109",
+			"description": "Chain: reliance on client-side security (CWE-602) allows attackers to bypass authorization using a custom client.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-7109"
+		},
+		{
+			"reference": "CVE-2008-3424",
+			"description": "Chain: product does not properly handle wildcards in an authorization policy list, allowing unintended access.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-3424"
+		},
+		{
+			"reference": "CVE-2008-4577",
+			"description": "ACL-based protection mechanism treats negative access rights as if they are positive, allowing bypass of intended restrictions.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-4577"
+		},
+		{
+			"reference": "CVE-2006-6679",
+			"description": "Product relies on the X-Forwarded-For HTTP header for authorization, allowing unintended access by spoofing the header.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-6679"
+		},
+		{
+			"reference": "CVE-2005-2801",
+			"description": "Chain: file-system code performs an incorrect comparison (CWE-697), preventing default ACLs from being properly applied.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2801"
+		},
+		{
+			"reference": "CVE-2001-1155",
+			"description": "Chain: product does not properly check the result of a reverse DNS lookup because of operator precedence (CWE-783), allowing bypass of DNS-based access restrictions.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1155"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-229",
+			"author": [
+				"NIST"
+			],
+			"title": "Role Based Access Control and Role Based Security",
+			"url": "https://csrc.nist.gov/projects/role-based-access-control",
+			"url_date": "2023-04-07"
+		},
+		{
+			"section": "Chapter 4, \"Authorization\" Page 114; Chapter 6, \"Determining\n                  Appropriate Access Control\" Page 171",
+			"reference_id": "REF-7",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc"
+			],
+			"title": "Writing Secure Code",
+			"url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+			"publication_year": "2002",
+			"publication_month": "--12",
+			"publication_day": "---04",
+			"publisher": "Microsoft Press",
+			"edition": "2nd Edition"
+		},
+		{
+			"reference_id": "REF-231",
+			"author": [
+				"Frank Kim"
+			],
+			"title": "Top 25 Series - Rank 5 - Improper Access Control (Authorization)",
+			"url": "https://www.sans.org/blog/top-25-series-rank-5-improper-access-control-authorization/",
+			"publication_year": "2010",
+			"publication_month": "--03",
+			"publication_day": "---04",
+			"publisher": "SANS Software Security Institute",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-233",
+			"author": [
+				"Rahul Bhattacharjee"
+			],
+			"title": "Authentication using JAAS",
+			"url": "https://javaranch.com/journal/2008/04/authentication-using-JAAS.html",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-45",
+			"author": [
+				"OWASP"
+			],
+			"title": "OWASP Enterprise Security API (ESAPI) Project",
+			"url": "http://www.owasp.org/index.php/ESAPI"
+		},
+		{
+			"section": "Chapter 2, \"Common Vulnerabilities of Authorization\", Page 39",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2011-05-24"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Potential_Mitigations, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Detection_Factors"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Alternate_Terms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "AuthZ",
+			"description": "\"AuthZ\" is typically used as an abbreviation of \"authorization\" within the web application security community. It is distinct from \"AuthN\" (or, sometimes, \"AuthC\") which is an abbreviation of \"authentication.\" The use of \"Auth\" as an abbreviation is discouraged, since it could be used for either authentication or authorization."
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-6",
+			"method": "Automated Static Analysis",
+			"description": "\n                  <xhtml:p>Automated static analysis is useful for detecting commonly-used idioms for authorization. A tool may be able to analyze related configuration files, such as .htaccess in Apache web servers, or detect the usage of commonly-used authorization libraries.</xhtml:p>\n                  <xhtml:p>Generally, automated static analysis tools have difficulty detecting custom authorization schemes. Even if they can be customized to recognize these schemes, they might not be able to tell whether the scheme correctly performs the authorization in a way that cannot be bypassed or subverted by an attacker.</xhtml:p>\n               ",
+			"effectiveness": "Limited"
+		},
+		{
+			"method": "Automated Dynamic Analysis",
+			"description": "Automated dynamic analysis may not be able to find interfaces that are protected by authorization checks, even if those checks contain weaknesses."
+		},
+		{
+			"method": "Manual Analysis",
+			"description": "\n                  <xhtml:p>This weakness can be detected using tools and techniques that require manual (human) analysis, such as penetration testing, threat modeling, and interactive tools that allow the tester to record and modify an active session.</xhtml:p>\n                  <xhtml:p>Specifically, manual static analysis is useful for evaluating the correctness of custom authorization mechanisms.</xhtml:p>\n               ",
+			"effectiveness": "Moderate",
+			"effectiveness_notes": "These may be more effective than strictly automated techniques. This is especially the case with weaknesses that are related to design and business rules. However, manual efforts might not achieve desired code coverage within limited time constraints."
+		},
+		{
+			"method": "Manual Static Analysis - Binary or Bytecode",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Automated Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Manual Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Host Application Interface Scanner</xhtml:li>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                           <xhtml:li>Forced Path Execution</xhtml:li>\n                           <xhtml:li>Monitored Virtual Environment - run potentially malicious code in sandbox / wrapper / virtual machine, see if it does anything suspicious</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Manual Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Automated Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Architecture or Design Review",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		}
+	]
 }

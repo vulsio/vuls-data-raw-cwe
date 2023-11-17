@@ -1,467 +1,467 @@
 {
-  "id": "367",
-  "name": "Time-of-check Time-of-use (TOCTOU) Race Condition",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product checks the state of a resource before using that resource, but the resource's state can change between the check and the use in a way that invalidates the results of the check. This can cause the product to perform invalid actions when the resource is in an unexpected state.",
-  "extended_description": "This weakness can be security-relevant when an attacker can influence the state of the resource between check and use. This can happen with shared resources such as files, memory, or even variables in multithreaded programs.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "362",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "362",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Other"
-      ],
-      "impact": [
-        "Alter Execution Logic",
-        "Unexpected State"
-      ],
-      "note": "The attacker can gain access to otherwise unauthorized resources."
-    },
-    {
-      "scope": [
-        "Integrity",
-        "Other"
-      ],
-      "impact": [
-        "Modify Application Data",
-        "Modify Files or Directories",
-        "Modify Memory",
-        "Other"
-      ],
-      "note": "Race conditions such as this kind may be employed to gain read or write access to resources which are not normally readable or writable by the user in question."
-    },
-    {
-      "scope": [
-        "Integrity",
-        "Other"
-      ],
-      "impact": [
-        "Other"
-      ],
-      "note": "The resource in question, or other resources (through the corrupted one), may be changed in undesirable ways by a malicious user."
-    },
-    {
-      "scope": [
-        "Non-Repudiation"
-      ],
-      "impact": [
-        "Hide Activities"
-      ],
-      "note": "If a file or other resource is written in this method, as opposed to in a valid way, logging of the activity may not occur."
-    },
-    {
-      "scope": [
-        "Non-Repudiation",
-        "Other"
-      ],
-      "impact": [
-        "Other"
-      ],
-      "note": "In some cases it may be possible to delete files a malicious user might not otherwise have access to, such as log files."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "The most basic advice for TOCTOU vulnerabilities is to not perform a check before the use. This does not resolve the underlying issue of the execution of a function on a resource whose state and identity cannot be assured, but it does help to limit the false sense of security given by the check."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "When the file being altered is owned by the current user and group, set the effective gid and uid to that of the current user and group when executing this statement."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Limit the interleaving of operations on files from multiple processes."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation",
-        "Architecture and Design"
-      ],
-      "description": [
-        "If you cannot perform operations atomically and you must share access to the resource between multiple processes or threads, then try to limit the amount of time (CPU cycles) between the check and use of the resource. This will not fix the problem, but it could make it more difficult for an attack to succeed."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Recheck the resource after the use call to verify that the action was taken appropriately."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Ensure that some environmental locking mechanism can be used to protect resources effectively."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Ensure that locking occurs before the check, as opposed to afterwards, such that the resource, as checked, is the same as it is when in use."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following code checks a file, then updates its contents.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>struct stat *sb;<xhtml:br/>...<xhtml:br/>lstat(\"...\",sb); // it has not been updated since the last time it was read<xhtml:br/>printf(\"stated file\\n\");<xhtml:br/>if (sb-&gt;st_mtimespec==...){<xhtml:div style=\"margin-left:1em;\">print(\"Now updating things\\n\");<xhtml:br/>updateThings();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Potentially the file could have been updated between the time of the check and the lstat, especially since the printf has latency.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>The following code is from a program installed setuid root. The program performs certain file operations on behalf of non-privileged users, and uses access checks to ensure that it does not use its root privileges to perform operations that should otherwise be unavailable the current user. The program uses the access() system call to check if the person running the program has permission to access the specified file before it opens the file and performs the necessary operations.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>if(!access(file,W_OK)) {<xhtml:div style=\"margin-left:1em;\">f = fopen(file,\"w+\");<xhtml:br/>operate(f);<xhtml:br/>...</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>fprintf(stderr,\"Unable to open file %s.\\n\",file);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The call to access() behaves as expected, and returns 0 if the user running the program has the necessary permissions to write to the file, and -1 otherwise. However, because both access() and fopen() operate on filenames rather than on file handles, there is no guarantee that the file variable still refers to the same file on disk when it is passed to fopen() that it did when it was passed to access(). If an attacker replaces file after the call to access() with a symbolic link to a different file, the program will use its root privileges to operate on the file even if it is a file that the attacker would otherwise be unable to modify. By tricking the program into performing an operation that would otherwise be impermissible, the attacker has gained elevated privileges. This type of vulnerability is not limited to programs with root privileges. If the application is capable of performing any operation that the attacker would not otherwise be allowed perform, then it is a possible target.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-49",
-      "text": "\n               <Intro_Text>This code prints the contents of a file if a user has permission.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function readFile($filename){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>$user = getCurrentUser();<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>//resolve file if its a symbolic link</xhtml:i>\n                           <xhtml:br/>if(is_link($filename)){<xhtml:div style=\"margin-left:1em;\">$filename = readlink($filename);</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>if(fileowner($filename) == $user){<xhtml:div style=\"margin-left:1em;\">echo file_get_contents($realFile);<xhtml:br/>return;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">echo 'Access denied';<xhtml:br/>return false;</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code attempts to resolve symbolic links before checking the file and printing its contents. However, an attacker may be able to change the file from a real file to a symbolic link between the calls to is_link() and file_get_contents(), allowing the reading of arbitrary files. Note that this code fails to log the attempted access (CWE-778).</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>This example is adapted from [REF-18]. Assume that this code block is invoked from multiple threads. The switch statement will execute different code depending on the time when MYFILE.txt was last changed.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>\n\t\t    #include &lt;sys/types.h&gt;<xhtml:br/>\n\t\t    #include &lt;sys/stat.h&gt;<xhtml:br/>\n\t\t    <xhtml:br/>\n\t\t    ...<xhtml:br/>\n\t\t    <xhtml:br/>\n\t\t      struct stat sb;<xhtml:br/>\n\t\t      stat(\"MYFILE.txt\",&amp;sb);<xhtml:br/>\n\t\t      printf(\"file change time: %d\\n\",sb-&gt;st_ctime);<xhtml:br/>\n\t\t      switch(sb-&gt;st_ctime % 2){<xhtml:div style=\"margin-left:1em;\">\n\t\t        case 0: printf(\"Option 1\\n\"); break;<xhtml:br/>\n\t\t        case 1: printf(\"Option 2\\n\"); break;<xhtml:br/>\n\t\t        default: printf(\"this should be unreachable?\\n\"); break;<xhtml:br/>\n\t\t      </xhtml:div>}<xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>If this code block were executed within multiple threads, and MYFILE.txt changed between the operation of one thread and another, then the switch could produce different, possibly unexpected results.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2015-1743",
-      "description": "TOCTOU in sandbox process allows installation of untrusted browser add-ons by replacing a file after it has been verified, but before it is executed",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2015-1743"
-    },
-    {
-      "reference": "CVE-2003-0813",
-      "description": "A multi-threaded race condition allows remote attackers to cause a denial of service (crash or reboot) by causing two threads to process the same RPC request, which causes one thread to use memory after it has been freed.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0813"
-    },
-    {
-      "reference": "CVE-2004-0594",
-      "description": "PHP flaw allows remote attackers to execute arbitrary code by aborting execution before the initialization of key data structures is complete.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0594"
-    },
-    {
-      "reference": "CVE-2008-2958",
-      "description": "chain: time-of-check time-of-use (TOCTOU) race condition in program allows bypass of protection mechanism that was designed to prevent symlink attacks.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2958"
-    },
-    {
-      "reference": "CVE-2008-1570",
-      "description": "chain: time-of-check time-of-use (TOCTOU) race condition in program allows bypass of protection mechanism that was designed to prevent symlink attacks.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-1570"
-    }
-  ],
-  "references": [
-    {
-      "section": "5.4.6 Race condition in switch",
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    },
-    {
-      "reference_id": "REF-367",
-      "author": [
-        "Dan Tsafrir",
-        "Tomer Hertz",
-        "David Wagner",
-        "Dilma Da Silva"
-      ],
-      "title": "Portably Solving File TOCTTOU Races with Hardness Amplification",
-      "url": "https://www.usenix.org/legacy/events/fast08/tech/tsafrir.html",
-      "publication_year": "2008",
-      "publication_month": "--02",
-      "publication_day": "---28",
-      "url_date": "2023-04-07"
-    },
-    {
-      "section": "\"Sin 13: Race Conditions.\" Page 205",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    },
-    {
-      "section": "Chapter 9, \"TOCTOU\", Page 527",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_organization": "KDM Analytics",
-        "modification_date": "2008-08-01",
-        "modification_comment": "added/updated white box definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Description, Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Alternate_Terms, Observed_Examples, Other_Notes, References, Relationship_Notes, Relationships, Research_Gaps"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "KDM Analytics",
-        "modification_date": "2009-07-17",
-        "modification_comment": "Improved the White_Box_Definition"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated White_Box_Definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Description, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Alternate_Terms, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Demonstrative_Examples, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Likelihood_of_Exploit, References, Relationships, Taxonomy_Mappings, White_Box_Definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Demonstrative_Examples, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Time-of-check Time-of-use Race Condition",
-        "date": "2008-10-14"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "TOCTTOU",
-      "description": "The TOCTTOU acronym expands to \"Time Of Check To Time Of Use\"."
-    },
-    {
-      "term": "TOCCTOU",
-      "description": "The TOCCTOU acronym is most likely a typo of TOCTTOU, but it has been used in some influential documents, so the typo is repeated fairly frequently."
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Time-of-check Time-of-use race condition"
-    },
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "File Access Race Conditions: TOCTOU"
-    },
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Time of check, time of use race condition"
-    },
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Race condition in switch"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Be careful using functions that use file names for identification",
-      "entry_id": "FIO01-C"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Race Condition Window",
-      "entry_id": "SFP20"
-    }
-  ],
-  "related_attack_patterns": [
-    "27",
-    "29"
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "TOCTOU issues do not always involve symlinks, and not every symlink issue is a TOCTOU problem."
-    },
-    {
-      "type": "Research Gap",
-      "text": "Non-symlink TOCTOU issues are not reported frequently, but they are likely to occur in code that attempts to be secure."
-    }
-  ]
+	"id": "367",
+	"name": "Time-of-check Time-of-use (TOCTOU) Race Condition",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product checks the state of a resource before using that resource, but the resource's state can change between the check and the use in a way that invalidates the results of the check. This can cause the product to perform invalid actions when the resource is in an unexpected state.",
+	"extended_description": "This weakness can be security-relevant when an attacker can influence the state of the resource between check and use. This can happen with shared resources such as files, memory, or even variables in multithreaded programs.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "362",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "362",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Other"
+			],
+			"impact": [
+				"Alter Execution Logic",
+				"Unexpected State"
+			],
+			"note": "The attacker can gain access to otherwise unauthorized resources."
+		},
+		{
+			"scope": [
+				"Integrity",
+				"Other"
+			],
+			"impact": [
+				"Modify Application Data",
+				"Modify Files or Directories",
+				"Modify Memory",
+				"Other"
+			],
+			"note": "Race conditions such as this kind may be employed to gain read or write access to resources which are not normally readable or writable by the user in question."
+		},
+		{
+			"scope": [
+				"Integrity",
+				"Other"
+			],
+			"impact": [
+				"Other"
+			],
+			"note": "The resource in question, or other resources (through the corrupted one), may be changed in undesirable ways by a malicious user."
+		},
+		{
+			"scope": [
+				"Non-Repudiation"
+			],
+			"impact": [
+				"Hide Activities"
+			],
+			"note": "If a file or other resource is written in this method, as opposed to in a valid way, logging of the activity may not occur."
+		},
+		{
+			"scope": [
+				"Non-Repudiation",
+				"Other"
+			],
+			"impact": [
+				"Other"
+			],
+			"note": "In some cases it may be possible to delete files a malicious user might not otherwise have access to, such as log files."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"The most basic advice for TOCTOU vulnerabilities is to not perform a check before the use. This does not resolve the underlying issue of the execution of a function on a resource whose state and identity cannot be assured, but it does help to limit the false sense of security given by the check."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"When the file being altered is owned by the current user and group, set the effective gid and uid to that of the current user and group when executing this statement."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Limit the interleaving of operations on files from multiple processes."
+			]
+		},
+		{
+			"phase": [
+				"Implementation",
+				"Architecture and Design"
+			],
+			"description": [
+				"If you cannot perform operations atomically and you must share access to the resource between multiple processes or threads, then try to limit the amount of time (CPU cycles) between the check and use of the resource. This will not fix the problem, but it could make it more difficult for an attack to succeed."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Recheck the resource after the use call to verify that the action was taken appropriately."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Ensure that some environmental locking mechanism can be used to protect resources effectively."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Ensure that locking occurs before the check, as opposed to afterwards, such that the resource, as checked, is the same as it is when in use."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following code checks a file, then updates its contents.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>struct stat *sb;<xhtml:br/>...<xhtml:br/>lstat(\"...\",sb); // it has not been updated since the last time it was read<xhtml:br/>printf(\"stated file\\n\");<xhtml:br/>if (sb-&gt;st_mtimespec==...){<xhtml:div style=\"margin-left:1em;\">print(\"Now updating things\\n\");<xhtml:br/>updateThings();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Potentially the file could have been updated between the time of the check and the lstat, especially since the printf has latency.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>The following code is from a program installed setuid root. The program performs certain file operations on behalf of non-privileged users, and uses access checks to ensure that it does not use its root privileges to perform operations that should otherwise be unavailable the current user. The program uses the access() system call to check if the person running the program has permission to access the specified file before it opens the file and performs the necessary operations.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>if(!access(file,W_OK)) {<xhtml:div style=\"margin-left:1em;\">f = fopen(file,\"w+\");<xhtml:br/>operate(f);<xhtml:br/>...</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>fprintf(stderr,\"Unable to open file %s.\\n\",file);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The call to access() behaves as expected, and returns 0 if the user running the program has the necessary permissions to write to the file, and -1 otherwise. However, because both access() and fopen() operate on filenames rather than on file handles, there is no guarantee that the file variable still refers to the same file on disk when it is passed to fopen() that it did when it was passed to access(). If an attacker replaces file after the call to access() with a symbolic link to a different file, the program will use its root privileges to operate on the file even if it is a file that the attacker would otherwise be unable to modify. By tricking the program into performing an operation that would otherwise be impermissible, the attacker has gained elevated privileges. This type of vulnerability is not limited to programs with root privileges. If the application is capable of performing any operation that the attacker would not otherwise be allowed perform, then it is a possible target.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-49",
+			"text": "\n               <Intro_Text>This code prints the contents of a file if a user has permission.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function readFile($filename){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>$user = getCurrentUser();<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>//resolve file if its a symbolic link</xhtml:i>\n                           <xhtml:br/>if(is_link($filename)){<xhtml:div style=\"margin-left:1em;\">$filename = readlink($filename);</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>if(fileowner($filename) == $user){<xhtml:div style=\"margin-left:1em;\">echo file_get_contents($realFile);<xhtml:br/>return;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">echo 'Access denied';<xhtml:br/>return false;</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code attempts to resolve symbolic links before checking the file and printing its contents. However, an attacker may be able to change the file from a real file to a symbolic link between the calls to is_link() and file_get_contents(), allowing the reading of arbitrary files. Note that this code fails to log the attempted access (CWE-778).</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>This example is adapted from [REF-18]. Assume that this code block is invoked from multiple threads. The switch statement will execute different code depending on the time when MYFILE.txt was last changed.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>\n\t\t    #include &lt;sys/types.h&gt;<xhtml:br/>\n\t\t    #include &lt;sys/stat.h&gt;<xhtml:br/>\n\t\t    <xhtml:br/>\n\t\t    ...<xhtml:br/>\n\t\t    <xhtml:br/>\n\t\t      struct stat sb;<xhtml:br/>\n\t\t      stat(\"MYFILE.txt\",&amp;sb);<xhtml:br/>\n\t\t      printf(\"file change time: %d\\n\",sb-&gt;st_ctime);<xhtml:br/>\n\t\t      switch(sb-&gt;st_ctime % 2){<xhtml:div style=\"margin-left:1em;\">\n\t\t        case 0: printf(\"Option 1\\n\"); break;<xhtml:br/>\n\t\t        case 1: printf(\"Option 2\\n\"); break;<xhtml:br/>\n\t\t        default: printf(\"this should be unreachable?\\n\"); break;<xhtml:br/>\n\t\t      </xhtml:div>}<xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>If this code block were executed within multiple threads, and MYFILE.txt changed between the operation of one thread and another, then the switch could produce different, possibly unexpected results.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2015-1743",
+			"description": "TOCTOU in sandbox process allows installation of untrusted browser add-ons by replacing a file after it has been verified, but before it is executed",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2015-1743"
+		},
+		{
+			"reference": "CVE-2003-0813",
+			"description": "A multi-threaded race condition allows remote attackers to cause a denial of service (crash or reboot) by causing two threads to process the same RPC request, which causes one thread to use memory after it has been freed.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0813"
+		},
+		{
+			"reference": "CVE-2004-0594",
+			"description": "PHP flaw allows remote attackers to execute arbitrary code by aborting execution before the initialization of key data structures is complete.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0594"
+		},
+		{
+			"reference": "CVE-2008-2958",
+			"description": "chain: time-of-check time-of-use (TOCTOU) race condition in program allows bypass of protection mechanism that was designed to prevent symlink attacks.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-2958"
+		},
+		{
+			"reference": "CVE-2008-1570",
+			"description": "chain: time-of-check time-of-use (TOCTOU) race condition in program allows bypass of protection mechanism that was designed to prevent symlink attacks.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-1570"
+		}
+	],
+	"references": [
+		{
+			"section": "5.4.6 Race condition in switch",
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		},
+		{
+			"reference_id": "REF-367",
+			"author": [
+				"Dan Tsafrir",
+				"Tomer Hertz",
+				"David Wagner",
+				"Dilma Da Silva"
+			],
+			"title": "Portably Solving File TOCTTOU Races with Hardness Amplification",
+			"url": "https://www.usenix.org/legacy/events/fast08/tech/tsafrir.html",
+			"publication_year": "2008",
+			"publication_month": "--02",
+			"publication_day": "---28",
+			"url_date": "2023-04-07"
+		},
+		{
+			"section": "\"Sin 13: Race Conditions.\" Page 205",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		},
+		{
+			"section": "Chapter 9, \"TOCTOU\", Page 527",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_organization": "KDM Analytics",
+				"modification_date": "2008-08-01",
+				"modification_comment": "added/updated white box definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Description, Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Alternate_Terms, Observed_Examples, Other_Notes, References, Relationship_Notes, Relationships, Research_Gaps"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "KDM Analytics",
+				"modification_date": "2009-07-17",
+				"modification_comment": "Improved the White_Box_Definition"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated White_Box_Definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Description, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Alternate_Terms, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Demonstrative_Examples, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Likelihood_of_Exploit, References, Relationships, Taxonomy_Mappings, White_Box_Definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Demonstrative_Examples, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Time-of-check Time-of-use Race Condition",
+				"date": "2008-10-14"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "TOCTTOU",
+			"description": "The TOCTTOU acronym expands to \"Time Of Check To Time Of Use\"."
+		},
+		{
+			"term": "TOCCTOU",
+			"description": "The TOCCTOU acronym is most likely a typo of TOCTTOU, but it has been used in some influential documents, so the typo is repeated fairly frequently."
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Time-of-check Time-of-use race condition"
+		},
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "File Access Race Conditions: TOCTOU"
+		},
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Time of check, time of use race condition"
+		},
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Race condition in switch"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Be careful using functions that use file names for identification",
+			"entry_id": "FIO01-C"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Race Condition Window",
+			"entry_id": "SFP20"
+		}
+	],
+	"related_attack_patterns": [
+		"27",
+		"29"
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "TOCTOU issues do not always involve symlinks, and not every symlink issue is a TOCTOU problem."
+		},
+		{
+			"type": "Research Gap",
+			"text": "Non-symlink TOCTOU issues are not reported frequently, but they are likely to occur in code that attempts to be secure."
+		}
+	]
 }

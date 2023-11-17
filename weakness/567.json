@@ -1,218 +1,218 @@
 {
-  "id": "567",
-  "name": "Unsynchronized Access to Shared Data in a Multithreaded Context",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not properly synchronize shared data, such as static variables across threads, which can lead to undefined behavior and unpredictable data changes.",
-  "extended_description": "\n            <xhtml:p>Within servlets, shared static variables are not protected from concurrent access, but servlets are multithreaded. This is a typical programming mistake in J2EE applications, since the multithreading is handled by the framework. When a shared variable can be influenced by an attacker, one thread could wind up modifying the variable to contain data that is not valid for a different thread that is also using the data within the variable.</xhtml:p>\n            <xhtml:p>Note that this weakness is not unique to servlets.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "820",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "662",
-      "view_id": "1305",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "662",
-      "view_id": "1340",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "488",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Availability"
-      ],
-      "impact": [
-        "Read Application Data",
-        "Modify Application Data",
-        "DoS: Instability",
-        "DoS: Crash, Exit, or Restart"
-      ],
-      "note": "If the shared variable contains sensitive data, it may be manipulated or displayed in another user session. If this data is used to control the application, its value can be manipulated to cause the application to crash or perform poorly."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Remove the use of static variables used between servlets. If this cannot be avoided, use synchronized access for these variables."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following code implements a basic counter for how many times the page has been accesed.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public static class Counter extends HttpServlet {<xhtml:div style=\"margin-left:1em;\">static int count = 0;<xhtml:br/>protected void doGet(HttpServletRequest in, HttpServletResponse out)<xhtml:br/>throws ServletException, IOException {<xhtml:div style=\"margin-left:1em;\">out.setContentType(\"text/plain\");<xhtml:br/>PrintWriter p = out.getWriter();<xhtml:br/>count++;<xhtml:br/>p.println(count + \" hits so far!\");</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Consider when two separate threads, Thread A and Thread B, concurrently handle two different requests:</Body_Text>\n               <Body_Text>\n                  <xhtml:ul>\n                     <xhtml:li>\n                        <xhtml:div>Assume this is the first occurrence of doGet, so the value of count is 0.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>doGet() is called within Thread A.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>The execution of doGet() in Thread A continues to the point AFTER the value of the count variable is read, then incremented, but BEFORE it is saved back to count. At this stage, the incremented value is 1, but the value of count is 0.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>doGet() is called within Thread B, and due to a higher thread priority, Thread B progresses to the point where the count variable is accessed (where it is still 0), incremented, and saved. After the save, count is 1.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>Thread A continues. It saves the intermediate, incremented value to the count variable - but the incremented value is 1, so count is \"re-saved\" to 1.</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ul>\n               </Body_Text>\n               <Body_Text>At this point, both Thread A and Thread B print that one hit has been seen, even though two separate requests have been processed. The value of count should be 2, not 1.</Body_Text>\n               <Body_Text>While this example does not have any real serious implications, if the shared variable in question is used for resource tracking, then resource consumption could occur. Other scenarios exist.</Body_Text>\n            "
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Community",
-      "submission_date": "2006-12-15",
-      "submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-09",
-        "modification_comment": "Made name and description more specific to match the essence of the rest of the entry.",
-        "modification_importance": "Critical"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Description, Name, Other_Notes, Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-07-17",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Unsynchronized Access to Shared Data",
-        "date": "2010-12-13"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Ensure visibility when accessing shared primitive variables",
-      "entry_id": "VNA00-J"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Ensure that compound operations on shared variables are atomic",
-      "entry_id": "VNA02-J"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Missing Lock",
-      "entry_id": "SFP19"
-    }
-  ],
-  "related_attack_patterns": [
-    "25"
-  ]
+	"id": "567",
+	"name": "Unsynchronized Access to Shared Data in a Multithreaded Context",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not properly synchronize shared data, such as static variables across threads, which can lead to undefined behavior and unpredictable data changes.",
+	"extended_description": "\n            <xhtml:p>Within servlets, shared static variables are not protected from concurrent access, but servlets are multithreaded. This is a typical programming mistake in J2EE applications, since the multithreading is handled by the framework. When a shared variable can be influenced by an attacker, one thread could wind up modifying the variable to contain data that is not valid for a different thread that is also using the data within the variable.</xhtml:p>\n            <xhtml:p>Note that this weakness is not unique to servlets.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "820",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "662",
+			"view_id": "1305",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "662",
+			"view_id": "1340",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "488",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Availability"
+			],
+			"impact": [
+				"Read Application Data",
+				"Modify Application Data",
+				"DoS: Instability",
+				"DoS: Crash, Exit, or Restart"
+			],
+			"note": "If the shared variable contains sensitive data, it may be manipulated or displayed in another user session. If this data is used to control the application, its value can be manipulated to cause the application to crash or perform poorly."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Remove the use of static variables used between servlets. If this cannot be avoided, use synchronized access for these variables."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following code implements a basic counter for how many times the page has been accesed.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public static class Counter extends HttpServlet {<xhtml:div style=\"margin-left:1em;\">static int count = 0;<xhtml:br/>protected void doGet(HttpServletRequest in, HttpServletResponse out)<xhtml:br/>throws ServletException, IOException {<xhtml:div style=\"margin-left:1em;\">out.setContentType(\"text/plain\");<xhtml:br/>PrintWriter p = out.getWriter();<xhtml:br/>count++;<xhtml:br/>p.println(count + \" hits so far!\");</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Consider when two separate threads, Thread A and Thread B, concurrently handle two different requests:</Body_Text>\n               <Body_Text>\n                  <xhtml:ul>\n                     <xhtml:li>\n                        <xhtml:div>Assume this is the first occurrence of doGet, so the value of count is 0.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>doGet() is called within Thread A.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>The execution of doGet() in Thread A continues to the point AFTER the value of the count variable is read, then incremented, but BEFORE it is saved back to count. At this stage, the incremented value is 1, but the value of count is 0.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>doGet() is called within Thread B, and due to a higher thread priority, Thread B progresses to the point where the count variable is accessed (where it is still 0), incremented, and saved. After the save, count is 1.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>Thread A continues. It saves the intermediate, incremented value to the count variable - but the incremented value is 1, so count is \"re-saved\" to 1.</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ul>\n               </Body_Text>\n               <Body_Text>At this point, both Thread A and Thread B print that one hit has been seen, even though two separate requests have been processed. The value of count should be 2, not 1.</Body_Text>\n               <Body_Text>While this example does not have any real serious implications, if the shared variable in question is used for resource tracking, then resource consumption could occur. Other scenarios exist.</Body_Text>\n            "
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Community",
+			"submission_date": "2006-12-15",
+			"submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-09",
+				"modification_comment": "Made name and description more specific to match the essence of the rest of the entry.",
+				"modification_importance": "Critical"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Description, Name, Other_Notes, Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-07-17",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Unsynchronized Access to Shared Data",
+				"date": "2010-12-13"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Ensure visibility when accessing shared primitive variables",
+			"entry_id": "VNA00-J"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Ensure that compound operations on shared variables are atomic",
+			"entry_id": "VNA02-J"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Missing Lock",
+			"entry_id": "SFP19"
+		}
+	],
+	"related_attack_patterns": [
+		"25"
+	]
 }

@@ -1,473 +1,473 @@
 {
-  "id": "404",
-  "name": "Improper Resource Shutdown or Release",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not release or incorrectly releases a resource before it is made available for re-use.",
-  "extended_description": "When a resource is created or allocated, the developer is responsible for properly releasing the resource as well as accounting for all potential paths of expiration or invalidation, such as a set period of time or revocation.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "664",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "405",
-      "view_id": "1000"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "619",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability",
-        "Other"
-      ],
-      "impact": [
-        "DoS: Resource Consumption (Other)",
-        "Varies by Context"
-      ],
-      "note": "Most unreleased resource issues result in general software reliability problems, but if an attacker can intentionally trigger a resource leak, the attacker might be able to launch a denial of service attack by depleting the resource pool."
-    },
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Application Data"
-      ],
-      "note": "When a resource containing sensitive information is not correctly shutdown, it may expose the sensitive data in a subsequent allocation."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "mitigation_id": "MIT-3",
-      "phase": [
-        "Requirements"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>For example, languages such as Java, Ruby, and Lisp perform automatic garbage collection that releases memory for objects that have been deallocated.</xhtml:p>\n               "
-      ],
-      "strategy": "Language Selection"
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "It is good practice to be responsible for freeing all resources you allocate and to be consistent with how and where you free memory in a function. If you allocate memory that you intend to free upon completion of the function, you must be sure to free the memory at all exit points for that function including error conditions."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Memory should be allocated/freed using matching functions such as malloc/free, new/delete, and new[]/delete[]."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "When releasing a complex object or structure, ensure that you properly dispose of all of its member components, not just the object itself."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-81",
-      "text": "\n               <Intro_Text>The following method never closes the new file handle. Given enough time, the Finalize() method for BufferReader should eventually call Close(), but there is no guarantee as to how long this action will take. In fact, there is no guarantee that Finalize() will ever be invoked. In a busy environment, the Operating System could use up all of the available file handles before the Close() function is called.</Intro_Text>\n              <Example_Code Nature=\"Bad\" Language=\"Java\">\n                <xhtml:div>private void processFile(string fName)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">BufferReader fil = new BufferReader(new FileReader(fName));<xhtml:br/>String line;<xhtml:br/>while ((line = fil.ReadLine()) != null)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">processLine(line);</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The good code example simply adds an explicit call to the Close() function when the system is done using the file. Within a simple example such as this the problem is easy to see and fix. In a real system, the problem may be considerably more obscure.</Body_Text>\n              <Example_Code Nature=\"Good\" Language=\"Java\">\n                <xhtml:div>private void processFile(string fName)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">BufferReader fil = new BufferReader(new FileReader(fName));<xhtml:br/>String line;<xhtml:br/>while ((line = fil.ReadLine()) != null)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">processLine(line);</xhtml:div>}<xhtml:br/>fil.Close();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-82",
-      "text": "\n               <Intro_Text>This code attempts to open a connection to a database and catches any exceptions that may occur.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">Connection con = DriverManager.getConnection(some_connection_string);</xhtml:div>}<xhtml:br/>catch ( Exception e ) {<xhtml:div style=\"margin-left:1em;\">log( e );</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If an exception occurs after establishing the database connection and before the same connection closes, the pool of database connections may become exhausted. If the number of available connections is exceeded, other users cannot access this resource, effectively denying access to the application.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-83",
-      "text": "\n               <Intro_Text>Under normal conditions the following C# code executes a database query, processes the results returned by the database, and closes the allocated SqlConnection object. But if an exception occurs while executing the SQL or processing the results, the SqlConnection object is not closed. If this happens often enough, the database will run out of available cursors and not be able to execute any more SQL queries.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C#\">\n                  <xhtml:div>...<xhtml:br/>SqlConnection conn = new SqlConnection(connString);<xhtml:br/>SqlCommand cmd = new SqlCommand(queryString);<xhtml:br/>cmd.Connection = conn;<xhtml:br/>conn.Open();<xhtml:br/>SqlDataReader rdr = cmd.ExecuteReader();<xhtml:br/>HarvestResults(rdr);<xhtml:br/>conn.Connection.Close();<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-84",
-      "text": "\n               <Intro_Text>The following C function does not close the file handle it opens if an error occurs. If the process is long-lived, the process can run out of file handles.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int decodeFile(char* fName) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char buf[BUF_SZ];<xhtml:br/>FILE* f = fopen(fName, \"r\");<xhtml:br/>if (!f) {<xhtml:div style=\"margin-left:1em;\">printf(\"cannot open %s\\n\", fName);<xhtml:br/>return DECODE_FAIL;</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>while (fgets(buf, BUF_SZ, f)) {<xhtml:div style=\"margin-left:1em;\">if (!checkChecksum(buf)) {<xhtml:div style=\"margin-left:1em;\">return DECODE_FAIL;</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">decodeBlock(buf);</xhtml:div>}</xhtml:div>}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>fclose(f);<xhtml:br/>return DECODE_SUCCESS;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-85",
-      "text": "\n               <Intro_Text>In this example, the program does not use matching functions such as malloc/free, new/delete, and new[]/delete[] to allocate/deallocate the resource.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>class A {<xhtml:div style=\"margin-left:1em;\">void foo();</xhtml:div>};<xhtml:br/>void A::foo(){<xhtml:div style=\"margin-left:1em;\">int *ptr;<xhtml:br/>ptr = (int*)malloc(sizeof(int));<xhtml:br/>delete ptr;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-86",
-      "text": "\n               <Intro_Text>In this example, the program calls the delete[] function on non-heap memory.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>class A{<xhtml:div style=\"margin-left:1em;\">void foo(bool);</xhtml:div>};<xhtml:br/>void A::foo(bool heap) {<xhtml:div style=\"margin-left:1em;\">int localArray[2] = {<xhtml:div style=\"margin-left:1em;\">11,22</xhtml:div>};<xhtml:br/>int *p = localArray;<xhtml:br/>if (heap){<xhtml:div style=\"margin-left:1em;\">p = new int[2];</xhtml:div>}<xhtml:br/>delete[] p;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-1999-1127",
-      "description": "Does not shut down named pipe connections if malformed data is sent.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1127"
-    },
-    {
-      "reference": "CVE-2001-0830",
-      "description": "Sockets not properly closed when attacker repeatedly connects and disconnects from server.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0830"
-    },
-    {
-      "reference": "CVE-2002-1372",
-      "description": "Chain: Return values of file/socket operations are not checked (CWE-252), allowing resultant consumption of file descriptors (CWE-772).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1372"
-    }
-  ],
-  "references": [
-    {
-      "section": "\"Sin 8: C++ Catastrophes.\" Page 143",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_organization": "Veracode",
-        "modification_date": "2008-08-15",
-        "modification_comment": "Suggested OWASP Top Ten 2004 mapping"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Common_Consequences, Likelihood_of_Exploit, Other_Notes, Potential_Mitigations, Relationship_Notes, Relationships, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Description, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Detection_Factors, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-02-18",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-01-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-05-03",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Functional_Areas, Likelihood_of_Exploit, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description, Detection_Factors"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary",
-      "description": "Improper release or shutdown of resources can be primary to resource exhaustion, performance, and information confidentiality problems to name a few."
-    },
-    {
-      "ordinality": "Resultant",
-      "description": "Improper release or shutdown of resources can be resultant from improper error handling or insufficient resource tracking."
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-2",
-      "method": "Automated Dynamic Analysis",
-      "description": "\n                  <xhtml:p>This weakness can be detected using dynamic tools and techniques that interact with the software using large test suites with many diverse inputs, such as fuzz testing (fuzzing), robustness testing, and fault injection. The software's operation may slow down, but it should not become unstable, crash, or generate incorrect results.</xhtml:p>\n                  <xhtml:p>Resource clean up errors might be detected with a stress-test by calling the software simultaneously from a large number of threads or processes, and look for evidence of any unexpected behavior. The software's operation may slow down, but it should not become unstable, crash, or generate incorrect results.</xhtml:p>\n               ",
-      "effectiveness": "Moderate"
-    },
-    {
-      "detection_method_id": "DM-12",
-      "method": "Manual Dynamic Analysis",
-      "description": "Identify error conditions that are not likely to occur during normal usage and trigger them. For example, run the product under low memory conditions, run with insufficient privileges or permissions, interrupt a transaction before it is completed, or disable connectivity to basic network services such as DNS. Monitor the software for any unexpected behavior. If you trigger an unhandled exception or similar error that was discovered and handled by the application's environment, it may still indicate unexpected conditions that were not handled by the application itself."
-    },
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Improper resource shutdown or release"
-    },
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "Unreleased Resource"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2004",
-      "entry_name": "Denial of Service",
-      "entry_id": "A9",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Close files when they are no longer needed",
-      "entry_id": "FIO42-C",
-      "mapping_fit": "CWE More Abstract"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Free dynamically allocated memory when no longer needed",
-      "entry_id": "MEM31-C",
-      "mapping_fit": "CWE More Abstract"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Release resources when they are no longer needed",
-      "entry_id": "FIO04-J"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Failure to release resource",
-      "entry_id": "SFP14"
-    }
-  ],
-  "related_attack_patterns": [
-    "125",
-    "130",
-    "131",
-    "494",
-    "495",
-    "496",
-    "666"
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "Overlaps memory leaks, asymmetric resource consumption, malformed input errors."
-    }
-  ]
+	"id": "404",
+	"name": "Improper Resource Shutdown or Release",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not release or incorrectly releases a resource before it is made available for re-use.",
+	"extended_description": "When a resource is created or allocated, the developer is responsible for properly releasing the resource as well as accounting for all potential paths of expiration or invalidation, such as a set period of time or revocation.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "664",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "405",
+			"view_id": "1000"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "619",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability",
+				"Other"
+			],
+			"impact": [
+				"DoS: Resource Consumption (Other)",
+				"Varies by Context"
+			],
+			"note": "Most unreleased resource issues result in general software reliability problems, but if an attacker can intentionally trigger a resource leak, the attacker might be able to launch a denial of service attack by depleting the resource pool."
+		},
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Application Data"
+			],
+			"note": "When a resource containing sensitive information is not correctly shutdown, it may expose the sensitive data in a subsequent allocation."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"mitigation_id": "MIT-3",
+			"phase": [
+				"Requirements"
+			],
+			"description": [
+				"\n                  <xhtml:p>Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>For example, languages such as Java, Ruby, and Lisp perform automatic garbage collection that releases memory for objects that have been deallocated.</xhtml:p>\n               "
+			],
+			"strategy": "Language Selection"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"It is good practice to be responsible for freeing all resources you allocate and to be consistent with how and where you free memory in a function. If you allocate memory that you intend to free upon completion of the function, you must be sure to free the memory at all exit points for that function including error conditions."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Memory should be allocated/freed using matching functions such as malloc/free, new/delete, and new[]/delete[]."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"When releasing a complex object or structure, ensure that you properly dispose of all of its member components, not just the object itself."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-81",
+			"text": "\n               <Intro_Text>The following method never closes the new file handle. Given enough time, the Finalize() method for BufferReader should eventually call Close(), but there is no guarantee as to how long this action will take. In fact, there is no guarantee that Finalize() will ever be invoked. In a busy environment, the Operating System could use up all of the available file handles before the Close() function is called.</Intro_Text>\n              <Example_Code Nature=\"Bad\" Language=\"Java\">\n                <xhtml:div>private void processFile(string fName)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">BufferReader fil = new BufferReader(new FileReader(fName));<xhtml:br/>String line;<xhtml:br/>while ((line = fil.ReadLine()) != null)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">processLine(line);</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The good code example simply adds an explicit call to the Close() function when the system is done using the file. Within a simple example such as this the problem is easy to see and fix. In a real system, the problem may be considerably more obscure.</Body_Text>\n              <Example_Code Nature=\"Good\" Language=\"Java\">\n                <xhtml:div>private void processFile(string fName)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">BufferReader fil = new BufferReader(new FileReader(fName));<xhtml:br/>String line;<xhtml:br/>while ((line = fil.ReadLine()) != null)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">processLine(line);</xhtml:div>}<xhtml:br/>fil.Close();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-82",
+			"text": "\n               <Intro_Text>This code attempts to open a connection to a database and catches any exceptions that may occur.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">Connection con = DriverManager.getConnection(some_connection_string);</xhtml:div>}<xhtml:br/>catch ( Exception e ) {<xhtml:div style=\"margin-left:1em;\">log( e );</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If an exception occurs after establishing the database connection and before the same connection closes, the pool of database connections may become exhausted. If the number of available connections is exceeded, other users cannot access this resource, effectively denying access to the application.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-83",
+			"text": "\n               <Intro_Text>Under normal conditions the following C# code executes a database query, processes the results returned by the database, and closes the allocated SqlConnection object. But if an exception occurs while executing the SQL or processing the results, the SqlConnection object is not closed. If this happens often enough, the database will run out of available cursors and not be able to execute any more SQL queries.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C#\">\n                  <xhtml:div>...<xhtml:br/>SqlConnection conn = new SqlConnection(connString);<xhtml:br/>SqlCommand cmd = new SqlCommand(queryString);<xhtml:br/>cmd.Connection = conn;<xhtml:br/>conn.Open();<xhtml:br/>SqlDataReader rdr = cmd.ExecuteReader();<xhtml:br/>HarvestResults(rdr);<xhtml:br/>conn.Connection.Close();<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-84",
+			"text": "\n               <Intro_Text>The following C function does not close the file handle it opens if an error occurs. If the process is long-lived, the process can run out of file handles.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int decodeFile(char* fName) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char buf[BUF_SZ];<xhtml:br/>FILE* f = fopen(fName, \"r\");<xhtml:br/>if (!f) {<xhtml:div style=\"margin-left:1em;\">printf(\"cannot open %s\\n\", fName);<xhtml:br/>return DECODE_FAIL;</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>while (fgets(buf, BUF_SZ, f)) {<xhtml:div style=\"margin-left:1em;\">if (!checkChecksum(buf)) {<xhtml:div style=\"margin-left:1em;\">return DECODE_FAIL;</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">decodeBlock(buf);</xhtml:div>}</xhtml:div>}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>fclose(f);<xhtml:br/>return DECODE_SUCCESS;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-85",
+			"text": "\n               <Intro_Text>In this example, the program does not use matching functions such as malloc/free, new/delete, and new[]/delete[] to allocate/deallocate the resource.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>class A {<xhtml:div style=\"margin-left:1em;\">void foo();</xhtml:div>};<xhtml:br/>void A::foo(){<xhtml:div style=\"margin-left:1em;\">int *ptr;<xhtml:br/>ptr = (int*)malloc(sizeof(int));<xhtml:br/>delete ptr;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-86",
+			"text": "\n               <Intro_Text>In this example, the program calls the delete[] function on non-heap memory.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>class A{<xhtml:div style=\"margin-left:1em;\">void foo(bool);</xhtml:div>};<xhtml:br/>void A::foo(bool heap) {<xhtml:div style=\"margin-left:1em;\">int localArray[2] = {<xhtml:div style=\"margin-left:1em;\">11,22</xhtml:div>};<xhtml:br/>int *p = localArray;<xhtml:br/>if (heap){<xhtml:div style=\"margin-left:1em;\">p = new int[2];</xhtml:div>}<xhtml:br/>delete[] p;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-1999-1127",
+			"description": "Does not shut down named pipe connections if malformed data is sent.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-1127"
+		},
+		{
+			"reference": "CVE-2001-0830",
+			"description": "Sockets not properly closed when attacker repeatedly connects and disconnects from server.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0830"
+		},
+		{
+			"reference": "CVE-2002-1372",
+			"description": "Chain: Return values of file/socket operations are not checked (CWE-252), allowing resultant consumption of file descriptors (CWE-772).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1372"
+		}
+	],
+	"references": [
+		{
+			"section": "\"Sin 8: C++ Catastrophes.\" Page 143",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_organization": "Veracode",
+				"modification_date": "2008-08-15",
+				"modification_comment": "Suggested OWASP Top Ten 2004 mapping"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Common_Consequences, Likelihood_of_Exploit, Other_Notes, Potential_Mitigations, Relationship_Notes, Relationships, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Description, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Detection_Factors, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-02-18",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-01-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-05-03",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Functional_Areas, Likelihood_of_Exploit, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description, Detection_Factors"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary",
+			"description": "Improper release or shutdown of resources can be primary to resource exhaustion, performance, and information confidentiality problems to name a few."
+		},
+		{
+			"ordinality": "Resultant",
+			"description": "Improper release or shutdown of resources can be resultant from improper error handling or insufficient resource tracking."
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-2",
+			"method": "Automated Dynamic Analysis",
+			"description": "\n                  <xhtml:p>This weakness can be detected using dynamic tools and techniques that interact with the software using large test suites with many diverse inputs, such as fuzz testing (fuzzing), robustness testing, and fault injection. The software's operation may slow down, but it should not become unstable, crash, or generate incorrect results.</xhtml:p>\n                  <xhtml:p>Resource clean up errors might be detected with a stress-test by calling the software simultaneously from a large number of threads or processes, and look for evidence of any unexpected behavior. The software's operation may slow down, but it should not become unstable, crash, or generate incorrect results.</xhtml:p>\n               ",
+			"effectiveness": "Moderate"
+		},
+		{
+			"detection_method_id": "DM-12",
+			"method": "Manual Dynamic Analysis",
+			"description": "Identify error conditions that are not likely to occur during normal usage and trigger them. For example, run the product under low memory conditions, run with insufficient privileges or permissions, interrupt a transaction before it is completed, or disable connectivity to basic network services such as DNS. Monitor the software for any unexpected behavior. If you trigger an unhandled exception or similar error that was discovered and handled by the application's environment, it may still indicate unexpected conditions that were not handled by the application itself."
+		},
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Improper resource shutdown or release"
+		},
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "Unreleased Resource"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2004",
+			"entry_name": "Denial of Service",
+			"entry_id": "A9",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Close files when they are no longer needed",
+			"entry_id": "FIO42-C",
+			"mapping_fit": "CWE More Abstract"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Free dynamically allocated memory when no longer needed",
+			"entry_id": "MEM31-C",
+			"mapping_fit": "CWE More Abstract"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Release resources when they are no longer needed",
+			"entry_id": "FIO04-J"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Failure to release resource",
+			"entry_id": "SFP14"
+		}
+	],
+	"related_attack_patterns": [
+		"125",
+		"130",
+		"131",
+		"494",
+		"495",
+		"496",
+		"666"
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "Overlaps memory leaks, asymmetric resource consumption, malformed input errors."
+		}
+	]
 }

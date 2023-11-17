@@ -1,233 +1,233 @@
 {
-  "id": "637",
-  "name": "Unnecessary Complexity in Protection Mechanism (Not Using 'Economy of Mechanism')",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product uses a more complex mechanism than necessary, which could lead to resultant weaknesses when the mechanism is not correctly understood, modeled, configured, implemented, or used.",
-  "extended_description": "Security mechanisms should be as simple as possible. Complex security mechanisms may engender partial implementations and compatibility problems, with resulting mismatches in assumptions and implemented security. A corollary of this principle is that data specifications should be as simple as possible, because complex data specifications result in complex validation code. Complex tasks and systems may also need to be guarded by complex security checks, so simple systems should be preferred.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "657",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Other"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Avoid complex security mechanisms when simpler ones would meet requirements. Avoid complex data models, and unnecessarily complex operations. Adopt architectures that provide guarantees, simplify understanding through elegance and abstraction, and that can be implemented similarly. Modularize, isolate and do not trust complex code, and apply other secure programming principles on these modules (e.g., least privilege) to mitigate vulnerabilities."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-165",
-      "text": "\n               <Intro_Text>The IPSEC specification is complex, which resulted in bugs, partial implementations, and incompatibilities between vendors.</Intro_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>HTTP Request Smuggling (CWE-444) attacks are feasible because there are not stringent requirements for how illegal or inconsistent HTTP headers should be handled. This can lead to inconsistent implementations in which a proxy or firewall interprets the same data stream as a different set of requests than the end points in that stream.</Intro_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2007-6067",
-      "description": "Support for complex regular expressions leads to a resultant algorithmic complexity weakness (CWE-407).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-6067"
-    },
-    {
-      "reference": "CVE-2007-1552",
-      "description": "Either a filename extension and a Content-Type header could be used to infer the file type, but the developer only checks the Content-Type, enabling unrestricted file upload (CWE-434).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-1552"
-    },
-    {
-      "reference": "CVE-2007-6479",
-      "description": "In Apache environments, a \"filename.php.gif\" can be redirected to the PHP interpreter instead of being sent as an image/gif directly to the user. Not knowing this, the developer only checks the last extension of a submitted filename, enabling arbitrary code execution.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-6479"
-    },
-    {
-      "reference": "CVE-2005-2148",
-      "description": "The developer cleanses the $_REQUEST superglobal array, but PHP also populates $_GET, allowing attackers to bypass the protection mechanism and conduct SQL injection attacks against code that uses $_GET.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2148"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-196",
-      "author": [
-        "Jerome H. Saltzer",
-        "Michael D. Schroeder"
-      ],
-      "title": "The Protection of Information in Computer Systems",
-      "url": "http://web.mit.edu/Saltzer/www/publications/protection/",
-      "publication_year": "1975",
-      "publication_month": "--09",
-      "publication": "Proceedings of the IEEE 63"
-    },
-    {
-      "reference_id": "REF-524",
-      "author": [
-        "Sean Barnum",
-        "Michael Gegick"
-      ],
-      "title": "Economy of Mechanism",
-      "url": "https://web.archive.org/web/20220126060058/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/economy-of-mechanism",
-      "publication_year": "2005",
-      "publication_month": "--09",
-      "publication_day": "---13",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Pascal Meunier",
-      "submission_organization": "Purdue University",
-      "submission_date": "2008-01-18"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Relationships, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Description, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Name, Research_Gaps"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Causal_Nature"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Demonstrative_Examples"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Design Principle Violation: Not Using Economy of Mechanism",
-        "date": "2009-01-12"
-      },
-      {
-        "text": "Failure to Use Economy of Mechanism",
-        "date": "2010-12-13"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "alternate_terms": [
-    {
-      "term": "Unnecessary Complexity"
-    }
-  ]
+	"id": "637",
+	"name": "Unnecessary Complexity in Protection Mechanism (Not Using 'Economy of Mechanism')",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product uses a more complex mechanism than necessary, which could lead to resultant weaknesses when the mechanism is not correctly understood, modeled, configured, implemented, or used.",
+	"extended_description": "Security mechanisms should be as simple as possible. Complex security mechanisms may engender partial implementations and compatibility problems, with resulting mismatches in assumptions and implemented security. A corollary of this principle is that data specifications should be as simple as possible, because complex data specifications result in complex validation code. Complex tasks and systems may also need to be guarded by complex security checks, so simple systems should be preferred.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "657",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Other"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Avoid complex security mechanisms when simpler ones would meet requirements. Avoid complex data models, and unnecessarily complex operations. Adopt architectures that provide guarantees, simplify understanding through elegance and abstraction, and that can be implemented similarly. Modularize, isolate and do not trust complex code, and apply other secure programming principles on these modules (e.g., least privilege) to mitigate vulnerabilities."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-165",
+			"text": "\n               <Intro_Text>The IPSEC specification is complex, which resulted in bugs, partial implementations, and incompatibilities between vendors.</Intro_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>HTTP Request Smuggling (CWE-444) attacks are feasible because there are not stringent requirements for how illegal or inconsistent HTTP headers should be handled. This can lead to inconsistent implementations in which a proxy or firewall interprets the same data stream as a different set of requests than the end points in that stream.</Intro_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2007-6067",
+			"description": "Support for complex regular expressions leads to a resultant algorithmic complexity weakness (CWE-407).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-6067"
+		},
+		{
+			"reference": "CVE-2007-1552",
+			"description": "Either a filename extension and a Content-Type header could be used to infer the file type, but the developer only checks the Content-Type, enabling unrestricted file upload (CWE-434).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-1552"
+		},
+		{
+			"reference": "CVE-2007-6479",
+			"description": "In Apache environments, a \"filename.php.gif\" can be redirected to the PHP interpreter instead of being sent as an image/gif directly to the user. Not knowing this, the developer only checks the last extension of a submitted filename, enabling arbitrary code execution.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-6479"
+		},
+		{
+			"reference": "CVE-2005-2148",
+			"description": "The developer cleanses the $_REQUEST superglobal array, but PHP also populates $_GET, allowing attackers to bypass the protection mechanism and conduct SQL injection attacks against code that uses $_GET.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2148"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-196",
+			"author": [
+				"Jerome H. Saltzer",
+				"Michael D. Schroeder"
+			],
+			"title": "The Protection of Information in Computer Systems",
+			"url": "http://web.mit.edu/Saltzer/www/publications/protection/",
+			"publication_year": "1975",
+			"publication_month": "--09",
+			"publication": "Proceedings of the IEEE 63"
+		},
+		{
+			"reference_id": "REF-524",
+			"author": [
+				"Sean Barnum",
+				"Michael Gegick"
+			],
+			"title": "Economy of Mechanism",
+			"url": "https://web.archive.org/web/20220126060058/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/economy-of-mechanism",
+			"publication_year": "2005",
+			"publication_month": "--09",
+			"publication_day": "---13",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Pascal Meunier",
+			"submission_organization": "Purdue University",
+			"submission_date": "2008-01-18"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Relationships, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Description, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Name, Research_Gaps"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Causal_Nature"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Demonstrative_Examples"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Design Principle Violation: Not Using Economy of Mechanism",
+				"date": "2009-01-12"
+			},
+			{
+				"text": "Failure to Use Economy of Mechanism",
+				"date": "2010-12-13"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"alternate_terms": [
+		{
+			"term": "Unnecessary Complexity"
+		}
+	]
 }

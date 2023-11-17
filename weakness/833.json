@@ -1,223 +1,223 @@
 {
-  "id": "833",
-  "name": "Deadlock",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product contains multiple threads or executable segments that are waiting for each other to release a necessary lock, resulting in deadlock.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "667",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "662",
-      "view_id": "1305",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Resource Consumption (CPU)",
-        "DoS: Resource Consumption (Other)",
-        "DoS: Crash, Exit, or Restart"
-      ],
-      "note": "Each thread of execution will \"hang\" and prevent tasks from completing. In some cases, CPU consumption may occur if a lock check occurs in a tight loop."
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-1999-1476",
-      "description": "A bug in some Intel Pentium processors allow DoS (hang) via an invalid \"CMPXCHG8B\" instruction, causing a deadlock",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1476"
-    },
-    {
-      "reference": "CVE-2009-2857",
-      "description": "OS deadlock",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2857"
-    },
-    {
-      "reference": "CVE-2009-1961",
-      "description": "OS deadlock involving 3 separate functions",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1961"
-    },
-    {
-      "reference": "CVE-2009-2699",
-      "description": "deadlock in library",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2699"
-    },
-    {
-      "reference": "CVE-2009-4272",
-      "description": "deadlock triggered by packets that force collisions in a routing table",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-4272"
-    },
-    {
-      "reference": "CVE-2002-1850",
-      "description": "read/write deadlock between web server and script",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1850"
-    },
-    {
-      "reference": "CVE-2004-0174",
-      "description": "web server deadlock involving multiple listening connections",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0174"
-    },
-    {
-      "reference": "CVE-2009-1388",
-      "description": "multiple simultaneous calls to the same function trigger deadlock.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1388"
-    },
-    {
-      "reference": "CVE-2006-5158",
-      "description": "chain: other weakness leads to NULL pointer dereference (CWE-476) or deadlock (CWE-833).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-5158"
-    },
-    {
-      "reference": "CVE-2006-4342",
-      "description": "deadlock when an operation is performed on a resource while it is being removed.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4342"
-    },
-    {
-      "reference": "CVE-2006-2374",
-      "description": "Deadlock in device driver triggered by using file handle of a related device.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-2374"
-    },
-    {
-      "reference": "CVE-2006-2275",
-      "description": "Deadlock when large number of small messages cannot be processed quickly enough.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-2275"
-    },
-    {
-      "reference": "CVE-2005-3847",
-      "description": "OS kernel has deadlock triggered by a signal during a core dump.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3847"
-    },
-    {
-      "reference": "CVE-2005-3106",
-      "description": "Race condition leads to deadlock.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3106"
-    },
-    {
-      "reference": "CVE-2005-2456",
-      "description": "Chain: array index error (CWE-129) leads to deadlock (CWE-833)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2456"
-    }
-  ],
-  "references": [
-    {
-      "section": "Chapter 13, \"Synchronization Problems\", section \"Starvation and Deadlocks\", Page 760",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "section": "Chapter 7, \"Concurrency\", section \"Mutual Exclusion and Deadlock\", Page 248",
-      "reference_id": "REF-783",
-      "author": [
-        "Robert C. Seacord"
-      ],
-      "title": "Secure Coding in C and C++",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2010-12-12"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-05-03",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Ensure actively held locks are released on exceptional conditions",
-      "entry_id": "LCK08-J"
-    }
-  ],
-  "related_attack_patterns": [
-    "25"
-  ]
+	"id": "833",
+	"name": "Deadlock",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product contains multiple threads or executable segments that are waiting for each other to release a necessary lock, resulting in deadlock.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "667",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "662",
+			"view_id": "1305",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Resource Consumption (CPU)",
+				"DoS: Resource Consumption (Other)",
+				"DoS: Crash, Exit, or Restart"
+			],
+			"note": "Each thread of execution will \"hang\" and prevent tasks from completing. In some cases, CPU consumption may occur if a lock check occurs in a tight loop."
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-1999-1476",
+			"description": "A bug in some Intel Pentium processors allow DoS (hang) via an invalid \"CMPXCHG8B\" instruction, causing a deadlock",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-1476"
+		},
+		{
+			"reference": "CVE-2009-2857",
+			"description": "OS deadlock",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2857"
+		},
+		{
+			"reference": "CVE-2009-1961",
+			"description": "OS deadlock involving 3 separate functions",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-1961"
+		},
+		{
+			"reference": "CVE-2009-2699",
+			"description": "deadlock in library",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2699"
+		},
+		{
+			"reference": "CVE-2009-4272",
+			"description": "deadlock triggered by packets that force collisions in a routing table",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-4272"
+		},
+		{
+			"reference": "CVE-2002-1850",
+			"description": "read/write deadlock between web server and script",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1850"
+		},
+		{
+			"reference": "CVE-2004-0174",
+			"description": "web server deadlock involving multiple listening connections",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0174"
+		},
+		{
+			"reference": "CVE-2009-1388",
+			"description": "multiple simultaneous calls to the same function trigger deadlock.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-1388"
+		},
+		{
+			"reference": "CVE-2006-5158",
+			"description": "chain: other weakness leads to NULL pointer dereference (CWE-476) or deadlock (CWE-833).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-5158"
+		},
+		{
+			"reference": "CVE-2006-4342",
+			"description": "deadlock when an operation is performed on a resource while it is being removed.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-4342"
+		},
+		{
+			"reference": "CVE-2006-2374",
+			"description": "Deadlock in device driver triggered by using file handle of a related device.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-2374"
+		},
+		{
+			"reference": "CVE-2006-2275",
+			"description": "Deadlock when large number of small messages cannot be processed quickly enough.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-2275"
+		},
+		{
+			"reference": "CVE-2005-3847",
+			"description": "OS kernel has deadlock triggered by a signal during a core dump.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3847"
+		},
+		{
+			"reference": "CVE-2005-3106",
+			"description": "Race condition leads to deadlock.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3106"
+		},
+		{
+			"reference": "CVE-2005-2456",
+			"description": "Chain: array index error (CWE-129) leads to deadlock (CWE-833)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2456"
+		}
+	],
+	"references": [
+		{
+			"section": "Chapter 13, \"Synchronization Problems\", section \"Starvation and Deadlocks\", Page 760",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"section": "Chapter 7, \"Concurrency\", section \"Mutual Exclusion and Deadlock\", Page 248",
+			"reference_id": "REF-783",
+			"author": [
+				"Robert C. Seacord"
+			],
+			"title": "Secure Coding in C and C++",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2010-12-12"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-05-03",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Ensure actively held locks are released on exceptional conditions",
+			"entry_id": "LCK08-J"
+		}
+	],
+	"related_attack_patterns": [
+		"25"
+	]
 }

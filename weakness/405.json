@@ -1,335 +1,335 @@
 {
-  "id": "405",
-  "name": "Asymmetric Resource Consumption (Amplification)",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product does not properly control situations in which an adversary can cause the product to consume or produce excessive resources without requiring the adversary to invest equivalent work or otherwise prove authorization, i.e., the adversary's influence is \"asymmetric.\"",
-  "extended_description": "This can lead to poor performance due to \"amplification\" of resource consumption, typically in a non-linear fashion.  This situation is worsened if the product allows malicious users or attackers to consume more resources than their access level permits.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "400",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      },
-      {
-        "class": "Client Server",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Amplification",
-        "DoS: Resource Consumption (CPU)",
-        "DoS: Resource Consumption (Memory)",
-        "DoS: Resource Consumption (Other)"
-      ],
-      "note": "Sometimes this is a factor in \"flood\" attacks, but other types of amplification exist.",
-      "likelihood": "High"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "An application must make resources available to a client commensurate with the client's access level."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "An application must, at all times, keep track of allocated resources and meter their usage appropriately."
-      ]
-    },
-    {
-      "phase": [
-        "System Configuration"
-      ],
-      "description": [
-        "Consider disabling resource-intensive algorithms on the server side, such as Diffie-Hellman key exchange."
-      ],
-      "effectiveness": "High",
-      "effectiveness_notes": "Business requirements may prevent disabling resource-intensive algorithms."
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-113",
-      "text": "\n               <Intro_Text>This code listens on a port for DNS requests and sends the result to the requesting address.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)<xhtml:br/>sock.bind( (UDP_IP,UDP_PORT) )<xhtml:br/>while true:<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>data = sock.recvfrom(1024)<xhtml:br/>if not data:<xhtml:div style=\"margin-left:1em;\">break</xhtml:div>\n                           <xhtml:br/>(requestIP, nameToResolve) = parseUDPpacket(data)<xhtml:br/>record = resolveName(nameToResolve)<xhtml:br/>sendResponse(requestIP,record)</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>This code sends a DNS record to a requesting IP address. UDP allows the source IP address to be easily changed ('spoofed'), thus allowing an attacker to redirect responses to a target, which may be then be overwhelmed by the network traffic.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-157",
-      "text": "\n               <Intro_Text>This data prints the contents of a specified file requested by a user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function printFile($username,$filename){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>//read file into string</xhtml:i>\n                           <xhtml:br/>$file = file_get_contents($filename);<xhtml:br/>if ($file &amp;&amp; isOwnerOf($username,$filename)){<xhtml:div style=\"margin-left:1em;\">echo $file;<xhtml:br/>return true;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">echo 'You are not authorized to view this file';</xhtml:div>}<xhtml:br/>return false;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code first reads a specified file into memory, then prints the file if the user is authorized to see its contents. The read of the file into memory may be resource intensive and is unnecessary if the user is not allowed to see the file anyway.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-53",
-      "text": "\n               <Intro_Text>The DTD and the very brief XML below illustrate what is meant by an XML bomb. The ZERO entity contains one character, the letter A. The choice of entity name ZERO is being used to indicate length equivalent to that exponent on two, that is, the length of ZERO is 2^0. Similarly, ONE refers to ZERO twice, therefore the XML parser will expand ONE to a length of 2, or 2^1. Ultimately, we reach entity THIRTYTWO, which will expand to 2^32 characters in length, or 4 GB, probably consuming far more data than expected.</Intro_Text>\n               <Example_Code Nature=\"Attack\" Language=\"XML\">\n                  <xhtml:div>&lt;?xml version=\"1.0\"?&gt;<xhtml:br/>&lt;!DOCTYPE MaliciousDTD [<xhtml:br/>&lt;!ENTITY ZERO \"A\"&gt;<xhtml:br/>&lt;!ENTITY ONE \"&amp;ZERO;&amp;ZERO;\"&gt;<xhtml:br/>&lt;!ENTITY TWO \"&amp;ONE;&amp;ONE;\"&gt;<xhtml:br/>...<xhtml:br/>&lt;!ENTITY THIRTYTWO \"&amp;THIRTYONE;&amp;THIRTYONE;\"&gt;<xhtml:br/>]&gt;<xhtml:br/>&lt;data&gt;&amp;THIRTYTWO;&lt;/data&gt;</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-158",
-      "text": "\n             <Intro_Text>This example attempts to check if an input string is a \"sentence\" [REF-1164].</Intro_Text>\n             <Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n               var test_string = \"Bad characters: $@#\";<xhtml:br/>\n               var bad_pattern  = /^(\\w+\\s?)*$/i;<xhtml:br/>\n               var result = test_string.search(bad_pattern);\n             </Example_Code>\n             <Body_Text><xhtml:p>The regular expression has a vulnerable backtracking clause inside (\\w+\\s?)*$ which can be triggered to cause a Denial of Service by processing particular phrases.</xhtml:p>\n\t     <xhtml:p>To fix the backtracking problem, backtracking is removed with the ?= portion of the expression which changes it to a lookahead and the \\2 which prevents the backtracking. The modified example is:</xhtml:p></Body_Text>\n             <Example_Code Nature=\"Good\" Language=\"JavaScript\">\n               var test_string = \"Bad characters: $@#\";<xhtml:br/>\n               var good_pattern  = /^((?=(\\w+))\\2\\s?)*$/i;<xhtml:br/>\n               var result = test_string.search(good_pattern);\n             </Example_Code>\n             <Body_Text>Note that [REF-1164] has a more thorough (and lengthy) explanation of everything going on within the RegEx.</Body_Text>\n\t   "
-    },
-    {
-      "text": "\n\t     <Intro_Text>An adversary can cause significant resource\n\t     consumption on a server by filtering the cryptographic\n\t     algorithms offered by the client to the ones that are the\n\t     most resource-intensive on the server side. After\n\t     discovering which cryptographic algorithms are supported\n\t     by the server, a malicious client can send the initial\n\t     cryptographic handshake messages that contains only the\n\t     resource-intensive algorithms. For some cryptographic\n\t     protocols, these messages can be completely\n\t     prefabricated, as the resource-intensive part of the\n\t     handshake happens on the server-side first (such as TLS),\n\t     rather than on the client side. In the case of\n\t     cryptographic protocols where the resource-intensive part\n\t     should happen on the client-side first (such as SSH), a\n\t     malicious client can send a forged/precalculated\n\t     computation result, which seems correct to the server, so\n\t     the resource-intensive part of the handshake is going to\n\t     happen on the server side. A malicious client is required\n\t     to send only the initial messages of a cryptographic\n\t     handshake to initiate the resource-consuming part of the\n\t     cryptographic handshake. These messages are usually\n\t     small, and generating them requires minimal computational\n\t     effort, enabling a denial-of-service attack. An\n\t     additional risk is the fact that higher key size\n\t     increases the effectiveness of the attack. Cryptographic\n\t     protocols where the clients have influence over the size\n\t     of the used key (such as TLS 1.3 or SSH) are most at\n\t     risk, as the client can enforce the highest key size\n\t     supported by the server.</Intro_Text>\n\t   "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-1999-0513",
-      "description": "Classic \"Smurf\" attack, using spoofed ICMP packets to broadcast addresses.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0513"
-    },
-    {
-      "reference": "CVE-2003-1564",
-      "description": "Parsing library allows XML bomb",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-1564"
-    },
-    {
-      "reference": "CVE-2004-2458",
-      "description": "Tool creates directories before authenticating user.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2458"
-    },
-    {
-      "reference": "CVE-2020-10735",
-      "description": "Python has \"quadratic complexity\" issue when converting string to int with many digits in unexpected bases",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-10735"
-    },
-    {
-      "reference": "CVE-2020-5243",
-      "description": "server allows ReDOS with crafted User-Agent strings, due to overlapping capture groups that cause excessive backtracking.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-5243"
-    },
-    {
-      "reference": "CVE-2013-5211",
-      "description": "composite: NTP feature generates large responses (high amplification factor) with spoofed UDP source addresses.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2013-5211"
-    },
-    {
-      "reference": "CVE-2002-20001",
-      "description": "Diffie-Hellman (DHE) Key Agreement Protocol allows attackers to send arbitrary numbers that are not public keys, which causes the server to perform expensive, unnecessary computation of modular exponentiation.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-20001"
-    },
-    {
-      "reference": "CVE-2022-40735",
-      "description": "The Diffie-Hellman Key Agreement Protocol allows use of long exponents, which are more computationally expensive than using certain \"short exponents\" with particular properties.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-40735"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1164",
-      "author": [
-        "Ilya Kantor"
-      ],
-      "title": "Catastrophic backtracking",
-      "url": "https://javascript.info/regexp-catastrophic-backtracking",
-      "publication_year": "2020",
-      "publication_month": "--12",
-      "publication_day": "---13"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated Common_Consequences, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Functional_Areas"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Description, Observed_Examples, Potential_Mitigations, References, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "Szilárd Pfeiffer",
-        "contribution_organization": "Balasys IT Security",
-        "contribution_date": "2021-11-11",
-        "contribution_comment": "Submitted content that led to modifications in applicable platforms, common consequences, potential mitigations, demonstrative examples, observed examples."
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Asymmetric resource consumption (amplification)"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2004",
-      "entry_name": "Denial of Service",
-      "entry_id": "A9",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "WASC",
-      "entry_name": "XML Attribute Blowup",
-      "entry_id": "41"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Use thread pools to enable graceful degradation of service during traffic bursts",
-      "entry_id": "TPS00-J"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Release resources when they are no longer needed",
-      "entry_id": "FIO04-J"
-    }
-  ]
+	"id": "405",
+	"name": "Asymmetric Resource Consumption (Amplification)",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product does not properly control situations in which an adversary can cause the product to consume or produce excessive resources without requiring the adversary to invest equivalent work or otherwise prove authorization, i.e., the adversary's influence is \"asymmetric.\"",
+	"extended_description": "This can lead to poor performance due to \"amplification\" of resource consumption, typically in a non-linear fashion.  This situation is worsened if the product allows malicious users or attackers to consume more resources than their access level permits.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "400",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			},
+			{
+				"class": "Client Server",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Amplification",
+				"DoS: Resource Consumption (CPU)",
+				"DoS: Resource Consumption (Memory)",
+				"DoS: Resource Consumption (Other)"
+			],
+			"note": "Sometimes this is a factor in \"flood\" attacks, but other types of amplification exist.",
+			"likelihood": "High"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"An application must make resources available to a client commensurate with the client's access level."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"An application must, at all times, keep track of allocated resources and meter their usage appropriately."
+			]
+		},
+		{
+			"phase": [
+				"System Configuration"
+			],
+			"description": [
+				"Consider disabling resource-intensive algorithms on the server side, such as Diffie-Hellman key exchange."
+			],
+			"effectiveness": "High",
+			"effectiveness_notes": "Business requirements may prevent disabling resource-intensive algorithms."
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-113",
+			"text": "\n               <Intro_Text>This code listens on a port for DNS requests and sends the result to the requesting address.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)<xhtml:br/>sock.bind( (UDP_IP,UDP_PORT) )<xhtml:br/>while true:<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>data = sock.recvfrom(1024)<xhtml:br/>if not data:<xhtml:div style=\"margin-left:1em;\">break</xhtml:div>\n                           <xhtml:br/>(requestIP, nameToResolve) = parseUDPpacket(data)<xhtml:br/>record = resolveName(nameToResolve)<xhtml:br/>sendResponse(requestIP,record)</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>This code sends a DNS record to a requesting IP address. UDP allows the source IP address to be easily changed ('spoofed'), thus allowing an attacker to redirect responses to a target, which may be then be overwhelmed by the network traffic.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-157",
+			"text": "\n               <Intro_Text>This data prints the contents of a specified file requested by a user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function printFile($username,$filename){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>//read file into string</xhtml:i>\n                           <xhtml:br/>$file = file_get_contents($filename);<xhtml:br/>if ($file &amp;&amp; isOwnerOf($username,$filename)){<xhtml:div style=\"margin-left:1em;\">echo $file;<xhtml:br/>return true;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">echo 'You are not authorized to view this file';</xhtml:div>}<xhtml:br/>return false;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code first reads a specified file into memory, then prints the file if the user is authorized to see its contents. The read of the file into memory may be resource intensive and is unnecessary if the user is not allowed to see the file anyway.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-53",
+			"text": "\n               <Intro_Text>The DTD and the very brief XML below illustrate what is meant by an XML bomb. The ZERO entity contains one character, the letter A. The choice of entity name ZERO is being used to indicate length equivalent to that exponent on two, that is, the length of ZERO is 2^0. Similarly, ONE refers to ZERO twice, therefore the XML parser will expand ONE to a length of 2, or 2^1. Ultimately, we reach entity THIRTYTWO, which will expand to 2^32 characters in length, or 4 GB, probably consuming far more data than expected.</Intro_Text>\n               <Example_Code Nature=\"Attack\" Language=\"XML\">\n                  <xhtml:div>&lt;?xml version=\"1.0\"?&gt;<xhtml:br/>&lt;!DOCTYPE MaliciousDTD [<xhtml:br/>&lt;!ENTITY ZERO \"A\"&gt;<xhtml:br/>&lt;!ENTITY ONE \"&amp;ZERO;&amp;ZERO;\"&gt;<xhtml:br/>&lt;!ENTITY TWO \"&amp;ONE;&amp;ONE;\"&gt;<xhtml:br/>...<xhtml:br/>&lt;!ENTITY THIRTYTWO \"&amp;THIRTYONE;&amp;THIRTYONE;\"&gt;<xhtml:br/>]&gt;<xhtml:br/>&lt;data&gt;&amp;THIRTYTWO;&lt;/data&gt;</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-158",
+			"text": "\n             <Intro_Text>This example attempts to check if an input string is a \"sentence\" [REF-1164].</Intro_Text>\n             <Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n               var test_string = \"Bad characters: $@#\";<xhtml:br/>\n               var bad_pattern  = /^(\\w+\\s?)*$/i;<xhtml:br/>\n               var result = test_string.search(bad_pattern);\n             </Example_Code>\n             <Body_Text><xhtml:p>The regular expression has a vulnerable backtracking clause inside (\\w+\\s?)*$ which can be triggered to cause a Denial of Service by processing particular phrases.</xhtml:p>\n\t     <xhtml:p>To fix the backtracking problem, backtracking is removed with the ?= portion of the expression which changes it to a lookahead and the \\2 which prevents the backtracking. The modified example is:</xhtml:p></Body_Text>\n             <Example_Code Nature=\"Good\" Language=\"JavaScript\">\n               var test_string = \"Bad characters: $@#\";<xhtml:br/>\n               var good_pattern  = /^((?=(\\w+))\\2\\s?)*$/i;<xhtml:br/>\n               var result = test_string.search(good_pattern);\n             </Example_Code>\n             <Body_Text>Note that [REF-1164] has a more thorough (and lengthy) explanation of everything going on within the RegEx.</Body_Text>\n\t   "
+		},
+		{
+			"text": "\n\t     <Intro_Text>An adversary can cause significant resource\n\t     consumption on a server by filtering the cryptographic\n\t     algorithms offered by the client to the ones that are the\n\t     most resource-intensive on the server side. After\n\t     discovering which cryptographic algorithms are supported\n\t     by the server, a malicious client can send the initial\n\t     cryptographic handshake messages that contains only the\n\t     resource-intensive algorithms. For some cryptographic\n\t     protocols, these messages can be completely\n\t     prefabricated, as the resource-intensive part of the\n\t     handshake happens on the server-side first (such as TLS),\n\t     rather than on the client side. In the case of\n\t     cryptographic protocols where the resource-intensive part\n\t     should happen on the client-side first (such as SSH), a\n\t     malicious client can send a forged/precalculated\n\t     computation result, which seems correct to the server, so\n\t     the resource-intensive part of the handshake is going to\n\t     happen on the server side. A malicious client is required\n\t     to send only the initial messages of a cryptographic\n\t     handshake to initiate the resource-consuming part of the\n\t     cryptographic handshake. These messages are usually\n\t     small, and generating them requires minimal computational\n\t     effort, enabling a denial-of-service attack. An\n\t     additional risk is the fact that higher key size\n\t     increases the effectiveness of the attack. Cryptographic\n\t     protocols where the clients have influence over the size\n\t     of the used key (such as TLS 1.3 or SSH) are most at\n\t     risk, as the client can enforce the highest key size\n\t     supported by the server.</Intro_Text>\n\t   "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-1999-0513",
+			"description": "Classic \"Smurf\" attack, using spoofed ICMP packets to broadcast addresses.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-0513"
+		},
+		{
+			"reference": "CVE-2003-1564",
+			"description": "Parsing library allows XML bomb",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-1564"
+		},
+		{
+			"reference": "CVE-2004-2458",
+			"description": "Tool creates directories before authenticating user.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-2458"
+		},
+		{
+			"reference": "CVE-2020-10735",
+			"description": "Python has \"quadratic complexity\" issue when converting string to int with many digits in unexpected bases",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-10735"
+		},
+		{
+			"reference": "CVE-2020-5243",
+			"description": "server allows ReDOS with crafted User-Agent strings, due to overlapping capture groups that cause excessive backtracking.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-5243"
+		},
+		{
+			"reference": "CVE-2013-5211",
+			"description": "composite: NTP feature generates large responses (high amplification factor) with spoofed UDP source addresses.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2013-5211"
+		},
+		{
+			"reference": "CVE-2002-20001",
+			"description": "Diffie-Hellman (DHE) Key Agreement Protocol allows attackers to send arbitrary numbers that are not public keys, which causes the server to perform expensive, unnecessary computation of modular exponentiation.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-20001"
+		},
+		{
+			"reference": "CVE-2022-40735",
+			"description": "The Diffie-Hellman Key Agreement Protocol allows use of long exponents, which are more computationally expensive than using certain \"short exponents\" with particular properties.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-40735"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1164",
+			"author": [
+				"Ilya Kantor"
+			],
+			"title": "Catastrophic backtracking",
+			"url": "https://javascript.info/regexp-catastrophic-backtracking",
+			"publication_year": "2020",
+			"publication_month": "--12",
+			"publication_day": "---13"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated Common_Consequences, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Functional_Areas"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Description, Observed_Examples, Potential_Mitigations, References, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Szilárd Pfeiffer",
+				"contribution_organization": "Balasys IT Security",
+				"contribution_date": "2021-11-11",
+				"contribution_comment": "Submitted content that led to modifications in applicable platforms, common consequences, potential mitigations, demonstrative examples, observed examples."
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Asymmetric resource consumption (amplification)"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2004",
+			"entry_name": "Denial of Service",
+			"entry_id": "A9",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "WASC",
+			"entry_name": "XML Attribute Blowup",
+			"entry_id": "41"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Use thread pools to enable graceful degradation of service during traffic bursts",
+			"entry_id": "TPS00-J"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Release resources when they are no longer needed",
+			"entry_id": "FIO04-J"
+		}
+	]
 }

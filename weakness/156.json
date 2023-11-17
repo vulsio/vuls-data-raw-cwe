@@ -1,251 +1,251 @@
 {
-  "id": "156",
-  "name": "Improper Neutralization of Whitespace",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product receives input from an upstream component, but it does not neutralize or incorrectly neutralizes special elements that could be interpreted as whitespace when they are sent to a downstream component.",
-  "extended_description": "This can include space, tab, etc.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "138",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Unexpected State"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "description": [
-        "Developers should anticipate that whitespace will be injected/removed/manipulated in the input vectors of their product. Use an appropriate combination of denylists and allowlists to ensure only valid, expected and appropriate input is processed by the system."
-      ]
-    },
-    {
-      "mitigation_id": "MIT-5",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n               "
-      ],
-      "strategy": "Input Validation"
-    },
-    {
-      "mitigation_id": "MIT-28",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "While it is risky to use dynamically-generated query strings, code, or commands that mix control and data together, sometimes it may be unavoidable. Properly quote arguments and escape any special characters within those arguments. The most conservative approach is to escape or filter all characters that do not pass an extremely strict allowlist (such as everything that is not alphanumeric or white space). If some special characters are still needed, such as white space, wrap each argument in quotes after the escaping/filtering step. Be careful of argument injection (CWE-88)."
-      ],
-      "strategy": "Output Encoding"
-    },
-    {
-      "mitigation_id": "MIT-20",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Inputs should be decoded and canonicalized to the application's current internal representation before being validated (CWE-180). Make sure that the application does not decode the same input twice (CWE-174). Such errors could be used to bypass allowlist validation schemes by introducing dangerous inputs after they have been checked."
-      ],
-      "strategy": "Input Validation"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2002-0637",
-      "description": "MIE. virus protection bypass with RFC violations involving extra whitespace, or missing whitespace.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0637"
-    },
-    {
-      "reference": "CVE-2004-0942",
-      "description": "CPU consumption with MIME headers containing lines with many space characters, probably due to algorithmic complexity (RESOURCE.AMP.ALG).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0942"
-    },
-    {
-      "reference": "CVE-2003-1015",
-      "description": "MIE. whitespace interpreted differently by mail clients.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-1015"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Relationships, Relationship_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Description, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Description, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-05-03",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Whitespace",
-        "date": "2008-01-30"
-      },
-      {
-        "text": "Failure to Remove Whitespace",
-        "date": "2008-04-11"
-      },
-      {
-        "text": "Failure to Sanitize Whitespace",
-        "date": "2009-03-10"
-      },
-      {
-        "text": "Improper Sanitization of Whitespace",
-        "date": "2010-04-05"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "White space"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Whitespace",
-      "entry_id": "SPEC.WHITESPACE"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Tainted input to command",
-      "entry_id": "SFP24"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "Can overlap other separator characters or delimiters."
-    }
-  ]
+	"id": "156",
+	"name": "Improper Neutralization of Whitespace",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product receives input from an upstream component, but it does not neutralize or incorrectly neutralizes special elements that could be interpreted as whitespace when they are sent to a downstream component.",
+	"extended_description": "This can include space, tab, etc.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "138",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Unexpected State"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"description": [
+				"Developers should anticipate that whitespace will be injected/removed/manipulated in the input vectors of their product. Use an appropriate combination of denylists and allowlists to ensure only valid, expected and appropriate input is processed by the system."
+			]
+		},
+		{
+			"mitigation_id": "MIT-5",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n               "
+			],
+			"strategy": "Input Validation"
+		},
+		{
+			"mitigation_id": "MIT-28",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"While it is risky to use dynamically-generated query strings, code, or commands that mix control and data together, sometimes it may be unavoidable. Properly quote arguments and escape any special characters within those arguments. The most conservative approach is to escape or filter all characters that do not pass an extremely strict allowlist (such as everything that is not alphanumeric or white space). If some special characters are still needed, such as white space, wrap each argument in quotes after the escaping/filtering step. Be careful of argument injection (CWE-88)."
+			],
+			"strategy": "Output Encoding"
+		},
+		{
+			"mitigation_id": "MIT-20",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Inputs should be decoded and canonicalized to the application's current internal representation before being validated (CWE-180). Make sure that the application does not decode the same input twice (CWE-174). Such errors could be used to bypass allowlist validation schemes by introducing dangerous inputs after they have been checked."
+			],
+			"strategy": "Input Validation"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2002-0637",
+			"description": "MIE. virus protection bypass with RFC violations involving extra whitespace, or missing whitespace.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0637"
+		},
+		{
+			"reference": "CVE-2004-0942",
+			"description": "CPU consumption with MIME headers containing lines with many space characters, probably due to algorithmic complexity (RESOURCE.AMP.ALG).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0942"
+		},
+		{
+			"reference": "CVE-2003-1015",
+			"description": "MIE. whitespace interpreted differently by mail clients.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-1015"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Relationships, Relationship_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Description, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Description, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-05-03",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Whitespace",
+				"date": "2008-01-30"
+			},
+			{
+				"text": "Failure to Remove Whitespace",
+				"date": "2008-04-11"
+			},
+			{
+				"text": "Failure to Sanitize Whitespace",
+				"date": "2009-03-10"
+			},
+			{
+				"text": "Improper Sanitization of Whitespace",
+				"date": "2010-04-05"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "White space"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Whitespace",
+			"entry_id": "SPEC.WHITESPACE"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Tainted input to command",
+			"entry_id": "SFP24"
+		}
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "Can overlap other separator characters or delimiters."
+		}
+	]
 }

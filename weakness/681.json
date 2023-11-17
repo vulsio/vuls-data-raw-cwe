@@ -1,304 +1,304 @@
 {
-  "id": "681",
-  "name": "Incorrect Conversion between Numeric Types",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "When converting from one data type to another, such as long to integer, data can be omitted or translated in a way that produces unexpected values. If the resulting values are used in a sensitive context, then dangerous behaviors may occur.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "704",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "704",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "682",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Other",
-        "Integrity"
-      ],
-      "impact": [
-        "Unexpected State",
-        "Quality Degradation"
-      ],
-      "note": "The program could wind up using the wrong number and generate incorrect results. If the number is used to allocate resources or make a security decision, then this could introduce a vulnerability."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Avoid making conversion between numeric types. Always check for the allowed ranges."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the following Java example, a float literal is cast to an integer, thus causing a loss of precision.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>int i = (int) 33457.8f;</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>This code adds a float and an integer together, casting the result to an integer.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$floatVal = 1.8345;<xhtml:br/>$intVal = 3;<xhtml:br/>$result = (int)$floatVal + $intVal;</xhtml:div>\n               </Example_Code>\n               <Body_Text>Normally, PHP will preserve the precision of this operation, making $result = 4.8345. After the cast to int, it is reasonable to expect PHP to follow rounding convention and set $result = 5. However, the explicit cast to int always rounds DOWN, so the final value of $result is 4. This behavior may have unintended consequences.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-73",
-      "text": "\n               <Intro_Text>In this example the variable amount can hold a negative value when it is returned. Because the function is declared to return an unsigned int, amount will be implicitly converted to unsigned.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned int readdata () {<xhtml:div style=\"margin-left:1em;\">int amount = 0;<xhtml:br/>...<xhtml:br/>if (result == ERROR)<xhtml:br/>amount = -1;<xhtml:br/>...<xhtml:br/>return amount;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the error condition in the code above is met, then the return value of readdata() will be 4,294,967,295 on a system that uses 32-bit integers.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-74",
-      "text": "\n               <Intro_Text>In this example, depending on the return value of accecssmainframe(), the variable amount can hold a negative value when it is returned. Because the function is declared to return an unsigned value, amount will be implicitly cast to an unsigned number.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned int readdata () {<xhtml:div style=\"margin-left:1em;\">int amount = 0;<xhtml:br/>...<xhtml:br/>amount = accessmainframe();<xhtml:br/>...<xhtml:br/>return amount;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the return value of accessmainframe() is -1, then the return value of readdata() will be 4,294,967,295 on a system that uses 32-bit integers.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-2639",
-      "description": "Chain: integer coercion error (CWE-192) prevents a return value from indicating an error, leading to out-of-bounds write (CWE-787)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-2639"
-    },
-    {
-      "reference": "CVE-2021-43537",
-      "description": "Chain: in a web browser, an unsigned 64-bit integer is foribly cast to a 32-bit integer (CWE-681) and potentially leading to an integer overflow (CWE-190). If an integer overflow occurs, this can cause heap memory corruption (CWE-122)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-43537"
-    },
-    {
-      "reference": "CVE-2007-4268",
-      "description": "Chain: integer signedness error (CWE-195) passes signed comparison, leading to heap overflow (CWE-122)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4268"
-    },
-    {
-      "reference": "CVE-2007-4988",
-      "description": "Chain: signed short width value in image processor is sign extended during conversion to unsigned int, which leads to integer overflow and heap-based buffer overflow.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4988"
-    },
-    {
-      "reference": "CVE-2009-0231",
-      "description": "Integer truncation of length value leads to heap-based buffer overflow.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0231"
-    },
-    {
-      "reference": "CVE-2008-3282",
-      "description": "Size of a particular type changes for 64-bit platforms, leading to an integer truncation in document processor causes incorrect index to be generated.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-3282"
-    }
-  ],
-  "references": [
-    {
-      "section": "ASCSM-CWE-681",
-      "reference_id": "REF-962",
-      "author": [
-        "Object Management Group (OMG)"
-      ],
-      "title": "Automated Source Code Security Measure (ASCSM)",
-      "url": "http://www.omg.org/spec/ASCSM/1.0/",
-      "publication_year": "2016",
-      "publication_month": "--01"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Community",
-      "submission_date": "2008-04-11",
-      "submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
-    },
-    "modification": [
-      {
-        "modification_name": "Sean Eidemiller",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "added/updated demonstrative examples"
-      },
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Description, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Applicable_Platforms, Likelihood_of_Exploit, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences, Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Likelihood_of_Exploit, Observed_Examples, Taxonomy_Mappings, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Ensure that floating point conversions are within range of the new type",
-      "entry_id": "FLP34-C",
-      "mapping_fit": "CWE More Abstract"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Use intmax_t or uintmax_t for formatted IO on programmer-defined integer types",
-      "entry_id": "INT15-C"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Ensure that integer conversions do not result in lost or misinterpreted data",
-      "entry_id": "INT31-C",
-      "mapping_fit": "CWE More Abstract"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Evaluate integer expressions in a larger size before comparing or assigning to that size",
-      "entry_id": "INT35-C"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Ensure conversions of numeric types to narrower types do not result in lost or misinterpreted data",
-      "entry_id": "NUM12-J"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Glitch in computation",
-      "entry_id": "SFP1"
-    },
-    {
-      "taxonomy_name": "OMG ASCSM",
-      "entry_id": "ASCSM-CWE-681"
-    }
-  ]
+	"id": "681",
+	"name": "Incorrect Conversion between Numeric Types",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "When converting from one data type to another, such as long to integer, data can be omitted or translated in a way that produces unexpected values. If the resulting values are used in a sensitive context, then dangerous behaviors may occur.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "704",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "704",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "682",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Other",
+				"Integrity"
+			],
+			"impact": [
+				"Unexpected State",
+				"Quality Degradation"
+			],
+			"note": "The program could wind up using the wrong number and generate incorrect results. If the number is used to allocate resources or make a security decision, then this could introduce a vulnerability."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Avoid making conversion between numeric types. Always check for the allowed ranges."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the following Java example, a float literal is cast to an integer, thus causing a loss of precision.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>int i = (int) 33457.8f;</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>This code adds a float and an integer together, casting the result to an integer.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$floatVal = 1.8345;<xhtml:br/>$intVal = 3;<xhtml:br/>$result = (int)$floatVal + $intVal;</xhtml:div>\n               </Example_Code>\n               <Body_Text>Normally, PHP will preserve the precision of this operation, making $result = 4.8345. After the cast to int, it is reasonable to expect PHP to follow rounding convention and set $result = 5. However, the explicit cast to int always rounds DOWN, so the final value of $result is 4. This behavior may have unintended consequences.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-73",
+			"text": "\n               <Intro_Text>In this example the variable amount can hold a negative value when it is returned. Because the function is declared to return an unsigned int, amount will be implicitly converted to unsigned.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned int readdata () {<xhtml:div style=\"margin-left:1em;\">int amount = 0;<xhtml:br/>...<xhtml:br/>if (result == ERROR)<xhtml:br/>amount = -1;<xhtml:br/>...<xhtml:br/>return amount;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the error condition in the code above is met, then the return value of readdata() will be 4,294,967,295 on a system that uses 32-bit integers.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-74",
+			"text": "\n               <Intro_Text>In this example, depending on the return value of accecssmainframe(), the variable amount can hold a negative value when it is returned. Because the function is declared to return an unsigned value, amount will be implicitly cast to an unsigned number.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned int readdata () {<xhtml:div style=\"margin-left:1em;\">int amount = 0;<xhtml:br/>...<xhtml:br/>amount = accessmainframe();<xhtml:br/>...<xhtml:br/>return amount;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the return value of accessmainframe() is -1, then the return value of readdata() will be 4,294,967,295 on a system that uses 32-bit integers.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-2639",
+			"description": "Chain: integer coercion error (CWE-192) prevents a return value from indicating an error, leading to out-of-bounds write (CWE-787)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-2639"
+		},
+		{
+			"reference": "CVE-2021-43537",
+			"description": "Chain: in a web browser, an unsigned 64-bit integer is foribly cast to a 32-bit integer (CWE-681) and potentially leading to an integer overflow (CWE-190). If an integer overflow occurs, this can cause heap memory corruption (CWE-122)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-43537"
+		},
+		{
+			"reference": "CVE-2007-4268",
+			"description": "Chain: integer signedness error (CWE-195) passes signed comparison, leading to heap overflow (CWE-122)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4268"
+		},
+		{
+			"reference": "CVE-2007-4988",
+			"description": "Chain: signed short width value in image processor is sign extended during conversion to unsigned int, which leads to integer overflow and heap-based buffer overflow.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4988"
+		},
+		{
+			"reference": "CVE-2009-0231",
+			"description": "Integer truncation of length value leads to heap-based buffer overflow.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-0231"
+		},
+		{
+			"reference": "CVE-2008-3282",
+			"description": "Size of a particular type changes for 64-bit platforms, leading to an integer truncation in document processor causes incorrect index to be generated.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-3282"
+		}
+	],
+	"references": [
+		{
+			"section": "ASCSM-CWE-681",
+			"reference_id": "REF-962",
+			"author": [
+				"Object Management Group (OMG)"
+			],
+			"title": "Automated Source Code Security Measure (ASCSM)",
+			"url": "http://www.omg.org/spec/ASCSM/1.0/",
+			"publication_year": "2016",
+			"publication_month": "--01"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Community",
+			"submission_date": "2008-04-11",
+			"submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
+		},
+		"modification": [
+			{
+				"modification_name": "Sean Eidemiller",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "added/updated demonstrative examples"
+			},
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Description, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Applicable_Platforms, Likelihood_of_Exploit, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences, Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Likelihood_of_Exploit, Observed_Examples, Taxonomy_Mappings, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Ensure that floating point conversions are within range of the new type",
+			"entry_id": "FLP34-C",
+			"mapping_fit": "CWE More Abstract"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Use intmax_t or uintmax_t for formatted IO on programmer-defined integer types",
+			"entry_id": "INT15-C"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Ensure that integer conversions do not result in lost or misinterpreted data",
+			"entry_id": "INT31-C",
+			"mapping_fit": "CWE More Abstract"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Evaluate integer expressions in a larger size before comparing or assigning to that size",
+			"entry_id": "INT35-C"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Ensure conversions of numeric types to narrower types do not result in lost or misinterpreted data",
+			"entry_id": "NUM12-J"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Glitch in computation",
+			"entry_id": "SFP1"
+		},
+		{
+			"taxonomy_name": "OMG ASCSM",
+			"entry_id": "ASCSM-CWE-681"
+		}
+	]
 }

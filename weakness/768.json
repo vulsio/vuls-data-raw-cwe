@@ -1,132 +1,132 @@
 {
-  "id": "768",
-  "name": "Incorrect Short Circuit Evaluation",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product contains a conditional statement with multiple logical expressions in which one of the non-leading expressions may produce side effects. This may lead to an unexpected state in the program after the execution of the conditional, because short-circuiting logic may prevent the side effects from occurring.",
-  "extended_description": "\n            <xhtml:p>Usage of short circuit evaluation, though well-defined in the C standard, may alter control flow in a way that introduces logic errors that are difficult to detect, possibly causing errors later during the product's execution. If an attacker can discover such an inconsistency, it may be exploitable to gain arbitrary control over a system.</xhtml:p>\n            <xhtml:p>If the first condition of an \"or\" statement is assumed to be true under normal circumstances, or if the first condition of an \"and\" statement is assumed to be false, then any subsequent conditional may contain its own logic errors that are not detected during code review or testing.</xhtml:p>\n            <xhtml:p>Finally, the usage of short circuit evaluation may decrease the maintainability of the code.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "691",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "Low",
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Availability"
-      ],
-      "impact": [
-        "Varies by Context"
-      ],
-      "note": "Widely varied consequences are possible if an attacker is aware of an unexpected state in the product after a conditional. It may lead to information exposure, a system crash, or even complete attacker control of the system."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Minimizing the number of statements in a conditional that produce side effects will help to prevent the likelihood of short circuit evaluation to alter control flow in an unexpected way."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following function attempts to take a size value from a user and allocate an array of that size (we ignore bounds checking for simplicity). The function tries to initialize each spot with the value of its index, that is, A[len-1] = len - 1; A[len-2] = len - 2; ... A[1] = 1; A[0] = 0; However, since the programmer uses the prefix decrement operator, when the conditional is evaluated with i == 1, the decrement will result in a 0 value for the first part of the predicate, causing the second portion to be bypassed via short-circuit evaluation. This means we cannot be sure of what value will be in A[0] when we return the array to the user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define PRIV_ADMIN 0<xhtml:br/>#define PRIV_REGULAR 1<xhtml:br/>typedef struct{<xhtml:div style=\"margin-left:1em;\">int privileges;<xhtml:br/>int id;</xhtml:div>} user_t;<xhtml:br/>user_t *Add_Regular_Users(int num_users){<xhtml:div style=\"margin-left:1em;\">user_t* users = (user_t*)calloc(num_users, sizeof(user_t));<xhtml:br/>int i = num_users;<xhtml:br/>while( --i &amp;&amp; (users[i].privileges = PRIV_REGULAR) ){<xhtml:div style=\"margin-left:1em;\">users[i].id = i;</xhtml:div>}<xhtml:br/>return users;</xhtml:div>}<xhtml:br/>int main(){<xhtml:div style=\"margin-left:1em;\">user_t* test;<xhtml:br/>int i;<xhtml:br/>test = Add_Regular_Users(25);<xhtml:br/>for(i = 0; i &lt; 25; i++) printf(\"user %d has privilege level %d\\n\", test[i].id, test[i].privileges);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>When compiled and run, the above code will output a privilege level of 1, or PRIV_REGULAR for every user but the user with id 0 since the prefix increment operator used in the if statement will reach zero and short circuit before setting the 0th user's privilege level. Since we used calloc, this privilege will be set to 0, or PRIV_ADMIN.</Body_Text>\n            "
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2009-03-03"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Likelihood_of_Exploit, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Common_Consequences, Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Common_Consequences"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Failure to protect stored data from modification"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Glitch in computation",
-      "entry_id": "SFP1"
-    }
-  ]
+	"id": "768",
+	"name": "Incorrect Short Circuit Evaluation",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product contains a conditional statement with multiple logical expressions in which one of the non-leading expressions may produce side effects. This may lead to an unexpected state in the program after the execution of the conditional, because short-circuiting logic may prevent the side effects from occurring.",
+	"extended_description": "\n            <xhtml:p>Usage of short circuit evaluation, though well-defined in the C standard, may alter control flow in a way that introduces logic errors that are difficult to detect, possibly causing errors later during the product's execution. If an attacker can discover such an inconsistency, it may be exploitable to gain arbitrary control over a system.</xhtml:p>\n            <xhtml:p>If the first condition of an \"or\" statement is assumed to be true under normal circumstances, or if the first condition of an \"and\" statement is assumed to be false, then any subsequent conditional may contain its own logic errors that are not detected during code review or testing.</xhtml:p>\n            <xhtml:p>Finally, the usage of short circuit evaluation may decrease the maintainability of the code.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "691",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "Low",
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Availability"
+			],
+			"impact": [
+				"Varies by Context"
+			],
+			"note": "Widely varied consequences are possible if an attacker is aware of an unexpected state in the product after a conditional. It may lead to information exposure, a system crash, or even complete attacker control of the system."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Minimizing the number of statements in a conditional that produce side effects will help to prevent the likelihood of short circuit evaluation to alter control flow in an unexpected way."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following function attempts to take a size value from a user and allocate an array of that size (we ignore bounds checking for simplicity). The function tries to initialize each spot with the value of its index, that is, A[len-1] = len - 1; A[len-2] = len - 2; ... A[1] = 1; A[0] = 0; However, since the programmer uses the prefix decrement operator, when the conditional is evaluated with i == 1, the decrement will result in a 0 value for the first part of the predicate, causing the second portion to be bypassed via short-circuit evaluation. This means we cannot be sure of what value will be in A[0] when we return the array to the user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define PRIV_ADMIN 0<xhtml:br/>#define PRIV_REGULAR 1<xhtml:br/>typedef struct{<xhtml:div style=\"margin-left:1em;\">int privileges;<xhtml:br/>int id;</xhtml:div>} user_t;<xhtml:br/>user_t *Add_Regular_Users(int num_users){<xhtml:div style=\"margin-left:1em;\">user_t* users = (user_t*)calloc(num_users, sizeof(user_t));<xhtml:br/>int i = num_users;<xhtml:br/>while( --i &amp;&amp; (users[i].privileges = PRIV_REGULAR) ){<xhtml:div style=\"margin-left:1em;\">users[i].id = i;</xhtml:div>}<xhtml:br/>return users;</xhtml:div>}<xhtml:br/>int main(){<xhtml:div style=\"margin-left:1em;\">user_t* test;<xhtml:br/>int i;<xhtml:br/>test = Add_Regular_Users(25);<xhtml:br/>for(i = 0; i &lt; 25; i++) printf(\"user %d has privilege level %d\\n\", test[i].id, test[i].privileges);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>When compiled and run, the above code will output a privilege level of 1, or PRIV_REGULAR for every user but the user with id 0 since the prefix increment operator used in the if statement will reach zero and short circuit before setting the 0th user's privilege level. Since we used calloc, this privilege will be set to 0, or PRIV_ADMIN.</Body_Text>\n            "
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2009-03-03"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Likelihood_of_Exploit, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Common_Consequences, Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Common_Consequences"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Failure to protect stored data from modification"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Glitch in computation",
+			"entry_id": "SFP1"
+		}
+	]
 }

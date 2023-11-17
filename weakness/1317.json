@@ -1,179 +1,179 @@
 {
-  "id": "1317",
-  "name": "Improper Access Control in Fabric Bridge",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product uses a fabric bridge for transactions between two Intellectual Property (IP) blocks, but the bridge does not properly perform the expected privilege, identity, or other access control checks between those IP blocks.",
-  "extended_description": "\n\t\t\t\t<xhtml:p>In hardware designs, different IP blocks are connected through interconnect-bus fabrics (e.g. AHB and OCP). Within a System on Chip (SoC), the IP block subsystems could be using different bus protocols. In such a case, the IP blocks are then linked to the central bus (and to other IP blocks) through a fabric bridge. Bridges are used as bus-interconnect-routing modules that link different protocols or separate, different segments of the overall SoC interconnect.</xhtml:p>\n\t\t\t\t<xhtml:p>For overall system security, it is important that the access-control privileges associated with any fabric transaction are consistently maintained and applied, even when they are routed or translated by a fabric bridge. A bridge that is connected to a fabric without security features forwards transactions to the slave without checking the privilege level of the master and results in a weakness in SoC access-control security. The same weakness occurs if a bridge does not check the hardware identity of the transaction received from the slave interface of the bridge.</xhtml:p>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "284",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Processor Hardware"
-      },
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Access Control",
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Crash, Exit, or Restart",
-        "Bypass Protection Mechanism",
-        "Read Memory",
-        "Modify Memory"
-      ],
-      "likelihood": "Medium"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Ensure that the design includes provisions for access-control checks in the bridge for both upstream and downstream transactions."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Implement access-control checks in the bridge for both upstream and downstream transactions."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>This example is from CVE-2019-6260 [REF-1138]. The iLPC2AHB bridge connects a CPU (with multiple, privilege levels, such as user, super user, debug, etc.) over AHB interface to an LPC bus. Several peripherals are connected to the LPC bus. The bridge is expected to check the privilege level of the transactions initiated in the core before forwarding them to the peripherals on the LPC bus. </Intro_Text>\n\t\t\t\t\t<Body_Text>The bridge does not implement the checks and allows reads and writes from all privilege levels. </Body_Text>\n\t\t\t\t\t<Body_Text>To address this, designers should implement hardware-based checks that are either hardcoded to block untrusted agents from accessing secure peripherals or implement firmware flows that configure the bridge to block untrusted agents from making arbitrary reads or writes.</Body_Text>\n\t\t\t\t"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2019-6260",
-      "description": "Baseboard Management Controller (BMC) device implements Advanced High-performance Bus (AHB) bridges that do not require authentication for arbitrary read and write access to the BMC's physical address space from the host, and possibly the network [REF-1138].",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2019-6260"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1138",
-      "author": [
-        "Stewart Smith"
-      ],
-      "title": "CVE-2019-6260: Gaining control of BMC from the host processor",
-      "url": "https://www.flamingspork.com/blog/2019/01/23/cve-2019-6260:-gaining-control-of-bmc-from-the-host-processor/",
-      "publication_year": "2019"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna",
-      "submission_organization": "Intel Corporation",
-      "submission_date": "2020-05-19"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Demonstrative_Examples, Description, Detection_Factors, Name, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Missing Security Checks in Fabric Bridge",
-        "date": "2022-10-13"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "method": "Simulation / Emulation",
-      "description": "RTL simulation to ensure that bridge-access controls are implemented properly.",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Formal Verification",
-      "description": "Formal verification of bridge RTL to ensure that access control cannot be bypassed. ",
-      "effectiveness": "High"
-    }
-  ],
-  "related_attack_patterns": [
-    "122"
-  ]
+	"id": "1317",
+	"name": "Improper Access Control in Fabric Bridge",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product uses a fabric bridge for transactions between two Intellectual Property (IP) blocks, but the bridge does not properly perform the expected privilege, identity, or other access control checks between those IP blocks.",
+	"extended_description": "\n\t\t\t\t<xhtml:p>In hardware designs, different IP blocks are connected through interconnect-bus fabrics (e.g. AHB and OCP). Within a System on Chip (SoC), the IP block subsystems could be using different bus protocols. In such a case, the IP blocks are then linked to the central bus (and to other IP blocks) through a fabric bridge. Bridges are used as bus-interconnect-routing modules that link different protocols or separate, different segments of the overall SoC interconnect.</xhtml:p>\n\t\t\t\t<xhtml:p>For overall system security, it is important that the access-control privileges associated with any fabric transaction are consistently maintained and applied, even when they are routed or translated by a fabric bridge. A bridge that is connected to a fabric without security features forwards transactions to the slave without checking the privilege level of the master and results in a weakness in SoC access-control security. The same weakness occurs if a bridge does not check the hardware identity of the transaction received from the slave interface of the bridge.</xhtml:p>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "284",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Processor Hardware"
+			},
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Access Control",
+				"Availability"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart",
+				"Bypass Protection Mechanism",
+				"Read Memory",
+				"Modify Memory"
+			],
+			"likelihood": "Medium"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Ensure that the design includes provisions for access-control checks in the bridge for both upstream and downstream transactions."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Implement access-control checks in the bridge for both upstream and downstream transactions."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>This example is from CVE-2019-6260 [REF-1138]. The iLPC2AHB bridge connects a CPU (with multiple, privilege levels, such as user, super user, debug, etc.) over AHB interface to an LPC bus. Several peripherals are connected to the LPC bus. The bridge is expected to check the privilege level of the transactions initiated in the core before forwarding them to the peripherals on the LPC bus. </Intro_Text>\n\t\t\t\t\t<Body_Text>The bridge does not implement the checks and allows reads and writes from all privilege levels. </Body_Text>\n\t\t\t\t\t<Body_Text>To address this, designers should implement hardware-based checks that are either hardcoded to block untrusted agents from accessing secure peripherals or implement firmware flows that configure the bridge to block untrusted agents from making arbitrary reads or writes.</Body_Text>\n\t\t\t\t"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2019-6260",
+			"description": "Baseboard Management Controller (BMC) device implements Advanced High-performance Bus (AHB) bridges that do not require authentication for arbitrary read and write access to the BMC's physical address space from the host, and possibly the network [REF-1138].",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-6260"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1138",
+			"author": [
+				"Stewart Smith"
+			],
+			"title": "CVE-2019-6260: Gaining control of BMC from the host processor",
+			"url": "https://www.flamingspork.com/blog/2019/01/23/cve-2019-6260:-gaining-control-of-bmc-from-the-host-processor/",
+			"publication_year": "2019"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna",
+			"submission_organization": "Intel Corporation",
+			"submission_date": "2020-05-19"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Demonstrative_Examples, Description, Detection_Factors, Name, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Missing Security Checks in Fabric Bridge",
+				"date": "2022-10-13"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"method": "Simulation / Emulation",
+			"description": "RTL simulation to ensure that bridge-access controls are implemented properly.",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Formal Verification",
+			"description": "Formal verification of bridge RTL to ensure that access control cannot be bypassed. ",
+			"effectiveness": "High"
+		}
+	],
+	"related_attack_patterns": [
+		"122"
+	]
 }

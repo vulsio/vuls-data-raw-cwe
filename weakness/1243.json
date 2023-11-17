@@ -1,209 +1,209 @@
 {
-  "id": "1243",
-  "name": "Sensitive Non-Volatile Information Not Protected During Debug",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "Access to security-sensitive information stored in fuses is not limited during debug.",
-  "extended_description": "\n                <xhtml:p>Several security-sensitive values are programmed into fuses to be used during early-boot flows or later at runtime. Examples of these security-sensitive values include root keys, encryption keys, manufacturing-specific information, chip-manufacturer-specific information, and original-equipment-manufacturer (OEM) data. After the chip is powered on, these values are sensed from fuses and stored in temporary locations such as registers and local memories. These locations are typically access-control protected from untrusted agents capable of accessing them. Even to trusted agents, only read-access is provided. However, these locations are not blocked during debug operations, allowing a user to access this sensitive information.</xhtml:p>\n            ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1263",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Access Control"
-      ],
-      "impact": [
-        "Modify Memory",
-        "Bypass Protection Mechanism"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation"
-      ],
-      "description": [
-        "\n                        <xhtml:p>Disable access to security-sensitive information stored in fuses directly and also reflected from  temporary storage locations when in debug mode.</xhtml:p>\n                    "
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n                    <Intro_Text>Sensitive manufacturing data (such as die information) are stored in fuses. When the chip powers on, these values are read from the fuses and stored in microarchitectural registers. These registers are only given read access to trusted software running on the core. Untrusted software running on the core is not allowed to access these registers.</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Other\">\n                        <xhtml:div>All microarchitectural registers in this chip can be accessed through the debug interface. As a result, even an untrusted debugger can access this data and retrieve sensitive manufacturing data.</xhtml:div>\n                    </Example_Code>\n                \t<Example_Code Nature=\"Good\">\n                  \t\t<xhtml:div>Registers used to store sensitive values read from fuses should be blocked during debug. These registers should be disconnected from the debug interface.</xhtml:div>\n               \t\t</Example_Code>\n            \t"
-    },
-    {
-      "text": "\n                    <Intro_Text>The example code below is taken from one of the AES cryptographic accelerators of the HACK@DAC'21 buggy OpenPiton SoC [REF-1366]. The operating system (OS) uses three AES keys to encrypt and decrypt sensitive data using this accelerator. These keys are sensitive data stored in fuses. The security of the OS will be compromised if any of these AES keys are leaked. During system bootup, these AES keys are sensed from fuses and stored in temporary hardware registers of the AES peripheral. Access to these temporary registers is disconnected during the debug state to prevent them from leaking through debug access. In this example (see the vulnerable code source), the registers key0, key1, and key2 are used to store the three AES keys (which are accessed through key_big0, key_big1, and key_big2 signals). The OS selects one of these three keys through the key_big signal, which is used by the AES engine.</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                        ...<xhtml:br/>\n                        assign key_big0    = debug_mode_i ? 192'b0 : {key0[0],<xhtml:br/>\n                        key0[1], key0[2], key0[3], key0[4], key0[5]};<xhtml:br/>\n                        <xhtml:br/>\n                        assign key_big1    = debug_mode_i ? 192'b0 : {key1[0],<xhtml:br/>\n                        key1[1], key1[2], key1[3], key1[4], key1[5]};<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:b>assign key_big2    = {key2[0], key2[1], key2[2],</xhtml:b><xhtml:br/>\n                        <xhtml:b>key2[3], key2[4], key2[5]};</xhtml:b><xhtml:br/>\n                        ...<xhtml:br/>\n                        <xhtml:b>assign key_big = key_sel[1] ? key_big2 : ( key_sel[0] ?</xhtml:b><xhtml:br/>\n                        <xhtml:b>key_big1 : key_big0 );</xhtml:b><xhtml:br/>\n                        ...<xhtml:br/>\n                    </Example_Code>\n                    <Body_Text>The above code illustrates an instance of a vulnerable implementation for blocking AES key mechanism when the system is in debug mode (i.e., when debug_mode_i is asserted). During debug mode, key accesses through key_big0 and key_big1 are effectively disconnected, as their values are set to zero. However, the key accessed via the key_big2 signal remains accessible, creating a potential pathway for sensitive fuse data leakage, specifically AES key2, during debug mode. Furthermore, even though it is not strictly necessary to disconnect the key_big signal when entering debug mode (since disconnecting key_big0, key_big1, and key_big2 will inherently disconnect key_big), it is advisable, in line with the defense-in-depth strategy, to also sever the connection to key_big. This additional security measure adds an extra layer of protection and safeguards the AES keys against potential future modifications to the key_big logic.</Body_Text>\n                    <Body_Text>To mitigate this, disconnect access through key_big2 and key_big during debug mode [REF-1367].</Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"Verilog\">\n                    ...<xhtml:br/>\n                    assign key_big0    = debug_mode_i ? 192'b0 : {key0[0],<xhtml:br/>\n                    key0[1], key0[2], key0[3], key0[4], key0[5]};<xhtml:br/>\n                    <xhtml:br/>\n                    assign key_big1    = debug_mode_i ? 192'b0 : {key1[0],<xhtml:br/>\n                    key1[1], key1[2], key1[3], key1[4], key1[5]}; <xhtml:br/>\n                    <xhtml:br/>\n                    assign key_big2    = <xhtml:b>debug_mode_i ? 192'b0 :</xhtml:b> {key2[0],<xhtml:br/>\n                    key2[1], key2[2], key2[3], key2[4], key2[5]};<xhtml:br/>\n                    ...<xhtml:br/>\n                    assign key_big = <xhtml:b>debug_mode_i ? 192'b0 :</xhtml:b> (  key_sel[1] ?<xhtml:br/>\n                    key_big2 : ( key_sel[0] ? key_big1 : key_big0 )  );<xhtml:br/>\n                    ...<xhtml:br/>\n                    </Example_Code>\n                "
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1366",
-      "title": "aes0_wrapper.sv",
-      "url": "https://github.com/HACK-EVENT/hackatdac21/blob/71103971e8204de6a61afc17d3653292517d32bf/piton/design/chip/tile/ariane/src/aes0/aes0_wrapper.sv#L56C1-L57C1",
-      "publication_year": "2021",
-      "url_date": "2023-07-15"
-    },
-    {
-      "reference_id": "REF-1367",
-      "title": "fix cwe_1243 in aes0_wrapper.sv",
-      "url": "https://github.com/HACK-EVENT/hackatdac21/blob/cde1d9d6888bffab21d4b405ccef61b19c58dd3c/piton/design/chip/tile/ariane/src/aes0/aes0_wrapper.sv#L56",
-      "publication_year": "2021",
-      "url_date": "2023-09-28"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
-      "submission_organization": "Intel Corporation",
-      "submission_date": "2020-02-12"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Name, Potential_Mitigations, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Demonstrative_Examples, References"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Exposure of Security-Sensitive Fuse Values During Debug",
-        "date": "2020-08-20"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "Chen Chen",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Rahul Kande",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Jeyavijayan Rajendran",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Shaza Zeitoni",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Mohamadreza Rostami",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Ahmad-Reza Sadeghi",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "116",
-    "545"
-  ]
+	"id": "1243",
+	"name": "Sensitive Non-Volatile Information Not Protected During Debug",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "Access to security-sensitive information stored in fuses is not limited during debug.",
+	"extended_description": "\n                <xhtml:p>Several security-sensitive values are programmed into fuses to be used during early-boot flows or later at runtime. Examples of these security-sensitive values include root keys, encryption keys, manufacturing-specific information, chip-manufacturer-specific information, and original-equipment-manufacturer (OEM) data. After the chip is powered on, these values are sensed from fuses and stored in temporary locations such as registers and local memories. These locations are typically access-control protected from untrusted agents capable of accessing them. Even to trusted agents, only read-access is provided. However, these locations are not blocked during debug operations, allowing a user to access this sensitive information.</xhtml:p>\n            ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1263",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Access Control"
+			],
+			"impact": [
+				"Modify Memory",
+				"Bypass Protection Mechanism"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"\n                        <xhtml:p>Disable access to security-sensitive information stored in fuses directly and also reflected from  temporary storage locations when in debug mode.</xhtml:p>\n                    "
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n                    <Intro_Text>Sensitive manufacturing data (such as die information) are stored in fuses. When the chip powers on, these values are read from the fuses and stored in microarchitectural registers. These registers are only given read access to trusted software running on the core. Untrusted software running on the core is not allowed to access these registers.</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Other\">\n                        <xhtml:div>All microarchitectural registers in this chip can be accessed through the debug interface. As a result, even an untrusted debugger can access this data and retrieve sensitive manufacturing data.</xhtml:div>\n                    </Example_Code>\n                \t<Example_Code Nature=\"Good\">\n                  \t\t<xhtml:div>Registers used to store sensitive values read from fuses should be blocked during debug. These registers should be disconnected from the debug interface.</xhtml:div>\n               \t\t</Example_Code>\n            \t"
+		},
+		{
+			"text": "\n                    <Intro_Text>The example code below is taken from one of the AES cryptographic accelerators of the HACK@DAC'21 buggy OpenPiton SoC [REF-1366]. The operating system (OS) uses three AES keys to encrypt and decrypt sensitive data using this accelerator. These keys are sensitive data stored in fuses. The security of the OS will be compromised if any of these AES keys are leaked. During system bootup, these AES keys are sensed from fuses and stored in temporary hardware registers of the AES peripheral. Access to these temporary registers is disconnected during the debug state to prevent them from leaking through debug access. In this example (see the vulnerable code source), the registers key0, key1, and key2 are used to store the three AES keys (which are accessed through key_big0, key_big1, and key_big2 signals). The OS selects one of these three keys through the key_big signal, which is used by the AES engine.</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                        ...<xhtml:br/>\n                        assign key_big0    = debug_mode_i ? 192'b0 : {key0[0],<xhtml:br/>\n                        key0[1], key0[2], key0[3], key0[4], key0[5]};<xhtml:br/>\n                        <xhtml:br/>\n                        assign key_big1    = debug_mode_i ? 192'b0 : {key1[0],<xhtml:br/>\n                        key1[1], key1[2], key1[3], key1[4], key1[5]};<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:b>assign key_big2    = {key2[0], key2[1], key2[2],</xhtml:b><xhtml:br/>\n                        <xhtml:b>key2[3], key2[4], key2[5]};</xhtml:b><xhtml:br/>\n                        ...<xhtml:br/>\n                        <xhtml:b>assign key_big = key_sel[1] ? key_big2 : ( key_sel[0] ?</xhtml:b><xhtml:br/>\n                        <xhtml:b>key_big1 : key_big0 );</xhtml:b><xhtml:br/>\n                        ...<xhtml:br/>\n                    </Example_Code>\n                    <Body_Text>The above code illustrates an instance of a vulnerable implementation for blocking AES key mechanism when the system is in debug mode (i.e., when debug_mode_i is asserted). During debug mode, key accesses through key_big0 and key_big1 are effectively disconnected, as their values are set to zero. However, the key accessed via the key_big2 signal remains accessible, creating a potential pathway for sensitive fuse data leakage, specifically AES key2, during debug mode. Furthermore, even though it is not strictly necessary to disconnect the key_big signal when entering debug mode (since disconnecting key_big0, key_big1, and key_big2 will inherently disconnect key_big), it is advisable, in line with the defense-in-depth strategy, to also sever the connection to key_big. This additional security measure adds an extra layer of protection and safeguards the AES keys against potential future modifications to the key_big logic.</Body_Text>\n                    <Body_Text>To mitigate this, disconnect access through key_big2 and key_big during debug mode [REF-1367].</Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"Verilog\">\n                    ...<xhtml:br/>\n                    assign key_big0    = debug_mode_i ? 192'b0 : {key0[0],<xhtml:br/>\n                    key0[1], key0[2], key0[3], key0[4], key0[5]};<xhtml:br/>\n                    <xhtml:br/>\n                    assign key_big1    = debug_mode_i ? 192'b0 : {key1[0],<xhtml:br/>\n                    key1[1], key1[2], key1[3], key1[4], key1[5]}; <xhtml:br/>\n                    <xhtml:br/>\n                    assign key_big2    = <xhtml:b>debug_mode_i ? 192'b0 :</xhtml:b> {key2[0],<xhtml:br/>\n                    key2[1], key2[2], key2[3], key2[4], key2[5]};<xhtml:br/>\n                    ...<xhtml:br/>\n                    assign key_big = <xhtml:b>debug_mode_i ? 192'b0 :</xhtml:b> (  key_sel[1] ?<xhtml:br/>\n                    key_big2 : ( key_sel[0] ? key_big1 : key_big0 )  );<xhtml:br/>\n                    ...<xhtml:br/>\n                    </Example_Code>\n                "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1366",
+			"title": "aes0_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/71103971e8204de6a61afc17d3653292517d32bf/piton/design/chip/tile/ariane/src/aes0/aes0_wrapper.sv#L56C1-L57C1",
+			"publication_year": "2021",
+			"url_date": "2023-07-15"
+		},
+		{
+			"reference_id": "REF-1367",
+			"title": "fix cwe_1243 in aes0_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/cde1d9d6888bffab21d4b405ccef61b19c58dd3c/piton/design/chip/tile/ariane/src/aes0/aes0_wrapper.sv#L56",
+			"publication_year": "2021",
+			"url_date": "2023-09-28"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+			"submission_organization": "Intel Corporation",
+			"submission_date": "2020-02-12"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Name, Potential_Mitigations, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Demonstrative_Examples, References"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Exposure of Security-Sensitive Fuse Values During Debug",
+				"date": "2020-08-20"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Rahul Kande",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitoni",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Mohamadreza Rostami",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"116",
+		"545"
+	]
 }

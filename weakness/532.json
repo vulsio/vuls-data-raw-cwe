@@ -1,290 +1,290 @@
 {
-  "id": "532",
-  "name": "Insertion of Sensitive Information into Log File",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "Information written to log files can be of a sensitive nature and give valuable guidance to an attacker or expose sensitive user information.",
-  "extended_description": "\n            <xhtml:p>While logging all information may be helpful during development stages, it is important that logging levels be set appropriately before a product ships so that sensitive user data and system information are not accidentally exposed to potential attackers.</xhtml:p>\n            <xhtml:p>Different log files may be produced and stored for:</xhtml:p>\n            <xhtml:ul>\n               <xhtml:li>Server log files (e.g. server.log).  This can give information on whatever application left the file. Usually this can give full path names and system information, and sometimes usernames and passwords.</xhtml:li>\n               <xhtml:li>log files that are used for debugging</xhtml:li>\n            </xhtml:ul>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "538",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "200",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
-      ]
-    },
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Application Data"
-      ],
-      "note": "Logging sensitive user data often provides attackers with an additional, less-protected path to acquiring the information."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation"
-      ],
-      "description": [
-        "Consider seriously the sensitivity of the information written into log files. Do not write secrets into the log files."
-      ]
-    },
-    {
-      "phase": [
-        "Distribution"
-      ],
-      "description": [
-        "Remove debug log files before deploying the application into production."
-      ]
-    },
-    {
-      "phase": [
-        "Operation"
-      ],
-      "description": [
-        "Protect log files against unauthorized read/write."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Adjust configurations appropriately when software is transitioned from a debug state to production."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-179",
-      "text": "\n               <Intro_Text>In the following code snippet, a user's full name and credit card number are written to a log file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>logger.info(\"Username: \" + usernme + \", CCN: \" + ccn);</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-120",
-      "text": "\n               <Intro_Text>This code stores location information about the current user:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>locationClient = new LocationClient(this, this, this);<xhtml:br/>locationClient.connect();<xhtml:br/>currentUser.setLocation(locationClient.getLastLocation());<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>catch (Exception e) {<xhtml:div style=\"margin-left:1em;\">AlertDialog.Builder builder = new AlertDialog.Builder(this);<xhtml:br/>builder.setMessage(\"Sorry, this application has experienced an error.\");<xhtml:br/>AlertDialog alert = builder.create();<xhtml:br/>alert.show();<xhtml:br/>Log.e(\"ExampleActivity\", \"Caught exception: \" + e + \" While on User:\" + User.toString());</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>When the application encounters an exception it will write the user object to the log. Because the user object contains location information, the user's location is also written to the log.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-119",
-      "text": "\n               <Intro_Text>In the example below, the method getUserBankAccount retrieves a bank account object from a database using the supplied username and account number to query the database. If an SQLException is raised when querying the database, an error message is created and output to a log file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public BankAccount getUserBankAccount(String username, String accountNumber) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BankAccount userAccount = null;<xhtml:br/>String query = null;<xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">if (isAuthorizedUser(username)) {<xhtml:div style=\"margin-left:1em;\">query = \"SELECT * FROM accounts WHERE owner = \"<xhtml:br/>+ username + \" AND accountID = \" + accountNumber;<xhtml:br/>DatabaseManager dbManager = new DatabaseManager();<xhtml:br/>Connection conn = dbManager.getConnection();<xhtml:br/>Statement stmt = conn.createStatement();<xhtml:br/>ResultSet queryResult = stmt.executeQuery(query);<xhtml:br/>userAccount = (BankAccount)queryResult.getObject(accountNumber);</xhtml:div>}</xhtml:div>} catch (SQLException ex) {<xhtml:div style=\"margin-left:1em;\">String logMessage = \"Unable to retrieve account information from database,\\nquery: \" + query;<xhtml:br/>Logger.getLogger(BankManager.class.getName()).log(Level.SEVERE, logMessage, ex);</xhtml:div>}<xhtml:br/>return userAccount;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The error message that is created includes information about the database query that may contain sensitive information about the database or query logic. In this case, the error message will expose the table name and column names used in the database. This data could be used to simplify other attacks, such as SQL injection (CWE-89) to directly access the database.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2017-9615",
-      "description": "verbose logging stores admin credentials in a world-readable log file",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2017-9615"
-    },
-    {
-      "reference": "CVE-2018-1999036",
-      "description": "SSH password for private key stored in build log",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2018-1999036"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Anonymous Tool Vendor (under NDA)",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Sean Eidemiller",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "added/updated demonstrative examples"
-      },
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated Common_Consequences, Description, Likelihood_of_Exploit, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-02-18",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Modes_of_Introduction, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated Description, Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Name, Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Information Leak Through Log Files",
-        "date": "2011-03-29"
-      },
-      {
-        "text": "Information Exposure Through Log Files",
-        "date": "2019-06-20"
-      },
-      {
-        "text": "Inclusion of Sensitive Information in Log Files",
-        "date": "2020-02-24"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_organization": "Fortify Software",
-        "contribution_date": "2009-07-15",
-        "contribution_comment": "Portions of Mitigations, Consequences and Description derived from content submitted by Fortify Software."
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not log sensitive information outside a trust boundary",
-      "entry_id": "FIO13-J"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Exposed Data",
-      "entry_id": "SFP23"
-    }
-  ],
-  "related_attack_patterns": [
-    "215"
-  ]
+	"id": "532",
+	"name": "Insertion of Sensitive Information into Log File",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "Information written to log files can be of a sensitive nature and give valuable guidance to an attacker or expose sensitive user information.",
+	"extended_description": "\n            <xhtml:p>While logging all information may be helpful during development stages, it is important that logging levels be set appropriately before a product ships so that sensitive user data and system information are not accidentally exposed to potential attackers.</xhtml:p>\n            <xhtml:p>Different log files may be produced and stored for:</xhtml:p>\n            <xhtml:ul>\n               <xhtml:li>Server log files (e.g. server.log).  This can give information on whatever application left the file. Usually this can give full path names and system information, and sometimes usernames and passwords.</xhtml:li>\n               <xhtml:li>log files that are used for debugging</xhtml:li>\n            </xhtml:ul>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "538",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "200",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
+			]
+		},
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Application Data"
+			],
+			"note": "Logging sensitive user data often provides attackers with an additional, less-protected path to acquiring the information."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"Consider seriously the sensitivity of the information written into log files. Do not write secrets into the log files."
+			]
+		},
+		{
+			"phase": [
+				"Distribution"
+			],
+			"description": [
+				"Remove debug log files before deploying the application into production."
+			]
+		},
+		{
+			"phase": [
+				"Operation"
+			],
+			"description": [
+				"Protect log files against unauthorized read/write."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Adjust configurations appropriately when software is transitioned from a debug state to production."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-179",
+			"text": "\n               <Intro_Text>In the following code snippet, a user's full name and credit card number are written to a log file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>logger.info(\"Username: \" + usernme + \", CCN: \" + ccn);</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-120",
+			"text": "\n               <Intro_Text>This code stores location information about the current user:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>locationClient = new LocationClient(this, this, this);<xhtml:br/>locationClient.connect();<xhtml:br/>currentUser.setLocation(locationClient.getLastLocation());<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>catch (Exception e) {<xhtml:div style=\"margin-left:1em;\">AlertDialog.Builder builder = new AlertDialog.Builder(this);<xhtml:br/>builder.setMessage(\"Sorry, this application has experienced an error.\");<xhtml:br/>AlertDialog alert = builder.create();<xhtml:br/>alert.show();<xhtml:br/>Log.e(\"ExampleActivity\", \"Caught exception: \" + e + \" While on User:\" + User.toString());</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>When the application encounters an exception it will write the user object to the log. Because the user object contains location information, the user's location is also written to the log.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-119",
+			"text": "\n               <Intro_Text>In the example below, the method getUserBankAccount retrieves a bank account object from a database using the supplied username and account number to query the database. If an SQLException is raised when querying the database, an error message is created and output to a log file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public BankAccount getUserBankAccount(String username, String accountNumber) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BankAccount userAccount = null;<xhtml:br/>String query = null;<xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">if (isAuthorizedUser(username)) {<xhtml:div style=\"margin-left:1em;\">query = \"SELECT * FROM accounts WHERE owner = \"<xhtml:br/>+ username + \" AND accountID = \" + accountNumber;<xhtml:br/>DatabaseManager dbManager = new DatabaseManager();<xhtml:br/>Connection conn = dbManager.getConnection();<xhtml:br/>Statement stmt = conn.createStatement();<xhtml:br/>ResultSet queryResult = stmt.executeQuery(query);<xhtml:br/>userAccount = (BankAccount)queryResult.getObject(accountNumber);</xhtml:div>}</xhtml:div>} catch (SQLException ex) {<xhtml:div style=\"margin-left:1em;\">String logMessage = \"Unable to retrieve account information from database,\\nquery: \" + query;<xhtml:br/>Logger.getLogger(BankManager.class.getName()).log(Level.SEVERE, logMessage, ex);</xhtml:div>}<xhtml:br/>return userAccount;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The error message that is created includes information about the database query that may contain sensitive information about the database or query logic. In this case, the error message will expose the table name and column names used in the database. This data could be used to simplify other attacks, such as SQL injection (CWE-89) to directly access the database.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2017-9615",
+			"description": "verbose logging stores admin credentials in a world-readable log file",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2017-9615"
+		},
+		{
+			"reference": "CVE-2018-1999036",
+			"description": "SSH password for private key stored in build log",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2018-1999036"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Anonymous Tool Vendor (under NDA)",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Sean Eidemiller",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "added/updated demonstrative examples"
+			},
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated Common_Consequences, Description, Likelihood_of_Exploit, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-02-18",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Modes_of_Introduction, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated Description, Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Name, Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Information Leak Through Log Files",
+				"date": "2011-03-29"
+			},
+			{
+				"text": "Information Exposure Through Log Files",
+				"date": "2019-06-20"
+			},
+			{
+				"text": "Inclusion of Sensitive Information in Log Files",
+				"date": "2020-02-24"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_organization": "Fortify Software",
+				"contribution_date": "2009-07-15",
+				"contribution_comment": "Portions of Mitigations, Consequences and Description derived from content submitted by Fortify Software."
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not log sensitive information outside a trust boundary",
+			"entry_id": "FIO13-J"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Exposed Data",
+			"entry_id": "SFP23"
+		}
+	],
+	"related_attack_patterns": [
+		"215"
+	]
 }

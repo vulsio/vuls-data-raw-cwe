@@ -1,235 +1,235 @@
 {
-  "id": "467",
-  "name": "Use of sizeof() on a Pointer Type",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The code calls sizeof() on a malloced pointer type, which always returns the wordsize/8. This can produce an unexpected result if the programmer intended to determine how much memory has been allocated.",
-  "extended_description": "The use of sizeof() on a pointer can sometimes generate useful information. An obvious case is to find out the wordsize on a platform. More often than not, the appearance of sizeof(pointer) indicates a bug.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "131",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality"
-      ],
-      "impact": [
-        "Modify Memory",
-        "Read Memory"
-      ],
-      "note": "This error can often cause one to allocate a buffer that is much smaller than what is needed, leading to resultant weaknesses such as buffer overflows."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Use expressions such as \"sizeof(*pointer)\" instead of \"sizeof(pointer)\", unless you intend to run sizeof() on a pointer type to gain some platform independence or if you are allocating a variable on the stack."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>Care should be taken to ensure sizeof returns the size of the data structure itself, and not the size of the pointer to the data structure.</Intro_Text>\n               <Body_Text>In this example, sizeof(foo) returns the size of the pointer.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>double *foo;<xhtml:br/>...<xhtml:br/>foo = (double *)malloc(sizeof(foo));</xhtml:div>\n               </Example_Code>\n               <Body_Text>In this example, sizeof(*foo) returns the size of the data structure and not the size of the pointer.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>double *foo;<xhtml:br/>...<xhtml:br/>foo = (double *)malloc(sizeof(*foo));</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>This example defines a fixed username and password. The AuthenticateUser() function is intended to accept a username and a password from an untrusted user, and check to ensure that it matches the username and password. If the username and password match, AuthenticateUser() is intended to indicate that authentication succeeded.</Intro_Text>\n               <Example_Code Nature=\"Bad\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>/* Ignore CWE-259 (hard-coded password) and CWE-309 (use of password system for authentication) for this example. */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>char *username = \"admin\";<xhtml:br/>char *pass = \"password\";<xhtml:br/>\n                     <xhtml:br/>int AuthenticateUser(char *inUser, char *inPass) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>printf(\"Sizeof username = %d\\n\", sizeof(username));<xhtml:br/>printf(\"Sizeof pass = %d\\n\", sizeof(pass));<xhtml:br/>\n                           <xhtml:br/>if (strncmp(username, inUser, sizeof(username))) {<xhtml:div style=\"margin-left:1em;\">printf(\"Auth failure of username using sizeof\\n\");<xhtml:br/>return(AUTH_FAIL);</xhtml:div>}<xhtml:br/>\n                           <xhtml:i>/* Because of CWE-467, the sizeof returns 4 on many platforms and architectures. */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>if (! strncmp(pass, inPass, sizeof(pass))) {<xhtml:div style=\"margin-left:1em;\">printf(\"Auth success of password using sizeof\\n\");<xhtml:br/>return(AUTH_SUCCESS);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">printf(\"Auth fail of password using sizeof\\n\");<xhtml:br/>return(AUTH_FAIL);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main (int argc, char **argv)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int authResult;<xhtml:br/>\n                           <xhtml:br/>if (argc &lt; 3) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Usage: Provide a username and password\");</xhtml:div>}<xhtml:br/>authResult = AuthenticateUser(argv[1], argv[2]);<xhtml:br/>if (authResult != AUTH_SUCCESS) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Authentication failed\");</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">DoAuthenticatedTask(argv[1]);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In AuthenticateUser(), because sizeof() is applied to a parameter with an array type, the sizeof() call might return 4 on many modern architectures. As a result, the strncmp() call only checks the first four characters of the input password, resulting in a partial comparison (CWE-187), leading to improper authentication (CWE-287).</Body_Text>\n               <Body_Text>Because of the partial comparison, any of these passwords would still cause authentication to succeed for the \"admin\" user:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>pass5<xhtml:br/>passABCDEFGH<xhtml:br/>passWORD</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because only 4 characters are checked, this significantly reduces the search space for an attacker, making brute force attacks more feasible.</Body_Text>\n               <Body_Text>The same problem also applies to the username, so values such as \"adminXYZ\" and \"administrator\" will succeed for the username.</Body_Text>\n            "
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    },
-    {
-      "reference_id": "REF-442",
-      "author": [
-        "Robert Seacord"
-      ],
-      "title": "EXP01-A. Do not take the sizeof a pointer to determine the size of a type",
-      "url": "https://www.securecoding.cert.org/confluence/display/seccode/EXP01-A.+Do+not+take+the+sizeof+a+pointer+to+determine+the+size+of+a+type"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_organization": "KDM Analytics",
-        "modification_date": "2008-08-01",
-        "modification_comment": "added/updated white box definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Description, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Demonstrative_Examples, Taxonomy_Mappings, White_Box_Definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Use of sizeof() on a pointer type"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not apply the sizeof operator to a pointer when taking the size of an array",
-      "entry_id": "ARR01-C"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Allocate sufficient memory for an object",
-      "entry_id": "MEM35-C",
-      "mapping_fit": "CWE More Abstract"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Incorrect Buffer Length Computation",
-      "entry_id": "SFP10"
-    }
-  ]
+	"id": "467",
+	"name": "Use of sizeof() on a Pointer Type",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The code calls sizeof() on a malloced pointer type, which always returns the wordsize/8. This can produce an unexpected result if the programmer intended to determine how much memory has been allocated.",
+	"extended_description": "The use of sizeof() on a pointer can sometimes generate useful information. An obvious case is to find out the wordsize on a platform. More often than not, the appearance of sizeof(pointer) indicates a bug.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "131",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality"
+			],
+			"impact": [
+				"Modify Memory",
+				"Read Memory"
+			],
+			"note": "This error can often cause one to allocate a buffer that is much smaller than what is needed, leading to resultant weaknesses such as buffer overflows."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Use expressions such as \"sizeof(*pointer)\" instead of \"sizeof(pointer)\", unless you intend to run sizeof() on a pointer type to gain some platform independence or if you are allocating a variable on the stack."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>Care should be taken to ensure sizeof returns the size of the data structure itself, and not the size of the pointer to the data structure.</Intro_Text>\n               <Body_Text>In this example, sizeof(foo) returns the size of the pointer.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>double *foo;<xhtml:br/>...<xhtml:br/>foo = (double *)malloc(sizeof(foo));</xhtml:div>\n               </Example_Code>\n               <Body_Text>In this example, sizeof(*foo) returns the size of the data structure and not the size of the pointer.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>double *foo;<xhtml:br/>...<xhtml:br/>foo = (double *)malloc(sizeof(*foo));</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>This example defines a fixed username and password. The AuthenticateUser() function is intended to accept a username and a password from an untrusted user, and check to ensure that it matches the username and password. If the username and password match, AuthenticateUser() is intended to indicate that authentication succeeded.</Intro_Text>\n               <Example_Code Nature=\"Bad\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>/* Ignore CWE-259 (hard-coded password) and CWE-309 (use of password system for authentication) for this example. */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>char *username = \"admin\";<xhtml:br/>char *pass = \"password\";<xhtml:br/>\n                     <xhtml:br/>int AuthenticateUser(char *inUser, char *inPass) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>printf(\"Sizeof username = %d\\n\", sizeof(username));<xhtml:br/>printf(\"Sizeof pass = %d\\n\", sizeof(pass));<xhtml:br/>\n                           <xhtml:br/>if (strncmp(username, inUser, sizeof(username))) {<xhtml:div style=\"margin-left:1em;\">printf(\"Auth failure of username using sizeof\\n\");<xhtml:br/>return(AUTH_FAIL);</xhtml:div>}<xhtml:br/>\n                           <xhtml:i>/* Because of CWE-467, the sizeof returns 4 on many platforms and architectures. */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>if (! strncmp(pass, inPass, sizeof(pass))) {<xhtml:div style=\"margin-left:1em;\">printf(\"Auth success of password using sizeof\\n\");<xhtml:br/>return(AUTH_SUCCESS);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">printf(\"Auth fail of password using sizeof\\n\");<xhtml:br/>return(AUTH_FAIL);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main (int argc, char **argv)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int authResult;<xhtml:br/>\n                           <xhtml:br/>if (argc &lt; 3) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Usage: Provide a username and password\");</xhtml:div>}<xhtml:br/>authResult = AuthenticateUser(argv[1], argv[2]);<xhtml:br/>if (authResult != AUTH_SUCCESS) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Authentication failed\");</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">DoAuthenticatedTask(argv[1]);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In AuthenticateUser(), because sizeof() is applied to a parameter with an array type, the sizeof() call might return 4 on many modern architectures. As a result, the strncmp() call only checks the first four characters of the input password, resulting in a partial comparison (CWE-187), leading to improper authentication (CWE-287).</Body_Text>\n               <Body_Text>Because of the partial comparison, any of these passwords would still cause authentication to succeed for the \"admin\" user:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>pass5<xhtml:br/>passABCDEFGH<xhtml:br/>passWORD</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because only 4 characters are checked, this significantly reduces the search space for an attacker, making brute force attacks more feasible.</Body_Text>\n               <Body_Text>The same problem also applies to the username, so values such as \"adminXYZ\" and \"administrator\" will succeed for the username.</Body_Text>\n            "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		},
+		{
+			"reference_id": "REF-442",
+			"author": [
+				"Robert Seacord"
+			],
+			"title": "EXP01-A. Do not take the sizeof a pointer to determine the size of a type",
+			"url": "https://www.securecoding.cert.org/confluence/display/seccode/EXP01-A.+Do+not+take+the+sizeof+a+pointer+to+determine+the+size+of+a+type"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_organization": "KDM Analytics",
+				"modification_date": "2008-08-01",
+				"modification_comment": "added/updated white box definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Description, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Demonstrative_Examples, Taxonomy_Mappings, White_Box_Definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Use of sizeof() on a pointer type"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not apply the sizeof operator to a pointer when taking the size of an array",
+			"entry_id": "ARR01-C"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Allocate sufficient memory for an object",
+			"entry_id": "MEM35-C",
+			"mapping_fit": "CWE More Abstract"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Incorrect Buffer Length Computation",
+			"entry_id": "SFP10"
+		}
+	]
 }

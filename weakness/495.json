@@ -1,213 +1,213 @@
 {
-  "id": "495",
-  "name": "Private Data Structure Returned From A Public Method",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product has a method that is declared public, but returns a reference to a private data structure, which could then be modified in unexpected ways.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "664",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C#"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Modify Application Data"
-      ],
-      "note": "The contents of the data structure can be modified from outside the intended scope."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Declare the method private."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Clone the member data and keep an unmodified version of the data private to the object."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Use public setter methods that govern how a private member can be modified."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>Here, a public method in a Java class returns a reference to a private array. Given that arrays in Java are mutable, any modifications made to the returned reference would be reflected in the original private array.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>private String[] colors;<xhtml:br/>public String[] getColors() {<xhtml:div style=\"margin-left:1em;\">return colors;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>In this example, the Color class defines functions that return non-const references to private members (an array type and an integer type), which are then arbitrarily altered from outside the control of the class.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>class Color<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">private:<xhtml:div style=\"margin-left:1em;\">int[2] colorArray;<xhtml:br/>int colorValue;</xhtml:div>public:<xhtml:div style=\"margin-left:1em;\">Color () : colorArray { 1, 2 }, colorValue (3) { };<xhtml:br/>int[2] &amp; fa () { return colorArray; } <xhtml:i>// return reference to private array</xhtml:i><xhtml:br/>int &amp; fv () { return colorValue; } <xhtml:i>// return reference to private integer</xhtml:i></xhtml:div></xhtml:div>};<xhtml:br/><xhtml:br/>int main ()<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">Color c;<xhtml:br/><xhtml:br/>c.fa () [1] = 42; <xhtml:i>// modifies private array element</xhtml:i><xhtml:br/>c.fv () = 42; <xhtml:i>// modifies private int</xhtml:i><xhtml:br/><xhtml:br/>return 0;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-6",
-      "author": [
-        "Katrina Tsipenyuk",
-        "Brian Chess",
-        "Gary McGraw"
-      ],
-      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
-      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
-      "publication_year": "2005",
-      "publication_month": "--11",
-      "publication_day": "---07",
-      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
-      "publisher": "NIST"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "7 Pernicious Kingdoms",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Sean Eidemiller",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "added/updated demonstrative examples"
-      },
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_organization": "KDM Analytics",
-        "modification_date": "2008-08-01",
-        "modification_comment": "added/updated white box definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Relationships, White_Box_Definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Name, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Private Array-Typed Field Returned From A Public Method",
-        "date": "2019-01-03"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "Private Array-Typed Field Returned From A Public Method"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Exposed Data",
-      "entry_id": "SFP23"
-    }
-  ]
+	"id": "495",
+	"name": "Private Data Structure Returned From A Public Method",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product has a method that is declared public, but returns a reference to a private data structure, which could then be modified in unexpected ways.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "664",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C#"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Modify Application Data"
+			],
+			"note": "The contents of the data structure can be modified from outside the intended scope."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Declare the method private."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Clone the member data and keep an unmodified version of the data private to the object."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Use public setter methods that govern how a private member can be modified."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>Here, a public method in a Java class returns a reference to a private array. Given that arrays in Java are mutable, any modifications made to the returned reference would be reflected in the original private array.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>private String[] colors;<xhtml:br/>public String[] getColors() {<xhtml:div style=\"margin-left:1em;\">return colors;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>In this example, the Color class defines functions that return non-const references to private members (an array type and an integer type), which are then arbitrarily altered from outside the control of the class.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>class Color<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">private:<xhtml:div style=\"margin-left:1em;\">int[2] colorArray;<xhtml:br/>int colorValue;</xhtml:div>public:<xhtml:div style=\"margin-left:1em;\">Color () : colorArray { 1, 2 }, colorValue (3) { };<xhtml:br/>int[2] &amp; fa () { return colorArray; } <xhtml:i>// return reference to private array</xhtml:i><xhtml:br/>int &amp; fv () { return colorValue; } <xhtml:i>// return reference to private integer</xhtml:i></xhtml:div></xhtml:div>};<xhtml:br/><xhtml:br/>int main ()<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">Color c;<xhtml:br/><xhtml:br/>c.fa () [1] = 42; <xhtml:i>// modifies private array element</xhtml:i><xhtml:br/>c.fv () = 42; <xhtml:i>// modifies private int</xhtml:i><xhtml:br/><xhtml:br/>return 0;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-6",
+			"author": [
+				"Katrina Tsipenyuk",
+				"Brian Chess",
+				"Gary McGraw"
+			],
+			"title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+			"url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+			"publication_year": "2005",
+			"publication_month": "--11",
+			"publication_day": "---07",
+			"publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+			"publisher": "NIST"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "7 Pernicious Kingdoms",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Sean Eidemiller",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "added/updated demonstrative examples"
+			},
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_organization": "KDM Analytics",
+				"modification_date": "2008-08-01",
+				"modification_comment": "added/updated white box definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Relationships, White_Box_Definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Name, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Private Array-Typed Field Returned From A Public Method",
+				"date": "2019-01-03"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "Private Array-Typed Field Returned From A Public Method"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Exposed Data",
+			"entry_id": "SFP23"
+		}
+	]
 }

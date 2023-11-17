@@ -1,435 +1,435 @@
 {
-  "id": "125",
-  "name": "Out-of-bounds Read",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product reads data past the end, or before the beginning, of the intended buffer.",
-  "extended_description": "Typically, this can allow attackers to read sensitive information from other memory locations or cause a crash.  A crash can occur when the code reads a variable amount of data and assumes that a sentinel exists to stop the read operation, such as a NUL in a string.  The expected sentinel might not be located in the out-of-bounds memory, causing excessive data to be read, leading to a segmentation fault or a buffer overflow.  The product may modify an index or perform pointer arithmetic that references a memory location that is outside of the boundaries of the buffer.  A subsequent read operation then produces undefined or unexpected results.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "119",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "119",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "119",
-      "view_id": "1305",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "119",
-      "view_id": "1340",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      }
-    ],
-    "technology": [
-      {
-        "class": "ICS/OT",
-        "prevalence": "Often"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Memory"
-      ]
-    },
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism"
-      ],
-      "note": "By reading out-of-bounds memory, an attacker might be able to get secret values, such as memory addresses, which can be bypass protection mechanisms such as ASLR in order to improve the reliability and likelihood of exploiting a separate weakness to achieve code execution instead of just denial of service."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "mitigation_id": "MIT-5",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n                  <xhtml:p>To reduce the likelihood of introducing an out-of-bounds read, ensure that you validate and ensure correct calculations for any length argument, buffer size calculation, or offset. Be especially careful of relying on a sentinel (i.e. special character such as NUL) in untrusted inputs.</xhtml:p>\n               "
-      ],
-      "strategy": "Input Validation"
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Use a language that provides appropriate memory abstractions."
-      ],
-      "strategy": "Language Selection"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-100",
-      "text": "\n               <Intro_Text>In the following code, the method retrieves a value from an array at a specific array index location that is given as an input parameter to the method</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int getValueFromArray(int *array, int len, int index) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>int value;<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// check that the array index is less than the maximum</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// length of the array</xhtml:i>\n                           <xhtml:br/>if (index &lt; len) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>// get the value at the specified index of the array</xhtml:i>\n                                 <xhtml:br/>value = array[index];</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:i>// if array index is invalid then output error message</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// and return value indicating error</xhtml:i>\n                           <xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">printf(\"Value is: %d\\n\", array[index]);<xhtml:br/>value = -1;</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>return value;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, this method only verifies that the given array index is less than the maximum length of the array but does not check for the minimum value (CWE-839). This will allow a negative value to be accepted as the input array index, which will result in a out of bounds read (CWE-125) and may allow access to sensitive memory. The input array index should be checked to verify that is within the maximum and minimum range required for the array (CWE-129). In this example the if statement should be modified to include a minimum range check, as shown below.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>\n                     <xhtml:br/>...<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// check that the array index is within the correct</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// range of values for the array</xhtml:i>\n                     <xhtml:br/>if (index &gt;= 0 &amp;&amp; index &lt; len) {<xhtml:br/>\n                     <xhtml:br/>...</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2020-11899",
-      "description": "Out-of-bounds read in IP stack used in embedded systems, as exploited in the wild per CISA KEV.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-11899"
-    },
-    {
-      "reference": "CVE-2014-0160",
-      "description": "Chain: \"Heartbleed\" bug receives an inconsistent length parameter (CWE-130) enabling an out-of-bounds read (CWE-126), returning memory that could include private cryptographic keys and other sensitive data.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2014-0160"
-    },
-    {
-      "reference": "CVE-2021-40985",
-      "description": "HTML conversion package has a buffer under-read, allowing a crash",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-40985"
-    },
-    {
-      "reference": "CVE-2018-10887",
-      "description": "Chain: unexpected sign extension (CWE-194) leads to integer overflow (CWE-190), causing an out-of-bounds read (CWE-125)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2018-10887"
-    },
-    {
-      "reference": "CVE-2009-2523",
-      "description": "Chain: product does not handle when an input string is not NULL terminated (CWE-170), leading to buffer over-read (CWE-125) or heap-based buffer overflow (CWE-122).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2523"
-    },
-    {
-      "reference": "CVE-2018-16069",
-      "description": "Chain: series of floating-point precision errors\n\t      (CWE-1339) in a web browser rendering engine causes out-of-bounds read\n\t      (CWE-125), giving access to cross-origin data",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2018-16069"
-    },
-    {
-      "reference": "CVE-2004-0112",
-      "description": "out-of-bounds read due to improper length check",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0112"
-    },
-    {
-      "reference": "CVE-2004-0183",
-      "description": "packet with large number of specified elements cause out-of-bounds read.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0183"
-    },
-    {
-      "reference": "CVE-2004-0221",
-      "description": "packet with large number of specified elements cause out-of-bounds read.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0221"
-    },
-    {
-      "reference": "CVE-2004-0184",
-      "description": "out-of-bounds read, resultant from integer underflow",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0184"
-    },
-    {
-      "reference": "CVE-2004-1940",
-      "description": "large length value causes out-of-bounds read",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1940"
-    },
-    {
-      "reference": "CVE-2004-0421",
-      "description": "malformed image causes out-of-bounds read",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0421"
-    },
-    {
-      "reference": "CVE-2008-4113",
-      "description": "OS kernel trusts userland-supplied length value, allowing reading of sensitive information",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4113"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1034",
-      "author": [
-        "Raoul Strackx",
-        "Yves Younan",
-        "Pieter Philippaerts",
-        "Frank Piessens",
-        "Sven Lachmund",
-        "Thomas Walter"
-      ],
-      "title": "Breaking the memory secrecy assumption",
-      "url": "https://dl.acm.org/doi/10.1145/1519144.1519145",
-      "publication_year": "2009",
-      "publication_month": "--03",
-      "publication_day": "---31",
-      "publisher": "ACM",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1035",
-      "author": [
-        "Fermin J. Serna"
-      ],
-      "title": "The info leak era on software exploitation",
-      "url": "https://media.blackhat.com/bh-us-12/Briefings/Serna/BH_US_12_Serna_Leak_Era_Slides.pdf",
-      "publication_year": "2012",
-      "publication_month": "--07",
-      "publication_day": "---25"
-    },
-    {
-      "section": "\"Sin 5: Buffer Overruns.\" Page 89",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Causal_Nature, Observed_Examples, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Description, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Common_Consequences, Observed_Examples, Potential_Mitigations, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Potential_Mitigations, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Observed_Examples, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Observed_Examples, Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Research_Gaps"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-13",
-      "method": "Fuzzing",
-      "description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
-      "effectiveness": "High"
-    },
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Out-of-bounds Read"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not form or use out-of-bounds pointers or array subscripts",
-      "entry_id": "ARR30-C",
-      "mapping_fit": "Imprecise"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Guarantee that library functions do not form invalid pointers",
-      "entry_id": "ARR38-C",
-      "mapping_fit": "Imprecise"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not access a variable through a pointer of an incompatible type",
-      "entry_id": "EXP39-C",
-      "mapping_fit": "Imprecise"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Guarantee that storage for strings has sufficient space for character data and the null terminator",
-      "entry_id": "STR31-C",
-      "mapping_fit": "Imprecise"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not pass a non-null-terminated character sequence to a library function that expects a string",
-      "entry_id": "STR32-C",
-      "mapping_fit": "CWE More Abstract"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Faulty Buffer Access",
-      "entry_id": "SFP8"
-    }
-  ],
-  "related_attack_patterns": [
-    "540"
-  ]
+	"id": "125",
+	"name": "Out-of-bounds Read",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product reads data past the end, or before the beginning, of the intended buffer.",
+	"extended_description": "Typically, this can allow attackers to read sensitive information from other memory locations or cause a crash.  A crash can occur when the code reads a variable amount of data and assumes that a sentinel exists to stop the read operation, such as a NUL in a string.  The expected sentinel might not be located in the out-of-bounds memory, causing excessive data to be read, leading to a segmentation fault or a buffer overflow.  The product may modify an index or perform pointer arithmetic that references a memory location that is outside of the boundaries of the buffer.  A subsequent read operation then produces undefined or unexpected results.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "119",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "119",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "119",
+			"view_id": "1305",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "119",
+			"view_id": "1340",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			}
+		],
+		"technology": [
+			{
+				"class": "ICS/OT",
+				"prevalence": "Often"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Memory"
+			]
+		},
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			],
+			"note": "By reading out-of-bounds memory, an attacker might be able to get secret values, such as memory addresses, which can be bypass protection mechanisms such as ASLR in order to improve the reliability and likelihood of exploiting a separate weakness to achieve code execution instead of just denial of service."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"mitigation_id": "MIT-5",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n                  <xhtml:p>To reduce the likelihood of introducing an out-of-bounds read, ensure that you validate and ensure correct calculations for any length argument, buffer size calculation, or offset. Be especially careful of relying on a sentinel (i.e. special character such as NUL) in untrusted inputs.</xhtml:p>\n               "
+			],
+			"strategy": "Input Validation"
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Use a language that provides appropriate memory abstractions."
+			],
+			"strategy": "Language Selection"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-100",
+			"text": "\n               <Intro_Text>In the following code, the method retrieves a value from an array at a specific array index location that is given as an input parameter to the method</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int getValueFromArray(int *array, int len, int index) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>int value;<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// check that the array index is less than the maximum</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// length of the array</xhtml:i>\n                           <xhtml:br/>if (index &lt; len) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>// get the value at the specified index of the array</xhtml:i>\n                                 <xhtml:br/>value = array[index];</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:i>// if array index is invalid then output error message</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// and return value indicating error</xhtml:i>\n                           <xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">printf(\"Value is: %d\\n\", array[index]);<xhtml:br/>value = -1;</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>return value;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, this method only verifies that the given array index is less than the maximum length of the array but does not check for the minimum value (CWE-839). This will allow a negative value to be accepted as the input array index, which will result in a out of bounds read (CWE-125) and may allow access to sensitive memory. The input array index should be checked to verify that is within the maximum and minimum range required for the array (CWE-129). In this example the if statement should be modified to include a minimum range check, as shown below.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>\n                     <xhtml:br/>...<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// check that the array index is within the correct</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// range of values for the array</xhtml:i>\n                     <xhtml:br/>if (index &gt;= 0 &amp;&amp; index &lt; len) {<xhtml:br/>\n                     <xhtml:br/>...</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2020-11899",
+			"description": "Out-of-bounds read in IP stack used in embedded systems, as exploited in the wild per CISA KEV.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-11899"
+		},
+		{
+			"reference": "CVE-2014-0160",
+			"description": "Chain: \"Heartbleed\" bug receives an inconsistent length parameter (CWE-130) enabling an out-of-bounds read (CWE-126), returning memory that could include private cryptographic keys and other sensitive data.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2014-0160"
+		},
+		{
+			"reference": "CVE-2021-40985",
+			"description": "HTML conversion package has a buffer under-read, allowing a crash",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-40985"
+		},
+		{
+			"reference": "CVE-2018-10887",
+			"description": "Chain: unexpected sign extension (CWE-194) leads to integer overflow (CWE-190), causing an out-of-bounds read (CWE-125)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2018-10887"
+		},
+		{
+			"reference": "CVE-2009-2523",
+			"description": "Chain: product does not handle when an input string is not NULL terminated (CWE-170), leading to buffer over-read (CWE-125) or heap-based buffer overflow (CWE-122).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2523"
+		},
+		{
+			"reference": "CVE-2018-16069",
+			"description": "Chain: series of floating-point precision errors\n\t      (CWE-1339) in a web browser rendering engine causes out-of-bounds read\n\t      (CWE-125), giving access to cross-origin data",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2018-16069"
+		},
+		{
+			"reference": "CVE-2004-0112",
+			"description": "out-of-bounds read due to improper length check",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0112"
+		},
+		{
+			"reference": "CVE-2004-0183",
+			"description": "packet with large number of specified elements cause out-of-bounds read.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0183"
+		},
+		{
+			"reference": "CVE-2004-0221",
+			"description": "packet with large number of specified elements cause out-of-bounds read.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0221"
+		},
+		{
+			"reference": "CVE-2004-0184",
+			"description": "out-of-bounds read, resultant from integer underflow",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0184"
+		},
+		{
+			"reference": "CVE-2004-1940",
+			"description": "large length value causes out-of-bounds read",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-1940"
+		},
+		{
+			"reference": "CVE-2004-0421",
+			"description": "malformed image causes out-of-bounds read",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0421"
+		},
+		{
+			"reference": "CVE-2008-4113",
+			"description": "OS kernel trusts userland-supplied length value, allowing reading of sensitive information",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-4113"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1034",
+			"author": [
+				"Raoul Strackx",
+				"Yves Younan",
+				"Pieter Philippaerts",
+				"Frank Piessens",
+				"Sven Lachmund",
+				"Thomas Walter"
+			],
+			"title": "Breaking the memory secrecy assumption",
+			"url": "https://dl.acm.org/doi/10.1145/1519144.1519145",
+			"publication_year": "2009",
+			"publication_month": "--03",
+			"publication_day": "---31",
+			"publisher": "ACM",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1035",
+			"author": [
+				"Fermin J. Serna"
+			],
+			"title": "The info leak era on software exploitation",
+			"url": "https://media.blackhat.com/bh-us-12/Briefings/Serna/BH_US_12_Serna_Leak_Era_Slides.pdf",
+			"publication_year": "2012",
+			"publication_month": "--07",
+			"publication_day": "---25"
+		},
+		{
+			"section": "\"Sin 5: Buffer Overruns.\" Page 89",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Causal_Nature, Observed_Examples, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Description, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Common_Consequences, Observed_Examples, Potential_Mitigations, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Potential_Mitigations, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Observed_Examples, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Observed_Examples, Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Research_Gaps"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-13",
+			"method": "Fuzzing",
+			"description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
+			"effectiveness": "High"
+		},
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Out-of-bounds Read"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not form or use out-of-bounds pointers or array subscripts",
+			"entry_id": "ARR30-C",
+			"mapping_fit": "Imprecise"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Guarantee that library functions do not form invalid pointers",
+			"entry_id": "ARR38-C",
+			"mapping_fit": "Imprecise"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not access a variable through a pointer of an incompatible type",
+			"entry_id": "EXP39-C",
+			"mapping_fit": "Imprecise"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Guarantee that storage for strings has sufficient space for character data and the null terminator",
+			"entry_id": "STR31-C",
+			"mapping_fit": "Imprecise"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not pass a non-null-terminated character sequence to a library function that expects a string",
+			"entry_id": "STR32-C",
+			"mapping_fit": "CWE More Abstract"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Faulty Buffer Access",
+			"entry_id": "SFP8"
+		}
+	],
+	"related_attack_patterns": [
+		"540"
+	]
 }

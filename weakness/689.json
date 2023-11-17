@@ -1,190 +1,190 @@
 {
-  "id": "689",
-  "name": "Permission Race Condition During Resource Copy",
-  "abstraction": "Compound",
-  "structure": "Composite",
-  "status": "Draft",
-  "description": "The product, while copying or cloning a resource, does not set the resource's permissions or access control until the copy is complete, leaving the resource exposed to other spheres while the copy is taking place.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "362",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "Requires",
-      "cweid": "362",
-      "view_id": "1000"
-    },
-    {
-      "nature": "Requires",
-      "cweid": "732",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Perl"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "\n                  <xhtml:p>Common examples occur in file archive extraction, in which the product begins the extraction with insecure default permissions, then only sets the final permissions (as specified in the archive) once the copy is complete. The larger the archive, the larger the timing window for the race condition.</xhtml:p>\n                  <xhtml:p>This weakness has also occurred in some operating system utilities that perform copies of deeply nested directories containing a large number of files.</xhtml:p>\n                  <xhtml:p>This weakness can occur in any type of functionality that involves copying objects or resources in a multi-user environment, including at the application level. For example, a document management system might allow a user to copy a private document, but if it does not set the new copy to be private as soon as the copy begins, then other users might be able to view the document while the copy is still taking place.</xhtml:p>\n               "
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity"
-      ],
-      "impact": [
-        "Read Application Data",
-        "Modify Application Data"
-      ]
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2002-0760",
-      "description": "Archive extractor decompresses files with world-readable permissions, then later sets permissions to what the archive specified.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0760"
-    },
-    {
-      "reference": "CVE-2005-2174",
-      "description": "Product inserts a new object into database before setting the object's permissions, introducing a race condition.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2174"
-    },
-    {
-      "reference": "CVE-2006-5214",
-      "description": "Error file has weak permissions before a chmod is performed.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-5214"
-    },
-    {
-      "reference": "CVE-2005-2475",
-      "description": "Archive permissions issue using hard link.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2475"
-    },
-    {
-      "reference": "CVE-2003-0265",
-      "description": "Database product creates files world-writable before initializing the setuid bits, leading to modification of executables.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0265"
-    }
-  ],
-  "references": [
-    {
-      "section": "Chapter 9, \"Permission Races\", Page 533",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2008-04-11"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Relationships, Other_Notes, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Modes_of_Introduction, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "related_attack_patterns": [
-    "26",
-    "27"
-  ],
-  "notes": [
-    {
-      "type": "Research Gap",
-      "text": "Under-studied. It seems likely that this weakness could occur in any situation in which a complex or large copy operation occurs, when the resource can be made available to other spheres as soon as it is created, but before its initialization is complete."
-    }
-  ]
+	"id": "689",
+	"name": "Permission Race Condition During Resource Copy",
+	"abstraction": "Compound",
+	"structure": "Composite",
+	"status": "Draft",
+	"description": "The product, while copying or cloning a resource, does not set the resource's permissions or access control until the copy is complete, leaving the resource exposed to other spheres while the copy is taking place.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "362",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "Requires",
+			"cweid": "362",
+			"view_id": "1000"
+		},
+		{
+			"nature": "Requires",
+			"cweid": "732",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Perl"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"\n                  <xhtml:p>Common examples occur in file archive extraction, in which the product begins the extraction with insecure default permissions, then only sets the final permissions (as specified in the archive) once the copy is complete. The larger the archive, the larger the timing window for the race condition.</xhtml:p>\n                  <xhtml:p>This weakness has also occurred in some operating system utilities that perform copies of deeply nested directories containing a large number of files.</xhtml:p>\n                  <xhtml:p>This weakness can occur in any type of functionality that involves copying objects or resources in a multi-user environment, including at the application level. For example, a document management system might allow a user to copy a private document, but if it does not set the new copy to be private as soon as the copy begins, then other users might be able to view the document while the copy is still taking place.</xhtml:p>\n               "
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity"
+			],
+			"impact": [
+				"Read Application Data",
+				"Modify Application Data"
+			]
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2002-0760",
+			"description": "Archive extractor decompresses files with world-readable permissions, then later sets permissions to what the archive specified.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0760"
+		},
+		{
+			"reference": "CVE-2005-2174",
+			"description": "Product inserts a new object into database before setting the object's permissions, introducing a race condition.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2174"
+		},
+		{
+			"reference": "CVE-2006-5214",
+			"description": "Error file has weak permissions before a chmod is performed.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-5214"
+		},
+		{
+			"reference": "CVE-2005-2475",
+			"description": "Archive permissions issue using hard link.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2475"
+		},
+		{
+			"reference": "CVE-2003-0265",
+			"description": "Database product creates files world-writable before initializing the setuid bits, leading to modification of executables.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0265"
+		}
+	],
+	"references": [
+		{
+			"section": "Chapter 9, \"Permission Races\", Page 533",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2008-04-11"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Relationships, Other_Notes, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Modes_of_Introduction, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"related_attack_patterns": [
+		"26",
+		"27"
+	],
+	"notes": [
+		{
+			"type": "Research Gap",
+			"text": "Under-studied. It seems likely that this weakness could occur in any situation in which a complex or large copy operation occurs, when the resource can be made available to other spheres as soon as it is created, but before its initialization is complete."
+		}
+	]
 }

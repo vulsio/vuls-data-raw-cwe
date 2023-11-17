@@ -1,210 +1,210 @@
 {
-  "id": "105",
-  "name": "Struts: Form Field Without Validator",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product has a form field that is not validated by a corresponding validation form, which can introduce other weaknesses related to insufficient input validation.",
-  "extended_description": "Omitting validation for even a single input field may give attackers the leeway they need to compromise the product. Although J2EE applications are not generally susceptible to memory corruption attacks, if a J2EE application interfaces with native code that does not perform array bounds checking, an attacker may be able to use an input validation mistake in the J2EE application to launch a buffer overflow attack.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1173",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "20",
-      "view_id": "700",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "Some products use the same ActionForm for more than one purpose. In situations like this, some fields may go unused under some action mappings."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Unexpected State"
-      ]
-    },
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism"
-      ],
-      "note": "If unused fields are not validated, shared business logic in an action may allow attackers to bypass the validation checks that are performed for other uses of the form."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Validate all form fields. If a field is unused, it is still important to constrain it so that it is empty or undefined."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the following example the Java class RegistrationForm is a Struts framework ActionForm Bean that will maintain user input data from a registration webpage for an online business site. The user will enter registration data and, through the Struts framework, the RegistrationForm bean will maintain the user data in the form fields using the private member variables. The RegistrationForm class uses the Struts validation capability by extending the ValidatorForm class and including the validation for the form fields within the validator XML file, validator.xml.</Intro_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>public class RegistrationForm extends org.apache.struts.validator.ValidatorForm {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:br/>\n                        <xhtml:i>// private variables for registration form</xhtml:i>\n                        <xhtml:br/>private String name;<xhtml:br/>private String address;<xhtml:br/>private String city;<xhtml:br/>private String state;<xhtml:br/>private String zipcode;<xhtml:br/>private String phone;<xhtml:br/>private String email;<xhtml:br/>\n                        <xhtml:br/>public RegistrationForm() {<xhtml:div style=\"margin-left:1em;\">super();</xhtml:div>}<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>// getter and setter methods for private variables</xhtml:i>\n                        <xhtml:br/>...<xhtml:br/>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The validator XML file, validator.xml, provides the validation for the form fields of the RegistrationForm.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;form-validation&gt;<xhtml:div style=\"margin-left:1em;\">&lt;formset&gt;<xhtml:div style=\"margin-left:1em;\">&lt;form name=\"RegistrationForm\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;field property=\"name\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.name\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"address\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.address\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"city\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.city\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"state\" depends=\"required,mask\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.state\"/&gt;<xhtml:br/>&lt;var&gt;<xhtml:div style=\"margin-left:1em;\">&lt;var-name&gt;mask&lt;/var-name&gt;<xhtml:br/>&lt;var-value&gt;[a-zA-Z]{2}&lt;/var-value&gt;</xhtml:div>&lt;/var&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"zipcode\" depends=\"required,mask\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.zipcode\"/&gt;<xhtml:br/>&lt;var&gt;<xhtml:div style=\"margin-left:1em;\">&lt;var-name&gt;mask&lt;/var-name&gt;<xhtml:br/>&lt;var-value&gt;\\d{5}&lt;/var-value&gt;</xhtml:div>&lt;/var&gt;</xhtml:div>&lt;/field&gt;</xhtml:div>&lt;/form&gt;</xhtml:div>&lt;/formset&gt;</xhtml:div>&lt;/form-validation&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, in the previous example the validator XML file, validator.xml, does not provide validators for all of the form fields in the RegistrationForm. Validator forms are only provided for the first five of the seven form fields. The validator XML file should contain validator forms for all of the form fields for a Struts ActionForm bean. The following validator.xml file for the RegistrationForm class contains validator forms for all of the form fields.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"XML\">\n                  <xhtml:div>&lt;form-validation&gt;<xhtml:div style=\"margin-left:1em;\">&lt;formset&gt;<xhtml:div style=\"margin-left:1em;\">&lt;form name=\"RegistrationForm\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;field property=\"name\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.name\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"address\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.address\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"city\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.city\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"state\" depends=\"required,mask\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.state\"/&gt;<xhtml:br/>&lt;var&gt;<xhtml:div style=\"margin-left:1em;\">&lt;var-name&gt;mask&lt;/var-name&gt;<xhtml:br/>&lt;var-value&gt;[a-zA-Z]{2}&lt;/var-value&gt;</xhtml:div>&lt;/var&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"zipcode\" depends=\"required,mask\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.zipcode\"/&gt;<xhtml:br/>&lt;var&gt;<xhtml:div style=\"margin-left:1em;\">&lt;var-name&gt;mask&lt;/var-name&gt;<xhtml:br/>&lt;var-value&gt;\\d{5}&lt;/var-value&gt;</xhtml:div>&lt;/var&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"phone\" depends=\"required,mask\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.phone\"/&gt;<xhtml:br/>&lt;var&gt;<xhtml:div style=\"margin-left:1em;\">&lt;var-name&gt;mask&lt;/var-name&gt;<xhtml:br/>&lt;var-value&gt;^([0-9]{3})(-)([0-9]{4}|[0-9]{4})$&lt;/var-value&gt;</xhtml:div>&lt;/var&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"email\" depends=\"required,email\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.email\"/&gt;</xhtml:div>&lt;/field&gt;</xhtml:div>&lt;/form&gt;</xhtml:div>&lt;/formset&gt;</xhtml:div>&lt;/form-validation&gt;</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-6",
-      "author": [
-        "Katrina Tsipenyuk",
-        "Brian Chess",
-        "Gary McGraw"
-      ],
-      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
-      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
-      "publication_year": "2005",
-      "publication_month": "--11",
-      "publication_day": "---07",
-      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
-      "publisher": "NIST"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "7 Pernicious Kingdoms",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Common_Consequences, Description, Modes_of_Introduction, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Causal_Nature, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description, Modes_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "Struts: Form Field Without Validator"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Tainted input to command",
-      "entry_id": "SFP24"
-    }
-  ]
+	"id": "105",
+	"name": "Struts: Form Field Without Validator",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product has a form field that is not validated by a corresponding validation form, which can introduce other weaknesses related to insufficient input validation.",
+	"extended_description": "Omitting validation for even a single input field may give attackers the leeway they need to compromise the product. Although J2EE applications are not generally susceptible to memory corruption attacks, if a J2EE application interfaces with native code that does not perform array bounds checking, an attacker may be able to use an input validation mistake in the J2EE application to launch a buffer overflow attack.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1173",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "20",
+			"view_id": "700",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"Some products use the same ActionForm for more than one purpose. In situations like this, some fields may go unused under some action mappings."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Unexpected State"
+			]
+		},
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			],
+			"note": "If unused fields are not validated, shared business logic in an action may allow attackers to bypass the validation checks that are performed for other uses of the form."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Validate all form fields. If a field is unused, it is still important to constrain it so that it is empty or undefined."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the following example the Java class RegistrationForm is a Struts framework ActionForm Bean that will maintain user input data from a registration webpage for an online business site. The user will enter registration data and, through the Struts framework, the RegistrationForm bean will maintain the user data in the form fields using the private member variables. The RegistrationForm class uses the Struts validation capability by extending the ValidatorForm class and including the validation for the form fields within the validator XML file, validator.xml.</Intro_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>public class RegistrationForm extends org.apache.struts.validator.ValidatorForm {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:br/>\n                        <xhtml:i>// private variables for registration form</xhtml:i>\n                        <xhtml:br/>private String name;<xhtml:br/>private String address;<xhtml:br/>private String city;<xhtml:br/>private String state;<xhtml:br/>private String zipcode;<xhtml:br/>private String phone;<xhtml:br/>private String email;<xhtml:br/>\n                        <xhtml:br/>public RegistrationForm() {<xhtml:div style=\"margin-left:1em;\">super();</xhtml:div>}<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>// getter and setter methods for private variables</xhtml:i>\n                        <xhtml:br/>...<xhtml:br/>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The validator XML file, validator.xml, provides the validation for the form fields of the RegistrationForm.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;form-validation&gt;<xhtml:div style=\"margin-left:1em;\">&lt;formset&gt;<xhtml:div style=\"margin-left:1em;\">&lt;form name=\"RegistrationForm\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;field property=\"name\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.name\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"address\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.address\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"city\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.city\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"state\" depends=\"required,mask\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.state\"/&gt;<xhtml:br/>&lt;var&gt;<xhtml:div style=\"margin-left:1em;\">&lt;var-name&gt;mask&lt;/var-name&gt;<xhtml:br/>&lt;var-value&gt;[a-zA-Z]{2}&lt;/var-value&gt;</xhtml:div>&lt;/var&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"zipcode\" depends=\"required,mask\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.zipcode\"/&gt;<xhtml:br/>&lt;var&gt;<xhtml:div style=\"margin-left:1em;\">&lt;var-name&gt;mask&lt;/var-name&gt;<xhtml:br/>&lt;var-value&gt;\\d{5}&lt;/var-value&gt;</xhtml:div>&lt;/var&gt;</xhtml:div>&lt;/field&gt;</xhtml:div>&lt;/form&gt;</xhtml:div>&lt;/formset&gt;</xhtml:div>&lt;/form-validation&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, in the previous example the validator XML file, validator.xml, does not provide validators for all of the form fields in the RegistrationForm. Validator forms are only provided for the first five of the seven form fields. The validator XML file should contain validator forms for all of the form fields for a Struts ActionForm bean. The following validator.xml file for the RegistrationForm class contains validator forms for all of the form fields.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"XML\">\n                  <xhtml:div>&lt;form-validation&gt;<xhtml:div style=\"margin-left:1em;\">&lt;formset&gt;<xhtml:div style=\"margin-left:1em;\">&lt;form name=\"RegistrationForm\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;field property=\"name\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.name\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"address\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.address\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"city\" depends=\"required\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.city\"/&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"state\" depends=\"required,mask\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.state\"/&gt;<xhtml:br/>&lt;var&gt;<xhtml:div style=\"margin-left:1em;\">&lt;var-name&gt;mask&lt;/var-name&gt;<xhtml:br/>&lt;var-value&gt;[a-zA-Z]{2}&lt;/var-value&gt;</xhtml:div>&lt;/var&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"zipcode\" depends=\"required,mask\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.zipcode\"/&gt;<xhtml:br/>&lt;var&gt;<xhtml:div style=\"margin-left:1em;\">&lt;var-name&gt;mask&lt;/var-name&gt;<xhtml:br/>&lt;var-value&gt;\\d{5}&lt;/var-value&gt;</xhtml:div>&lt;/var&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"phone\" depends=\"required,mask\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.phone\"/&gt;<xhtml:br/>&lt;var&gt;<xhtml:div style=\"margin-left:1em;\">&lt;var-name&gt;mask&lt;/var-name&gt;<xhtml:br/>&lt;var-value&gt;^([0-9]{3})(-)([0-9]{4}|[0-9]{4})$&lt;/var-value&gt;</xhtml:div>&lt;/var&gt;</xhtml:div>&lt;/field&gt;<xhtml:br/>&lt;field property=\"email\" depends=\"required,email\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;arg position=\"0\" key=\"prompt.email\"/&gt;</xhtml:div>&lt;/field&gt;</xhtml:div>&lt;/form&gt;</xhtml:div>&lt;/formset&gt;</xhtml:div>&lt;/form-validation&gt;</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-6",
+			"author": [
+				"Katrina Tsipenyuk",
+				"Brian Chess",
+				"Gary McGraw"
+			],
+			"title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+			"url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+			"publication_year": "2005",
+			"publication_month": "--11",
+			"publication_day": "---07",
+			"publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+			"publisher": "NIST"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "7 Pernicious Kingdoms",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Common_Consequences, Description, Modes_of_Introduction, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Causal_Nature, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description, Modes_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "Struts: Form Field Without Validator"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Tainted input to command",
+			"entry_id": "SFP24"
+		}
+	]
 }

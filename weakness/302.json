@@ -1,269 +1,269 @@
 {
-  "id": "302",
-  "name": "Authentication Bypass by Assumed-Immutable Data",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The authentication scheme or implementation uses key data elements that are assumed to be immutable, but can be controlled or modified by the attacker.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1390",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "807",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
-      ]
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Operation",
-        "Implementation"
-      ],
-      "description": [
-        "Implement proper protection for immutable data (e.g. environment variable, hidden form fields, etc.)"
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the following example, an \"authenticated\" cookie is used to determine whether or not a user should be granted access to a system.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>boolean authenticated = new Boolean(getCookieValue(\"authenticated\")).booleanValue();<xhtml:br/>if (authenticated) {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Modifying the value of a cookie on the client-side is trivial, but many developers assume that cookies are essentially immutable.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2002-0367",
-      "description": "DebPloit",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0367"
-    },
-    {
-      "reference": "CVE-2004-0261",
-      "description": "Web auth",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0261"
-    },
-    {
-      "reference": "CVE-2002-1730",
-      "description": "Authentication bypass by setting certain cookies to \"true\".",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1730"
-    },
-    {
-      "reference": "CVE-2002-1734",
-      "description": "Authentication bypass by setting certain cookies to \"true\".",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1734"
-    },
-    {
-      "reference": "CVE-2002-2064",
-      "description": "Admin access by setting a cookie.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-2064"
-    },
-    {
-      "reference": "CVE-2002-2054",
-      "description": "Gain privileges by setting cookie.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-2054"
-    },
-    {
-      "reference": "CVE-2004-1611",
-      "description": "Product trusts authentication information in cookie.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1611"
-    },
-    {
-      "reference": "CVE-2005-1708",
-      "description": "Authentication bypass by setting admin-testing variable to true.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1708"
-    },
-    {
-      "reference": "CVE-2005-1787",
-      "description": "Bypass auth and gain privileges by setting a variable.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1787"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Sean Eidemiller",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "added/updated demonstrative examples"
-      },
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Demonstrative_Examples, Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-05-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Authentication Bypass via Assumed-Immutable Data"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2004",
-      "entry_name": "Unvalidated Input",
-      "entry_id": "A1",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not base security checks on untrusted sources",
-      "entry_id": "SEC02-J"
-    }
-  ],
-  "related_attack_patterns": [
-    "10",
-    "13",
-    "21",
-    "274",
-    "31",
-    "39",
-    "45",
-    "77"
-  ]
+	"id": "302",
+	"name": "Authentication Bypass by Assumed-Immutable Data",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The authentication scheme or implementation uses key data elements that are assumed to be immutable, but can be controlled or modified by the attacker.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1390",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "807",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
+			]
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Operation",
+				"Implementation"
+			],
+			"description": [
+				"Implement proper protection for immutable data (e.g. environment variable, hidden form fields, etc.)"
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the following example, an \"authenticated\" cookie is used to determine whether or not a user should be granted access to a system.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>boolean authenticated = new Boolean(getCookieValue(\"authenticated\")).booleanValue();<xhtml:br/>if (authenticated) {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Modifying the value of a cookie on the client-side is trivial, but many developers assume that cookies are essentially immutable.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2002-0367",
+			"description": "DebPloit",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0367"
+		},
+		{
+			"reference": "CVE-2004-0261",
+			"description": "Web auth",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0261"
+		},
+		{
+			"reference": "CVE-2002-1730",
+			"description": "Authentication bypass by setting certain cookies to \"true\".",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1730"
+		},
+		{
+			"reference": "CVE-2002-1734",
+			"description": "Authentication bypass by setting certain cookies to \"true\".",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1734"
+		},
+		{
+			"reference": "CVE-2002-2064",
+			"description": "Admin access by setting a cookie.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-2064"
+		},
+		{
+			"reference": "CVE-2002-2054",
+			"description": "Gain privileges by setting cookie.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-2054"
+		},
+		{
+			"reference": "CVE-2004-1611",
+			"description": "Product trusts authentication information in cookie.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-1611"
+		},
+		{
+			"reference": "CVE-2005-1708",
+			"description": "Authentication bypass by setting admin-testing variable to true.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1708"
+		},
+		{
+			"reference": "CVE-2005-1787",
+			"description": "Bypass auth and gain privileges by setting a variable.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1787"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Sean Eidemiller",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "added/updated demonstrative examples"
+			},
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Demonstrative_Examples, Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-05-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Authentication Bypass via Assumed-Immutable Data"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2004",
+			"entry_name": "Unvalidated Input",
+			"entry_id": "A1",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not base security checks on untrusted sources",
+			"entry_id": "SEC02-J"
+		}
+	],
+	"related_attack_patterns": [
+		"10",
+		"13",
+		"21",
+		"274",
+		"31",
+		"39",
+		"45",
+		"77"
+	]
 }

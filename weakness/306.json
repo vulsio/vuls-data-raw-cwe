@@ -1,552 +1,552 @@
 {
-  "id": "306",
-  "name": "Missing Authentication for Critical Function",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not perform any authentication for functionality that requires a provable user identity or consumes a significant amount of resources.",
-  "extended_description": "\n\t   <xhtml:p>As data is migrated to the cloud, if access does not require authentication, it can be easier for attackers to access the data from anywhere on the Internet.</xhtml:p>\n\t ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "287",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "287",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Cloud Computing",
-        "prevalence": "Undetermined"
-      },
-      {
-        "class": "ICS/OT",
-        "prevalence": "Often"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "OMISSION: This weakness is caused by missing a security tactic during the architecture and design phase."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control",
-        "Other"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity",
-        "Other"
-      ],
-      "note": "Exposing critical functionality essentially provides an attacker with the privilege level of that functionality. The consequences will depend on the associated functionality, but they can range from reading or modifying sensitive data, access to administrative or other privileged functionality, or possibly even execution of arbitrary code."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Divide the software into anonymous, normal, privileged, and administrative areas. Identify which of these areas require a proven user identity, and use a centralized authentication capability.</xhtml:p>\n                  <xhtml:p>Identify all potential communication channels, or other means of interaction with the software, to ensure that all channels are appropriately protected. Developers sometimes perform authentication at the primary channel, but open up a secondary channel that is assumed to be private. For example, a login mechanism may be listening on one network port, but after successful authentication, it may open up a second port where it waits for the connection, but avoids authentication because it assumes that only the authenticated party will connect to the port.</xhtml:p>\n                  <xhtml:p>In general, if the software or protocol allows a single session or user state to persist across multiple connections or channels, authentication and appropriate credential management need to be used throughout.</xhtml:p>\n               "
-      ]
-    },
-    {
-      "mitigation_id": "MIT-15",
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side, in order to avoid CWE-602. Attackers can bypass the client-side checks by modifying values after the checks have been performed, or by changing the client to remove the client-side checks entirely. Then, these modified values would be submitted to the server."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Where possible, avoid implementing custom authentication routines and consider using authentication capabilities as provided by the surrounding framework, operating system, or environment. These may make it easier to provide a clear separation between authentication tasks and authorization tasks.</xhtml:p>\n                  <xhtml:p>In environments such as the World Wide Web, the line between authentication and authorization is sometimes blurred. If custom authentication routines are required instead of those provided by the server, then these routines must be applied to every single page, since these pages could be requested directly.</xhtml:p>\n               "
-      ]
-    },
-    {
-      "mitigation_id": "MIT-4.5",
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>For example, consider using libraries with authentication capabilities such as OpenSSL or the ESAPI Authenticator [REF-45].</xhtml:p>\n               "
-      ],
-      "strategy": "Libraries or Frameworks"
-    },
-    {
-      "phase": [
-        "Implementation",
-        "System Configuration",
-        "Operation"
-      ],
-      "description": [
-        "When storing data in the cloud (e.g., S3 buckets, Azure blobs, Google Cloud Storage, etc.), use the provider's controls to require strong authentication for users who should be allowed to access the data [REF-1297] [REF-1298] [REF-1302]."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the following Java example the method createBankAccount is used to create a BankAccount object for a bank management application.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public BankAccount createBankAccount(String accountNumber, String accountType,<xhtml:br/>String accountName, String accountSSN, double balance) {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BankAccount account = new BankAccount();<xhtml:br/>account.setAccountNumber(accountNumber);<xhtml:br/>account.setAccountType(accountType);<xhtml:br/>account.setAccountOwnerName(accountName);<xhtml:br/>account.setAccountOwnerSSN(accountSSN);<xhtml:br/>account.setBalance(balance);<xhtml:br/>\n                           <xhtml:br/>return account;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, there is no authentication mechanism to ensure that the user creating this bank account object has the authority to create new bank accounts. Some authentication mechanisms should be used to verify that the user has the authority to create bank account objects.</Body_Text>\n               <Body_Text>The following Java code includes a boolean variable and method for authenticating a user. If the user has not been authenticated then the createBankAccount will not create the bank account object.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>private boolean isUserAuthentic = false;<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// authenticate user,</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// if user is authenticated then set variable to true</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// otherwise set variable to false</xhtml:i>\n                     <xhtml:br/>public boolean authenticateUser(String username, String password) {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>public BankAccount createNewBankAccount(String accountNumber, String accountType,<xhtml:br/>String accountName, String accountSSN, double balance) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BankAccount account = null;<xhtml:br/>\n                           <xhtml:br/>if (isUserAuthentic) {<xhtml:div style=\"margin-left:1em;\">account = new BankAccount();<xhtml:br/>account.setAccountNumber(accountNumber);<xhtml:br/>account.setAccountType(accountType);<xhtml:br/>account.setAccountOwnerName(accountName);<xhtml:br/>account.setAccountOwnerSSN(accountSSN);<xhtml:br/>account.setBalance(balance);</xhtml:div>}<xhtml:br/>return account;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-153",
-      "text": "\n\t      <Intro_Text>In 2022, the OT:ICEFALL study examined products by 10 different Operational Technology (OT) vendors. The researchers reported 56 vulnerabilities and said that the products were \"insecure by design\" [REF-1283]. If exploited, these vulnerabilities often allowed adversaries to change how the products operated, ranging from denial of service to changing the code that the products executed. Since these products were often used in industries such as power, electrical, water, and others, there could even be safety implications.</Intro_Text>\n\t      <Body_Text>Multiple vendors did not use any authentication for critical functionality in their OT products.</Body_Text>\n\t    "
-    },
-    {
-      "demonstrative_example_id": "DX-155",
-      "text": "\n\t      <Intro_Text>In 2021, a web site operated by PeopleGIS stored data of US municipalities in Amazon Web Service (AWS) Simple Storage Service (S3) buckets.</Intro_Text>\n\t      <Example_Code Nature=\"Bad\" Language=\"Other\">\n                <xhtml:div>A security researcher found 86 S3 buckets that could be accessed without authentication (CWE-306) and stored data unencrypted (CWE-312). These buckets exposed over 1000 GB of data and 1.6 million files including physical addresses, phone numbers, tax documents, pictures of driver's license IDs, etc. [REF-1296] [REF-1295]</xhtml:div>\n\t      </Example_Code>\n\t      <Body_Text>While it was not publicly disclosed how the data was protected after discovery, multiple options could have been considered.</Body_Text>\n\t      <Example_Code Nature=\"Good\" Language=\"Other\">\n                <xhtml:div>The sensitive information could have been protected by ensuring that the buckets did not have public read access, e.g., by enabling the s3-account-level-public-access-blocks-periodic rule to Block Public Access. In addition, the data could have been encrypted at rest using the appropriate S3 settings, e.g., by enabling server-side encryption using the s3-bucket-server-side-encryption-enabled setting. Other settings are available to further prevent bucket data from being leaked. [REF-1297]</xhtml:div>\n\t      </Example_Code>\n\t    "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-31260",
-      "description": "Chain: a digital asset management program has an undisclosed backdoor in the legacy version of a PHP script (CWE-912) that could allow an unauthenticated user to export metadata (CWE-306)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-31260"
-    },
-    {
-      "reference": "CVE-2022-29951",
-      "description": "TCP-based protocol in Programmable Logic Controller (PLC) has no authentication.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-29951"
-    },
-    {
-      "reference": "CVE-2022-29952",
-      "description": "Condition Monitor firmware uses a protocol that does not require authentication.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-29952"
-    },
-    {
-      "reference": "CVE-2022-30276",
-      "description": "SCADA-based protocol for bridging WAN and LAN traffic has no authentication.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-30276"
-    },
-    {
-      "reference": "CVE-2022-30313",
-      "description": "Safety Instrumented System uses proprietary TCP protocols with no authentication.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-30313"
-    },
-    {
-      "reference": "CVE-2022-30317",
-      "description": "Distributed Control System (DCS) uses a protocol that has no authentication.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-30317"
-    },
-    {
-      "reference": "CVE-2021-21972",
-      "description": "Chain: Cloud computing virtualization platform does not require authentication for upload of a tar format file (CWE-306), then uses .. path traversal sequences (CWE-23) in the file to access unexpected files, as exploited in the wild per CISA KEV.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-21972"
-    },
-    {
-      "reference": "CVE-2021-37415",
-      "description": "IT management product does not perform authentication for some REST API requests, as exploited in the wild per CISA KEV.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-37415"
-    },
-    {
-      "reference": "CVE-2020-13927",
-      "description": "Default setting in workflow management product allows all API requests without authentication, as exploited in the wild per CISA KEV.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-13927"
-    },
-    {
-      "reference": "CVE-2002-1810",
-      "description": "MFV. Access TFTP server without authentication and obtain configuration file with sensitive plaintext information.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1810"
-    },
-    {
-      "reference": "CVE-2008-6827",
-      "description": "Agent software running at privileges does not authenticate incoming requests over an unprotected channel, allowing a Shatter\" attack.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-6827"
-    },
-    {
-      "reference": "CVE-2004-0213",
-      "description": "Product enforces restrictions through a GUI but not through privileged APIs.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0213"
-    },
-    {
-      "reference": "CVE-2020-15483",
-      "description": "monitor device allows access to physical UART debug port without authentication",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-15483"
-    },
-    {
-      "reference": "CVE-2019-9201",
-      "description": "Programmable Logic Controller (PLC) does not have an authentication feature on its communication protocols.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2019-9201"
-    }
-  ],
-  "references": [
-    {
-      "section": "Chapter 2, \"Common Vulnerabilities of Authentication,\" Page 36",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "reference_id": "REF-257",
-      "author": [
-        "Frank Kim"
-      ],
-      "title": "Top 25 Series - Rank 19 - Missing Authentication for Critical Function",
-      "url": "https://www.sans.org/blog/top-25-series-rank-19-missing-authentication-for-critical-function/",
-      "publication_year": "2010",
-      "publication_month": "--02",
-      "publication_day": "---23",
-      "publisher": "SANS Software Security Institute",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-45",
-      "author": [
-        "OWASP"
-      ],
-      "title": "OWASP Enterprise Security API (ESAPI) Project",
-      "url": "http://www.owasp.org/index.php/ESAPI"
-    },
-    {
-      "reference_id": "REF-1283",
-      "author": [
-        "Forescout Vedere Labs"
-      ],
-      "title": "OT:ICEFALL: The legacy of \"insecure by design\" and its implications for certifications and risk management",
-      "url": "https://www.forescout.com/resources/ot-icefall-report/",
-      "publication_year": "2022",
-      "publication_month": "--06",
-      "publication_day": "---20"
-    },
-    {
-      "reference_id": "REF-1295",
-      "author": [
-        "WizCase"
-      ],
-      "title": "Over 80 US Municipalities' Sensitive Information, Including Resident's Personal Data, Left Vulnerable in Massive Data Breach",
-      "url": "https://www.wizcase.com/blog/us-municipality-breach-report/",
-      "publication_year": "2021",
-      "publication_month": "--07",
-      "publication_day": "---20"
-    },
-    {
-      "reference_id": "REF-1296",
-      "author": [
-        "Jonathan Greig"
-      ],
-      "title": "1,000 GB of local government data exposed by Massachusetts software company",
-      "url": "https://www.zdnet.com/article/1000-gb-of-local-government-data-exposed-by-massachusetts-software-company/",
-      "publication_year": "2021",
-      "publication_month": "--07",
-      "publication_day": "---22"
-    },
-    {
-      "reference_id": "REF-1297",
-      "author": [
-        "Amazon"
-      ],
-      "title": "AWS Foundational Security Best Practices controls",
-      "url": "https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-controls-reference.html",
-      "publication_year": "2022",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1298",
-      "author": [
-        "Microsoft"
-      ],
-      "title": "Authentication and authorization in Azure App Service and Azure Functions",
-      "url": "https://learn.microsoft.com/en-us/azure/app-service/overview-authentication-authorization",
-      "publication_year": "2021",
-      "publication_month": "--11",
-      "publication_day": "---23",
-      "url_date": "2022-10-11"
-    },
-    {
-      "reference_id": "REF-1302",
-      "author": [
-        "Google Cloud"
-      ],
-      "title": "Authentication and authorization use cases",
-      "url": "https://cloud.google.com/docs/authentication/use-cases",
-      "publication_year": "2022",
-      "publication_month": "--10",
-      "publication_day": "---11",
-      "url_date": "2022-10-11"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Relationship_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Detection_Factors, Likelihood_of_Exploit, Name, Observed_Examples, Potential_Mitigations, References, Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Common_Consequences, Potential_Mitigations, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Potential_Mitigations, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Detection_Factors, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Likelihood_of_Exploit, Modes_of_Introduction, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Related_Attack_Patterns, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Observed_Examples, Potential_Mitigations, References, Relationship_Notes, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "No Authentication for Critical Function",
-        "date": "2010-02-16"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
-        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
-        "contribution_date": "2023-04-25",
-        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-7.2",
-      "method": "Manual Analysis",
-      "description": "\n                  <xhtml:p>This weakness can be detected using tools and techniques that require manual (human) analysis, such as penetration testing, threat modeling, and interactive tools that allow the tester to record and modify an active session.</xhtml:p>\n                  <xhtml:p>Specifically, manual static analysis is useful for evaluating the correctness of custom authentication mechanisms.</xhtml:p>\n               ",
-      "effectiveness_notes": "These may be more effective than strictly automated techniques. This is especially the case with weaknesses that are related to design and business rules."
-    },
-    {
-      "detection_method_id": "DM-6.1",
-      "method": "Automated Static Analysis",
-      "description": "\n                  <xhtml:p>Automated static analysis is useful for detecting commonly-used idioms for authentication. A tool may be able to analyze related configuration files, such as .htaccess in Apache web servers, or detect the usage of commonly-used authentication libraries.</xhtml:p>\n                  <xhtml:p>Generally, automated static analysis tools have difficulty detecting custom authentication schemes. In addition, the software's design may include some functionality that is accessible to any user and does not require an established identity; an automated technique that detects the absence of authentication may report false positives.</xhtml:p>\n               ",
-      "effectiveness": "Limited"
-    },
-    {
-      "method": "Manual Static Analysis - Binary or Bytecode",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Automated Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Manual Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Host Application Interface Scanner</xhtml:li>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Manual Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Automated Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Architecture or Design Review",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Attack Modeling</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "No Authentication for Critical Function"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Missing authentication",
-      "entry_id": "SFP31"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR 1.1",
-      "entry_id": "Part 4-2"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR 1.2",
-      "entry_id": "Part 4-2"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR 2.1",
-      "entry_id": "Part 4-2"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR-2",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SVV-3",
-      "entry_id": "Part 4-1"
-    }
-  ],
-  "related_attack_patterns": [
-    "12",
-    "166",
-    "216",
-    "36",
-    "62"
-  ]
+	"id": "306",
+	"name": "Missing Authentication for Critical Function",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not perform any authentication for functionality that requires a provable user identity or consumes a significant amount of resources.",
+	"extended_description": "\n\t   <xhtml:p>As data is migrated to the cloud, if access does not require authentication, it can be easier for attackers to access the data from anywhere on the Internet.</xhtml:p>\n\t ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "287",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "287",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Cloud Computing",
+				"prevalence": "Undetermined"
+			},
+			{
+				"class": "ICS/OT",
+				"prevalence": "Often"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"OMISSION: This weakness is caused by missing a security tactic during the architecture and design phase."
+			]
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control",
+				"Other"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity",
+				"Other"
+			],
+			"note": "Exposing critical functionality essentially provides an attacker with the privilege level of that functionality. The consequences will depend on the associated functionality, but they can range from reading or modifying sensitive data, access to administrative or other privileged functionality, or possibly even execution of arbitrary code."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"\n                  <xhtml:p>Divide the software into anonymous, normal, privileged, and administrative areas. Identify which of these areas require a proven user identity, and use a centralized authentication capability.</xhtml:p>\n                  <xhtml:p>Identify all potential communication channels, or other means of interaction with the software, to ensure that all channels are appropriately protected. Developers sometimes perform authentication at the primary channel, but open up a secondary channel that is assumed to be private. For example, a login mechanism may be listening on one network port, but after successful authentication, it may open up a second port where it waits for the connection, but avoids authentication because it assumes that only the authenticated party will connect to the port.</xhtml:p>\n                  <xhtml:p>In general, if the software or protocol allows a single session or user state to persist across multiple connections or channels, authentication and appropriate credential management need to be used throughout.</xhtml:p>\n               "
+			]
+		},
+		{
+			"mitigation_id": "MIT-15",
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side, in order to avoid CWE-602. Attackers can bypass the client-side checks by modifying values after the checks have been performed, or by changing the client to remove the client-side checks entirely. Then, these modified values would be submitted to the server."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"\n                  <xhtml:p>Where possible, avoid implementing custom authentication routines and consider using authentication capabilities as provided by the surrounding framework, operating system, or environment. These may make it easier to provide a clear separation between authentication tasks and authorization tasks.</xhtml:p>\n                  <xhtml:p>In environments such as the World Wide Web, the line between authentication and authorization is sometimes blurred. If custom authentication routines are required instead of those provided by the server, then these routines must be applied to every single page, since these pages could be requested directly.</xhtml:p>\n               "
+			]
+		},
+		{
+			"mitigation_id": "MIT-4.5",
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"\n                  <xhtml:p>Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>For example, consider using libraries with authentication capabilities such as OpenSSL or the ESAPI Authenticator [REF-45].</xhtml:p>\n               "
+			],
+			"strategy": "Libraries or Frameworks"
+		},
+		{
+			"phase": [
+				"Implementation",
+				"System Configuration",
+				"Operation"
+			],
+			"description": [
+				"When storing data in the cloud (e.g., S3 buckets, Azure blobs, Google Cloud Storage, etc.), use the provider's controls to require strong authentication for users who should be allowed to access the data [REF-1297] [REF-1298] [REF-1302]."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the following Java example the method createBankAccount is used to create a BankAccount object for a bank management application.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public BankAccount createBankAccount(String accountNumber, String accountType,<xhtml:br/>String accountName, String accountSSN, double balance) {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BankAccount account = new BankAccount();<xhtml:br/>account.setAccountNumber(accountNumber);<xhtml:br/>account.setAccountType(accountType);<xhtml:br/>account.setAccountOwnerName(accountName);<xhtml:br/>account.setAccountOwnerSSN(accountSSN);<xhtml:br/>account.setBalance(balance);<xhtml:br/>\n                           <xhtml:br/>return account;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, there is no authentication mechanism to ensure that the user creating this bank account object has the authority to create new bank accounts. Some authentication mechanisms should be used to verify that the user has the authority to create bank account objects.</Body_Text>\n               <Body_Text>The following Java code includes a boolean variable and method for authenticating a user. If the user has not been authenticated then the createBankAccount will not create the bank account object.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>private boolean isUserAuthentic = false;<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// authenticate user,</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// if user is authenticated then set variable to true</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// otherwise set variable to false</xhtml:i>\n                     <xhtml:br/>public boolean authenticateUser(String username, String password) {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>public BankAccount createNewBankAccount(String accountNumber, String accountType,<xhtml:br/>String accountName, String accountSSN, double balance) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BankAccount account = null;<xhtml:br/>\n                           <xhtml:br/>if (isUserAuthentic) {<xhtml:div style=\"margin-left:1em;\">account = new BankAccount();<xhtml:br/>account.setAccountNumber(accountNumber);<xhtml:br/>account.setAccountType(accountType);<xhtml:br/>account.setAccountOwnerName(accountName);<xhtml:br/>account.setAccountOwnerSSN(accountSSN);<xhtml:br/>account.setBalance(balance);</xhtml:div>}<xhtml:br/>return account;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-153",
+			"text": "\n\t      <Intro_Text>In 2022, the OT:ICEFALL study examined products by 10 different Operational Technology (OT) vendors. The researchers reported 56 vulnerabilities and said that the products were \"insecure by design\" [REF-1283]. If exploited, these vulnerabilities often allowed adversaries to change how the products operated, ranging from denial of service to changing the code that the products executed. Since these products were often used in industries such as power, electrical, water, and others, there could even be safety implications.</Intro_Text>\n\t      <Body_Text>Multiple vendors did not use any authentication for critical functionality in their OT products.</Body_Text>\n\t    "
+		},
+		{
+			"demonstrative_example_id": "DX-155",
+			"text": "\n\t      <Intro_Text>In 2021, a web site operated by PeopleGIS stored data of US municipalities in Amazon Web Service (AWS) Simple Storage Service (S3) buckets.</Intro_Text>\n\t      <Example_Code Nature=\"Bad\" Language=\"Other\">\n                <xhtml:div>A security researcher found 86 S3 buckets that could be accessed without authentication (CWE-306) and stored data unencrypted (CWE-312). These buckets exposed over 1000 GB of data and 1.6 million files including physical addresses, phone numbers, tax documents, pictures of driver's license IDs, etc. [REF-1296] [REF-1295]</xhtml:div>\n\t      </Example_Code>\n\t      <Body_Text>While it was not publicly disclosed how the data was protected after discovery, multiple options could have been considered.</Body_Text>\n\t      <Example_Code Nature=\"Good\" Language=\"Other\">\n                <xhtml:div>The sensitive information could have been protected by ensuring that the buckets did not have public read access, e.g., by enabling the s3-account-level-public-access-blocks-periodic rule to Block Public Access. In addition, the data could have been encrypted at rest using the appropriate S3 settings, e.g., by enabling server-side encryption using the s3-bucket-server-side-encryption-enabled setting. Other settings are available to further prevent bucket data from being leaked. [REF-1297]</xhtml:div>\n\t      </Example_Code>\n\t    "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-31260",
+			"description": "Chain: a digital asset management program has an undisclosed backdoor in the legacy version of a PHP script (CWE-912) that could allow an unauthenticated user to export metadata (CWE-306)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-31260"
+		},
+		{
+			"reference": "CVE-2022-29951",
+			"description": "TCP-based protocol in Programmable Logic Controller (PLC) has no authentication.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-29951"
+		},
+		{
+			"reference": "CVE-2022-29952",
+			"description": "Condition Monitor firmware uses a protocol that does not require authentication.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-29952"
+		},
+		{
+			"reference": "CVE-2022-30276",
+			"description": "SCADA-based protocol for bridging WAN and LAN traffic has no authentication.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-30276"
+		},
+		{
+			"reference": "CVE-2022-30313",
+			"description": "Safety Instrumented System uses proprietary TCP protocols with no authentication.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-30313"
+		},
+		{
+			"reference": "CVE-2022-30317",
+			"description": "Distributed Control System (DCS) uses a protocol that has no authentication.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-30317"
+		},
+		{
+			"reference": "CVE-2021-21972",
+			"description": "Chain: Cloud computing virtualization platform does not require authentication for upload of a tar format file (CWE-306), then uses .. path traversal sequences (CWE-23) in the file to access unexpected files, as exploited in the wild per CISA KEV.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-21972"
+		},
+		{
+			"reference": "CVE-2021-37415",
+			"description": "IT management product does not perform authentication for some REST API requests, as exploited in the wild per CISA KEV.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-37415"
+		},
+		{
+			"reference": "CVE-2020-13927",
+			"description": "Default setting in workflow management product allows all API requests without authentication, as exploited in the wild per CISA KEV.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-13927"
+		},
+		{
+			"reference": "CVE-2002-1810",
+			"description": "MFV. Access TFTP server without authentication and obtain configuration file with sensitive plaintext information.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1810"
+		},
+		{
+			"reference": "CVE-2008-6827",
+			"description": "Agent software running at privileges does not authenticate incoming requests over an unprotected channel, allowing a Shatter\" attack.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-6827"
+		},
+		{
+			"reference": "CVE-2004-0213",
+			"description": "Product enforces restrictions through a GUI but not through privileged APIs.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0213"
+		},
+		{
+			"reference": "CVE-2020-15483",
+			"description": "monitor device allows access to physical UART debug port without authentication",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-15483"
+		},
+		{
+			"reference": "CVE-2019-9201",
+			"description": "Programmable Logic Controller (PLC) does not have an authentication feature on its communication protocols.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-9201"
+		}
+	],
+	"references": [
+		{
+			"section": "Chapter 2, \"Common Vulnerabilities of Authentication,\" Page 36",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"reference_id": "REF-257",
+			"author": [
+				"Frank Kim"
+			],
+			"title": "Top 25 Series - Rank 19 - Missing Authentication for Critical Function",
+			"url": "https://www.sans.org/blog/top-25-series-rank-19-missing-authentication-for-critical-function/",
+			"publication_year": "2010",
+			"publication_month": "--02",
+			"publication_day": "---23",
+			"publisher": "SANS Software Security Institute",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-45",
+			"author": [
+				"OWASP"
+			],
+			"title": "OWASP Enterprise Security API (ESAPI) Project",
+			"url": "http://www.owasp.org/index.php/ESAPI"
+		},
+		{
+			"reference_id": "REF-1283",
+			"author": [
+				"Forescout Vedere Labs"
+			],
+			"title": "OT:ICEFALL: The legacy of \"insecure by design\" and its implications for certifications and risk management",
+			"url": "https://www.forescout.com/resources/ot-icefall-report/",
+			"publication_year": "2022",
+			"publication_month": "--06",
+			"publication_day": "---20"
+		},
+		{
+			"reference_id": "REF-1295",
+			"author": [
+				"WizCase"
+			],
+			"title": "Over 80 US Municipalities' Sensitive Information, Including Resident's Personal Data, Left Vulnerable in Massive Data Breach",
+			"url": "https://www.wizcase.com/blog/us-municipality-breach-report/",
+			"publication_year": "2021",
+			"publication_month": "--07",
+			"publication_day": "---20"
+		},
+		{
+			"reference_id": "REF-1296",
+			"author": [
+				"Jonathan Greig"
+			],
+			"title": "1,000 GB of local government data exposed by Massachusetts software company",
+			"url": "https://www.zdnet.com/article/1000-gb-of-local-government-data-exposed-by-massachusetts-software-company/",
+			"publication_year": "2021",
+			"publication_month": "--07",
+			"publication_day": "---22"
+		},
+		{
+			"reference_id": "REF-1297",
+			"author": [
+				"Amazon"
+			],
+			"title": "AWS Foundational Security Best Practices controls",
+			"url": "https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-controls-reference.html",
+			"publication_year": "2022",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1298",
+			"author": [
+				"Microsoft"
+			],
+			"title": "Authentication and authorization in Azure App Service and Azure Functions",
+			"url": "https://learn.microsoft.com/en-us/azure/app-service/overview-authentication-authorization",
+			"publication_year": "2021",
+			"publication_month": "--11",
+			"publication_day": "---23",
+			"url_date": "2022-10-11"
+		},
+		{
+			"reference_id": "REF-1302",
+			"author": [
+				"Google Cloud"
+			],
+			"title": "Authentication and authorization use cases",
+			"url": "https://cloud.google.com/docs/authentication/use-cases",
+			"publication_year": "2022",
+			"publication_month": "--10",
+			"publication_day": "---11",
+			"url_date": "2022-10-11"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Relationship_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Detection_Factors, Likelihood_of_Exploit, Name, Observed_Examples, Potential_Mitigations, References, Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Common_Consequences, Potential_Mitigations, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Potential_Mitigations, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Detection_Factors, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Likelihood_of_Exploit, Modes_of_Introduction, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Related_Attack_Patterns, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Observed_Examples, Potential_Mitigations, References, Relationship_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "No Authentication for Critical Function",
+				"date": "2010-02-16"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
+				"contribution_date": "2023-04-25",
+				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-7.2",
+			"method": "Manual Analysis",
+			"description": "\n                  <xhtml:p>This weakness can be detected using tools and techniques that require manual (human) analysis, such as penetration testing, threat modeling, and interactive tools that allow the tester to record and modify an active session.</xhtml:p>\n                  <xhtml:p>Specifically, manual static analysis is useful for evaluating the correctness of custom authentication mechanisms.</xhtml:p>\n               ",
+			"effectiveness_notes": "These may be more effective than strictly automated techniques. This is especially the case with weaknesses that are related to design and business rules."
+		},
+		{
+			"detection_method_id": "DM-6.1",
+			"method": "Automated Static Analysis",
+			"description": "\n                  <xhtml:p>Automated static analysis is useful for detecting commonly-used idioms for authentication. A tool may be able to analyze related configuration files, such as .htaccess in Apache web servers, or detect the usage of commonly-used authentication libraries.</xhtml:p>\n                  <xhtml:p>Generally, automated static analysis tools have difficulty detecting custom authentication schemes. In addition, the software's design may include some functionality that is accessible to any user and does not require an established identity; an automated technique that detects the absence of authentication may report false positives.</xhtml:p>\n               ",
+			"effectiveness": "Limited"
+		},
+		{
+			"method": "Manual Static Analysis - Binary or Bytecode",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Automated Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Manual Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Host Application Interface Scanner</xhtml:li>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Manual Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Automated Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Architecture or Design Review",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Attack Modeling</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "No Authentication for Critical Function"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Missing authentication",
+			"entry_id": "SFP31"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR 1.1",
+			"entry_id": "Part 4-2"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR 1.2",
+			"entry_id": "Part 4-2"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR 2.1",
+			"entry_id": "Part 4-2"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR-2",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SVV-3",
+			"entry_id": "Part 4-1"
+		}
+	],
+	"related_attack_patterns": [
+		"12",
+		"166",
+		"216",
+		"36",
+		"62"
+	]
 }

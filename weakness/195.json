@@ -1,277 +1,277 @@
 {
-  "id": "195",
-  "name": "Signed to Unsigned Conversion Error",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product uses a signed primitive and performs a cast to an unsigned primitive, which can produce an unexpected value if the value of the signed primitive can not be represented using an unsigned primitive.",
-  "extended_description": "\n            <xhtml:p>It is dangerous to rely on implicit casts between signed and unsigned numbers because the result can take on an unexpected value and violate assumptions made by the program.</xhtml:p>\n            <xhtml:p>Often, functions will return negative values to indicate a failure. When the result of a function is to be used as a size parameter, using these negative return values can have unexpected results. For example, if negative size values are passed to the standard memory copy or allocation functions they will be implicitly cast to a large unsigned value. This may lead to an exploitable buffer overflow or underflow condition.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "681",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "681",
-      "view_id": "1305",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "681",
-      "view_id": "1340",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "119",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Unexpected State"
-      ],
-      "note": "Conversion between signed and unsigned values can lead to a variety of errors, but from a security standpoint is most commonly associated with integer overflow and buffer overflow vulnerabilities."
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-73",
-      "text": "\n               <Intro_Text>In this example the variable amount can hold a negative value when it is returned. Because the function is declared to return an unsigned int, amount will be implicitly converted to unsigned.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned int readdata () {<xhtml:div style=\"margin-left:1em;\">int amount = 0;<xhtml:br/>...<xhtml:br/>if (result == ERROR)<xhtml:br/>amount = -1;<xhtml:br/>...<xhtml:br/>return amount;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the error condition in the code above is met, then the return value of readdata() will be 4,294,967,295 on a system that uses 32-bit integers.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-74",
-      "text": "\n               <Intro_Text>In this example, depending on the return value of accecssmainframe(), the variable amount can hold a negative value when it is returned. Because the function is declared to return an unsigned value, amount will be implicitly cast to an unsigned number.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned int readdata () {<xhtml:div style=\"margin-left:1em;\">int amount = 0;<xhtml:br/>...<xhtml:br/>amount = accessmainframe();<xhtml:br/>...<xhtml:br/>return amount;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the return value of accessmainframe() is -1, then the return value of readdata() will be 4,294,967,295 on a system that uses 32-bit integers.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-21",
-      "text": "\n               <Intro_Text>The following code is intended to read an incoming packet from a socket and extract one or more headers.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>DataPacket *packet;<xhtml:br/>int numHeaders;<xhtml:br/>PacketHeader *headers;<xhtml:br/>\n                     <xhtml:br/>sock=AcceptSocketConnection();<xhtml:br/>ReadPacket(packet, sock);<xhtml:br/>numHeaders =packet-&gt;headers;<xhtml:br/>\n                     <xhtml:br/>if (numHeaders &gt; 100) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"too many headers!\");</xhtml:div>}<xhtml:br/>headers = malloc(numHeaders * sizeof(PacketHeader);<xhtml:br/>ParsePacketHeaders(packet, headers);</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code performs a check to make sure that the packet does not contain too many headers. However, numHeaders is defined as a signed int, so it could be negative. If the incoming packet specifies a value such as -3, then the malloc calculation will generate a negative number (say, -300 if each header can be a maximum of 100 bytes). When this result is provided to malloc(), it is first converted to a size_t type. This conversion then produces a large value such as 4294966996, which may cause malloc() to fail or to allocate an extremely large amount of memory (CWE-195). With the appropriate negative numbers, an attacker could trick malloc() into using a very small positive number, which then allocates a buffer that is much smaller than expected, potentially leading to a buffer overflow.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>This example processes user input comprised of a series of variable-length structures. The first 2 bytes of input dictate the size of the structure to be processed.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char* processNext(char* strm) {<xhtml:div style=\"margin-left:1em;\">char buf[512];<xhtml:br/>short len = *(short*) strm;<xhtml:br/>strm += sizeof(len);<xhtml:br/>if (len &lt;= 512) {<xhtml:div style=\"margin-left:1em;\">memcpy(buf, strm, len);<xhtml:br/>process(buf);<xhtml:br/>return strm + len;</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">return -1;</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer has set an upper bound on the structure size: if it is larger than 512, the input will not be processed. The problem is that len is a signed short, so the check against the maximum structure length is done with signed values, but len is converted to an unsigned integer for the call to memcpy() and the negative bit will be extended to result in a huge value for the unsigned integer. If len is negative, then it will appear that the structure has an appropriate size (the if branch will be taken), but the amount of memory copied by memcpy() will be quite large, and the attacker will be able to overflow the stack with data in strm.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-114",
-      "text": "\n               <Intro_Text>In the following example, it is possible to request that memcpy move a much larger segment of memory than assumed:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int returnChunkSize(void *) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>/* if chunk info is valid, return the size of usable memory,</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>* else, return -1 to indicate an error</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>*/</xhtml:i>\n                           <xhtml:br/>...</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>int main() {<xhtml:div style=\"margin-left:1em;\">...<xhtml:br/>memcpy(destBuf, srcBuf, (returnChunkSize(destBuf)-1));<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If returnChunkSize() happens to encounter an error it will return -1. Notice that the return value is not checked before the memcpy operation (CWE-252), so -1 can be passed as the size argument to memcpy() (CWE-805). Because memcpy() assumes that the value is unsigned, it will be interpreted as MAXINT-1 (CWE-195), and therefore will copy far more memory than is likely available to the destination buffer (CWE-787, CWE-788).</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-138",
-      "text": "\n               <Intro_Text>This example shows a typical attempt to parse a string with an error resulting from a difference in assumptions between the caller to a function and the function's action.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n\t\t int proc_msg(char *s, int msg_len)<xhtml:br/>\n\t\t {<xhtml:br/>\n                  <xhtml:div>\n\t\t    <xhtml:i>// Note space at the end of the string - assume all strings have preamble with space</xhtml:i><xhtml:br/>\n\t\t    int pre_len = sizeof(\"preamble: \");<xhtml:br/>\n\t\t    char buf[pre_len - msg_len];<xhtml:br/>\n\t\t    <xhtml:i>... Do processing here if we get this far</xhtml:i>\n\t\t  </xhtml:div>\n\t\t  }<xhtml:br/>\n\t\t  char *s = \"preamble: message\\n\";<xhtml:br/>\n\t\t  char *sl = strchr(s, ':');        // Number of characters up to ':' (not including space)<xhtml:br/>\n\t\t  int jnklen = sl == NULL ? 0 : sl - s;    // If undefined pointer, use zero length<xhtml:br/>\n\t\t  int ret_val = proc_msg (\"s\",  jnklen);    // Violate assumption of preamble length, end up with negative value, blow out stack<xhtml:br/>\n               </Example_Code>\n               <Body_Text>The buffer length ends up being -1, resulting in a blown out stack. The space character after the colon is included in the function calculation, but not in the caller's calculation. This, unfortunately, is not usually so obvious but exists in an obtuse series of calculations.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2007-4268",
-      "description": "Chain: integer signedness error (CWE-195) passes signed comparison, leading to heap overflow (CWE-122)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4268"
-    }
-  ],
-  "references": [
-    {
-      "section": "Chapter 6, \"Type Conversions\", Page 223",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Common_Consequences, Description, Other_Notes, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Demonstrative_Examples, Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-01-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Observed_Examples, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Demonstrative_Examples, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Signed to unsigned conversion error"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Glitch in computation",
-      "entry_id": "SFP1"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Ensure that integer conversions do not result in lost or misinterpreted data",
-      "entry_id": "INT31-C",
-      "mapping_fit": "CWE More Specific"
-    }
-  ]
+	"id": "195",
+	"name": "Signed to Unsigned Conversion Error",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product uses a signed primitive and performs a cast to an unsigned primitive, which can produce an unexpected value if the value of the signed primitive can not be represented using an unsigned primitive.",
+	"extended_description": "\n            <xhtml:p>It is dangerous to rely on implicit casts between signed and unsigned numbers because the result can take on an unexpected value and violate assumptions made by the program.</xhtml:p>\n            <xhtml:p>Often, functions will return negative values to indicate a failure. When the result of a function is to be used as a size parameter, using these negative return values can have unexpected results. For example, if negative size values are passed to the standard memory copy or allocation functions they will be implicitly cast to a large unsigned value. This may lead to an exploitable buffer overflow or underflow condition.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "681",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "681",
+			"view_id": "1305",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "681",
+			"view_id": "1340",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "119",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Unexpected State"
+			],
+			"note": "Conversion between signed and unsigned values can lead to a variety of errors, but from a security standpoint is most commonly associated with integer overflow and buffer overflow vulnerabilities."
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-73",
+			"text": "\n               <Intro_Text>In this example the variable amount can hold a negative value when it is returned. Because the function is declared to return an unsigned int, amount will be implicitly converted to unsigned.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned int readdata () {<xhtml:div style=\"margin-left:1em;\">int amount = 0;<xhtml:br/>...<xhtml:br/>if (result == ERROR)<xhtml:br/>amount = -1;<xhtml:br/>...<xhtml:br/>return amount;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the error condition in the code above is met, then the return value of readdata() will be 4,294,967,295 on a system that uses 32-bit integers.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-74",
+			"text": "\n               <Intro_Text>In this example, depending on the return value of accecssmainframe(), the variable amount can hold a negative value when it is returned. Because the function is declared to return an unsigned value, amount will be implicitly cast to an unsigned number.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned int readdata () {<xhtml:div style=\"margin-left:1em;\">int amount = 0;<xhtml:br/>...<xhtml:br/>amount = accessmainframe();<xhtml:br/>...<xhtml:br/>return amount;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the return value of accessmainframe() is -1, then the return value of readdata() will be 4,294,967,295 on a system that uses 32-bit integers.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-21",
+			"text": "\n               <Intro_Text>The following code is intended to read an incoming packet from a socket and extract one or more headers.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>DataPacket *packet;<xhtml:br/>int numHeaders;<xhtml:br/>PacketHeader *headers;<xhtml:br/>\n                     <xhtml:br/>sock=AcceptSocketConnection();<xhtml:br/>ReadPacket(packet, sock);<xhtml:br/>numHeaders =packet-&gt;headers;<xhtml:br/>\n                     <xhtml:br/>if (numHeaders &gt; 100) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"too many headers!\");</xhtml:div>}<xhtml:br/>headers = malloc(numHeaders * sizeof(PacketHeader);<xhtml:br/>ParsePacketHeaders(packet, headers);</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code performs a check to make sure that the packet does not contain too many headers. However, numHeaders is defined as a signed int, so it could be negative. If the incoming packet specifies a value such as -3, then the malloc calculation will generate a negative number (say, -300 if each header can be a maximum of 100 bytes). When this result is provided to malloc(), it is first converted to a size_t type. This conversion then produces a large value such as 4294966996, which may cause malloc() to fail or to allocate an extremely large amount of memory (CWE-195). With the appropriate negative numbers, an attacker could trick malloc() into using a very small positive number, which then allocates a buffer that is much smaller than expected, potentially leading to a buffer overflow.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>This example processes user input comprised of a series of variable-length structures. The first 2 bytes of input dictate the size of the structure to be processed.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char* processNext(char* strm) {<xhtml:div style=\"margin-left:1em;\">char buf[512];<xhtml:br/>short len = *(short*) strm;<xhtml:br/>strm += sizeof(len);<xhtml:br/>if (len &lt;= 512) {<xhtml:div style=\"margin-left:1em;\">memcpy(buf, strm, len);<xhtml:br/>process(buf);<xhtml:br/>return strm + len;</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">return -1;</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer has set an upper bound on the structure size: if it is larger than 512, the input will not be processed. The problem is that len is a signed short, so the check against the maximum structure length is done with signed values, but len is converted to an unsigned integer for the call to memcpy() and the negative bit will be extended to result in a huge value for the unsigned integer. If len is negative, then it will appear that the structure has an appropriate size (the if branch will be taken), but the amount of memory copied by memcpy() will be quite large, and the attacker will be able to overflow the stack with data in strm.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-114",
+			"text": "\n               <Intro_Text>In the following example, it is possible to request that memcpy move a much larger segment of memory than assumed:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int returnChunkSize(void *) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>/* if chunk info is valid, return the size of usable memory,</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>* else, return -1 to indicate an error</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>*/</xhtml:i>\n                           <xhtml:br/>...</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>int main() {<xhtml:div style=\"margin-left:1em;\">...<xhtml:br/>memcpy(destBuf, srcBuf, (returnChunkSize(destBuf)-1));<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If returnChunkSize() happens to encounter an error it will return -1. Notice that the return value is not checked before the memcpy operation (CWE-252), so -1 can be passed as the size argument to memcpy() (CWE-805). Because memcpy() assumes that the value is unsigned, it will be interpreted as MAXINT-1 (CWE-195), and therefore will copy far more memory than is likely available to the destination buffer (CWE-787, CWE-788).</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-138",
+			"text": "\n               <Intro_Text>This example shows a typical attempt to parse a string with an error resulting from a difference in assumptions between the caller to a function and the function's action.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n\t\t int proc_msg(char *s, int msg_len)<xhtml:br/>\n\t\t {<xhtml:br/>\n                  <xhtml:div>\n\t\t    <xhtml:i>// Note space at the end of the string - assume all strings have preamble with space</xhtml:i><xhtml:br/>\n\t\t    int pre_len = sizeof(\"preamble: \");<xhtml:br/>\n\t\t    char buf[pre_len - msg_len];<xhtml:br/>\n\t\t    <xhtml:i>... Do processing here if we get this far</xhtml:i>\n\t\t  </xhtml:div>\n\t\t  }<xhtml:br/>\n\t\t  char *s = \"preamble: message\\n\";<xhtml:br/>\n\t\t  char *sl = strchr(s, ':');        // Number of characters up to ':' (not including space)<xhtml:br/>\n\t\t  int jnklen = sl == NULL ? 0 : sl - s;    // If undefined pointer, use zero length<xhtml:br/>\n\t\t  int ret_val = proc_msg (\"s\",  jnklen);    // Violate assumption of preamble length, end up with negative value, blow out stack<xhtml:br/>\n               </Example_Code>\n               <Body_Text>The buffer length ends up being -1, resulting in a blown out stack. The space character after the colon is included in the function calculation, but not in the caller's calculation. This, unfortunately, is not usually so obvious but exists in an obtuse series of calculations.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2007-4268",
+			"description": "Chain: integer signedness error (CWE-195) passes signed comparison, leading to heap overflow (CWE-122)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4268"
+		}
+	],
+	"references": [
+		{
+			"section": "Chapter 6, \"Type Conversions\", Page 223",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Common_Consequences, Description, Other_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Demonstrative_Examples, Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-01-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Observed_Examples, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Demonstrative_Examples, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Signed to unsigned conversion error"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Glitch in computation",
+			"entry_id": "SFP1"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Ensure that integer conversions do not result in lost or misinterpreted data",
+			"entry_id": "INT31-C",
+			"mapping_fit": "CWE More Specific"
+		}
+	]
 }

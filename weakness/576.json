@@ -1,149 +1,149 @@
 {
-  "id": "576",
-  "name": "EJB Bad Practices: Use of Java I/O",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product violates the Enterprise JavaBeans (EJB) specification by using the java.io package.",
-  "extended_description": "The Enterprise JavaBeans specification requires that every bean provider follow a set of programming guidelines designed to ensure that the bean will be portable and behave consistently in any EJB container. In this case, the product violates the following EJB guideline: \"An enterprise bean must not use the java.io package to attempt to access files and directories in the file system.\" The specification justifies this requirement in the following way: \"The file system APIs are not well-suited for business components to access data. Business components should use a resource manager API, such as JDBC, to store data.\"",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "695",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Quality Degradation"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Do not use Java I/O when writing EJBs."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following Java example is a simple stateless Enterprise JavaBean that retrieves the interest rate for the number of points for a mortgage. In this example, the interest rates for various points are retrieved from an XML document on the local file system, and the EJB uses the Java I/O API to retrieve the XML document from the local file system.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class InterestRateBean implements InterestRateRemote {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>private Document interestRateXMLDocument = null;<xhtml:br/>private File interestRateFile = null;<xhtml:br/>\n                           <xhtml:br/>public InterestRateBean() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>/* get XML document from the local filesystem */</xhtml:i>\n                                       <xhtml:br/>interestRateFile = new File(Constants.INTEREST_RATE_FILE);<xhtml:br/>\n                                       <xhtml:br/>if (interestRateFile.exists())<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();<xhtml:br/>DocumentBuilder db = dbf.newDocumentBuilder();<xhtml:br/>interestRateXMLDocument = db.parse(interestRateFile);</xhtml:div>}</xhtml:div>\n                                 </xhtml:div>} catch (IOException ex) {...}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public BigDecimal getInterestRate(Integer points) {<xhtml:div style=\"margin-left:1em;\">return getInterestRateFromXML(points);</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* member function to retrieve interest rate from XML document on the local file system */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>private BigDecimal getInterestRateFromXML(Integer points) {...}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This use of the Java I/O API within any kind of Enterprise JavaBean violates the EJB specification by using the java.io package for accessing files within the local filesystem.</Body_Text>\n               <Body_Text>An Enterprise JavaBean should use a resource manager API for storing and accessing data. In the following example, the private member function getInterestRateFromXMLParser uses an XML parser API to retrieve the interest rates.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class InterestRateBean implements InterestRateRemote {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>public InterestRateBean() {<xhtml:br/>}<xhtml:br/>\n                           <xhtml:br/>public BigDecimal getInterestRate(Integer points) {<xhtml:div style=\"margin-left:1em;\">return getInterestRateFromXMLParser(points);</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* member function to retrieve interest rate from XML document using an XML parser API */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>private BigDecimal getInterestRateFromXMLParser(Integer points) {...}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Community",
-      "submission_date": "2006-12-15",
-      "submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Description, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Use of an improper API",
-      "entry_id": "SFP3"
-    }
-  ]
+	"id": "576",
+	"name": "EJB Bad Practices: Use of Java I/O",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product violates the Enterprise JavaBeans (EJB) specification by using the java.io package.",
+	"extended_description": "The Enterprise JavaBeans specification requires that every bean provider follow a set of programming guidelines designed to ensure that the bean will be portable and behave consistently in any EJB container. In this case, the product violates the following EJB guideline: \"An enterprise bean must not use the java.io package to attempt to access files and directories in the file system.\" The specification justifies this requirement in the following way: \"The file system APIs are not well-suited for business components to access data. Business components should use a resource manager API, such as JDBC, to store data.\"",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "695",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Quality Degradation"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Do not use Java I/O when writing EJBs."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following Java example is a simple stateless Enterprise JavaBean that retrieves the interest rate for the number of points for a mortgage. In this example, the interest rates for various points are retrieved from an XML document on the local file system, and the EJB uses the Java I/O API to retrieve the XML document from the local file system.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class InterestRateBean implements InterestRateRemote {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>private Document interestRateXMLDocument = null;<xhtml:br/>private File interestRateFile = null;<xhtml:br/>\n                           <xhtml:br/>public InterestRateBean() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>/* get XML document from the local filesystem */</xhtml:i>\n                                       <xhtml:br/>interestRateFile = new File(Constants.INTEREST_RATE_FILE);<xhtml:br/>\n                                       <xhtml:br/>if (interestRateFile.exists())<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();<xhtml:br/>DocumentBuilder db = dbf.newDocumentBuilder();<xhtml:br/>interestRateXMLDocument = db.parse(interestRateFile);</xhtml:div>}</xhtml:div>\n                                 </xhtml:div>} catch (IOException ex) {...}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public BigDecimal getInterestRate(Integer points) {<xhtml:div style=\"margin-left:1em;\">return getInterestRateFromXML(points);</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* member function to retrieve interest rate from XML document on the local file system */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>private BigDecimal getInterestRateFromXML(Integer points) {...}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This use of the Java I/O API within any kind of Enterprise JavaBean violates the EJB specification by using the java.io package for accessing files within the local filesystem.</Body_Text>\n               <Body_Text>An Enterprise JavaBean should use a resource manager API for storing and accessing data. In the following example, the private member function getInterestRateFromXMLParser uses an XML parser API to retrieve the interest rates.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class InterestRateBean implements InterestRateRemote {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>public InterestRateBean() {<xhtml:br/>}<xhtml:br/>\n                           <xhtml:br/>public BigDecimal getInterestRate(Integer points) {<xhtml:div style=\"margin-left:1em;\">return getInterestRateFromXMLParser(points);</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* member function to retrieve interest rate from XML document using an XML parser API */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>private BigDecimal getInterestRateFromXMLParser(Integer points) {...}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Community",
+			"submission_date": "2006-12-15",
+			"submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Description, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Use of an improper API",
+			"entry_id": "SFP3"
+		}
+	]
 }

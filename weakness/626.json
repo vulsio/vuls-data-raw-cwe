@@ -1,206 +1,206 @@
 {
-  "id": "626",
-  "name": "Null Byte Interaction Error (Poison Null Byte)",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not properly handle null bytes or NUL characters when passing data between different representations or components.",
-  "extended_description": "\n            <xhtml:p>A null byte (NUL character) can have different meanings across representations or languages. For example, it is a string terminator in standard C libraries, but Perl and PHP strings do not treat it as a terminator. When two representations are crossed - such as when Perl or PHP invokes underlying C functionality - this can produce an interaction error with unexpected results. Similar issues have been reported for ASP. Other interpreters written in C might also be affected.</xhtml:p>\n            <xhtml:p>The poison null byte is frequently useful in path traversal attacks by terminating hard-coded extensions that are added to a filename. It can play a role in regular expression processing in PHP.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "147",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "436",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "PHP"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Perl"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "ASP.NET"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Unexpected State"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Remove null bytes from all incoming strings."
-      ]
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2005-4155",
-      "description": "NUL byte bypasses PHP regular expression check",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-4155"
-    },
-    {
-      "reference": "CVE-2005-3153",
-      "description": "inserting SQL after a NUL byte bypasses allowlist regexp, enabling SQL injection",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3153"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-514",
-      "author": [
-        "Rain Forest Puppy"
-      ],
-      "title": "Poison NULL byte",
-      "url": "https://insecure.org/news/P55-07.txt",
-      "publication": "Phrack 55",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-515",
-      "author": [
-        "Brett Moore"
-      ],
-      "title": "0x00 vs ASP file upload scripts",
-      "url": "http://www.security-assessment.com/Whitepapers/0x00_vs_ASP_File_Uploads.pdf"
-    },
-    {
-      "reference_id": "REF-516",
-      "author": [
-        "ShAnKaR"
-      ],
-      "title": "ShAnKaR: multiple PHP application poison NULL byte vulnerability",
-      "url": "https://seclists.org/fulldisclosure/2006/Sep/185",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2007-05-07"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Description, Relationships, Observed_Example, Other_Notes, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Description, Other_Notes, Research_Gaps, Terminology_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Terminology",
-      "text": "Current usage of \"poison null byte\" is typically related to this C/Perl/PHP interaction error, but the original term in 1998 was applied to an off-by-one buffer overflow involving a null byte."
-    },
-    {
-      "type": "Research Gap",
-      "text": "There are not many CVE examples, because the poison NULL byte is a design limitation, which typically is not included in CVE by itself. It is typically used as a facilitator manipulation to widen the scope of potential attacks against other vulnerabilities."
-    }
-  ]
+	"id": "626",
+	"name": "Null Byte Interaction Error (Poison Null Byte)",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not properly handle null bytes or NUL characters when passing data between different representations or components.",
+	"extended_description": "\n            <xhtml:p>A null byte (NUL character) can have different meanings across representations or languages. For example, it is a string terminator in standard C libraries, but Perl and PHP strings do not treat it as a terminator. When two representations are crossed - such as when Perl or PHP invokes underlying C functionality - this can produce an interaction error with unexpected results. Similar issues have been reported for ASP. Other interpreters written in C might also be affected.</xhtml:p>\n            <xhtml:p>The poison null byte is frequently useful in path traversal attacks by terminating hard-coded extensions that are added to a filename. It can play a role in regular expression processing in PHP.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "147",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "436",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "PHP"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Perl"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "ASP.NET"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Unexpected State"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Remove null bytes from all incoming strings."
+			]
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2005-4155",
+			"description": "NUL byte bypasses PHP regular expression check",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-4155"
+		},
+		{
+			"reference": "CVE-2005-3153",
+			"description": "inserting SQL after a NUL byte bypasses allowlist regexp, enabling SQL injection",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3153"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-514",
+			"author": [
+				"Rain Forest Puppy"
+			],
+			"title": "Poison NULL byte",
+			"url": "https://insecure.org/news/P55-07.txt",
+			"publication": "Phrack 55",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-515",
+			"author": [
+				"Brett Moore"
+			],
+			"title": "0x00 vs ASP file upload scripts",
+			"url": "http://www.security-assessment.com/Whitepapers/0x00_vs_ASP_File_Uploads.pdf"
+		},
+		{
+			"reference_id": "REF-516",
+			"author": [
+				"ShAnKaR"
+			],
+			"title": "ShAnKaR: multiple PHP application poison NULL byte vulnerability",
+			"url": "https://seclists.org/fulldisclosure/2006/Sep/185",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2007-05-07"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Description, Relationships, Observed_Example, Other_Notes, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Description, Other_Notes, Research_Gaps, Terminology_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"notes": [
+		{
+			"type": "Terminology",
+			"text": "Current usage of \"poison null byte\" is typically related to this C/Perl/PHP interaction error, but the original term in 1998 was applied to an off-by-one buffer overflow involving a null byte."
+		},
+		{
+			"type": "Research Gap",
+			"text": "There are not many CVE examples, because the poison NULL byte is a design limitation, which typically is not included in CVE by itself. It is typically used as a facilitator manipulation to widen the scope of potential attacks against other vulnerabilities."
+		}
+	]
 }

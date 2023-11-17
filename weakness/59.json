@@ -1,533 +1,533 @@
 {
-  "id": "59",
-  "name": "Improper Link Resolution Before File Access ('Link Following')",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product attempts to access a file based on the filename, but it does not properly prevent that filename from identifying a link or shortcut that resolves to an unintended resource.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "706",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "706",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Windows",
-        "prevalence": "Sometimes"
-      },
-      {
-        "class": "Unix",
-        "prevalence": "Often"
-      }
-    ]
-  },
-  "background_details": [
-    "Soft links are a UNIX term that is synonymous with simple shortcuts on Windows-based platforms."
-  ],
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Access Control"
-      ],
-      "impact": [
-        "Read Files or Directories",
-        "Modify Files or Directories",
-        "Bypass Protection Mechanism"
-      ],
-      "note": "An attacker may be able to traverse the file system to unintended locations and read or overwrite the contents of unexpected files. If the files are used for a security mechanism then an attacker may be able to bypass the mechanism."
-    },
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Execute Unauthorized Code or Commands"
-      ],
-      "note": "Windows simple shortcuts, sometimes referred to as soft links, can be exploited remotely since a \".LNK\" file can be uploaded like a normal file. This can enable remote execution."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "mitigation_id": "MIT-48.1",
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Follow the principle of least privilege when assigning access rights to entities in a software system.</xhtml:p>\n                  <xhtml:p>Denying access to a file can prevent an attacker from replacing that file with a link to a sensitive file. Ensure good compartmentalization in the system to provide protected areas that can be trusted.</xhtml:p>\n               "
-      ],
-      "strategy": "Separation of Privilege"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-1999-1386",
-      "description": "Some versions of Perl follow symbolic links when running with the -e option, which allows local users to overwrite arbitrary files via a symlink attack.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1386"
-    },
-    {
-      "reference": "CVE-2000-1178",
-      "description": "Text editor follows symbolic links when creating a rescue copy during an abnormal exit, which allows local users to overwrite the files of other users.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-1178"
-    },
-    {
-      "reference": "CVE-2004-0217",
-      "description": "Antivirus update allows local users to create or append to arbitrary files via a symlink attack on a logfile.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0217"
-    },
-    {
-      "reference": "CVE-2003-0517",
-      "description": "Symlink attack allows local users to overwrite files.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0517"
-    },
-    {
-      "reference": "CVE-2004-0689",
-      "description": "Window manager does not properly handle when certain symbolic links point to \"stale\" locations, which could allow local users to create or truncate arbitrary files.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0689"
-    },
-    {
-      "reference": "CVE-2005-1879",
-      "description": "Second-order symlink vulnerabilities",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1879"
-    },
-    {
-      "reference": "CVE-2005-1880",
-      "description": "Second-order symlink vulnerabilities",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1880"
-    },
-    {
-      "reference": "CVE-2005-1916",
-      "description": "Symlink in Python program",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1916"
-    },
-    {
-      "reference": "CVE-2000-0972",
-      "description": "Setuid product allows file reading by replacing a file being edited with a symlink to the targeted file, leaking the result in error messages when parsing fails.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0972"
-    },
-    {
-      "reference": "CVE-2005-0824",
-      "description": "Signal causes a dump that follows symlinks.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0824"
-    },
-    {
-      "reference": "CVE-2001-1494",
-      "description": "Hard link attack, file overwrite; interesting because program checks against soft links",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1494"
-    },
-    {
-      "reference": "CVE-2002-0793",
-      "description": "Hard link and possibly symbolic link following vulnerabilities in embedded operating system allow local users to overwrite arbitrary files.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0793"
-    },
-    {
-      "reference": "CVE-2003-0578",
-      "description": "Server creates hard links and unlinks files as root, which allows local users to gain privileges by deleting and overwriting arbitrary files.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0578"
-    },
-    {
-      "reference": "CVE-1999-0783",
-      "description": "Operating system allows local users to conduct a denial of service by creating a hard link from a device special file to a file on an NFS file system.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0783"
-    },
-    {
-      "reference": "CVE-2004-1603",
-      "description": "Web hosting manager follows hard links, which allows local users to read or modify arbitrary files.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1603"
-    },
-    {
-      "reference": "CVE-2004-1901",
-      "description": "Package listing system allows local users to overwrite arbitrary files via a hard link attack on the lockfiles.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1901"
-    },
-    {
-      "reference": "CVE-2005-1111",
-      "description": "Hard link race condition",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1111"
-    },
-    {
-      "reference": "CVE-2000-0342",
-      "description": "Mail client allows remote attackers to bypass the user warning for executable attachments such as .exe, .com, and .bat by using a .lnk file that refers to the attachment, aka \"Stealth Attachment.\"",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0342"
-    },
-    {
-      "reference": "CVE-2001-1042",
-      "description": "FTP server allows remote attackers to read arbitrary files and directories by uploading a .lnk (link) file that points to the target file.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1042"
-    },
-    {
-      "reference": "CVE-2001-1043",
-      "description": "FTP server allows remote attackers to read arbitrary files and directories by uploading a .lnk (link) file that points to the target file.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1043"
-    },
-    {
-      "reference": "CVE-2005-0587",
-      "description": "Browser allows remote malicious web sites to overwrite arbitrary files by tricking the user into downloading a .LNK (link) file twice, which overwrites the file that was referenced in the first .LNK file.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0587"
-    },
-    {
-      "reference": "CVE-2001-1386",
-      "description": "\".LNK.\" - .LNK with trailing dot",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1386"
-    },
-    {
-      "reference": "CVE-2003-1233",
-      "description": "Rootkits can bypass file access restrictions to Windows kernel directories using NtCreateSymbolicLinkObject function to create symbolic link",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-1233"
-    },
-    {
-      "reference": "CVE-2002-0725",
-      "description": "File system allows local attackers to hide file usage activities via a hard link to the target file, which causes the link to be recorded in the audit trail instead of the target file.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0725"
-    },
-    {
-      "reference": "CVE-2003-0844",
-      "description": "Web server plugin allows local users to overwrite arbitrary files via a symlink attack on predictable temporary filenames.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0844"
-    },
-    {
-      "reference": "CVE-2015-3629",
-      "description": "A Libcontainer used in Docker Engine allows local users to escape containerization and write to an arbitrary file on the host system via a symlink attack in an image when respawning a container.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2015-3629"
-    },
-    {
-      "reference": "CVE-2021-21272",
-      "description": "\"Zip Slip\" vulnerability in Go-based Open Container Initiative (OCI) registries product allows writing arbitrary files outside intended directory via symbolic links or hard links in a gzipped tarball.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-21272"
-    },
-    {
-      "reference": "CVE-2020-27833",
-      "description": "\"Zip Slip\" vulnerability in container management product allows writing arbitrary files outside intended directory via a container image (.tar format) with filenames that are symbolic links that point to other files within the same tar file; however, the files being pointed to can also be symbolic links to destinations outside the intended directory, bypassing the initial check.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-27833"
-    }
-  ],
-  "references": [
-    {
-      "section": "Chapter 9, \"Symbolic Link Attacks\", Page 518",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "reference_id": "REF-1282",
-      "author": [
-        "Snyk"
-      ],
-      "title": "Zip Slip Vulnerability",
-      "url": "https://security.snyk.io/research/zip-slip-vulnerability",
-      "publication_year": "2018",
-      "publication_month": "--06",
-      "publication_day": "---05"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Alternate_Terms, Applicable_Platforms, Relationships, Other_Notes, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Description, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Background_Details, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Observed_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Common_Consequences, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Detection_Factors, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Affected_Resources, Applicable_Platforms, Causal_Nature, Common_Consequences, Functional_Areas, Likelihood_of_Exploit, Modes_of_Introduction, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Research_Gaps"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Alternate_Terms, Background_Details, Observed_Examples, References, Relationship_Notes, Theoretical_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Link Following",
-        "date": "2008-04-11"
-      },
-      {
-        "text": "Failure to Resolve Links Before File Access (aka 'Link Following')",
-        "date": "2009-05-27"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Resultant"
-    }
-  ],
-  "alternate_terms": [
-    {
-      "term": "insecure temporary file",
-      "description": "Some people use the phrase \"insecure temporary file\" when referring to a link following weakness, but other weaknesses can produce insecure temporary files without any symlink involvement at all."
-    },
-    {
-      "term": "Zip Slip",
-      "description": "\"Zip slip\" is an attack that uses file archives (e.g., ZIP, tar, rar, etc.) that contain filenames with path traversal sequences that cause the files to be written outside of the directory under which the archive is expected to be extracted [REF-1282]. It is most commonly used for relative path traversal (CWE-23) and link following (CWE-59)."
-    }
-  ],
-  "detection_methods": [
-    {
-      "method": "Automated Static Analysis - Binary or Bytecode",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Manual Static Analysis - Binary or Bytecode",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Automated Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Manual Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Manual Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Automated Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Architecture or Design Review",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Link Following"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Canonicalize path names originating from untrusted sources",
-      "entry_id": "FIO02-C"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Check for the existence of links when dealing with files",
-      "entry_id": "POS01-C"
-    },
-    {
-      "taxonomy_name": "SEI CERT Perl Coding Standard",
-      "entry_name": "Do not operate on files that can be modified by untrusted users",
-      "entry_id": "FIO01-PL",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Link in resource name resolution",
-      "entry_id": "SFP18"
-    }
-  ],
-  "related_attack_patterns": [
-    "132",
-    "17",
-    "35",
-    "76"
-  ],
-  "notes": [
-    {
-      "type": "Theoretical",
-      "text": "\n               <xhtml:p>Link following vulnerabilities are Multi-factor Vulnerabilities (MFV). They are the combination of multiple elements: file or directory permissions, filename predictability, race conditions, and in some cases, a design limitation in which there is no mechanism for performing atomic file creation operations.</xhtml:p>\n               <xhtml:p>Some potential factors are race conditions, permissions, and predictability.</xhtml:p>\n            "
-    }
-  ],
-  "affected_resources": [
-    "File or Directory"
-  ],
-  "functional_areas": [
-    "File Processing"
-  ]
+	"id": "59",
+	"name": "Improper Link Resolution Before File Access ('Link Following')",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product attempts to access a file based on the filename, but it does not properly prevent that filename from identifying a link or shortcut that resolves to an unintended resource.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "706",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "706",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Windows",
+				"prevalence": "Sometimes"
+			},
+			{
+				"class": "Unix",
+				"prevalence": "Often"
+			}
+		]
+	},
+	"background_details": [
+		"Soft links are a UNIX term that is synonymous with simple shortcuts on Windows-based platforms."
+	],
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Access Control"
+			],
+			"impact": [
+				"Read Files or Directories",
+				"Modify Files or Directories",
+				"Bypass Protection Mechanism"
+			],
+			"note": "An attacker may be able to traverse the file system to unintended locations and read or overwrite the contents of unexpected files. If the files are used for a security mechanism then an attacker may be able to bypass the mechanism."
+		},
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Execute Unauthorized Code or Commands"
+			],
+			"note": "Windows simple shortcuts, sometimes referred to as soft links, can be exploited remotely since a \".LNK\" file can be uploaded like a normal file. This can enable remote execution."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"mitigation_id": "MIT-48.1",
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"\n                  <xhtml:p>Follow the principle of least privilege when assigning access rights to entities in a software system.</xhtml:p>\n                  <xhtml:p>Denying access to a file can prevent an attacker from replacing that file with a link to a sensitive file. Ensure good compartmentalization in the system to provide protected areas that can be trusted.</xhtml:p>\n               "
+			],
+			"strategy": "Separation of Privilege"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-1999-1386",
+			"description": "Some versions of Perl follow symbolic links when running with the -e option, which allows local users to overwrite arbitrary files via a symlink attack.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-1386"
+		},
+		{
+			"reference": "CVE-2000-1178",
+			"description": "Text editor follows symbolic links when creating a rescue copy during an abnormal exit, which allows local users to overwrite the files of other users.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-1178"
+		},
+		{
+			"reference": "CVE-2004-0217",
+			"description": "Antivirus update allows local users to create or append to arbitrary files via a symlink attack on a logfile.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0217"
+		},
+		{
+			"reference": "CVE-2003-0517",
+			"description": "Symlink attack allows local users to overwrite files.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0517"
+		},
+		{
+			"reference": "CVE-2004-0689",
+			"description": "Window manager does not properly handle when certain symbolic links point to \"stale\" locations, which could allow local users to create or truncate arbitrary files.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0689"
+		},
+		{
+			"reference": "CVE-2005-1879",
+			"description": "Second-order symlink vulnerabilities",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1879"
+		},
+		{
+			"reference": "CVE-2005-1880",
+			"description": "Second-order symlink vulnerabilities",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1880"
+		},
+		{
+			"reference": "CVE-2005-1916",
+			"description": "Symlink in Python program",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1916"
+		},
+		{
+			"reference": "CVE-2000-0972",
+			"description": "Setuid product allows file reading by replacing a file being edited with a symlink to the targeted file, leaking the result in error messages when parsing fails.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0972"
+		},
+		{
+			"reference": "CVE-2005-0824",
+			"description": "Signal causes a dump that follows symlinks.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-0824"
+		},
+		{
+			"reference": "CVE-2001-1494",
+			"description": "Hard link attack, file overwrite; interesting because program checks against soft links",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1494"
+		},
+		{
+			"reference": "CVE-2002-0793",
+			"description": "Hard link and possibly symbolic link following vulnerabilities in embedded operating system allow local users to overwrite arbitrary files.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0793"
+		},
+		{
+			"reference": "CVE-2003-0578",
+			"description": "Server creates hard links and unlinks files as root, which allows local users to gain privileges by deleting and overwriting arbitrary files.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0578"
+		},
+		{
+			"reference": "CVE-1999-0783",
+			"description": "Operating system allows local users to conduct a denial of service by creating a hard link from a device special file to a file on an NFS file system.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-0783"
+		},
+		{
+			"reference": "CVE-2004-1603",
+			"description": "Web hosting manager follows hard links, which allows local users to read or modify arbitrary files.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-1603"
+		},
+		{
+			"reference": "CVE-2004-1901",
+			"description": "Package listing system allows local users to overwrite arbitrary files via a hard link attack on the lockfiles.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-1901"
+		},
+		{
+			"reference": "CVE-2005-1111",
+			"description": "Hard link race condition",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1111"
+		},
+		{
+			"reference": "CVE-2000-0342",
+			"description": "Mail client allows remote attackers to bypass the user warning for executable attachments such as .exe, .com, and .bat by using a .lnk file that refers to the attachment, aka \"Stealth Attachment.\"",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0342"
+		},
+		{
+			"reference": "CVE-2001-1042",
+			"description": "FTP server allows remote attackers to read arbitrary files and directories by uploading a .lnk (link) file that points to the target file.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1042"
+		},
+		{
+			"reference": "CVE-2001-1043",
+			"description": "FTP server allows remote attackers to read arbitrary files and directories by uploading a .lnk (link) file that points to the target file.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1043"
+		},
+		{
+			"reference": "CVE-2005-0587",
+			"description": "Browser allows remote malicious web sites to overwrite arbitrary files by tricking the user into downloading a .LNK (link) file twice, which overwrites the file that was referenced in the first .LNK file.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-0587"
+		},
+		{
+			"reference": "CVE-2001-1386",
+			"description": "\".LNK.\" - .LNK with trailing dot",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1386"
+		},
+		{
+			"reference": "CVE-2003-1233",
+			"description": "Rootkits can bypass file access restrictions to Windows kernel directories using NtCreateSymbolicLinkObject function to create symbolic link",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-1233"
+		},
+		{
+			"reference": "CVE-2002-0725",
+			"description": "File system allows local attackers to hide file usage activities via a hard link to the target file, which causes the link to be recorded in the audit trail instead of the target file.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0725"
+		},
+		{
+			"reference": "CVE-2003-0844",
+			"description": "Web server plugin allows local users to overwrite arbitrary files via a symlink attack on predictable temporary filenames.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0844"
+		},
+		{
+			"reference": "CVE-2015-3629",
+			"description": "A Libcontainer used in Docker Engine allows local users to escape containerization and write to an arbitrary file on the host system via a symlink attack in an image when respawning a container.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2015-3629"
+		},
+		{
+			"reference": "CVE-2021-21272",
+			"description": "\"Zip Slip\" vulnerability in Go-based Open Container Initiative (OCI) registries product allows writing arbitrary files outside intended directory via symbolic links or hard links in a gzipped tarball.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-21272"
+		},
+		{
+			"reference": "CVE-2020-27833",
+			"description": "\"Zip Slip\" vulnerability in container management product allows writing arbitrary files outside intended directory via a container image (.tar format) with filenames that are symbolic links that point to other files within the same tar file; however, the files being pointed to can also be symbolic links to destinations outside the intended directory, bypassing the initial check.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-27833"
+		}
+	],
+	"references": [
+		{
+			"section": "Chapter 9, \"Symbolic Link Attacks\", Page 518",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"reference_id": "REF-1282",
+			"author": [
+				"Snyk"
+			],
+			"title": "Zip Slip Vulnerability",
+			"url": "https://security.snyk.io/research/zip-slip-vulnerability",
+			"publication_year": "2018",
+			"publication_month": "--06",
+			"publication_day": "---05"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Alternate_Terms, Applicable_Platforms, Relationships, Other_Notes, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Description, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Background_Details, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Observed_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Common_Consequences, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Detection_Factors, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Affected_Resources, Applicable_Platforms, Causal_Nature, Common_Consequences, Functional_Areas, Likelihood_of_Exploit, Modes_of_Introduction, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Research_Gaps"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Alternate_Terms, Background_Details, Observed_Examples, References, Relationship_Notes, Theoretical_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Link Following",
+				"date": "2008-04-11"
+			},
+			{
+				"text": "Failure to Resolve Links Before File Access (aka 'Link Following')",
+				"date": "2009-05-27"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Resultant"
+		}
+	],
+	"alternate_terms": [
+		{
+			"term": "insecure temporary file",
+			"description": "Some people use the phrase \"insecure temporary file\" when referring to a link following weakness, but other weaknesses can produce insecure temporary files without any symlink involvement at all."
+		},
+		{
+			"term": "Zip Slip",
+			"description": "\"Zip slip\" is an attack that uses file archives (e.g., ZIP, tar, rar, etc.) that contain filenames with path traversal sequences that cause the files to be written outside of the directory under which the archive is expected to be extracted [REF-1282]. It is most commonly used for relative path traversal (CWE-23) and link following (CWE-59)."
+		}
+	],
+	"detection_methods": [
+		{
+			"method": "Automated Static Analysis - Binary or Bytecode",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Manual Static Analysis - Binary or Bytecode",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Automated Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Manual Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Manual Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Automated Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Architecture or Design Review",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Link Following"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Canonicalize path names originating from untrusted sources",
+			"entry_id": "FIO02-C"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Check for the existence of links when dealing with files",
+			"entry_id": "POS01-C"
+		},
+		{
+			"taxonomy_name": "SEI CERT Perl Coding Standard",
+			"entry_name": "Do not operate on files that can be modified by untrusted users",
+			"entry_id": "FIO01-PL",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Link in resource name resolution",
+			"entry_id": "SFP18"
+		}
+	],
+	"related_attack_patterns": [
+		"132",
+		"17",
+		"35",
+		"76"
+	],
+	"notes": [
+		{
+			"type": "Theoretical",
+			"text": "\n               <xhtml:p>Link following vulnerabilities are Multi-factor Vulnerabilities (MFV). They are the combination of multiple elements: file or directory permissions, filename predictability, race conditions, and in some cases, a design limitation in which there is no mechanism for performing atomic file creation operations.</xhtml:p>\n               <xhtml:p>Some potential factors are race conditions, permissions, and predictability.</xhtml:p>\n            "
+		}
+	],
+	"affected_resources": [
+		"File or Directory"
+	],
+	"functional_areas": [
+		"File Processing"
+	]
 }

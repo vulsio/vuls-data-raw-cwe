@@ -1,187 +1,187 @@
 {
-  "id": "828",
-  "name": "Signal Handler with Functionality that is not Asynchronous-Safe",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product defines a signal handler that contains code sequences that are not asynchronous-safe, i.e., the functionality is not reentrant, or it can be interrupted.",
-  "extended_description": "\n            <xhtml:p>This can lead to an unexpected system state with a variety of potential consequences depending on context, including denial of service and code execution.</xhtml:p>\n            <xhtml:p>Signal handlers are typically intended to interrupt normal functionality of a program, or even other signals, in order to notify the process of an event. When a signal handler uses global or static variables, or invokes functions that ultimately depend on such state or its associated metadata, then it could corrupt system state that is being used by normal functionality. This could subject the program to race conditions or other weaknesses that allow an attacker to cause the program state to be corrupted. While denial of service is frequently the consequence, in some cases this weakness could be leveraged for code execution.</xhtml:p>\n            <xhtml:p>There are several different scenarios that introduce this issue:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>Invocation of non-reentrant functions from within the handler. One example is malloc(), which modifies internal global variables as it manages memory. Very few functions are actually reentrant.</xhtml:li>\n                  <xhtml:li>Code sequences (not necessarily function calls) contain non-atomic use of global variables, or associated metadata or structures, that can be accessed by other functionality of the program, including other signal handlers. Frequently, the same function is registered to handle multiple signals.</xhtml:li>\n                  <xhtml:li>The signal handler function is intended to run at most one time, but instead it can be invoked multiple times. This could happen by repeated delivery of the same signal, or by delivery of different signals that have the same handler function (CWE-831).</xhtml:li>\n               </xhtml:ul>\n            <xhtml:p>Note that in some environments or contexts, it might be possible for the signal handler to be interrupted itself.</xhtml:p>\n            <xhtml:p>If both a signal handler and the normal behavior of the product have to operate on the same set of state variables, and a signal is received in the middle of the normal execution's modifications of those variables, the variables may be in an incorrect or corrupt state during signal handler execution, and possibly still incorrect or corrupt upon return.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "364",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality",
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Crash, Exit, or Restart",
-        "Execute Unauthorized Code or Commands"
-      ],
-      "note": "The most common consequence will be a corruption of the state of the product, possibly leading to a crash or exit. However, if the signal handler is operating on state variables for security relevant libraries or protection mechanisms, the consequences can be far more severe, including protection mechanism bypass, privilege escalation, or information exposure."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation",
-        "Architecture and Design"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Eliminate the usage of non-reentrant functionality inside of signal handlers. This includes replacing all non-reentrant library calls with reentrant calls.</xhtml:p>\n                  <xhtml:p>Note: This will not always be possible and may require large portions of the product to be rewritten or even redesigned. Sometimes reentrant-safe library alternatives will not be available. Sometimes non-reentrant interaction between the state of the system and the signal handler will be required by design.</xhtml:p>\n               "
-      ],
-      "effectiveness": "High"
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Where non-reentrant functionality must be leveraged within a signal handler, be sure to block or mask signals appropriately. This includes blocking other signals within the signal handler itself that may also leverage the functionality. It also includes blocking all signals reliant upon the functionality when it is being accessed or modified by the normal behaviors of the product."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-26",
-      "text": "\n               <Intro_Text>This code registers the same signal handler function with two different signals (CWE-831). If those signals are sent to the process, the handler creates a log message (specified in the first argument to the program) and exits.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char *logMessage;<xhtml:br/>\n                     <xhtml:br/>void handler (int sigNum) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>syslog(LOG_NOTICE, \"%s\\n\", logMessage);<xhtml:br/>free(logMessage);<xhtml:br/>\n                           <xhtml:i>/* artificially increase the size of the timing window to make demonstration of this weakness easier. */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>sleep(10);<xhtml:br/>exit(0);</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main (int argc, char* argv[]) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>logMessage = strdup(argv[1]);<xhtml:br/>\n                           <xhtml:i>/* Register signal handlers. */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>signal(SIGHUP, handler);<xhtml:br/>signal(SIGTERM, handler);<xhtml:br/>\n                           <xhtml:i>/* artificially increase the size of the timing window to make demonstration of this weakness easier. */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>sleep(10);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The handler function uses global state (globalVar and logMessage), and it can be called by both the SIGHUP and SIGTERM signals. An attack scenario might follow these lines:</Body_Text>\n               <Body_Text>\n                  <xhtml:ul>\n                     <xhtml:li>\n                        <xhtml:div>The program begins execution, initializes logMessage, and registers the signal handlers for SIGHUP and SIGTERM.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>The program begins its \"normal\" functionality, which is simplified as sleep(), but could be any functionality that consumes some time.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>The attacker sends SIGHUP, which invokes handler (call this \"SIGHUP-handler\").</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>SIGHUP-handler begins to execute, calling syslog().</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>syslog() calls malloc(), which is non-reentrant. malloc() begins to modify metadata to manage the heap.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>The attacker then sends SIGTERM.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>SIGHUP-handler is interrupted, but syslog's malloc call is still executing and has not finished modifying its metadata.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>The SIGTERM handler is invoked.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>SIGTERM-handler records the log message using syslog(), then frees the logMessage variable.</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ul>\n               </Body_Text>\n               <Body_Text>At this point, the state of the heap is uncertain, because malloc is still modifying the metadata for the heap; the metadata might be in an inconsistent state. The SIGTERM-handler call to free() is assuming that the metadata is inconsistent, possibly causing it to write data to the wrong location while managing the heap. The result is memory corruption, which could lead to a crash or even code execution, depending on the circumstances under which the code is running.</Body_Text>\n               <Body_Text>Note that this is an adaptation of a classic example as originally presented by Michal Zalewski [REF-360]; the original example was shown to be exploitable for code execution.</Body_Text>\n               <Body_Text>Also note that the strdup(argv[1]) call contains a potential buffer over-read (CWE-126) if the program is called without any arguments, because argc would be 0, and argv[1] would point outside the bounds of the array.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-48",
-      "text": "\n               <Intro_Text>The following code registers a signal handler with multiple signals in order to log when a specific event occurs and to free associated memory before exiting.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#include &lt;signal.h&gt;<xhtml:br/>#include &lt;syslog.h&gt;<xhtml:br/>#include &lt;string.h&gt;<xhtml:br/>#include &lt;stdlib.h&gt;<xhtml:br/>\n                     <xhtml:br/>void *global1, *global2;<xhtml:br/>char *what;<xhtml:br/>void sh (int dummy) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>syslog(LOG_NOTICE,\"%s\\n\",what);<xhtml:br/>free(global2);<xhtml:br/>free(global1);<xhtml:br/>\n                           <xhtml:i>/* Sleep statements added to expand timing window for race condition */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>sleep(10);<xhtml:br/>exit(0);</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main (int argc,char* argv[]) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>what=argv[1];<xhtml:br/>global1=strdup(argv[2]);<xhtml:br/>global2=malloc(340);<xhtml:br/>signal(SIGHUP,sh);<xhtml:br/>signal(SIGTERM,sh);<xhtml:br/>\n                           <xhtml:i>/* Sleep statements added to expand timing window for race condition */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>sleep(10);<xhtml:br/>exit(0);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the following sequence of events may result in a double-free (CWE-415):</Body_Text>\n               <Body_Text>\n                  <xhtml:ol>\n                     <xhtml:li>\n                        <xhtml:div>a SIGHUP is delivered to the process</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>sh() is invoked to process the SIGHUP</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>This first invocation of sh() reaches the point where global1 is freed</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>At this point, a SIGTERM is sent to the process</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>the second invocation of sh() might do another free of global1</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>this results in a double-free (CWE-415)</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ol>\n               </Body_Text>\n               <Body_Text>This is just one possible exploitation of the above code. As another example, the syslog call may use malloc calls which are not async-signal safe. This could cause corruption of the heap management structures. For more details, consult the example within \"Delivering Signals for Fun and Profit\" [REF-360].</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2008-4109",
-      "description": "Signal handler uses functions that ultimately call the unsafe syslog/malloc/s*printf, leading to denial of service via multiple login attempts",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4109"
-    },
-    {
-      "reference": "CVE-2006-5051",
-      "description": "Chain: Signal handler contains too much functionality (CWE-828), introducing a race condition (CWE-362) that leads to a double free (CWE-415).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-5051"
-    },
-    {
-      "reference": "CVE-2001-1349",
-      "description": "unsafe calls to library functions from signal handler",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1349"
-    },
-    {
-      "reference": "CVE-2004-0794",
-      "description": "SIGURG can be used to remotely interrupt signal handler; other variants exist.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0794"
-    },
-    {
-      "reference": "CVE-2004-2259",
-      "description": "SIGCHLD signal to FTP server can cause crash under heavy load while executing non-reentrant functions like malloc/free.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2259"
-    },
-    {
-      "reference": "CVE-2002-1563",
-      "description": "SIGCHLD not blocked in a daemon loop while counter is modified, causing counter to get out of sync.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1563"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-360",
-      "author": [
-        "Michal Zalewski"
-      ],
-      "title": "Delivering Signals for Fun and Profit",
-      "url": "https://lcamtuf.coredump.cx/signals.txt",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-361",
-      "title": "Race Condition: Signal Handling",
-      "url": "https://vulncat.fortify.com/en/detail?id=desc.structural.cpp.race_condition_signal_handling#:~:text=Signal%20handling%20race%20conditions%20can,installed%20to%20handle%20multiple%20signals.s",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2010-11-08"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Demonstrative_Examples, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Common_Consequences, Description, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not access or modify shared objects in signal handlers",
-      "entry_id": "SIG31-C"
-    }
-  ]
+	"id": "828",
+	"name": "Signal Handler with Functionality that is not Asynchronous-Safe",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product defines a signal handler that contains code sequences that are not asynchronous-safe, i.e., the functionality is not reentrant, or it can be interrupted.",
+	"extended_description": "\n            <xhtml:p>This can lead to an unexpected system state with a variety of potential consequences depending on context, including denial of service and code execution.</xhtml:p>\n            <xhtml:p>Signal handlers are typically intended to interrupt normal functionality of a program, or even other signals, in order to notify the process of an event. When a signal handler uses global or static variables, or invokes functions that ultimately depend on such state or its associated metadata, then it could corrupt system state that is being used by normal functionality. This could subject the program to race conditions or other weaknesses that allow an attacker to cause the program state to be corrupted. While denial of service is frequently the consequence, in some cases this weakness could be leveraged for code execution.</xhtml:p>\n            <xhtml:p>There are several different scenarios that introduce this issue:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>Invocation of non-reentrant functions from within the handler. One example is malloc(), which modifies internal global variables as it manages memory. Very few functions are actually reentrant.</xhtml:li>\n                  <xhtml:li>Code sequences (not necessarily function calls) contain non-atomic use of global variables, or associated metadata or structures, that can be accessed by other functionality of the program, including other signal handlers. Frequently, the same function is registered to handle multiple signals.</xhtml:li>\n                  <xhtml:li>The signal handler function is intended to run at most one time, but instead it can be invoked multiple times. This could happen by repeated delivery of the same signal, or by delivery of different signals that have the same handler function (CWE-831).</xhtml:li>\n               </xhtml:ul>\n            <xhtml:p>Note that in some environments or contexts, it might be possible for the signal handler to be interrupted itself.</xhtml:p>\n            <xhtml:p>If both a signal handler and the normal behavior of the product have to operate on the same set of state variables, and a signal is received in the middle of the normal execution's modifications of those variables, the variables may be in an incorrect or corrupt state during signal handler execution, and possibly still incorrect or corrupt upon return.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "364",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality",
+				"Availability"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart",
+				"Execute Unauthorized Code or Commands"
+			],
+			"note": "The most common consequence will be a corruption of the state of the product, possibly leading to a crash or exit. However, if the signal handler is operating on state variables for security relevant libraries or protection mechanisms, the consequences can be far more severe, including protection mechanism bypass, privilege escalation, or information exposure."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation",
+				"Architecture and Design"
+			],
+			"description": [
+				"\n                  <xhtml:p>Eliminate the usage of non-reentrant functionality inside of signal handlers. This includes replacing all non-reentrant library calls with reentrant calls.</xhtml:p>\n                  <xhtml:p>Note: This will not always be possible and may require large portions of the product to be rewritten or even redesigned. Sometimes reentrant-safe library alternatives will not be available. Sometimes non-reentrant interaction between the state of the system and the signal handler will be required by design.</xhtml:p>\n               "
+			],
+			"effectiveness": "High"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Where non-reentrant functionality must be leveraged within a signal handler, be sure to block or mask signals appropriately. This includes blocking other signals within the signal handler itself that may also leverage the functionality. It also includes blocking all signals reliant upon the functionality when it is being accessed or modified by the normal behaviors of the product."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-26",
+			"text": "\n               <Intro_Text>This code registers the same signal handler function with two different signals (CWE-831). If those signals are sent to the process, the handler creates a log message (specified in the first argument to the program) and exits.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char *logMessage;<xhtml:br/>\n                     <xhtml:br/>void handler (int sigNum) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>syslog(LOG_NOTICE, \"%s\\n\", logMessage);<xhtml:br/>free(logMessage);<xhtml:br/>\n                           <xhtml:i>/* artificially increase the size of the timing window to make demonstration of this weakness easier. */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>sleep(10);<xhtml:br/>exit(0);</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main (int argc, char* argv[]) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>logMessage = strdup(argv[1]);<xhtml:br/>\n                           <xhtml:i>/* Register signal handlers. */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>signal(SIGHUP, handler);<xhtml:br/>signal(SIGTERM, handler);<xhtml:br/>\n                           <xhtml:i>/* artificially increase the size of the timing window to make demonstration of this weakness easier. */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>sleep(10);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The handler function uses global state (globalVar and logMessage), and it can be called by both the SIGHUP and SIGTERM signals. An attack scenario might follow these lines:</Body_Text>\n               <Body_Text>\n                  <xhtml:ul>\n                     <xhtml:li>\n                        <xhtml:div>The program begins execution, initializes logMessage, and registers the signal handlers for SIGHUP and SIGTERM.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>The program begins its \"normal\" functionality, which is simplified as sleep(), but could be any functionality that consumes some time.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>The attacker sends SIGHUP, which invokes handler (call this \"SIGHUP-handler\").</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>SIGHUP-handler begins to execute, calling syslog().</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>syslog() calls malloc(), which is non-reentrant. malloc() begins to modify metadata to manage the heap.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>The attacker then sends SIGTERM.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>SIGHUP-handler is interrupted, but syslog's malloc call is still executing and has not finished modifying its metadata.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>The SIGTERM handler is invoked.</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>SIGTERM-handler records the log message using syslog(), then frees the logMessage variable.</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ul>\n               </Body_Text>\n               <Body_Text>At this point, the state of the heap is uncertain, because malloc is still modifying the metadata for the heap; the metadata might be in an inconsistent state. The SIGTERM-handler call to free() is assuming that the metadata is inconsistent, possibly causing it to write data to the wrong location while managing the heap. The result is memory corruption, which could lead to a crash or even code execution, depending on the circumstances under which the code is running.</Body_Text>\n               <Body_Text>Note that this is an adaptation of a classic example as originally presented by Michal Zalewski [REF-360]; the original example was shown to be exploitable for code execution.</Body_Text>\n               <Body_Text>Also note that the strdup(argv[1]) call contains a potential buffer over-read (CWE-126) if the program is called without any arguments, because argc would be 0, and argv[1] would point outside the bounds of the array.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-48",
+			"text": "\n               <Intro_Text>The following code registers a signal handler with multiple signals in order to log when a specific event occurs and to free associated memory before exiting.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#include &lt;signal.h&gt;<xhtml:br/>#include &lt;syslog.h&gt;<xhtml:br/>#include &lt;string.h&gt;<xhtml:br/>#include &lt;stdlib.h&gt;<xhtml:br/>\n                     <xhtml:br/>void *global1, *global2;<xhtml:br/>char *what;<xhtml:br/>void sh (int dummy) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>syslog(LOG_NOTICE,\"%s\\n\",what);<xhtml:br/>free(global2);<xhtml:br/>free(global1);<xhtml:br/>\n                           <xhtml:i>/* Sleep statements added to expand timing window for race condition */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>sleep(10);<xhtml:br/>exit(0);</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main (int argc,char* argv[]) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>what=argv[1];<xhtml:br/>global1=strdup(argv[2]);<xhtml:br/>global2=malloc(340);<xhtml:br/>signal(SIGHUP,sh);<xhtml:br/>signal(SIGTERM,sh);<xhtml:br/>\n                           <xhtml:i>/* Sleep statements added to expand timing window for race condition */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>sleep(10);<xhtml:br/>exit(0);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the following sequence of events may result in a double-free (CWE-415):</Body_Text>\n               <Body_Text>\n                  <xhtml:ol>\n                     <xhtml:li>\n                        <xhtml:div>a SIGHUP is delivered to the process</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>sh() is invoked to process the SIGHUP</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>This first invocation of sh() reaches the point where global1 is freed</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>At this point, a SIGTERM is sent to the process</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>the second invocation of sh() might do another free of global1</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>this results in a double-free (CWE-415)</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ol>\n               </Body_Text>\n               <Body_Text>This is just one possible exploitation of the above code. As another example, the syslog call may use malloc calls which are not async-signal safe. This could cause corruption of the heap management structures. For more details, consult the example within \"Delivering Signals for Fun and Profit\" [REF-360].</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2008-4109",
+			"description": "Signal handler uses functions that ultimately call the unsafe syslog/malloc/s*printf, leading to denial of service via multiple login attempts",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-4109"
+		},
+		{
+			"reference": "CVE-2006-5051",
+			"description": "Chain: Signal handler contains too much functionality (CWE-828), introducing a race condition (CWE-362) that leads to a double free (CWE-415).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-5051"
+		},
+		{
+			"reference": "CVE-2001-1349",
+			"description": "unsafe calls to library functions from signal handler",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1349"
+		},
+		{
+			"reference": "CVE-2004-0794",
+			"description": "SIGURG can be used to remotely interrupt signal handler; other variants exist.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0794"
+		},
+		{
+			"reference": "CVE-2004-2259",
+			"description": "SIGCHLD signal to FTP server can cause crash under heavy load while executing non-reentrant functions like malloc/free.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-2259"
+		},
+		{
+			"reference": "CVE-2002-1563",
+			"description": "SIGCHLD not blocked in a daemon loop while counter is modified, causing counter to get out of sync.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1563"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-360",
+			"author": [
+				"Michal Zalewski"
+			],
+			"title": "Delivering Signals for Fun and Profit",
+			"url": "https://lcamtuf.coredump.cx/signals.txt",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-361",
+			"title": "Race Condition: Signal Handling",
+			"url": "https://vulncat.fortify.com/en/detail?id=desc.structural.cpp.race_condition_signal_handling#:~:text=Signal%20handling%20race%20conditions%20can,installed%20to%20handle%20multiple%20signals.s",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2010-11-08"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Demonstrative_Examples, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Common_Consequences, Description, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not access or modify shared objects in signal handlers",
+			"entry_id": "SIG31-C"
+		}
+	]
 }

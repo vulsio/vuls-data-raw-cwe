@@ -1,262 +1,262 @@
 {
-  "id": "1277",
-  "name": "Firmware Not Updateable",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not provide its\n\t\t\tusers with the ability to update or patch its\n\t\t\tfirmware to address any vulnerabilities or\n\t\t\tweaknesses that may be present.",
-  "extended_description": "Without the ability to\n\t\t\tpatch or update firmware, consumers will be\n\t\t\tleft vulnerable to exploitation of any known\n\t\t\tvulnerabilities, or any vulnerabilities that\n\t\t\tare discovered in the future. This can expose\n\t\t\tconsumers to permanent risk throughout the\n\t\t\tentire lifetime of the device, which could be\n\t\t\tyears or decades. Some external protective\n\t\t\tmeasures and mitigations might be employed to\n\t\t\taid in preventing or reducing the risk of\n\t\t\tmalicious attack, but the root weakness cannot\n\t\t\tbe corrected.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1329",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Requirements",
-      "note": [
-        "Requirements development might not consider the importance of updates over the lifetime of the product, or might not choose the ability due to concerns such as expense or speed to market."
-      ]
-    },
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "Lack of planning during architecture development and design, or external pressures such as speed to market, could ignore the capability to update."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "The weakness can appear through oversight during implementation."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Access Control",
-        "Authentication",
-        "Authorization"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity",
-        "Bypass Protection Mechanism",
-        "Execute Unauthorized Code or Commands",
-        "DoS: Crash, Exit, or Restart"
-      ],
-      "note": "If an attacker can identify an exploitable vulnerability in one device that has no means of patching, the attack may be used against an entire class of devices.",
-      "likelihood": "Medium"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Requirements"
-      ],
-      "description": [
-        "Specify requirements to include the ability to update the firmware. Include integrity checks and authentication to ensure that untrusted firmware cannot be installed."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Design the device to allow for updating the firmware. Ensure that the design specifies how to distribute the updates and ensure their integrity and authentication."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Implement the necessary functionality to allow the firmware to be updated."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-145",
-      "text": "\n\t\t\t\t\t<Intro_Text>A refrigerator has an Internet interface for the official purpose of alerting the manufacturer when that refrigerator detects a fault. Because the device is attached to the Internet, the refrigerator is a target for hackers who may wish to use the device other potentially more nefarious purposes.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Other\">The refrigerator has no means of patching and is hacked becoming a spewer of email spam.</Example_Code>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Other\">The device automatically patches itself and provides considerable more protection against being hacked.</Example_Code>\n\t\t\t\t"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2020-9054",
-      "description": "Chain: network-attached storage (NAS) device has a critical OS command injection (CWE-78) vulnerability that is actively exploited to place IoT devices into a botnet, but some products are \"end-of-support\" and cannot be patched (CWE-1277). [REF-1097]",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-9054"
-    },
-    {
-      "reference": "[REF-1095]",
-      "description": "A hardware \"smart lock\" has weak key generation that allows attackers to steal the key by BLE sniffing, but the device's firmware cannot be upgraded and hence remains vulnerable [REF-1095].",
-      "link": "https://www.theregister.com/2019/12/11/f_secure_keywe/"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1095",
-      "author": [
-        "Matthew Hughes"
-      ],
-      "title": "Bad news: KeyWe Smart Lock is easily bypassed and can't be fixed",
-      "url": "https://www.theregister.com/2019/12/11/f_secure_keywe/",
-      "publication_year": "2019",
-      "publication_month": "--12",
-      "publication_day": "---11",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1096",
-      "author": [
-        "Alex Scroxton"
-      ],
-      "title": "Alarm bells ring, the IoT is listening",
-      "url": "https://www.computerweekly.com/news/252475324/Alarm-bells-ring-the-IoT-is-listening"
-    },
-    {
-      "reference_id": "REF-1097",
-      "author": [
-        "Brian Krebs"
-      ],
-      "title": "Zyxel Flaw Powers New Mirai IoT Botnet Strain",
-      "url": "https://krebsonsecurity.com/2020/03/zxyel-flaw-powers-new-mirai-iot-botnet-strain/",
-      "publication_year": "2020",
-      "publication_month": "--03",
-      "publication_day": "---20"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Paul A. Wortman",
-      "submission_organization": "Wells Fargo",
-      "submission_date": "2020-05-13"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Description, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Maintenance_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Demonstrative_Examples, Maintenance_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Common_Consequences, Description, Detection_Factors, Maintenance_Notes, Modes_of_Introduction, Observed_Examples, References, Relationships, Terminology_Notes, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Detection_Factors, Observed_Examples, Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "Paul A. Wortman",
-        "contribution_organization": "Wells Fargo",
-        "contribution_date": "2021-10-12",
-        "contribution_comment": "provided detection methods and observed examples"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "method": "Manual Analysis",
-      "description": "Create a new installable boot image of the current build with a minor version number change. Use the standard installation method to update the boot image. Verify that the minor version number has changed. Create a fake image. Verify that the boot updater will not install the fake image and generates an \"invalid image\" error message or equivalent.",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Architecture or Design Review",
-      "description": "Check the consumer or maintainer documentation, the architecture/design documentation, or the original requirements to ensure that the documentation includes details for how to update the firmware.",
-      "effectiveness": "Moderate"
-    },
-    {
-      "method": "Manual Dynamic Analysis",
-      "description": "Determine if there is a lack of a capability to update read-only memory (ROM) structure. This could manifest as a difference between the latest firmware version and the current version within the device.",
-      "effectiveness": "High"
-    }
-  ],
-  "related_attack_patterns": [
-    "682"
-  ],
-  "notes": [
-    {
-      "type": "Terminology",
-      "text": "The \"firmware\" term does not have a single commonly-shared definition, so there may be variations in how this CWE entry is interpreted during mapping."
-    }
-  ]
+	"id": "1277",
+	"name": "Firmware Not Updateable",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not provide its\n\t\t\tusers with the ability to update or patch its\n\t\t\tfirmware to address any vulnerabilities or\n\t\t\tweaknesses that may be present.",
+	"extended_description": "Without the ability to\n\t\t\tpatch or update firmware, consumers will be\n\t\t\tleft vulnerable to exploitation of any known\n\t\t\tvulnerabilities, or any vulnerabilities that\n\t\t\tare discovered in the future. This can expose\n\t\t\tconsumers to permanent risk throughout the\n\t\t\tentire lifetime of the device, which could be\n\t\t\tyears or decades. Some external protective\n\t\t\tmeasures and mitigations might be employed to\n\t\t\taid in preventing or reducing the risk of\n\t\t\tmalicious attack, but the root weakness cannot\n\t\t\tbe corrected.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1329",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Requirements",
+			"note": [
+				"Requirements development might not consider the importance of updates over the lifetime of the product, or might not choose the ability due to concerns such as expense or speed to market."
+			]
+		},
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"Lack of planning during architecture development and design, or external pressures such as speed to market, could ignore the capability to update."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"The weakness can appear through oversight during implementation."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Access Control",
+				"Authentication",
+				"Authorization"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity",
+				"Bypass Protection Mechanism",
+				"Execute Unauthorized Code or Commands",
+				"DoS: Crash, Exit, or Restart"
+			],
+			"note": "If an attacker can identify an exploitable vulnerability in one device that has no means of patching, the attack may be used against an entire class of devices.",
+			"likelihood": "Medium"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Requirements"
+			],
+			"description": [
+				"Specify requirements to include the ability to update the firmware. Include integrity checks and authentication to ensure that untrusted firmware cannot be installed."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Design the device to allow for updating the firmware. Ensure that the design specifies how to distribute the updates and ensure their integrity and authentication."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Implement the necessary functionality to allow the firmware to be updated."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-145",
+			"text": "\n\t\t\t\t\t<Intro_Text>A refrigerator has an Internet interface for the official purpose of alerting the manufacturer when that refrigerator detects a fault. Because the device is attached to the Internet, the refrigerator is a target for hackers who may wish to use the device other potentially more nefarious purposes.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Other\">The refrigerator has no means of patching and is hacked becoming a spewer of email spam.</Example_Code>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Other\">The device automatically patches itself and provides considerable more protection against being hacked.</Example_Code>\n\t\t\t\t"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2020-9054",
+			"description": "Chain: network-attached storage (NAS) device has a critical OS command injection (CWE-78) vulnerability that is actively exploited to place IoT devices into a botnet, but some products are \"end-of-support\" and cannot be patched (CWE-1277). [REF-1097]",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-9054"
+		},
+		{
+			"reference": "[REF-1095]",
+			"description": "A hardware \"smart lock\" has weak key generation that allows attackers to steal the key by BLE sniffing, but the device's firmware cannot be upgraded and hence remains vulnerable [REF-1095].",
+			"link": "https://www.theregister.com/2019/12/11/f_secure_keywe/"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1095",
+			"author": [
+				"Matthew Hughes"
+			],
+			"title": "Bad news: KeyWe Smart Lock is easily bypassed and can't be fixed",
+			"url": "https://www.theregister.com/2019/12/11/f_secure_keywe/",
+			"publication_year": "2019",
+			"publication_month": "--12",
+			"publication_day": "---11",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1096",
+			"author": [
+				"Alex Scroxton"
+			],
+			"title": "Alarm bells ring, the IoT is listening",
+			"url": "https://www.computerweekly.com/news/252475324/Alarm-bells-ring-the-IoT-is-listening"
+		},
+		{
+			"reference_id": "REF-1097",
+			"author": [
+				"Brian Krebs"
+			],
+			"title": "Zyxel Flaw Powers New Mirai IoT Botnet Strain",
+			"url": "https://krebsonsecurity.com/2020/03/zxyel-flaw-powers-new-mirai-iot-botnet-strain/",
+			"publication_year": "2020",
+			"publication_month": "--03",
+			"publication_day": "---20"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Paul A. Wortman",
+			"submission_organization": "Wells Fargo",
+			"submission_date": "2020-05-13"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Description, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Maintenance_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Demonstrative_Examples, Maintenance_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Common_Consequences, Description, Detection_Factors, Maintenance_Notes, Modes_of_Introduction, Observed_Examples, References, Relationships, Terminology_Notes, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Detection_Factors, Observed_Examples, Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Paul A. Wortman",
+				"contribution_organization": "Wells Fargo",
+				"contribution_date": "2021-10-12",
+				"contribution_comment": "provided detection methods and observed examples"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"method": "Manual Analysis",
+			"description": "Create a new installable boot image of the current build with a minor version number change. Use the standard installation method to update the boot image. Verify that the minor version number has changed. Create a fake image. Verify that the boot updater will not install the fake image and generates an \"invalid image\" error message or equivalent.",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Architecture or Design Review",
+			"description": "Check the consumer or maintainer documentation, the architecture/design documentation, or the original requirements to ensure that the documentation includes details for how to update the firmware.",
+			"effectiveness": "Moderate"
+		},
+		{
+			"method": "Manual Dynamic Analysis",
+			"description": "Determine if there is a lack of a capability to update read-only memory (ROM) structure. This could manifest as a difference between the latest firmware version and the current version within the device.",
+			"effectiveness": "High"
+		}
+	],
+	"related_attack_patterns": [
+		"682"
+	],
+	"notes": [
+		{
+			"type": "Terminology",
+			"text": "The \"firmware\" term does not have a single commonly-shared definition, so there may be variations in how this CWE entry is interpreted during mapping."
+		}
+	]
 }

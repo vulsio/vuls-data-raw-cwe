@@ -1,314 +1,314 @@
 {
-  "id": "299",
-  "name": "Improper Check for Certificate Revocation",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not check or incorrectly checks the revocation status of a certificate, which may cause it to use a certificate that has been compromised.",
-  "extended_description": "An improper check for certificate revocation is a far more serious flaw than related certificate failures. This is because the use of any revoked certificate is almost certainly malicious. The most common reason for certificate revocation is compromise of the system in question, with the result that no legitimate servers will be using a revoked certificate, unless they are sorely out of sync.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "295",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "404",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "When the product uses certificate pinning, the developer might not properly validate all relevant components of the certificate before pinning the certificate. This can make it difficult or expensive to test after the pinning is complete."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity"
-      ],
-      "note": "Trust may be assigned to an entity who is not who it claims to be."
-    },
-    {
-      "scope": [
-        "Integrity",
-        "Other"
-      ],
-      "impact": [
-        "Other"
-      ],
-      "note": "Data from an untrusted (and possibly malicious) source may be integrated."
-    },
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Application Data"
-      ],
-      "note": "Data may be disclosed to an entity impersonating a trusted entity, resulting in information disclosure."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Ensure that certificates are checked for revoked status."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "If certificate pinning is being used, ensure that all relevant properties of the certificate are fully validated before the certificate is pinned, including the revoked status."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-124",
-      "text": "\n               <Intro_Text>The following OpenSSL code ensures that there is a certificate before continuing execution.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>if (cert = SSL_get_peer_certificate(ssl)) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>// got a certificate, do secret things</xhtml:i>\n                           <xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>Because this code does not use SSL_get_verify_results() to check the certificate, it could accept certificates that have been revoked (X509_V_ERR_CERT_REVOKED). The product could be communicating with a malicious host.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2011-2014",
-      "description": "LDAP-over-SSL implementation does not check Certificate Revocation List (CRL), allowing spoofing using a revoked certificate.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2011-2014"
-    },
-    {
-      "reference": "CVE-2011-0199",
-      "description": "Operating system does not check Certificate Revocation List (CRL) in some cases, allowing spoofing using a revoked certificate.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2011-0199"
-    },
-    {
-      "reference": "CVE-2010-5185",
-      "description": "Antivirus product does not check whether certificates from signed executables have been revoked.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2010-5185"
-    },
-    {
-      "reference": "CVE-2009-3046",
-      "description": "Web browser does not check if any intermediate certificates are revoked.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-3046"
-    },
-    {
-      "reference": "CVE-2009-0161",
-      "description": "chain: Ruby module for OCSP misinterprets a response, preventing detection of a revoked certificate.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0161"
-    },
-    {
-      "reference": "CVE-2011-2701",
-      "description": "chain: incorrect parsing of replies from OCSP responders allows bypass using a revoked certificate.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2011-2701"
-    },
-    {
-      "reference": "CVE-2011-0935",
-      "description": "Router can permanently cache certain public keys, which would allow bypass if the certificate is later revoked.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2011-0935"
-    },
-    {
-      "reference": "CVE-2009-1358",
-      "description": "chain: OS package manager does not properly check the return value, allowing bypass using a revoked certificate.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1358"
-    },
-    {
-      "reference": "CVE-2009-0642",
-      "description": "chain: language interpreter does not properly check the return value from an OSCP function, allowing bypass using a revoked certificate.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-0642"
-    },
-    {
-      "reference": "CVE-2008-4679",
-      "description": "chain: web service component does not call the expected method, which prevents a check for revoked certificates.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4679"
-    },
-    {
-      "reference": "CVE-2006-4410",
-      "description": "Certificate revocation list not searched for certain certificates.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4410"
-    },
-    {
-      "reference": "CVE-2006-4409",
-      "description": "Product cannot access certificate revocation list when an HTTP proxy is being used.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4409"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    },
-    {
-      "section": "\"Sin 23: Improper Use of PKI, Especially SSL.\" Page 347",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Description, Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Observed_Examples, Other_Notes, Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-07-17",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Demonstrative_Examples, Modes_of_Introduction, Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated Modes_of_Introduction, Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Demonstrative_Examples, Description, Modes_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Failure to Check for Certificate Revocation",
-        "date": "2009-03-10"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Failure to check for certificate revocation"
-    }
-  ]
+	"id": "299",
+	"name": "Improper Check for Certificate Revocation",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not check or incorrectly checks the revocation status of a certificate, which may cause it to use a certificate that has been compromised.",
+	"extended_description": "An improper check for certificate revocation is a far more serious flaw than related certificate failures. This is because the use of any revoked certificate is almost certainly malicious. The most common reason for certificate revocation is compromise of the system in question, with the result that no legitimate servers will be using a revoked certificate, unless they are sorely out of sync.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "295",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "404",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"When the product uses certificate pinning, the developer might not properly validate all relevant components of the certificate before pinning the certificate. This can make it difficult or expensive to test after the pinning is complete."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity"
+			],
+			"note": "Trust may be assigned to an entity who is not who it claims to be."
+		},
+		{
+			"scope": [
+				"Integrity",
+				"Other"
+			],
+			"impact": [
+				"Other"
+			],
+			"note": "Data from an untrusted (and possibly malicious) source may be integrated."
+		},
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Application Data"
+			],
+			"note": "Data may be disclosed to an entity impersonating a trusted entity, resulting in information disclosure."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Ensure that certificates are checked for revoked status."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"If certificate pinning is being used, ensure that all relevant properties of the certificate are fully validated before the certificate is pinned, including the revoked status."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-124",
+			"text": "\n               <Intro_Text>The following OpenSSL code ensures that there is a certificate before continuing execution.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>if (cert = SSL_get_peer_certificate(ssl)) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>// got a certificate, do secret things</xhtml:i>\n                           <xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>Because this code does not use SSL_get_verify_results() to check the certificate, it could accept certificates that have been revoked (X509_V_ERR_CERT_REVOKED). The product could be communicating with a malicious host.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2011-2014",
+			"description": "LDAP-over-SSL implementation does not check Certificate Revocation List (CRL), allowing spoofing using a revoked certificate.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2011-2014"
+		},
+		{
+			"reference": "CVE-2011-0199",
+			"description": "Operating system does not check Certificate Revocation List (CRL) in some cases, allowing spoofing using a revoked certificate.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2011-0199"
+		},
+		{
+			"reference": "CVE-2010-5185",
+			"description": "Antivirus product does not check whether certificates from signed executables have been revoked.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2010-5185"
+		},
+		{
+			"reference": "CVE-2009-3046",
+			"description": "Web browser does not check if any intermediate certificates are revoked.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-3046"
+		},
+		{
+			"reference": "CVE-2009-0161",
+			"description": "chain: Ruby module for OCSP misinterprets a response, preventing detection of a revoked certificate.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-0161"
+		},
+		{
+			"reference": "CVE-2011-2701",
+			"description": "chain: incorrect parsing of replies from OCSP responders allows bypass using a revoked certificate.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2011-2701"
+		},
+		{
+			"reference": "CVE-2011-0935",
+			"description": "Router can permanently cache certain public keys, which would allow bypass if the certificate is later revoked.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2011-0935"
+		},
+		{
+			"reference": "CVE-2009-1358",
+			"description": "chain: OS package manager does not properly check the return value, allowing bypass using a revoked certificate.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-1358"
+		},
+		{
+			"reference": "CVE-2009-0642",
+			"description": "chain: language interpreter does not properly check the return value from an OSCP function, allowing bypass using a revoked certificate.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-0642"
+		},
+		{
+			"reference": "CVE-2008-4679",
+			"description": "chain: web service component does not call the expected method, which prevents a check for revoked certificates.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-4679"
+		},
+		{
+			"reference": "CVE-2006-4410",
+			"description": "Certificate revocation list not searched for certain certificates.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-4410"
+		},
+		{
+			"reference": "CVE-2006-4409",
+			"description": "Product cannot access certificate revocation list when an HTTP proxy is being used.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-4409"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		},
+		{
+			"section": "\"Sin 23: Improper Use of PKI, Especially SSL.\" Page 347",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Description, Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Observed_Examples, Other_Notes, Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-07-17",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Demonstrative_Examples, Modes_of_Introduction, Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated Modes_of_Introduction, Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Demonstrative_Examples, Description, Modes_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Failure to Check for Certificate Revocation",
+				"date": "2009-03-10"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Failure to check for certificate revocation"
+		}
+	]
 }

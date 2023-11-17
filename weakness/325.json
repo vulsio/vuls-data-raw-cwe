@@ -1,282 +1,282 @@
 {
-  "id": "325",
-  "name": "Missing Cryptographic Step",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not implement a required step in a cryptographic algorithm, resulting in weaker encryption than advertised by the algorithm.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "573",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "358",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "Developers sometimes omit \"expensive\" (resource-intensive) steps in order to improve performance, especially in devices with limited memory or slower CPUs. This step may be taken under a mistaken impression that the step is unnecessary for the cryptographic algorithm.\n               "
-      ]
-    },
-    {
-      "phase": "Requirements",
-      "note": [
-        "This issue may happen when the requirements for the cryptographic algorithm are not clearly stated.\n               "
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism"
-      ]
-    },
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity"
-      ],
-      "impact": [
-        "Read Application Data",
-        "Modify Application Data"
-      ]
-    },
-    {
-      "scope": [
-        "Accountability",
-        "Non-Repudiation"
-      ],
-      "impact": [
-        "Hide Activities"
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The example code is taken from the HMAC engine inside the buggy OpenPiton SoC of HACK@DAC'21 [REF-1358]. HAMC is a message authentication code (MAC) that uses both a hash and a secret crypto key. The HMAC engine in HACK@DAC SoC uses the SHA-256 module for the calculation of the HMAC for 512 bits messages.  </Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n               <xhtml:b>logic [511:0] bigData;</xhtml:b><xhtml:br/>\n               ...<xhtml:br/>\n               <xhtml:br/>\n               hmac hmac(<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                  .clk_i(clk_i),<xhtml:br/>\n                  .rst_ni(rst_ni &amp;&amp; ~rst_4),<xhtml:br/>\n                  .init_i(startHash &amp;&amp; ~startHash_r),<xhtml:br/>\n                  .key_i(key),<xhtml:br/>\n                  .ikey_hash_i(ikey_hash), <xhtml:br/>\n                  .okey_hash_i(okey_hash), <xhtml:br/>\n                  .key_hash_bypass_i(key_hash_bypass),<xhtml:br/>\n                  <xhtml:b>.message_i(bigData),</xhtml:b><xhtml:br/>\n                  .hash_o(hash),<xhtml:br/>\n                  .ready_o(ready),<xhtml:br/>\n                  .hash_valid_o(hashValid)<xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n\t\t\t   <Body_Text>However, this HMAC engine cannot handle messages that are longer than 512 bits. Moreover, a complete HMAC will contain an iterate hash function that breaks up a message into blocks of a fixed size and iterates over them with a compression function (e.g., SHA-256). Therefore, the implementation of the HMAC in OpenPiton SoC is incomplete. Such HMAC engines will not be used in real-world applications as the messages will usually be longer than 512 bits. For instance, OpenTitan offers a comprehensive HMAC implementation that utilizes a FIFO for temporarily storing the truncated message, as detailed in [REF-1359].</Body_Text>\n               <Body_Text>To mitigate this, implement the iterative function to break up a message into blocks of a fixed size.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2001-1585",
-      "description": "Missing challenge-response step allows authentication bypass using public key.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1585"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1358",
-      "title": "hmac_wrapper.sv",
-      "url": "https://github.com/HACK-EVENT/hackatdac21/blob/main/piton/design/chip/tile/ariane/src/hmac/hmac_wrapper.sv#L41",
-      "publication_year": "2021",
-      "url_date": "2023-07-15"
-    },
-    {
-      "reference_id": "REF-1359",
-      "title": "HMAC HWIP Technical Specification",
-      "url": "https://opentitan.org/book/hw/ip/hmac/",
-      "publication_year": "2023",
-      "url_date": "2023-10-05"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Functional_Areas, Modes_of_Introduction, Relationships, Observed_Example, Relationship_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Applicable_Platforms, Description, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Common_Consequences, Description, Modes_of_Introduction, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Demonstrative_Examples, References"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Missing Required Cryptographic Step",
-        "date": "2020-08-20"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "Chen Chen",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Rahul Kande",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Jeyavijayan Rajendran",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Shaza Zeitoni",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Mohamadreza Rostami",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Ahmad-Reza Sadeghi",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Missing Required Cryptographic Step"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2007",
-      "entry_name": "Insecure Cryptographic Storage",
-      "entry_id": "A8",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2007",
-      "entry_name": "Insecure Communications",
-      "entry_id": "A9",
-      "mapping_fit": "CWE More Specific"
-    }
-  ],
-  "related_attack_patterns": [
-    "68"
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "Overlaps incomplete/missing security check."
-    },
-    {
-      "type": "Relationship",
-      "text": "Can be resultant."
-    }
-  ],
-  "functional_areas": [
-    "Cryptography"
-  ]
+	"id": "325",
+	"name": "Missing Cryptographic Step",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not implement a required step in a cryptographic algorithm, resulting in weaker encryption than advertised by the algorithm.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "573",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "358",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"Developers sometimes omit \"expensive\" (resource-intensive) steps in order to improve performance, especially in devices with limited memory or slower CPUs. This step may be taken under a mistaken impression that the step is unnecessary for the cryptographic algorithm.\n               "
+			]
+		},
+		{
+			"phase": "Requirements",
+			"note": [
+				"This issue may happen when the requirements for the cryptographic algorithm are not clearly stated.\n               "
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			]
+		},
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity"
+			],
+			"impact": [
+				"Read Application Data",
+				"Modify Application Data"
+			]
+		},
+		{
+			"scope": [
+				"Accountability",
+				"Non-Repudiation"
+			],
+			"impact": [
+				"Hide Activities"
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The example code is taken from the HMAC engine inside the buggy OpenPiton SoC of HACK@DAC'21 [REF-1358]. HAMC is a message authentication code (MAC) that uses both a hash and a secret crypto key. The HMAC engine in HACK@DAC SoC uses the SHA-256 module for the calculation of the HMAC for 512 bits messages.  </Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n               <xhtml:b>logic [511:0] bigData;</xhtml:b><xhtml:br/>\n               ...<xhtml:br/>\n               <xhtml:br/>\n               hmac hmac(<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                  .clk_i(clk_i),<xhtml:br/>\n                  .rst_ni(rst_ni &amp;&amp; ~rst_4),<xhtml:br/>\n                  .init_i(startHash &amp;&amp; ~startHash_r),<xhtml:br/>\n                  .key_i(key),<xhtml:br/>\n                  .ikey_hash_i(ikey_hash), <xhtml:br/>\n                  .okey_hash_i(okey_hash), <xhtml:br/>\n                  .key_hash_bypass_i(key_hash_bypass),<xhtml:br/>\n                  <xhtml:b>.message_i(bigData),</xhtml:b><xhtml:br/>\n                  .hash_o(hash),<xhtml:br/>\n                  .ready_o(ready),<xhtml:br/>\n                  .hash_valid_o(hashValid)<xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n\t\t\t   <Body_Text>However, this HMAC engine cannot handle messages that are longer than 512 bits. Moreover, a complete HMAC will contain an iterate hash function that breaks up a message into blocks of a fixed size and iterates over them with a compression function (e.g., SHA-256). Therefore, the implementation of the HMAC in OpenPiton SoC is incomplete. Such HMAC engines will not be used in real-world applications as the messages will usually be longer than 512 bits. For instance, OpenTitan offers a comprehensive HMAC implementation that utilizes a FIFO for temporarily storing the truncated message, as detailed in [REF-1359].</Body_Text>\n               <Body_Text>To mitigate this, implement the iterative function to break up a message into blocks of a fixed size.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2001-1585",
+			"description": "Missing challenge-response step allows authentication bypass using public key.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1585"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1358",
+			"title": "hmac_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/main/piton/design/chip/tile/ariane/src/hmac/hmac_wrapper.sv#L41",
+			"publication_year": "2021",
+			"url_date": "2023-07-15"
+		},
+		{
+			"reference_id": "REF-1359",
+			"title": "HMAC HWIP Technical Specification",
+			"url": "https://opentitan.org/book/hw/ip/hmac/",
+			"publication_year": "2023",
+			"url_date": "2023-10-05"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Functional_Areas, Modes_of_Introduction, Relationships, Observed_Example, Relationship_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Applicable_Platforms, Description, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Common_Consequences, Description, Modes_of_Introduction, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Demonstrative_Examples, References"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Missing Required Cryptographic Step",
+				"date": "2020-08-20"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Rahul Kande",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitoni",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Mohamadreza Rostami",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Missing Required Cryptographic Step"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2007",
+			"entry_name": "Insecure Cryptographic Storage",
+			"entry_id": "A8",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2007",
+			"entry_name": "Insecure Communications",
+			"entry_id": "A9",
+			"mapping_fit": "CWE More Specific"
+		}
+	],
+	"related_attack_patterns": [
+		"68"
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "Overlaps incomplete/missing security check."
+		},
+		{
+			"type": "Relationship",
+			"text": "Can be resultant."
+		}
+	],
+	"functional_areas": [
+		"Cryptography"
+	]
 }

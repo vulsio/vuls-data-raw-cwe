@@ -1,213 +1,213 @@
 {
-  "id": "1341",
-  "name": "Multiple Releases of Same Resource or Handle",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product attempts to close or release a resource or handle more than once, without any successful open between the close operations.",
-  "extended_description": "\n\t\t\t  <xhtml:p>Code typically requires \"opening\" handles or references to resources such as memory, files, devices, socket connections, services, etc. When the code is finished with using the resource, it is typically expected to \"close\" or \"release\" the resource, which indicates to the environment (such as the OS) that the resource can be re-assigned or reused by unrelated processes or actors - or in some cases, within the same process. API functions or other abstractions are often used to perform this release, such as free() or delete() within C/C++, or file-handle close() operations that are used in many languages.</xhtml:p>\n\t\t\t  <xhtml:p>Unfortunately, the implementation or design of such APIs might expect the developer to be responsible for ensuring that such APIs are only called once per release of the resource. If the developer attempts to release the same resource/handle more than once, then the API's expectations are not met, resulting in undefined and/or insecure behavior. This could lead to consequences such as memory corruption, data corruption, execution path corruption, or other consequences.</xhtml:p>\n\t\t\t  <xhtml:p>Note that while the implementation for most (if not all) resource reservation allocations involve a unique identifier/pointer/symbolic reference, then if this identifier is reused, checking the identifier for resource closure may result in a false state of openness and closing of the wrong resource. For this reason, reuse of identifiers is discouraged.</xhtml:p>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "675",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "672",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Rust"
-      },
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability",
-        "Integrity"
-      ],
-      "impact": [
-        "DoS: Crash, Exit, or Restart"
-      ],
-      "likelihood": "Medium"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Change the code's logic so that the resource is only closed once. This might require simplifying or refactoring. This fix can be simple to do in small code blocks, but more difficult when multiple closes are buried within complex conditionals."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "It can be effective to implement a flag that is (1) set when the resource is opened, (2) cleared when it is closed, and (3) checked before closing. This approach can be useful when there are disparate cases in which closes must be performed. However, flag-tracking can increase code complexity and requires diligent compliance by the programmer."
-      ],
-      "strategy": "Refactoring"
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "When closing a resource, set the resource's associated variable to NULL or equivalent value for the given language. Some APIs will ignore this null value without causing errors. For other APIs, this can lead to application crashes or exceptions, which may still be preferable to corrupting an unintended resource such as memory or data."
-      ],
-      "effectiveness": "Defense in Depth",
-      "strategy": "Refactoring"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>This example attempts to close a file twice. In some cases, the C library fclose() function will catch the error and return an error code. In other implementations, a double-free (CWE-415) occurs, causing the program to fault. Note that the examples presented here are simplistic, and double fclose() calls will frequently be spread around a program, making them more difficult to find during code reviews.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"C\">\nchar b[2000];<xhtml:br/>\nFILE *f = fopen(\"dbl_cls.c\", \"r\");<xhtml:br/>\nif (f)<xhtml:br/>\n{<xhtml:br/>\n\t<xhtml:div style=\"margin-left:1em;\">b[0] = 0;<xhtml:br/>\n\tfread(b, 1, sizeof(b) - 1, f);<xhtml:br/>\n\tprintf(\"%s\\n'\", b);<xhtml:br/>\n\tint r1 = fclose(f);<xhtml:br/>\n\tprintf(\"\\n-----------------\\n1 close done '%d'\\n\", r1);<xhtml:br/><xhtml:br/>\n\tint r2 = fclose(f);\t// Double close<xhtml:br/>\n\tprintf(\"2 close done '%d'\\n\", r2);</xhtml:div>\n}\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>There are multiple possible fixes. This fix only has one call to fclose(), which is typically the preferred handling of this problem - but this simplistic method is not always possible.<xhtml:br/>\n\t\t\t\t\t</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"C\">\nchar b[2000];<xhtml:br/>\nFILE *f = fopen(\"dbl_cls.c\", \"r\");<xhtml:br/>\nif (f)<xhtml:br/>\n{<xhtml:br/>\n\t<xhtml:div style=\"margin-left:1em;\">b[0] = 0;<xhtml:br/>\n\tfread(b, 1, sizeof(b) - 1, f);<xhtml:br/>\n\tprintf(\"%s\\n'\", b);<xhtml:br/>\n\tint r = fclose(f);<xhtml:br/>\n\tprintf(\"\\n-----------------\\n1 close done '%d'\\n\", r);</xhtml:div>\n}\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>This fix uses a flag to call fclose() only once. Note that this flag is explicit. The variable \"f\" could also have been used as it will be either NULL if the file is not able to be opened or a valid pointer if the file was successfully opened. If \"f\" is replacing \"f_flg\" then \"f\" would need to be set to NULL after the first fclose() call so the second fclose call would never be executed.<xhtml:br/>\n\t\t\t\t\t</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"C\">\nchar b[2000];<xhtml:br/>\nint f_flg = 0;<xhtml:br/>\nFILE *f = fopen(\"dbl_cls.c\", \"r\");<xhtml:br/>\nif (f)<xhtml:br/>\n{<xhtml:br/>\n\t<xhtml:div style=\"margin-left:1em;\">f_flg = 1;<xhtml:br/>\n\tb[0] = 0;<xhtml:br/>\n\tfread(b, 1, sizeof(b) - 1, f);<xhtml:br/>\n\tprintf(\"%s\\n'\", b);<xhtml:br/>\n\tif (f_flg)<xhtml:br/>\n\t{<xhtml:br/>\n\t\t<xhtml:div style=\"margin-left:1em;\">int r1 = fclose(f);<xhtml:br/>\n\t\tf_flg = 0;<xhtml:br/>\n\t\tprintf(\"\\n-----------------\\n1 close done '%d'\\n\", r1);</xhtml:div><xhtml:br/>\n\t}<xhtml:br/><xhtml:br/>\n\tif (f_flg)<xhtml:br/>\n\t{<xhtml:br/>\n\t\t<xhtml:div style=\"margin-left:1em;\">int r2 = fclose(f);\t// Double close<xhtml:br/>\n\t\tf_flg = 0;<xhtml:br/>\n\t\tprintf(\"2 close done '%d'\\n\", r2);</xhtml:div><xhtml:br/>\n\t}</xhtml:div><xhtml:br/>\n}\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
-    },
-    {
-      "demonstrative_example_id": "DX-149",
-      "text": "\n               <Intro_Text>The following code shows a simple example of a double free vulnerability.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char* ptr = (char*)malloc (SIZE);<xhtml:br/>...<xhtml:br/>if (abrt) {<xhtml:div style=\"margin-left:1em;\">free(ptr);</xhtml:div>}<xhtml:br/>...<xhtml:br/>free(ptr);</xhtml:div>\n               </Example_Code>\n               <Body_Text>Double free vulnerabilities have two common (and sometimes overlapping) causes:</Body_Text>\n               <Body_Text>\n                  <xhtml:ul>\n                     <xhtml:li>\n                        <xhtml:div>Error conditions and other exceptional circumstances</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>Confusion over which part of the program is responsible for freeing the memory</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ul>\n               </Body_Text>\n               <Body_Text>Although some double free vulnerabilities are not much more complicated than this example, most are spread out across hundreds of lines of code or even different files. Programmers seem particularly susceptible to freeing global variables more than once.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2019-13351",
-      "description": "file descriptor double close can cause the wrong file to be associated with a file descriptor.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2019-13351"
-    },
-    {
-      "reference": "CVE-2006-5051",
-      "description": "Chain: Signal handler contains too much functionality (CWE-828), introducing a race condition that leads to a double free (CWE-415).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-5051"
-    },
-    {
-      "reference": "CVE-2004-0772",
-      "description": "Double free resultant from certain error conditions.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0772"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1198",
-      "title": "close - Perldoc Browser",
-      "url": "https://perldoc.perl.org/functions/close"
-    },
-    {
-      "reference_id": "REF-1199",
-      "title": "io - Core tools for working with streams — Python 3.9.7 documentation",
-      "url": "https://docs.python.org/3.9/library/io.html#io.IOBase.close",
-      "publication_year": "2021",
-      "publication_month": "--09",
-      "publication_day": "---02"
-    },
-    {
-      "reference_id": "REF-1200",
-      "title": "FileOutputStream (Java Platform SE 7 )",
-      "url": "https://docs.oracle.com/javase/7/docs/api/java/io/FileOutputStream.html",
-      "publication_year": "2020"
-    },
-    {
-      "reference_id": "REF-1201",
-      "title": "FileOutputStream (Java SE 11 & JDK 11 )",
-      "url": "https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/FileOutputStream.html",
-      "publication_year": "2021"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2021-09-07"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Demonstrative_Examples, Description, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "method": "Automated Static Analysis",
-      "description": "For commonly-used APIs and resource types, automated tools often have signatures that can spot this issue."
-    },
-    {
-      "method": "Automated Dynamic Analysis",
-      "description": "Some compiler instrumentation tools such as AddressSanitizer (ASan) can indirectly detect some instances of this weakness."
-    }
-  ],
-  "notes": [
-    {
-      "type": "Terminology",
-      "text": "The terms related to \"release\"  may vary depending on the type of resource, programming language, specification, or framework. \"Close\" has been used synonymously for the release of resources like file descriptors and file handles. \"Return\" is sometimes used instead of Release. \"Free\" is typically used when releasing memory or buffers back into the system for reuse.\n\t\t\t  "
-    }
-  ]
+	"id": "1341",
+	"name": "Multiple Releases of Same Resource or Handle",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product attempts to close or release a resource or handle more than once, without any successful open between the close operations.",
+	"extended_description": "\n\t\t\t  <xhtml:p>Code typically requires \"opening\" handles or references to resources such as memory, files, devices, socket connections, services, etc. When the code is finished with using the resource, it is typically expected to \"close\" or \"release\" the resource, which indicates to the environment (such as the OS) that the resource can be re-assigned or reused by unrelated processes or actors - or in some cases, within the same process. API functions or other abstractions are often used to perform this release, such as free() or delete() within C/C++, or file-handle close() operations that are used in many languages.</xhtml:p>\n\t\t\t  <xhtml:p>Unfortunately, the implementation or design of such APIs might expect the developer to be responsible for ensuring that such APIs are only called once per release of the resource. If the developer attempts to release the same resource/handle more than once, then the API's expectations are not met, resulting in undefined and/or insecure behavior. This could lead to consequences such as memory corruption, data corruption, execution path corruption, or other consequences.</xhtml:p>\n\t\t\t  <xhtml:p>Note that while the implementation for most (if not all) resource reservation allocations involve a unique identifier/pointer/symbolic reference, then if this identifier is reused, checking the identifier for resource closure may result in a false state of openness and closing of the wrong resource. For this reason, reuse of identifiers is discouraged.</xhtml:p>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "675",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "672",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Rust"
+			},
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability",
+				"Integrity"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart"
+			],
+			"likelihood": "Medium"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Change the code's logic so that the resource is only closed once. This might require simplifying or refactoring. This fix can be simple to do in small code blocks, but more difficult when multiple closes are buried within complex conditionals."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"It can be effective to implement a flag that is (1) set when the resource is opened, (2) cleared when it is closed, and (3) checked before closing. This approach can be useful when there are disparate cases in which closes must be performed. However, flag-tracking can increase code complexity and requires diligent compliance by the programmer."
+			],
+			"strategy": "Refactoring"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"When closing a resource, set the resource's associated variable to NULL or equivalent value for the given language. Some APIs will ignore this null value without causing errors. For other APIs, this can lead to application crashes or exceptions, which may still be preferable to corrupting an unintended resource such as memory or data."
+			],
+			"effectiveness": "Defense in Depth",
+			"strategy": "Refactoring"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>This example attempts to close a file twice. In some cases, the C library fclose() function will catch the error and return an error code. In other implementations, a double-free (CWE-415) occurs, causing the program to fault. Note that the examples presented here are simplistic, and double fclose() calls will frequently be spread around a program, making them more difficult to find during code reviews.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"C\">\nchar b[2000];<xhtml:br/>\nFILE *f = fopen(\"dbl_cls.c\", \"r\");<xhtml:br/>\nif (f)<xhtml:br/>\n{<xhtml:br/>\n\t<xhtml:div style=\"margin-left:1em;\">b[0] = 0;<xhtml:br/>\n\tfread(b, 1, sizeof(b) - 1, f);<xhtml:br/>\n\tprintf(\"%s\\n'\", b);<xhtml:br/>\n\tint r1 = fclose(f);<xhtml:br/>\n\tprintf(\"\\n-----------------\\n1 close done '%d'\\n\", r1);<xhtml:br/><xhtml:br/>\n\tint r2 = fclose(f);\t// Double close<xhtml:br/>\n\tprintf(\"2 close done '%d'\\n\", r2);</xhtml:div>\n}\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>There are multiple possible fixes. This fix only has one call to fclose(), which is typically the preferred handling of this problem - but this simplistic method is not always possible.<xhtml:br/>\n\t\t\t\t\t</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"C\">\nchar b[2000];<xhtml:br/>\nFILE *f = fopen(\"dbl_cls.c\", \"r\");<xhtml:br/>\nif (f)<xhtml:br/>\n{<xhtml:br/>\n\t<xhtml:div style=\"margin-left:1em;\">b[0] = 0;<xhtml:br/>\n\tfread(b, 1, sizeof(b) - 1, f);<xhtml:br/>\n\tprintf(\"%s\\n'\", b);<xhtml:br/>\n\tint r = fclose(f);<xhtml:br/>\n\tprintf(\"\\n-----------------\\n1 close done '%d'\\n\", r);</xhtml:div>\n}\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>This fix uses a flag to call fclose() only once. Note that this flag is explicit. The variable \"f\" could also have been used as it will be either NULL if the file is not able to be opened or a valid pointer if the file was successfully opened. If \"f\" is replacing \"f_flg\" then \"f\" would need to be set to NULL after the first fclose() call so the second fclose call would never be executed.<xhtml:br/>\n\t\t\t\t\t</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"C\">\nchar b[2000];<xhtml:br/>\nint f_flg = 0;<xhtml:br/>\nFILE *f = fopen(\"dbl_cls.c\", \"r\");<xhtml:br/>\nif (f)<xhtml:br/>\n{<xhtml:br/>\n\t<xhtml:div style=\"margin-left:1em;\">f_flg = 1;<xhtml:br/>\n\tb[0] = 0;<xhtml:br/>\n\tfread(b, 1, sizeof(b) - 1, f);<xhtml:br/>\n\tprintf(\"%s\\n'\", b);<xhtml:br/>\n\tif (f_flg)<xhtml:br/>\n\t{<xhtml:br/>\n\t\t<xhtml:div style=\"margin-left:1em;\">int r1 = fclose(f);<xhtml:br/>\n\t\tf_flg = 0;<xhtml:br/>\n\t\tprintf(\"\\n-----------------\\n1 close done '%d'\\n\", r1);</xhtml:div><xhtml:br/>\n\t}<xhtml:br/><xhtml:br/>\n\tif (f_flg)<xhtml:br/>\n\t{<xhtml:br/>\n\t\t<xhtml:div style=\"margin-left:1em;\">int r2 = fclose(f);\t// Double close<xhtml:br/>\n\t\tf_flg = 0;<xhtml:br/>\n\t\tprintf(\"2 close done '%d'\\n\", r2);</xhtml:div><xhtml:br/>\n\t}</xhtml:div><xhtml:br/>\n}\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
+		},
+		{
+			"demonstrative_example_id": "DX-149",
+			"text": "\n               <Intro_Text>The following code shows a simple example of a double free vulnerability.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char* ptr = (char*)malloc (SIZE);<xhtml:br/>...<xhtml:br/>if (abrt) {<xhtml:div style=\"margin-left:1em;\">free(ptr);</xhtml:div>}<xhtml:br/>...<xhtml:br/>free(ptr);</xhtml:div>\n               </Example_Code>\n               <Body_Text>Double free vulnerabilities have two common (and sometimes overlapping) causes:</Body_Text>\n               <Body_Text>\n                  <xhtml:ul>\n                     <xhtml:li>\n                        <xhtml:div>Error conditions and other exceptional circumstances</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>Confusion over which part of the program is responsible for freeing the memory</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ul>\n               </Body_Text>\n               <Body_Text>Although some double free vulnerabilities are not much more complicated than this example, most are spread out across hundreds of lines of code or even different files. Programmers seem particularly susceptible to freeing global variables more than once.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2019-13351",
+			"description": "file descriptor double close can cause the wrong file to be associated with a file descriptor.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-13351"
+		},
+		{
+			"reference": "CVE-2006-5051",
+			"description": "Chain: Signal handler contains too much functionality (CWE-828), introducing a race condition that leads to a double free (CWE-415).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-5051"
+		},
+		{
+			"reference": "CVE-2004-0772",
+			"description": "Double free resultant from certain error conditions.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0772"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1198",
+			"title": "close - Perldoc Browser",
+			"url": "https://perldoc.perl.org/functions/close"
+		},
+		{
+			"reference_id": "REF-1199",
+			"title": "io - Core tools for working with streams — Python 3.9.7 documentation",
+			"url": "https://docs.python.org/3.9/library/io.html#io.IOBase.close",
+			"publication_year": "2021",
+			"publication_month": "--09",
+			"publication_day": "---02"
+		},
+		{
+			"reference_id": "REF-1200",
+			"title": "FileOutputStream (Java Platform SE 7 )",
+			"url": "https://docs.oracle.com/javase/7/docs/api/java/io/FileOutputStream.html",
+			"publication_year": "2020"
+		},
+		{
+			"reference_id": "REF-1201",
+			"title": "FileOutputStream (Java SE 11 & JDK 11 )",
+			"url": "https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/io/FileOutputStream.html",
+			"publication_year": "2021"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2021-09-07"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Demonstrative_Examples, Description, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"method": "Automated Static Analysis",
+			"description": "For commonly-used APIs and resource types, automated tools often have signatures that can spot this issue."
+		},
+		{
+			"method": "Automated Dynamic Analysis",
+			"description": "Some compiler instrumentation tools such as AddressSanitizer (ASan) can indirectly detect some instances of this weakness."
+		}
+	],
+	"notes": [
+		{
+			"type": "Terminology",
+			"text": "The terms related to \"release\"  may vary depending on the type of resource, programming language, specification, or framework. \"Close\" has been used synonymously for the release of resources like file descriptors and file handles. \"Return\" is sometimes used instead of Release. \"Free\" is typically used when releasing memory or buffers back into the system for reuse.\n\t\t\t  "
+		}
+	]
 }

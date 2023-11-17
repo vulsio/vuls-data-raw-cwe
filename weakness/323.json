@@ -1,171 +1,171 @@
 {
-  "id": "323",
-  "name": "Reusing a Nonce, Key Pair in Encryption",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "Nonces should be used for the present occasion and only once.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "344",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "background_details": [
-    "Nonces are often bundled with a key in a communication exchange to produce a new session key for each exchange."
-  ],
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism",
-        "Gain Privileges or Assume Identity"
-      ],
-      "note": "Potentially a replay attack, in which an attacker could send the same data twice, could be crafted if nonces are allowed to be reused. This could allow a user to send a message which masquerades as a valid message from a valid user."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Refuse to reuse nonce values."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Use techniques such as requiring incrementing, time based and/or challenge response to assure uniqueness of nonces."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>This code takes a password, concatenates it with a nonce, then encrypts it before sending over a network:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void encryptAndSendPassword(char *password){<xhtml:div style=\"margin-left:1em;\">char *nonce = \"bad\";<xhtml:br/>...<xhtml:br/>char *data = (unsigned char*)malloc(20);<xhtml:br/>int para_size = strlen(nonce) + strlen(password);<xhtml:br/>char *paragraph = (char*)malloc(para_size);<xhtml:br/>SHA1((const unsigned char*)paragraph,parsize,(unsigned char*)data);<xhtml:br/>sendEncryptedData(data)</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because the nonce used is always the same, an attacker can impersonate a trusted party by intercepting and resending the encrypted password. This attack avoids the need to learn the unencrypted password.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>This code sends a command to a remote server, using an encrypted password and nonce to prove the command is from a trusted party:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>String command = new String(\"some command to execute\");<xhtml:br/>MessageDigest nonce = MessageDigest.getInstance(\"SHA\");<xhtml:br/>nonce.update(String.valueOf(\"bad nonce\"));<xhtml:br/>byte[] nonce = nonce.digest();<xhtml:br/>MessageDigest password = MessageDigest.getInstance(\"SHA\");<xhtml:br/>password.update(nonce + \"secretPassword\");<xhtml:br/>byte[] digest = password.digest();<xhtml:br/>sendCommand(digest, command)</xhtml:div>\n               </Example_Code>\n               <Body_Text>Once again the nonce used is always the same. An attacker may be able to replay previous legitimate commands or execute new arbitrary commands.</Body_Text>\n            "
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Background_Details, Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Reusing a nonce, key pair in encryption"
-    }
-  ]
+	"id": "323",
+	"name": "Reusing a Nonce, Key Pair in Encryption",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "Nonces should be used for the present occasion and only once.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "344",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"background_details": [
+		"Nonces are often bundled with a key in a communication exchange to produce a new session key for each exchange."
+	],
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Bypass Protection Mechanism",
+				"Gain Privileges or Assume Identity"
+			],
+			"note": "Potentially a replay attack, in which an attacker could send the same data twice, could be crafted if nonces are allowed to be reused. This could allow a user to send a message which masquerades as a valid message from a valid user."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Refuse to reuse nonce values."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Use techniques such as requiring incrementing, time based and/or challenge response to assure uniqueness of nonces."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>This code takes a password, concatenates it with a nonce, then encrypts it before sending over a network:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void encryptAndSendPassword(char *password){<xhtml:div style=\"margin-left:1em;\">char *nonce = \"bad\";<xhtml:br/>...<xhtml:br/>char *data = (unsigned char*)malloc(20);<xhtml:br/>int para_size = strlen(nonce) + strlen(password);<xhtml:br/>char *paragraph = (char*)malloc(para_size);<xhtml:br/>SHA1((const unsigned char*)paragraph,parsize,(unsigned char*)data);<xhtml:br/>sendEncryptedData(data)</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because the nonce used is always the same, an attacker can impersonate a trusted party by intercepting and resending the encrypted password. This attack avoids the need to learn the unencrypted password.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>This code sends a command to a remote server, using an encrypted password and nonce to prove the command is from a trusted party:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>String command = new String(\"some command to execute\");<xhtml:br/>MessageDigest nonce = MessageDigest.getInstance(\"SHA\");<xhtml:br/>nonce.update(String.valueOf(\"bad nonce\"));<xhtml:br/>byte[] nonce = nonce.digest();<xhtml:br/>MessageDigest password = MessageDigest.getInstance(\"SHA\");<xhtml:br/>password.update(nonce + \"secretPassword\");<xhtml:br/>byte[] digest = password.digest();<xhtml:br/>sendCommand(digest, command)</xhtml:div>\n               </Example_Code>\n               <Body_Text>Once again the nonce used is always the same. An attacker may be able to replay previous legitimate commands or execute new arbitrary commands.</Body_Text>\n            "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Background_Details, Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Reusing a nonce, key pair in encryption"
+		}
+	]
 }

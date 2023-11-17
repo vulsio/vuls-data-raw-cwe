@@ -1,322 +1,322 @@
 {
-  "id": "346",
-  "name": "Origin Validation Error",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not properly verify that the source of data or communication is valid.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "345",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "345",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "284",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control",
-        "Other"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity",
-        "Varies by Context"
-      ],
-      "note": "An attacker can access any functionality that is inadvertently accessible to the source."
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-112",
-      "text": "\n               <Intro_Text>This Android application will remove a user account when it receives an intent to do so:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>IntentFilter filter = new IntentFilter(\"com.example.RemoveUser\");<xhtml:br/>MyReceiver receiver = new MyReceiver();<xhtml:br/>registerReceiver(receiver, filter);<xhtml:br/>\n                     <xhtml:br/>public class DeleteReceiver extends BroadcastReceiver {<xhtml:div style=\"margin-left:1em;\">@Override<xhtml:br/>public void onReceive(Context context, Intent intent) {<xhtml:div style=\"margin-left:1em;\">int userID = intent.getIntExtra(\"userID\");<xhtml:br/>destroyUserData(userID);</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This application does not check the origin of the intent, thus allowing any malicious application to remove a user. Always check the origin of an intent, or create an allowlist of trusted applications using the manifest.xml file.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-109",
-      "text": "\n               <Intro_Text>These Android and iOS applications intercept URL loading within a WebView and perform special actions if a particular URL scheme is used, thus allowing the Javascript within the WebView to communicate with the application:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>\n                     <xhtml:i>// Android</xhtml:i>\n                     <xhtml:br/>@Override<xhtml:br/>public boolean shouldOverrideUrlLoading(WebView view, String url){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if (url.substring(0,14).equalsIgnoreCase(\"examplescheme:\")){<xhtml:div style=\"margin-left:1em;\">if(url.substring(14,25).equalsIgnoreCase(\"getUserInfo\")){<xhtml:div style=\"margin-left:1em;\">writeDataToView(view, UserData);<xhtml:br/>return false;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">return true;</xhtml:div>}</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Objective-C\">\n                  <xhtml:div>\n                     <xhtml:i>// iOS</xhtml:i>\n                     <xhtml:br/>-(BOOL) webView:(UIWebView *)exWebView shouldStartLoadWithRequest:(NSURLRequest *)exRequest navigationType:(UIWebViewNavigationType)exNavigationType<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>NSURL *URL = [exRequest URL];<xhtml:br/>if ([[URL scheme] isEqualToString:@\"exampleScheme\"])<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>NSString *functionString = [URL resourceSpecifier];<xhtml:br/>if ([functionString hasPrefix:@\"specialFunction\"])<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// Make data available back in webview.</xhtml:i>\n                                       <xhtml:br/>UIWebView *webView = [self writeDataToView:[URL query]];</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>return NO;</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return YES;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>A call into native code can then be initiated by passing parameters within the URL:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"JavaScript\">\n                  <xhtml:div>window.location = examplescheme://method?parameter=value</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because the application does not check the source, a malicious website loaded within this WebView has the same access to the API as a trusted site.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2000-1218",
-      "description": "DNS server can accept DNS updates from hosts that it did not query, leading to cache poisoning",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-1218"
-    },
-    {
-      "reference": "CVE-2005-0877",
-      "description": "DNS server can accept DNS updates from hosts that it did not query, leading to cache poisoning",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0877"
-    },
-    {
-      "reference": "CVE-2001-1452",
-      "description": "DNS server caches glue records received from non-delegated name servers",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1452"
-    },
-    {
-      "reference": "CVE-2005-2188",
-      "description": "user ID obtained from untrusted source (URL)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2188"
-    },
-    {
-      "reference": "CVE-2003-0174",
-      "description": "LDAP service does not verify if a particular attribute was set by the LDAP server",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0174"
-    },
-    {
-      "reference": "CVE-1999-1549",
-      "description": "product does not sufficiently distinguish external HTML from internal, potentially dangerous HTML, allowing bypass using special strings in the page title. Overlaps special elements.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1549"
-    },
-    {
-      "reference": "CVE-2003-0981",
-      "description": "product records the reverse DNS name of a visitor in the logs, allowing spoofing and resultant XSS.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0981"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-324",
-      "author": [
-        "Taimur Aslam"
-      ],
-      "title": "A Taxonomy of Security Faults in the UNIX Operating System",
-      "url": "http://cwe.mitre.org/documents/sources/ATaxonomyofSecurityFaultsintheUNIXOperatingSystem%5BAslam95%5D.pdf",
-      "publication_year": "1995",
-      "publication_month": "--08",
-      "publication_day": "---01"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-02-18",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Maintenance_Notes, References, Relationship_Notes, Relationships, Terminology_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Modes_of_Introduction, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Demonstrative_Examples, Terminology_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
-        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
-        "contribution_date": "2023-04-25",
-        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    },
-    {
-      "ordinality": "Resultant"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Origin Validation Error"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR2.12 RE(1)",
-      "entry_id": "Part 3-3"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SD-1",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR-2",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SVV-1",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR2.12 RE(1)",
-      "entry_id": "Part 4-2"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR3.1 RE(1)",
-      "entry_id": "Part 4-2"
-    }
-  ],
-  "related_attack_patterns": [
-    "111",
-    "141",
-    "142",
-    "160",
-    "21",
-    "384",
-    "385",
-    "386",
-    "387",
-    "388",
-    "510",
-    "59",
-    "60",
-    "75",
-    "76",
-    "89"
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "This entry has some significant overlap with other CWE entries and may need some clarification. See terminology notes."
-    },
-    {
-      "type": "Terminology",
-      "text": "The \"Origin Validation Error\" term was originally used in a 1995 thesis [REF-324]. Although not formally defined, an issue is considered to be an origin validation error if either (1) \"an object [accepts] input from an unauthorized subject,\" or (2) \"the system [fails] to properly or completely authenticate a subject.\" A later section says that an origin validation error can occur when the system (1) \"does not properly authenticate a user or process\" or (2) \"does not properly authenticate the shared data or libraries.\" The only example provided in the thesis (covered by OSVDB:57615) involves a setuid program running command-line arguments without dropping privileges. So, this definition (and its examples in the thesis) effectively cover other weaknesses such as CWE-287 (Improper Authentication), CWE-285 (Improper Authorization), and CWE-250 (Execution with Unnecessary Privileges). There appears to be little usage of this term today, except in the SecurityFocus vulnerability database, where the term is used for a variety of issues, including web-browser problems that allow violation of the Same Origin Policy and improper validation of the source of an incoming message."
-    }
-  ]
+	"id": "346",
+	"name": "Origin Validation Error",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not properly verify that the source of data or communication is valid.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "345",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "345",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "284",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control",
+				"Other"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity",
+				"Varies by Context"
+			],
+			"note": "An attacker can access any functionality that is inadvertently accessible to the source."
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-112",
+			"text": "\n               <Intro_Text>This Android application will remove a user account when it receives an intent to do so:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>IntentFilter filter = new IntentFilter(\"com.example.RemoveUser\");<xhtml:br/>MyReceiver receiver = new MyReceiver();<xhtml:br/>registerReceiver(receiver, filter);<xhtml:br/>\n                     <xhtml:br/>public class DeleteReceiver extends BroadcastReceiver {<xhtml:div style=\"margin-left:1em;\">@Override<xhtml:br/>public void onReceive(Context context, Intent intent) {<xhtml:div style=\"margin-left:1em;\">int userID = intent.getIntExtra(\"userID\");<xhtml:br/>destroyUserData(userID);</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This application does not check the origin of the intent, thus allowing any malicious application to remove a user. Always check the origin of an intent, or create an allowlist of trusted applications using the manifest.xml file.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-109",
+			"text": "\n               <Intro_Text>These Android and iOS applications intercept URL loading within a WebView and perform special actions if a particular URL scheme is used, thus allowing the Javascript within the WebView to communicate with the application:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>\n                     <xhtml:i>// Android</xhtml:i>\n                     <xhtml:br/>@Override<xhtml:br/>public boolean shouldOverrideUrlLoading(WebView view, String url){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if (url.substring(0,14).equalsIgnoreCase(\"examplescheme:\")){<xhtml:div style=\"margin-left:1em;\">if(url.substring(14,25).equalsIgnoreCase(\"getUserInfo\")){<xhtml:div style=\"margin-left:1em;\">writeDataToView(view, UserData);<xhtml:br/>return false;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">return true;</xhtml:div>}</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Objective-C\">\n                  <xhtml:div>\n                     <xhtml:i>// iOS</xhtml:i>\n                     <xhtml:br/>-(BOOL) webView:(UIWebView *)exWebView shouldStartLoadWithRequest:(NSURLRequest *)exRequest navigationType:(UIWebViewNavigationType)exNavigationType<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>NSURL *URL = [exRequest URL];<xhtml:br/>if ([[URL scheme] isEqualToString:@\"exampleScheme\"])<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>NSString *functionString = [URL resourceSpecifier];<xhtml:br/>if ([functionString hasPrefix:@\"specialFunction\"])<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// Make data available back in webview.</xhtml:i>\n                                       <xhtml:br/>UIWebView *webView = [self writeDataToView:[URL query]];</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>return NO;</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return YES;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>A call into native code can then be initiated by passing parameters within the URL:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"JavaScript\">\n                  <xhtml:div>window.location = examplescheme://method?parameter=value</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because the application does not check the source, a malicious website loaded within this WebView has the same access to the API as a trusted site.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2000-1218",
+			"description": "DNS server can accept DNS updates from hosts that it did not query, leading to cache poisoning",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-1218"
+		},
+		{
+			"reference": "CVE-2005-0877",
+			"description": "DNS server can accept DNS updates from hosts that it did not query, leading to cache poisoning",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-0877"
+		},
+		{
+			"reference": "CVE-2001-1452",
+			"description": "DNS server caches glue records received from non-delegated name servers",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1452"
+		},
+		{
+			"reference": "CVE-2005-2188",
+			"description": "user ID obtained from untrusted source (URL)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2188"
+		},
+		{
+			"reference": "CVE-2003-0174",
+			"description": "LDAP service does not verify if a particular attribute was set by the LDAP server",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0174"
+		},
+		{
+			"reference": "CVE-1999-1549",
+			"description": "product does not sufficiently distinguish external HTML from internal, potentially dangerous HTML, allowing bypass using special strings in the page title. Overlaps special elements.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-1549"
+		},
+		{
+			"reference": "CVE-2003-0981",
+			"description": "product records the reverse DNS name of a visitor in the logs, allowing spoofing and resultant XSS.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0981"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-324",
+			"author": [
+				"Taimur Aslam"
+			],
+			"title": "A Taxonomy of Security Faults in the UNIX Operating System",
+			"url": "http://cwe.mitre.org/documents/sources/ATaxonomyofSecurityFaultsintheUNIXOperatingSystem%5BAslam95%5D.pdf",
+			"publication_year": "1995",
+			"publication_month": "--08",
+			"publication_day": "---01"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-02-18",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Maintenance_Notes, References, Relationship_Notes, Relationships, Terminology_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Modes_of_Introduction, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Demonstrative_Examples, Terminology_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
+				"contribution_date": "2023-04-25",
+				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		},
+		{
+			"ordinality": "Resultant"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Origin Validation Error"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR2.12 RE(1)",
+			"entry_id": "Part 3-3"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SD-1",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR-2",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SVV-1",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR2.12 RE(1)",
+			"entry_id": "Part 4-2"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR3.1 RE(1)",
+			"entry_id": "Part 4-2"
+		}
+	],
+	"related_attack_patterns": [
+		"111",
+		"141",
+		"142",
+		"160",
+		"21",
+		"384",
+		"385",
+		"386",
+		"387",
+		"388",
+		"510",
+		"59",
+		"60",
+		"75",
+		"76",
+		"89"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "This entry has some significant overlap with other CWE entries and may need some clarification. See terminology notes."
+		},
+		{
+			"type": "Terminology",
+			"text": "The \"Origin Validation Error\" term was originally used in a 1995 thesis [REF-324]. Although not formally defined, an issue is considered to be an origin validation error if either (1) \"an object [accepts] input from an unauthorized subject,\" or (2) \"the system [fails] to properly or completely authenticate a subject.\" A later section says that an origin validation error can occur when the system (1) \"does not properly authenticate a user or process\" or (2) \"does not properly authenticate the shared data or libraries.\" The only example provided in the thesis (covered by OSVDB:57615) involves a setuid program running command-line arguments without dropping privileges. So, this definition (and its examples in the thesis) effectively cover other weaknesses such as CWE-287 (Improper Authentication), CWE-285 (Improper Authorization), and CWE-250 (Execution with Unnecessary Privileges). There appears to be little usage of this term today, except in the SecurityFocus vulnerability database, where the term is used for a variety of issues, including web-browser problems that allow violation of the Same Origin Policy and improper validation of the source of an incoming message."
+		}
+	]
 }

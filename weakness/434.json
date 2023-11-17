@@ -1,621 +1,621 @@
 {
-  "id": "434",
-  "name": "Unrestricted Upload of File with Dangerous Type",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product allows the attacker to upload or transfer files of dangerous types that can be automatically processed within the product's environment.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "669",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "669",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "351",
-      "view_id": "1000"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "436",
-      "view_id": "1000"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "430",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Sometimes",
-        "name": "ASP.NET"
-      },
-      {
-        "prevalence": "Often",
-        "name": "PHP"
-      },
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "prevalence": "Sometimes",
-        "name": "Web Server"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "OMISSION: This weakness is caused by missing a security tactic during the architecture and design phase."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality",
-        "Availability"
-      ],
-      "impact": [
-        "Execute Unauthorized Code or Commands"
-      ],
-      "note": "Arbitrary code execution is possible if an uploaded file is interpreted and executed as code by the recipient. This is especially true for .asp and .php extensions uploaded to web servers because these file types are often treated as automatically executable, even when file system permissions do not specify execution. For example, in Unix environments, programs typically cannot run unless the execute bit is set, but PHP programs may be executed by the web server without directly invoking them on the operating system."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Generate a new, unique filename for an uploaded file instead of using the user-supplied filename, so that no external input is used at all.[REF-422] [REF-423]"
-      ]
-    },
-    {
-      "mitigation_id": "MIT-21",
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs."
-      ],
-      "strategy": "Enforcement by Conversion"
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Consider storing the uploaded files outside of the web document root entirely. Then, use other mechanisms to deliver the files dynamically. [REF-423]"
-      ]
-    },
-    {
-      "mitigation_id": "MIT-5",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n                  <xhtml:p>For example, limiting filenames to alphanumeric characters can help to restrict the introduction of unintended file extensions.</xhtml:p>\n               "
-      ],
-      "strategy": "Input Validation"
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Define a very limited set of allowable extensions and only generate filenames that end in these extensions. Consider the possibility of XSS (CWE-79) before allowing .html or .htm file types."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Ensure that only one extension is used in the filename. Some web servers, including some versions of Apache, may process files based on inner extensions so that \"filename.php.gif\" is fed to the PHP interpreter.[REF-422] [REF-423]"
-      ],
-      "strategy": "Input Validation"
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "When running on a web server that supports case-insensitive filenames, perform case-insensitive evaluations of the extensions that are provided."
-      ]
-    },
-    {
-      "mitigation_id": "MIT-15",
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side, in order to avoid CWE-602. Attackers can bypass the client-side checks by modifying values after the checks have been performed, or by changing the client to remove the client-side checks entirely. Then, these modified values would be submitted to the server."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Do not rely exclusively on sanity checks of file contents to ensure that the file is of the expected type and size. It may be possible for an attacker to hide code in some file segments that will still be executed by the server. For example, GIF images may contain a free-form comments field."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Do not rely exclusively on the MIME content type or filename attribute when determining how to render a file. Validating the MIME content type and ensuring that it matches the extension is only a partial solution."
-      ]
-    },
-    {
-      "mitigation_id": "MIT-17",
-      "phase": [
-        "Architecture and Design",
-        "Operation"
-      ],
-      "description": [
-        "Run your code using the lowest privileges that are required to accomplish the necessary tasks [REF-76]. If possible, create isolated accounts with limited privileges that are only used for a single task. That way, a successful attack will not immediately give the attacker access to the rest of the software or its environment. For example, database applications rarely need to run as the database administrator, especially in day-to-day operations."
-      ],
-      "strategy": "Environment Hardening"
-    },
-    {
-      "mitigation_id": "MIT-22",
-      "phase": [
-        "Architecture and Design",
-        "Operation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Run the code in a \"jail\" or similar sandbox environment that enforces strict boundaries between the process and the operating system. This may effectively restrict which files can be accessed in a particular directory or which commands can be executed by the software.</xhtml:p>\n                  <xhtml:p>OS-level examples include the Unix chroot jail, AppArmor, and SELinux. In general, managed code may provide some protection. For example, java.io.FilePermission in the Java SecurityManager allows the software to specify restrictions on file operations.</xhtml:p>\n                  <xhtml:p>This may not be a feasible solution, and it only limits the impact to the operating system; the rest of the application may still be subject to compromise.</xhtml:p>\n                  <xhtml:p>Be careful to avoid CWE-243 and other weaknesses related to jails.</xhtml:p>\n               "
-      ],
-      "effectiveness": "Limited",
-      "effectiveness_notes": "The effectiveness of this mitigation depends on the prevention capabilities of the specific sandbox or jail being used and might only help to reduce the scope of an attack, such as restricting the attacker to certain system calls or limiting the portion of the file system that can be accessed.",
-      "strategy": "Sandbox or Jail"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following code intends to allow a user to upload a picture to the web server. The HTML code that drives the form on the user end has an input field of type \"file\".</Intro_Text>\n               <Example_Code Nature=\"Good\" Language=\"HTML\">\n                  <xhtml:div>&lt;form action=\"upload_picture.php\" method=\"post\" enctype=\"multipart/form-data\"&gt;<xhtml:br/>\n                     <xhtml:br/>Choose a file to upload:<xhtml:br/>&lt;input type=\"file\" name=\"filename\"/&gt;<xhtml:br/>&lt;br/&gt;<xhtml:br/>&lt;input type=\"submit\" name=\"submit\" value=\"Submit\"/&gt;<xhtml:br/>\n                     <xhtml:br/>&lt;/form&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>Once submitted, the form above sends the file to upload_picture.php on the web server. PHP stores the file in a temporary location until it is retrieved (or discarded) by the server side code. In this example, the file is moved to a more permanent pictures/ directory.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>// Define the target location where the picture being</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// uploaded is going to be saved.</xhtml:i>\n                     <xhtml:br/>$target = \"pictures/\" . basename($_FILES['uploadedfile']['name']);<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// Move the uploaded file to the new location.</xhtml:i>\n                     <xhtml:br/>if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $target))<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">echo \"The picture has been successfully uploaded.\";</xhtml:div>}<xhtml:br/>else<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">echo \"There was an error uploading the picture, please try again.\";</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The problem with the above code is that there is no check regarding type of file being uploaded. Assuming that pictures/ is available in the web document root, an attacker could upload a file with the name:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>malicious.php</xhtml:div>\n               </Example_Code>\n               <Body_Text>Since this filename ends in \".php\" it can be executed by the web server. In the contents of this uploaded file, the attacker could use:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"PHP\">\n                  <xhtml:div>&lt;?php<xhtml:div style=\"margin-left:1em;\">system($_GET['cmd']);</xhtml:div>\n                     <xhtml:br/>?&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>Once this file has been installed, the attacker can enter arbitrary commands to execute using a URL such as:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>http://server.example.com/upload_dir/malicious.php?cmd=ls%20-l</xhtml:div>\n               </Example_Code>\n               <Body_Text>which runs the \"ls -l\" command - or any other type of command that the attacker wants to specify.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-22",
-      "text": "\n               <Intro_Text>The following code demonstrates the unrestricted upload of a file with a Java servlet and a path traversal vulnerability. The action attribute of an HTML form is sending the upload file request to the Java servlet.</Intro_Text>\n               <Example_Code Nature=\"Good\" Language=\"HTML\">\n                  <xhtml:div>&lt;form action=\"FileUploadServlet\" method=\"post\" enctype=\"multipart/form-data\"&gt;<xhtml:br/>\n                     <xhtml:br/>Choose a file to upload:<xhtml:br/>&lt;input type=\"file\" name=\"filename\"/&gt;<xhtml:br/>&lt;br/&gt;<xhtml:br/>&lt;input type=\"submit\" name=\"submit\" value=\"Submit\"/&gt;<xhtml:br/>\n                     <xhtml:br/>&lt;/form&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>When submitted the Java servlet's doPost method will receive the request, extract the name of the file from the Http request header, read the file contents from the request and output the file to the local upload directory.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class FileUploadServlet extends HttpServlet {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>...<xhtml:br/>\n                           <xhtml:br/>protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>response.setContentType(\"text/html\");<xhtml:br/>PrintWriter out = response.getWriter();<xhtml:br/>String contentType = request.getContentType();<xhtml:br/>\n                                 <xhtml:br/>// the starting position of the boundary header<xhtml:br/>int ind = contentType.indexOf(\"boundary=\");<xhtml:br/>String boundary = contentType.substring(ind+9);<xhtml:br/>\n                                 <xhtml:br/>String pLine = new String();<xhtml:br/>String uploadLocation = new String(UPLOAD_DIRECTORY_STRING); //Constant value<xhtml:br/>\n                                 <xhtml:br/>// verify that content type is multipart form data<xhtml:br/>if (contentType != null &amp;&amp; contentType.indexOf(\"multipart/form-data\") != -1) {<xhtml:br/>\n                                 <xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>// extract the filename from the Http header<xhtml:br/>BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));<xhtml:br/>...<xhtml:br/>pLine = br.readLine();<xhtml:br/>String filename = pLine.substring(pLine.lastIndexOf(\"\\\\\"), pLine.lastIndexOf(\"\\\"\"));<xhtml:br/>...<xhtml:br/>\n                                       <xhtml:br/>// output the file to the local upload directory<xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">\n                                          <xhtml:div>BufferedWriter bw = new BufferedWriter(new FileWriter(uploadLocation+filename, true));<xhtml:br/>for (String line; (line=br.readLine())!=null; ) {<xhtml:div style=\"margin-left:1em;\">if (line.indexOf(boundary) == -1) {<xhtml:div style=\"margin-left:1em;\">bw.write(line);<xhtml:br/>bw.newLine();<xhtml:br/>bw.flush();</xhtml:div>}</xhtml:div>} //end of for loop<xhtml:br/>bw.close();</xhtml:div>\n                                       </xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:br/>} catch (IOException ex) {...}<xhtml:br/>// output successful upload response HTML page</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>// output unsuccessful upload response HTML page<xhtml:br/>else<xhtml:br/>{...}</xhtml:div>\n                           </xhtml:div>}<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>\n                        </xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code does not perform a check on the type of the file being uploaded (CWE-434). This could allow an attacker to upload any executable file or other file with malicious code.</Body_Text>\n               <Body_Text>Additionally, the creation of the BufferedWriter object is subject to relative path traversal (CWE-23). Since the code does not check the filename that is provided in the header, an attacker can use \"../\" sequences to write to files outside of the intended directory. Depending on the executing environment, the attacker may be able to specify arbitrary files to write to, leading to a wide variety of consequences, from code execution, XSS (CWE-79), or system crash.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2001-0901",
-      "description": "Web-based mail product stores \".shtml\" attachments that could contain SSI",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0901"
-    },
-    {
-      "reference": "CVE-2002-1841",
-      "description": "PHP upload does not restrict file types",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1841"
-    },
-    {
-      "reference": "CVE-2005-1868",
-      "description": "upload and execution of .php file",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1868"
-    },
-    {
-      "reference": "CVE-2005-1881",
-      "description": "upload file with dangerous extension",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1881"
-    },
-    {
-      "reference": "CVE-2005-0254",
-      "description": "program does not restrict file types",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0254"
-    },
-    {
-      "reference": "CVE-2004-2262",
-      "description": "improper type checking of uploaded files",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2262"
-    },
-    {
-      "reference": "CVE-2006-4558",
-      "description": "Double \"php\" extension leaves an active php extension in the generated filename.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4558"
-    },
-    {
-      "reference": "CVE-2006-6994",
-      "description": "ASP program allows upload of .asp files by bypassing client-side checks",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-6994"
-    },
-    {
-      "reference": "CVE-2005-3288",
-      "description": "ASP file upload",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3288"
-    },
-    {
-      "reference": "CVE-2006-2428",
-      "description": "ASP file upload",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-2428"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-422",
-      "author": [
-        "Richard Stanway (r1CH)"
-      ],
-      "title": "Dynamic File Uploads, Security and You",
-      "url": "https://web.archive.org/web/20090208005456/http://shsc.info/FileUploadSecurity",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-423",
-      "author": [
-        "Johannes Ullrich"
-      ],
-      "title": "8 Basic Rules to Implement Secure File Uploads",
-      "url": "https://www.sans.org/blog/8-basic-rules-to-implement-secure-file-uploads/",
-      "publication_year": "2009",
-      "publication_month": "--12",
-      "publication_day": "---28",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-424",
-      "author": [
-        "Johannes Ullrich"
-      ],
-      "title": "Top 25 Series - Rank 8 - Unrestricted Upload of Dangerous File Type",
-      "url": "https://www.sans.org/blog/top-25-series-rank-8-unrestricted-upload-of-dangerous-file-type/",
-      "publication_year": "2010",
-      "publication_month": "--02",
-      "publication_day": "---25",
-      "publisher": "SANS Software Security Institute",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-76",
-      "author": [
-        "Sean Barnum",
-        "Michael Gegick"
-      ],
-      "title": "Least Privilege",
-      "url": "https://web.archive.org/web/20211209014121/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/least-privilege",
-      "publication_year": "2005",
-      "publication_month": "--09",
-      "publication_day": "---14",
-      "url_date": "2023-04-07"
-    },
-    {
-      "section": "Chapter 17, \"File Uploading\", Page 1068",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "section": "ASCSM-CWE-434",
-      "reference_id": "REF-962",
-      "author": [
-        "Object Management Group (OMG)"
-      ],
-      "title": "Automated Source Code Security Measure (ASCSM)",
-      "url": "http://www.omg.org/spec/ASCSM/1.0/",
-      "publication_year": "2016",
-      "publication_month": "--01"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Alternate_Terms, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Applicable_Platforms, Functional_Areas, Likelihood_of_Exploit, Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "converted from Compound_Element to Weakness",
-        "modification_importance": "Critical"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Alternate_Terms, Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Name, Other_Notes, Potential_Mitigations, References, Related_Attack_Patterns, Relationship_Notes, Relationships, Type, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated References, Relationship_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Potential_Mitigations, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Detection_Factors"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Affected_Resources, Applicable_Platforms, Likelihood_of_Exploit, Modes_of_Introduction, References, Relationships, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Applicable_Platforms, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Potential_Mitigations, Relationship_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Research_Gaps"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Alternate_Terms, Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Unrestricted File Upload",
-        "date": "2010-02-16"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary",
-      "description": "This can be primary when there is no check at all."
-    },
-    {
-      "ordinality": "Resultant",
-      "description": "This is frequently resultant when use of double extensions (e.g. \".php.gif\") bypasses a sanity check."
-    },
-    {
-      "ordinality": "Resultant",
-      "description": "This can be resultant from client-side enforcement (CWE-602); some products will include web script in web clients to check the filename, without verifying on the server side."
-    }
-  ],
-  "alternate_terms": [
-    {
-      "term": "Unrestricted File Upload",
-      "description": "Used in vulnerability databases and elsewhere, but it is insufficiently precise. The phrase could be interpreted as the lack of restrictions on the size or number of uploaded files, which is a resource consumption issue."
-    }
-  ],
-  "detection_methods": [
-    {
-      "method": "Dynamic Analysis with Automated Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Manual Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Manual Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Automated Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Architecture or Design Review",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Unrestricted File Upload"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2007",
-      "entry_name": "Malicious File Execution",
-      "entry_id": "A3",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "OMG ASCSM",
-      "entry_id": "ASCSM-CWE-434"
-    }
-  ],
-  "related_attack_patterns": [
-    "1"
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "\n               <xhtml:p>This can have a chaining relationship with incomplete denylist / permissive allowlist errors when the product tries, but fails, to properly limit which types of files are allowed (CWE-183, CWE-184).</xhtml:p>\n               <xhtml:p>This can also overlap multiple interpretation errors for intermediaries, e.g. anti-virus products that do not remove or quarantine attachments with certain file extensions that can be processed by client systems.</xhtml:p>\n            "
-    }
-  ],
-  "affected_resources": [
-    "File or Directory"
-  ],
-  "functional_areas": [
-    "File Processing"
-  ]
+	"id": "434",
+	"name": "Unrestricted Upload of File with Dangerous Type",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product allows the attacker to upload or transfer files of dangerous types that can be automatically processed within the product's environment.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "669",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "669",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "351",
+			"view_id": "1000"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "436",
+			"view_id": "1000"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "430",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Sometimes",
+				"name": "ASP.NET"
+			},
+			{
+				"prevalence": "Often",
+				"name": "PHP"
+			},
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"prevalence": "Sometimes",
+				"name": "Web Server"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"OMISSION: This weakness is caused by missing a security tactic during the architecture and design phase."
+			]
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality",
+				"Availability"
+			],
+			"impact": [
+				"Execute Unauthorized Code or Commands"
+			],
+			"note": "Arbitrary code execution is possible if an uploaded file is interpreted and executed as code by the recipient. This is especially true for .asp and .php extensions uploaded to web servers because these file types are often treated as automatically executable, even when file system permissions do not specify execution. For example, in Unix environments, programs typically cannot run unless the execute bit is set, but PHP programs may be executed by the web server without directly invoking them on the operating system."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Generate a new, unique filename for an uploaded file instead of using the user-supplied filename, so that no external input is used at all.[REF-422] [REF-423]"
+			]
+		},
+		{
+			"mitigation_id": "MIT-21",
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs."
+			],
+			"strategy": "Enforcement by Conversion"
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Consider storing the uploaded files outside of the web document root entirely. Then, use other mechanisms to deliver the files dynamically. [REF-423]"
+			]
+		},
+		{
+			"mitigation_id": "MIT-5",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n                  <xhtml:p>For example, limiting filenames to alphanumeric characters can help to restrict the introduction of unintended file extensions.</xhtml:p>\n               "
+			],
+			"strategy": "Input Validation"
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Define a very limited set of allowable extensions and only generate filenames that end in these extensions. Consider the possibility of XSS (CWE-79) before allowing .html or .htm file types."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Ensure that only one extension is used in the filename. Some web servers, including some versions of Apache, may process files based on inner extensions so that \"filename.php.gif\" is fed to the PHP interpreter.[REF-422] [REF-423]"
+			],
+			"strategy": "Input Validation"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"When running on a web server that supports case-insensitive filenames, perform case-insensitive evaluations of the extensions that are provided."
+			]
+		},
+		{
+			"mitigation_id": "MIT-15",
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side, in order to avoid CWE-602. Attackers can bypass the client-side checks by modifying values after the checks have been performed, or by changing the client to remove the client-side checks entirely. Then, these modified values would be submitted to the server."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Do not rely exclusively on sanity checks of file contents to ensure that the file is of the expected type and size. It may be possible for an attacker to hide code in some file segments that will still be executed by the server. For example, GIF images may contain a free-form comments field."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Do not rely exclusively on the MIME content type or filename attribute when determining how to render a file. Validating the MIME content type and ensuring that it matches the extension is only a partial solution."
+			]
+		},
+		{
+			"mitigation_id": "MIT-17",
+			"phase": [
+				"Architecture and Design",
+				"Operation"
+			],
+			"description": [
+				"Run your code using the lowest privileges that are required to accomplish the necessary tasks [REF-76]. If possible, create isolated accounts with limited privileges that are only used for a single task. That way, a successful attack will not immediately give the attacker access to the rest of the software or its environment. For example, database applications rarely need to run as the database administrator, especially in day-to-day operations."
+			],
+			"strategy": "Environment Hardening"
+		},
+		{
+			"mitigation_id": "MIT-22",
+			"phase": [
+				"Architecture and Design",
+				"Operation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Run the code in a \"jail\" or similar sandbox environment that enforces strict boundaries between the process and the operating system. This may effectively restrict which files can be accessed in a particular directory or which commands can be executed by the software.</xhtml:p>\n                  <xhtml:p>OS-level examples include the Unix chroot jail, AppArmor, and SELinux. In general, managed code may provide some protection. For example, java.io.FilePermission in the Java SecurityManager allows the software to specify restrictions on file operations.</xhtml:p>\n                  <xhtml:p>This may not be a feasible solution, and it only limits the impact to the operating system; the rest of the application may still be subject to compromise.</xhtml:p>\n                  <xhtml:p>Be careful to avoid CWE-243 and other weaknesses related to jails.</xhtml:p>\n               "
+			],
+			"effectiveness": "Limited",
+			"effectiveness_notes": "The effectiveness of this mitigation depends on the prevention capabilities of the specific sandbox or jail being used and might only help to reduce the scope of an attack, such as restricting the attacker to certain system calls or limiting the portion of the file system that can be accessed.",
+			"strategy": "Sandbox or Jail"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following code intends to allow a user to upload a picture to the web server. The HTML code that drives the form on the user end has an input field of type \"file\".</Intro_Text>\n               <Example_Code Nature=\"Good\" Language=\"HTML\">\n                  <xhtml:div>&lt;form action=\"upload_picture.php\" method=\"post\" enctype=\"multipart/form-data\"&gt;<xhtml:br/>\n                     <xhtml:br/>Choose a file to upload:<xhtml:br/>&lt;input type=\"file\" name=\"filename\"/&gt;<xhtml:br/>&lt;br/&gt;<xhtml:br/>&lt;input type=\"submit\" name=\"submit\" value=\"Submit\"/&gt;<xhtml:br/>\n                     <xhtml:br/>&lt;/form&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>Once submitted, the form above sends the file to upload_picture.php on the web server. PHP stores the file in a temporary location until it is retrieved (or discarded) by the server side code. In this example, the file is moved to a more permanent pictures/ directory.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>// Define the target location where the picture being</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// uploaded is going to be saved.</xhtml:i>\n                     <xhtml:br/>$target = \"pictures/\" . basename($_FILES['uploadedfile']['name']);<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>// Move the uploaded file to the new location.</xhtml:i>\n                     <xhtml:br/>if(move_uploaded_file($_FILES['uploadedfile']['tmp_name'], $target))<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">echo \"The picture has been successfully uploaded.\";</xhtml:div>}<xhtml:br/>else<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">echo \"There was an error uploading the picture, please try again.\";</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The problem with the above code is that there is no check regarding type of file being uploaded. Assuming that pictures/ is available in the web document root, an attacker could upload a file with the name:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>malicious.php</xhtml:div>\n               </Example_Code>\n               <Body_Text>Since this filename ends in \".php\" it can be executed by the web server. In the contents of this uploaded file, the attacker could use:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"PHP\">\n                  <xhtml:div>&lt;?php<xhtml:div style=\"margin-left:1em;\">system($_GET['cmd']);</xhtml:div>\n                     <xhtml:br/>?&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>Once this file has been installed, the attacker can enter arbitrary commands to execute using a URL such as:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>http://server.example.com/upload_dir/malicious.php?cmd=ls%20-l</xhtml:div>\n               </Example_Code>\n               <Body_Text>which runs the \"ls -l\" command - or any other type of command that the attacker wants to specify.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-22",
+			"text": "\n               <Intro_Text>The following code demonstrates the unrestricted upload of a file with a Java servlet and a path traversal vulnerability. The action attribute of an HTML form is sending the upload file request to the Java servlet.</Intro_Text>\n               <Example_Code Nature=\"Good\" Language=\"HTML\">\n                  <xhtml:div>&lt;form action=\"FileUploadServlet\" method=\"post\" enctype=\"multipart/form-data\"&gt;<xhtml:br/>\n                     <xhtml:br/>Choose a file to upload:<xhtml:br/>&lt;input type=\"file\" name=\"filename\"/&gt;<xhtml:br/>&lt;br/&gt;<xhtml:br/>&lt;input type=\"submit\" name=\"submit\" value=\"Submit\"/&gt;<xhtml:br/>\n                     <xhtml:br/>&lt;/form&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>When submitted the Java servlet's doPost method will receive the request, extract the name of the file from the Http request header, read the file contents from the request and output the file to the local upload directory.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class FileUploadServlet extends HttpServlet {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>...<xhtml:br/>\n                           <xhtml:br/>protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>response.setContentType(\"text/html\");<xhtml:br/>PrintWriter out = response.getWriter();<xhtml:br/>String contentType = request.getContentType();<xhtml:br/>\n                                 <xhtml:br/>// the starting position of the boundary header<xhtml:br/>int ind = contentType.indexOf(\"boundary=\");<xhtml:br/>String boundary = contentType.substring(ind+9);<xhtml:br/>\n                                 <xhtml:br/>String pLine = new String();<xhtml:br/>String uploadLocation = new String(UPLOAD_DIRECTORY_STRING); //Constant value<xhtml:br/>\n                                 <xhtml:br/>// verify that content type is multipart form data<xhtml:br/>if (contentType != null &amp;&amp; contentType.indexOf(\"multipart/form-data\") != -1) {<xhtml:br/>\n                                 <xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>// extract the filename from the Http header<xhtml:br/>BufferedReader br = new BufferedReader(new InputStreamReader(request.getInputStream()));<xhtml:br/>...<xhtml:br/>pLine = br.readLine();<xhtml:br/>String filename = pLine.substring(pLine.lastIndexOf(\"\\\\\"), pLine.lastIndexOf(\"\\\"\"));<xhtml:br/>...<xhtml:br/>\n                                       <xhtml:br/>// output the file to the local upload directory<xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">\n                                          <xhtml:div>BufferedWriter bw = new BufferedWriter(new FileWriter(uploadLocation+filename, true));<xhtml:br/>for (String line; (line=br.readLine())!=null; ) {<xhtml:div style=\"margin-left:1em;\">if (line.indexOf(boundary) == -1) {<xhtml:div style=\"margin-left:1em;\">bw.write(line);<xhtml:br/>bw.newLine();<xhtml:br/>bw.flush();</xhtml:div>}</xhtml:div>} //end of for loop<xhtml:br/>bw.close();</xhtml:div>\n                                       </xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:br/>} catch (IOException ex) {...}<xhtml:br/>// output successful upload response HTML page</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>// output unsuccessful upload response HTML page<xhtml:br/>else<xhtml:br/>{...}</xhtml:div>\n                           </xhtml:div>}<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>\n                        </xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code does not perform a check on the type of the file being uploaded (CWE-434). This could allow an attacker to upload any executable file or other file with malicious code.</Body_Text>\n               <Body_Text>Additionally, the creation of the BufferedWriter object is subject to relative path traversal (CWE-23). Since the code does not check the filename that is provided in the header, an attacker can use \"../\" sequences to write to files outside of the intended directory. Depending on the executing environment, the attacker may be able to specify arbitrary files to write to, leading to a wide variety of consequences, from code execution, XSS (CWE-79), or system crash.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2001-0901",
+			"description": "Web-based mail product stores \".shtml\" attachments that could contain SSI",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0901"
+		},
+		{
+			"reference": "CVE-2002-1841",
+			"description": "PHP upload does not restrict file types",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1841"
+		},
+		{
+			"reference": "CVE-2005-1868",
+			"description": "upload and execution of .php file",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1868"
+		},
+		{
+			"reference": "CVE-2005-1881",
+			"description": "upload file with dangerous extension",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1881"
+		},
+		{
+			"reference": "CVE-2005-0254",
+			"description": "program does not restrict file types",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-0254"
+		},
+		{
+			"reference": "CVE-2004-2262",
+			"description": "improper type checking of uploaded files",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-2262"
+		},
+		{
+			"reference": "CVE-2006-4558",
+			"description": "Double \"php\" extension leaves an active php extension in the generated filename.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-4558"
+		},
+		{
+			"reference": "CVE-2006-6994",
+			"description": "ASP program allows upload of .asp files by bypassing client-side checks",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-6994"
+		},
+		{
+			"reference": "CVE-2005-3288",
+			"description": "ASP file upload",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3288"
+		},
+		{
+			"reference": "CVE-2006-2428",
+			"description": "ASP file upload",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-2428"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-422",
+			"author": [
+				"Richard Stanway (r1CH)"
+			],
+			"title": "Dynamic File Uploads, Security and You",
+			"url": "https://web.archive.org/web/20090208005456/http://shsc.info/FileUploadSecurity",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-423",
+			"author": [
+				"Johannes Ullrich"
+			],
+			"title": "8 Basic Rules to Implement Secure File Uploads",
+			"url": "https://www.sans.org/blog/8-basic-rules-to-implement-secure-file-uploads/",
+			"publication_year": "2009",
+			"publication_month": "--12",
+			"publication_day": "---28",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-424",
+			"author": [
+				"Johannes Ullrich"
+			],
+			"title": "Top 25 Series - Rank 8 - Unrestricted Upload of Dangerous File Type",
+			"url": "https://www.sans.org/blog/top-25-series-rank-8-unrestricted-upload-of-dangerous-file-type/",
+			"publication_year": "2010",
+			"publication_month": "--02",
+			"publication_day": "---25",
+			"publisher": "SANS Software Security Institute",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-76",
+			"author": [
+				"Sean Barnum",
+				"Michael Gegick"
+			],
+			"title": "Least Privilege",
+			"url": "https://web.archive.org/web/20211209014121/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/least-privilege",
+			"publication_year": "2005",
+			"publication_month": "--09",
+			"publication_day": "---14",
+			"url_date": "2023-04-07"
+		},
+		{
+			"section": "Chapter 17, \"File Uploading\", Page 1068",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"section": "ASCSM-CWE-434",
+			"reference_id": "REF-962",
+			"author": [
+				"Object Management Group (OMG)"
+			],
+			"title": "Automated Source Code Security Measure (ASCSM)",
+			"url": "http://www.omg.org/spec/ASCSM/1.0/",
+			"publication_year": "2016",
+			"publication_month": "--01"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Alternate_Terms, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Applicable_Platforms, Functional_Areas, Likelihood_of_Exploit, Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "converted from Compound_Element to Weakness",
+				"modification_importance": "Critical"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Alternate_Terms, Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Name, Other_Notes, Potential_Mitigations, References, Related_Attack_Patterns, Relationship_Notes, Relationships, Type, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated References, Relationship_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Potential_Mitigations, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Detection_Factors"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Affected_Resources, Applicable_Platforms, Likelihood_of_Exploit, Modes_of_Introduction, References, Relationships, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Applicable_Platforms, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Potential_Mitigations, Relationship_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Research_Gaps"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Alternate_Terms, Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Unrestricted File Upload",
+				"date": "2010-02-16"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary",
+			"description": "This can be primary when there is no check at all."
+		},
+		{
+			"ordinality": "Resultant",
+			"description": "This is frequently resultant when use of double extensions (e.g. \".php.gif\") bypasses a sanity check."
+		},
+		{
+			"ordinality": "Resultant",
+			"description": "This can be resultant from client-side enforcement (CWE-602); some products will include web script in web clients to check the filename, without verifying on the server side."
+		}
+	],
+	"alternate_terms": [
+		{
+			"term": "Unrestricted File Upload",
+			"description": "Used in vulnerability databases and elsewhere, but it is insufficiently precise. The phrase could be interpreted as the lack of restrictions on the size or number of uploaded files, which is a resource consumption issue."
+		}
+	],
+	"detection_methods": [
+		{
+			"method": "Dynamic Analysis with Automated Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Web Application Scanner</xhtml:li>\n                           <xhtml:li>Web Services Scanner</xhtml:li>\n                           <xhtml:li>Database Scanners</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Manual Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Fuzz Tester</xhtml:li>\n                           <xhtml:li>Framework-based Fuzzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Manual Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Automated Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Architecture or Design Review",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Unrestricted File Upload"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2007",
+			"entry_name": "Malicious File Execution",
+			"entry_id": "A3",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "OMG ASCSM",
+			"entry_id": "ASCSM-CWE-434"
+		}
+	],
+	"related_attack_patterns": [
+		"1"
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "\n               <xhtml:p>This can have a chaining relationship with incomplete denylist / permissive allowlist errors when the product tries, but fails, to properly limit which types of files are allowed (CWE-183, CWE-184).</xhtml:p>\n               <xhtml:p>This can also overlap multiple interpretation errors for intermediaries, e.g. anti-virus products that do not remove or quarantine attachments with certain file extensions that can be processed by client systems.</xhtml:p>\n            "
+		}
+	],
+	"affected_resources": [
+		"File or Directory"
+	],
+	"functional_areas": [
+		"File Processing"
+	]
 }

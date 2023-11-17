@@ -1,251 +1,251 @@
 {
-  "id": "1319",
-  "name": "Improper Protection against Electromagnetic Fault Injection (EM-FI)",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The device is susceptible to electromagnetic fault injection attacks, causing device internal information to be compromised or security mechanisms to be bypassed.",
-  "extended_description": "\n\t\t\t\t<xhtml:p>Electromagnetic fault injection may allow an attacker to locally and dynamically modify the signals (both internal and external) of an integrated circuit. EM-FI attacks consist of producing a local, transient magnetic field near the device, inducing current in the device wires. A typical EMFI setup is made up of a pulse injection circuit that generates a high current transient in an EMI coil, producing an abrupt magnetic pulse which couples to the target producing faults in the device, which can lead to:</xhtml:p>\n\t\t\t\t<xhtml:ul>\n\t\t\t\t<xhtml:li>Bypassing security mechanisms such as secure JTAG or Secure Boot</xhtml:li>\n\t\t\t\t<xhtml:li>Leaking device information</xhtml:li>\n\t\t\t\t<xhtml:li>Modifying program flow</xhtml:li>\n\t\t\t\t<xhtml:li>Perturbing secure hardware modules (e.g. random number generators)</xhtml:li>\n\t\t\t\t</xhtml:ul>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "693",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "System on Chip",
-        "prevalence": "Undetermined"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Microcontroller Hardware"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Memory Hardware"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Power Management Hardware"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Processor Hardware"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Test/Debug Hardware"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Sensor Hardware"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Access Control",
-        "Availability"
-      ],
-      "impact": [
-        "Modify Memory",
-        "Read Memory",
-        "Gain Privileges or Assume Identity",
-        "Bypass Protection Mechanism",
-        "Execute Unauthorized Code or Commands"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation"
-      ],
-      "description": [
-        "\n\t\t\t\t\t  <xhtml:ul>\n\t\t\t\t\t\t<xhtml:li>1. Redundancy - By replicating critical operations and comparing the two outputs can help indicate whether a fault has been injected.</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>2. Error detection and correction codes - Gay, Mael, et al. proposed a new scheme that not only detects faults injected by a malicious adversary but also automatically corrects single nibble/byte errors introduced by low-multiplicity faults.</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>3. Fail by default coding - When checking conditions (switch or if) check all possible cases and fail by default because the default case in a switch (or the else part of a cascaded if-else-if construct) is used for dealing with the last possible (and valid) value without checking. This is prone to fault injection because this alternative is easily selected as a result of potential data manipulation [REF-1141].</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>4. Random Behavior - adding random delays before critical operations, so that timing is not predictable.</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>5. Program Flow Integrity Protection - The program flow can be secured by integrating run-time checking aiming at detecting control flow inconsistencies. One such example is tagging the source code to indicate the points not to be bypassed [REF-1147].</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>6. Sensors - Usage of sensors can detect variations in voltage and current.</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>7. Shields - physical barriers to protect the chips from malicious manipulation.</xhtml:li>\n\t\t\t\t\t  </xhtml:ul>\n\t\t\t\t\t"
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>In many devices, security related information is stored in fuses. These fuses are loaded into shadow registers at boot time. Disturbing this transfer phase with EM-FI can lead to the shadow registers storing erroneous values potentially resulting in reduced security.</Intro_Text>\n\t\t\t\t\t<Body_Text>Colin O'Flynn has demonstrated an attack scenario which uses electro-magnetic glitching during booting to bypass security and gain read access to flash, read and erase access to shadow memory area (where the private password is stored). Most devices in the MPC55xx and MPC56xx series that include the Boot Assist Module (BAM) (a serial or CAN bootloader mode) are susceptible to this attack. In this paper, a GM ECU was used as a real life target. While the success rate appears low (less than 2 percent), in practice a success can be found within 1-5 minutes once the EMFI tool is setup. In a practical scenario, the author showed that success can be achieved within 30-60 minutes from a cold start.</Body_Text>\n\t\t\t\t"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2020-27211",
-      "description": "Chain: microcontroller system-on-chip uses a register value stored in flash to set product protection state on the memory bus and does not contain protection against fault injection (CWE-1319) which leads to an incorrect initialization of the memory bus (CWE-1419) causing  the product to be in an unprotected state.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-27211"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1141",
-      "author": [
-        "Marc Witteman"
-      ],
-      "title": "Secure Application Programming in the presence of Side Channel Attacks",
-      "url": "https://riscureprodstorage.blob.core.windows.net/production/2017/08/Riscure_Whitepaper_Side_Channel_Patterns.pdf",
-      "publication_year": "2017",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1142",
-      "author": [
-        "A. Dehbaoui, J. M. Dutertre, B. Robisson, P. Orsatelli, P. Maurine, A. Tria"
-      ],
-      "title": "Injection of transient faults using electromagnetic pulses. Practical results on a cryptographic system",
-      "url": "https://eprint.iacr.org/2012/123.pdf",
-      "publication_year": "2012"
-    },
-    {
-      "reference_id": "REF-1143",
-      "author": [
-        "A. Menu, S. Bhasin, J. M. Dutertre, J. B. Rigaud, J. Danger"
-      ],
-      "title": "Precise Spatio-Temporal Electromagnetic Fault Injections on Data Transfers",
-      "url": "https://hal.telecom-paris.fr/hal-02338456/document",
-      "publication_year": "2019"
-    },
-    {
-      "reference_id": "REF-1144",
-      "author": [
-        "Colin O'Flynn"
-      ],
-      "title": "BAM BAM!! On Reliability of EMFI for in-situ Automotive ECU Attacks",
-      "url": "https://eprint.iacr.org/2020/937.pdf"
-    },
-    {
-      "reference_id": "REF-1145",
-      "author": [
-        "J. Balasch, D. Arumí, S. Manich"
-      ],
-      "title": "Design and Validation of a Platform for Electromagnetic Fault Injection",
-      "url": "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8311630"
-    },
-    {
-      "reference_id": "REF-1146",
-      "author": [
-        "M. Gay, B. Karp, O. Keren, I. Polian"
-      ],
-      "title": "Error control scheme for malicious and natural faults in cryptographic modules",
-      "url": "https://link.springer.com/content/pdf/10.1007/s13389-020-00234-7.pdf",
-      "publication_year": "2019",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1147",
-      "author": [
-        "M. L. Akkar, L. Goubin, O. Ly"
-      ],
-      "title": "Automatic Integration of Counter-Measures Against Fault Injection Attacks",
-      "url": "https://www.labri.fr/perso/ly/publications/cfed.pdf"
-    },
-    {
-      "reference_id": "REF-1285",
-      "author": [
-        "Texas Instruments"
-      ],
-      "title": "Physical Security Attacks Against Silicon Devices",
-      "url": "https://www.ti.com/lit/an/swra739/swra739.pdf?ts=1644234570420",
-      "publication_year": "2022",
-      "publication_month": "--01",
-      "publication_day": "---31"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Sebastien Leger, Rohini Narasipur",
-      "submission_organization": "Bosch",
-      "submission_date": "2020-08-27"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Applicable_Platforms, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Potential_Mitigations, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "624",
-    "625"
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "This entry is attack-oriented and may require significant modification in future versions, or even deprecation. It is not clear whether there is really a design \"mistake\" that enables such attacks, so this is not necessarily a weakness and may be more appropriate for CAPEC."
-    }
-  ]
+	"id": "1319",
+	"name": "Improper Protection against Electromagnetic Fault Injection (EM-FI)",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The device is susceptible to electromagnetic fault injection attacks, causing device internal information to be compromised or security mechanisms to be bypassed.",
+	"extended_description": "\n\t\t\t\t<xhtml:p>Electromagnetic fault injection may allow an attacker to locally and dynamically modify the signals (both internal and external) of an integrated circuit. EM-FI attacks consist of producing a local, transient magnetic field near the device, inducing current in the device wires. A typical EMFI setup is made up of a pulse injection circuit that generates a high current transient in an EMI coil, producing an abrupt magnetic pulse which couples to the target producing faults in the device, which can lead to:</xhtml:p>\n\t\t\t\t<xhtml:ul>\n\t\t\t\t<xhtml:li>Bypassing security mechanisms such as secure JTAG or Secure Boot</xhtml:li>\n\t\t\t\t<xhtml:li>Leaking device information</xhtml:li>\n\t\t\t\t<xhtml:li>Modifying program flow</xhtml:li>\n\t\t\t\t<xhtml:li>Perturbing secure hardware modules (e.g. random number generators)</xhtml:li>\n\t\t\t\t</xhtml:ul>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "693",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "System on Chip",
+				"prevalence": "Undetermined"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Microcontroller Hardware"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Memory Hardware"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Power Management Hardware"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Processor Hardware"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Test/Debug Hardware"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Sensor Hardware"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Access Control",
+				"Availability"
+			],
+			"impact": [
+				"Modify Memory",
+				"Read Memory",
+				"Gain Privileges or Assume Identity",
+				"Bypass Protection Mechanism",
+				"Execute Unauthorized Code or Commands"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"\n\t\t\t\t\t  <xhtml:ul>\n\t\t\t\t\t\t<xhtml:li>1. Redundancy - By replicating critical operations and comparing the two outputs can help indicate whether a fault has been injected.</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>2. Error detection and correction codes - Gay, Mael, et al. proposed a new scheme that not only detects faults injected by a malicious adversary but also automatically corrects single nibble/byte errors introduced by low-multiplicity faults.</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>3. Fail by default coding - When checking conditions (switch or if) check all possible cases and fail by default because the default case in a switch (or the else part of a cascaded if-else-if construct) is used for dealing with the last possible (and valid) value without checking. This is prone to fault injection because this alternative is easily selected as a result of potential data manipulation [REF-1141].</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>4. Random Behavior - adding random delays before critical operations, so that timing is not predictable.</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>5. Program Flow Integrity Protection - The program flow can be secured by integrating run-time checking aiming at detecting control flow inconsistencies. One such example is tagging the source code to indicate the points not to be bypassed [REF-1147].</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>6. Sensors - Usage of sensors can detect variations in voltage and current.</xhtml:li>\n\t\t\t\t\t\t<xhtml:li>7. Shields - physical barriers to protect the chips from malicious manipulation.</xhtml:li>\n\t\t\t\t\t  </xhtml:ul>\n\t\t\t\t\t"
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>In many devices, security related information is stored in fuses. These fuses are loaded into shadow registers at boot time. Disturbing this transfer phase with EM-FI can lead to the shadow registers storing erroneous values potentially resulting in reduced security.</Intro_Text>\n\t\t\t\t\t<Body_Text>Colin O'Flynn has demonstrated an attack scenario which uses electro-magnetic glitching during booting to bypass security and gain read access to flash, read and erase access to shadow memory area (where the private password is stored). Most devices in the MPC55xx and MPC56xx series that include the Boot Assist Module (BAM) (a serial or CAN bootloader mode) are susceptible to this attack. In this paper, a GM ECU was used as a real life target. While the success rate appears low (less than 2 percent), in practice a success can be found within 1-5 minutes once the EMFI tool is setup. In a practical scenario, the author showed that success can be achieved within 30-60 minutes from a cold start.</Body_Text>\n\t\t\t\t"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2020-27211",
+			"description": "Chain: microcontroller system-on-chip uses a register value stored in flash to set product protection state on the memory bus and does not contain protection against fault injection (CWE-1319) which leads to an incorrect initialization of the memory bus (CWE-1419) causing  the product to be in an unprotected state.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-27211"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1141",
+			"author": [
+				"Marc Witteman"
+			],
+			"title": "Secure Application Programming in the presence of Side Channel Attacks",
+			"url": "https://riscureprodstorage.blob.core.windows.net/production/2017/08/Riscure_Whitepaper_Side_Channel_Patterns.pdf",
+			"publication_year": "2017",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1142",
+			"author": [
+				"A. Dehbaoui, J. M. Dutertre, B. Robisson, P. Orsatelli, P. Maurine, A. Tria"
+			],
+			"title": "Injection of transient faults using electromagnetic pulses. Practical results on a cryptographic system",
+			"url": "https://eprint.iacr.org/2012/123.pdf",
+			"publication_year": "2012"
+		},
+		{
+			"reference_id": "REF-1143",
+			"author": [
+				"A. Menu, S. Bhasin, J. M. Dutertre, J. B. Rigaud, J. Danger"
+			],
+			"title": "Precise Spatio-Temporal Electromagnetic Fault Injections on Data Transfers",
+			"url": "https://hal.telecom-paris.fr/hal-02338456/document",
+			"publication_year": "2019"
+		},
+		{
+			"reference_id": "REF-1144",
+			"author": [
+				"Colin O'Flynn"
+			],
+			"title": "BAM BAM!! On Reliability of EMFI for in-situ Automotive ECU Attacks",
+			"url": "https://eprint.iacr.org/2020/937.pdf"
+		},
+		{
+			"reference_id": "REF-1145",
+			"author": [
+				"J. Balasch, D. Arumí, S. Manich"
+			],
+			"title": "Design and Validation of a Platform for Electromagnetic Fault Injection",
+			"url": "https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=8311630"
+		},
+		{
+			"reference_id": "REF-1146",
+			"author": [
+				"M. Gay, B. Karp, O. Keren, I. Polian"
+			],
+			"title": "Error control scheme for malicious and natural faults in cryptographic modules",
+			"url": "https://link.springer.com/content/pdf/10.1007/s13389-020-00234-7.pdf",
+			"publication_year": "2019",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1147",
+			"author": [
+				"M. L. Akkar, L. Goubin, O. Ly"
+			],
+			"title": "Automatic Integration of Counter-Measures Against Fault Injection Attacks",
+			"url": "https://www.labri.fr/perso/ly/publications/cfed.pdf"
+		},
+		{
+			"reference_id": "REF-1285",
+			"author": [
+				"Texas Instruments"
+			],
+			"title": "Physical Security Attacks Against Silicon Devices",
+			"url": "https://www.ti.com/lit/an/swra739/swra739.pdf?ts=1644234570420",
+			"publication_year": "2022",
+			"publication_month": "--01",
+			"publication_day": "---31"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Sebastien Leger, Rohini Narasipur",
+			"submission_organization": "Bosch",
+			"submission_date": "2020-08-27"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Applicable_Platforms, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Potential_Mitigations, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"624",
+		"625"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "This entry is attack-oriented and may require significant modification in future versions, or even deprecation. It is not clear whether there is really a design \"mistake\" that enables such attacks, so this is not necessarily a weakness and may be more appropriate for CAPEC."
+		}
+	]
 }

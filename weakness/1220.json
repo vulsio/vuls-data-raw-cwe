@@ -1,240 +1,240 @@
 {
-  "id": "1220",
-  "name": "Insufficient Granularity of Access Control",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product implements access controls via a policy or other feature with the intention to disable or restrict accesses (reads and/or writes) to assets in a system from untrusted agents. However, implemented access controls lack required granularity, which renders the control policy too broad because it allows accesses from unauthorized agents to the security-sensitive assets.",
-  "extended_description": "\n                <xhtml:p>Integrated circuits and hardware engines can expose accesses to assets (device configuration, keys, etc.) to trusted firmware or a software module (commonly set by BIOS/bootloader). This access is typically access-controlled. Upon a power reset, the hardware or system usually starts with default values in registers, and the trusted firmware (Boot firmware) configures the necessary access-control protection.</xhtml:p>\n                <xhtml:p>A common weakness that can exist in such protection schemes is that access controls or policies are not granular enough. This condition allows agents beyond trusted agents to access assets and could lead to a loss of functionality or the ability to set up the device securely. This further results in security risks from leaked, sensitive, key material to modification of device configuration.</xhtml:p>\n            ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "284",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "Such issues could be introduced during hardware architecture and design and identified later during Testing or System Configuration phases."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "Such issues could be introduced during hardware implementation and identified later during Testing or System Configuration phases."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Availability",
-        "Access Control"
-      ],
-      "impact": [
-        "Modify Memory",
-        "Read Memory",
-        "Execute Unauthorized Code or Commands",
-        "Gain Privileges or Assume Identity",
-        "Bypass Protection Mechanism",
-        "Other"
-      ],
-      "likelihood": "High"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation",
-        "Testing"
-      ],
-      "description": [
-        "\n                        <xhtml:ul>\n                            <xhtml:li>Access-control-policy protections must be reviewed for design inconsistency and common weaknesses.</xhtml:li>\n                            <xhtml:li>Access-control-policy definition and programming flow must be tested in pre-silicon, post-silicon testing.</xhtml:li>\n                        </xhtml:ul>\n                    "
-      ],
-      "effectiveness": "High"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n                    <Intro_Text>\n                        <xhtml:p>Consider a system with a register for storing AES key for encryption or decryption. The key is 128 bits, implemented as a set of four 32-bit registers. The key registers are assets and registers, AES_KEY_READ_POLICY and AES_KEY_WRITE_POLICY, and are defined to provide necessary access controls.</xhtml:p>\n                        <xhtml:p>The read-policy register defines which agents can read the AES-key registers, and write-policy register defines which agents can program or write to those registers. Each register is a 32-bit register, and it can support access control for a maximum of 32 agents. The number of the bit when set (i.e., \"1\") allows respective action from an agent whose identity matches the number of the bit and, if \"0\" (i.e., Clear), disallows the respective action to that corresponding agent.</xhtml:p>\n                    </Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Other\">\n                        <xhtml:table>\n                            <xhtml:tr>\n                                <xhtml:th>Register</xhtml:th>\n                                <xhtml:th>Field description</xhtml:th>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_ENC_DEC_KEY_0</xhtml:td>\n                                <xhtml:td>AES key [0:31] for encryption or decryption<xhtml:br/>Default 0x00000000</xhtml:td>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_ENC_DEC_KEY_1</xhtml:td>\n                                <xhtml:td>AES key [32:63] for encryption or decryption<xhtml:br/>Default 0x00000000</xhtml:td>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_ENC_DEC_KEY_2</xhtml:td>\n                                <xhtml:td>AES key [64:95] for encryption or decryption<xhtml:br/>Default 0x00000000</xhtml:td>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_ENC_DEC_KEY_4</xhtml:td>\n                                <xhtml:td>AES key [96:127] for encryption or decryption<xhtml:br/>Default 0x00000000</xhtml:td>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_KEY_READ_WRITE_POLICY</xhtml:td>\n                                <xhtml:td>[31:0] Default 0x00000006 - meaning agent with identities \"1\" and \"2\" can both read from and write to key registers</xhtml:td>\n                            </xhtml:tr>\n                        </xhtml:table>\n                    </Example_Code>\n                    <Body_Text>In the above example, there is only one policy register that controls access to both read and write accesses to the AES-key registers, and thus the design is not granular enough to separate read and writes access for different agents. Here, agent with identities \"1\" and \"2\" can both read and write.</Body_Text>\n                    <Body_Text>A good design should be granular enough to provide separate access controls to separate actions. Access control for reads should be separate from writes. Below is an example of such implementation where two policy registers are defined for each of these actions. The policy is defined such that: the AES-key registers can only be read or used by a crypto agent with identity \"1\" when bit #1 is set. The AES-key registers can only be programmed by a trusted firmware with identity \"2\" when bit #2 is set.</Body_Text>\n                    <Example_Code Nature=\"Good\">\n                        <xhtml:table>\n                            <xhtml:tr>\n                                <xhtml:td>AES_KEY_READ_POLICY</xhtml:td>\n                                <xhtml:td>[31:0] Default 0x00000002 - meaning only Crypto engine with identity \"1\" can read registers: AES_ENC_DEC_KEY_0, AES_ENC_DEC_KEY_1, AES_ENC_DEC_KEY_2, AES_ENC_DEC_KEY_3</xhtml:td>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_KEY_WRITE_POLICY</xhtml:td>\n                                <xhtml:td>[31:0] Default 0x00000004 - meaning only trusted firmware with identity \"2\" can program registers: AES_ENC_DEC_KEY_0, AES_ENC_DEC_KEY_1, AES_ENC_DEC_KEY_2, AES_ENC_DEC_KEY_3</xhtml:td>\n                            </xhtml:tr>\n                        </xhtml:table>\n                    </Example_Code>\n                "
-    },
-    {
-      "text": "\n                    <Intro_Text>\n                        <xhtml:p>Within the AXI node interface wrapper module in the RISC-V AXI module of the HACK@DAC'19 CVA6 SoC [REF-1346], an access control mechanism is employed to regulate the access of different privileged users to peripherals.</xhtml:p>\n                    </Intro_Text>\n                    <Body_Text>The AXI ensures that only users with appropriate privileges can access specific peripherals. For instance, a ROM module is accessible exclusively with Machine privilege, and AXI enforces that users attempting to read data from the ROM must possess machine privilege; otherwise, access to the ROM is denied. The access control information and configurations are stored in a ROM.</Body_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                        <xhtml:div>...<xhtml:br/>\n                            <xhtml:div style=\"margin-left:1em;\">for (i=0; i&lt;NB_SUBORDINATE; i++)<xhtml:br/>\n                            begin\n                                <xhtml:div style=\"margin-left:1em;\">for (j=0; j&lt;NB_MANAGER; j++)<xhtml:br/>\n                                begin\n                                    <xhtml:div style=\"margin-left:1em;\"><xhtml:b>assign connectivity_map_o[i][j] = access_ctrl_i[i][j][priv_lvl_i] || ((j==6) &amp;&amp; access_ctrl_i[i][7][priv_lvl_i]);</xhtml:b></xhtml:div>\n                            end</xhtml:div>\n                        end</xhtml:div>\n                        ...</xhtml:div>\n                    </Example_Code>\n                    <Body_Text>However, in the example code above, while assigning distinct privileges to AXI manager and subordinates, both the Platform-Level Interrupt Controller Specification (PLIC) and the Core-local Interrupt Controller (CLINT) (which are peripheral numbers 6 and 7 respectively) utilize the same access control configuration. This common configuration diminishes the granularity of the AXI access control mechanism.</Body_Text>\n                    <Body_Text>In certain situations, it might be necessary to grant higher privileges for accessing the PLIC than those required for accessing the CLINT. Unfortunately, this differentiation is overlooked, allowing an attacker to access the PLIC with lower privileges than intended.</Body_Text>\n                    <Body_Text>As a consequence, unprivileged code can read and write to the PLIC even when it was not intended to do so. In the worst-case scenario, the attacker could manipulate interrupt priorities, potentially modifying the system's behavior or availability.</Body_Text>\n                    <Body_Text>To address the aforementioned vulnerability, developers must enhance the AXI access control granularity by implementing distinct access control entries for the Platform-Level Interrupt Controller (PLIC) and the Core-local Interrupt Controller (CLINT). By doing so, different privilege levels can be defined for accessing PLIC and CLINT, effectively thwarting the potential attacks previously highlighted. This approach ensures a more robust and secure system, safeguarding against unauthorized access and manipulation of interrupt priorities. [REF-1347]</Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"Verilog\">\n                        <xhtml:div>...<xhtml:br/>\n                            <xhtml:div style=\"margin-left:1em;\">for (i=0; i&lt;NB_SUBORDINATE; i++)<xhtml:br/>\n                            begin\n                                <xhtml:div style=\"margin-left:1em;\">for (j=0; j&lt;NB_MANAGER; j++)<xhtml:br/>\n                                begin\n                                    <xhtml:div style=\"margin-left:1em;\"><xhtml:b>assign connectivity_map_o[i][j] = access_ctrl_i[i][j][priv_lvl_i];</xhtml:b></xhtml:div>\n                            end</xhtml:div>\n                        end</xhtml:div>\n                        ...</xhtml:div>\n                    </Example_Code>\n                "
-    },
-    {
-      "text": "\n\t      <Intro_Text>Consider the following SoC\n\t      design. The sram in HRoT has an address range that is readable and writable by unprivileged\n\t      software and it has an area that is only readable by unprivileged software. The tbus\n\t      interconnect enforces access control for subordinates on the bus but uses only one bit to control\n\t      both read and write access. Address 0xA0000000 - 0xA000FFFF is readable and writable\n\t      by the untrusted cores core{0-N} and address 0xA0010000 - 0xA001FFFF is only\n\t      readable by the untrusted cores core{0-N}.</Intro_Text>\n\t    <Body_Text>\n\t    <xhtml:img src=\"https://cwe.mitre.org/data/images/HRoT-CWE.png\" alt=\"Hardware Root of Trust\"/>\n\t    <xhtml:p>\n\t      The security policy access control is not granular enough, as it uses one bit to enable both\n\t      read and write access. This gives write access to an area that should only be readable\n\t      by unprivileged agents.\n\t      </xhtml:p>\n\t    <xhtml:p>\n\t      Access control logic should differentiate between read and write access and to have\n\t      sufficient address granularity.\n\t    </xhtml:p>\n\t    </Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-24985",
-      "description": "A form hosting website only checks the session authentication status for a single form, making it possible to bypass authentication when there are multiple forms",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-24985"
-    },
-    {
-      "reference": "CVE-2021-36934",
-      "description": "An operating system has an overly permission Access Control List onsome system files, including those related to user passwords",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-36934"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1346",
-      "title": "axi_node_intf_wrap.sv",
-      "url": "https://github.com/HACK-EVENT/hackatdac19/blob/619e9fb0ef32ee1e01ad76b8732a156572c65700/src/axi_node/src/axi_node_intf_wrap.sv#L430",
-      "publication_year": "2019",
-      "url_date": "2023-09-18"
-    },
-    {
-      "reference_id": "REF-1347",
-      "title": "axi_node_intf_wrap.sv",
-      "url": "https://github.com/HACK-EVENT/hackatdac19/blob/2078f2552194eda37ba87e54cbfef10f1aa41fa5/src/axi_node/src/axi_node_intf_wrap.sv#L430",
-      "publication_year": "2019",
-      "url_date": "2023-09-18"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
-      "submission_organization": "Intel Corporation",
-      "submission_date": "2020-02-05"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, References"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_organization": "Tortuga Logic",
-        "contribution_date": "2021-07-16",
-        "contribution_comment": "Provided Demonstrative Example for Hardware Root of Trust"
-      },
-      {
-        "type": "Content",
-        "contribution_organization": "Tortuga Logic",
-        "contribution_date": "2021-07-16",
-        "contribution_comment": "Provided Demonstrative Example for Hardware Root of Trust"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Shaza Zeitoni",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Mohamadreza Rostami",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Pouya Mahmoody",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Ahmad-Reza Sadeghi",
-        "contribution_organization": "Technical University of Darmstadt",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Rahul Kande",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Chen Chen",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      },
-      {
-        "type": "Content",
-        "contribution_name": "Jeyavijayan Rajendran",
-        "contribution_organization": "Texas A&M University",
-        "contribution_date": "2023-06-21",
-        "contribution_comment": "suggested demonstrative example"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "1",
-    "180"
-  ]
+	"id": "1220",
+	"name": "Insufficient Granularity of Access Control",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product implements access controls via a policy or other feature with the intention to disable or restrict accesses (reads and/or writes) to assets in a system from untrusted agents. However, implemented access controls lack required granularity, which renders the control policy too broad because it allows accesses from unauthorized agents to the security-sensitive assets.",
+	"extended_description": "\n                <xhtml:p>Integrated circuits and hardware engines can expose accesses to assets (device configuration, keys, etc.) to trusted firmware or a software module (commonly set by BIOS/bootloader). This access is typically access-controlled. Upon a power reset, the hardware or system usually starts with default values in registers, and the trusted firmware (Boot firmware) configures the necessary access-control protection.</xhtml:p>\n                <xhtml:p>A common weakness that can exist in such protection schemes is that access controls or policies are not granular enough. This condition allows agents beyond trusted agents to access assets and could lead to a loss of functionality or the ability to set up the device securely. This further results in security risks from leaked, sensitive, key material to modification of device configuration.</xhtml:p>\n            ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "284",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"Such issues could be introduced during hardware architecture and design and identified later during Testing or System Configuration phases."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"Such issues could be introduced during hardware implementation and identified later during Testing or System Configuration phases."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Availability",
+				"Access Control"
+			],
+			"impact": [
+				"Modify Memory",
+				"Read Memory",
+				"Execute Unauthorized Code or Commands",
+				"Gain Privileges or Assume Identity",
+				"Bypass Protection Mechanism",
+				"Other"
+			],
+			"likelihood": "High"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation",
+				"Testing"
+			],
+			"description": [
+				"\n                        <xhtml:ul>\n                            <xhtml:li>Access-control-policy protections must be reviewed for design inconsistency and common weaknesses.</xhtml:li>\n                            <xhtml:li>Access-control-policy definition and programming flow must be tested in pre-silicon, post-silicon testing.</xhtml:li>\n                        </xhtml:ul>\n                    "
+			],
+			"effectiveness": "High"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n                    <Intro_Text>\n                        <xhtml:p>Consider a system with a register for storing AES key for encryption or decryption. The key is 128 bits, implemented as a set of four 32-bit registers. The key registers are assets and registers, AES_KEY_READ_POLICY and AES_KEY_WRITE_POLICY, and are defined to provide necessary access controls.</xhtml:p>\n                        <xhtml:p>The read-policy register defines which agents can read the AES-key registers, and write-policy register defines which agents can program or write to those registers. Each register is a 32-bit register, and it can support access control for a maximum of 32 agents. The number of the bit when set (i.e., \"1\") allows respective action from an agent whose identity matches the number of the bit and, if \"0\" (i.e., Clear), disallows the respective action to that corresponding agent.</xhtml:p>\n                    </Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Other\">\n                        <xhtml:table>\n                            <xhtml:tr>\n                                <xhtml:th>Register</xhtml:th>\n                                <xhtml:th>Field description</xhtml:th>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_ENC_DEC_KEY_0</xhtml:td>\n                                <xhtml:td>AES key [0:31] for encryption or decryption<xhtml:br/>Default 0x00000000</xhtml:td>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_ENC_DEC_KEY_1</xhtml:td>\n                                <xhtml:td>AES key [32:63] for encryption or decryption<xhtml:br/>Default 0x00000000</xhtml:td>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_ENC_DEC_KEY_2</xhtml:td>\n                                <xhtml:td>AES key [64:95] for encryption or decryption<xhtml:br/>Default 0x00000000</xhtml:td>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_ENC_DEC_KEY_4</xhtml:td>\n                                <xhtml:td>AES key [96:127] for encryption or decryption<xhtml:br/>Default 0x00000000</xhtml:td>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_KEY_READ_WRITE_POLICY</xhtml:td>\n                                <xhtml:td>[31:0] Default 0x00000006 - meaning agent with identities \"1\" and \"2\" can both read from and write to key registers</xhtml:td>\n                            </xhtml:tr>\n                        </xhtml:table>\n                    </Example_Code>\n                    <Body_Text>In the above example, there is only one policy register that controls access to both read and write accesses to the AES-key registers, and thus the design is not granular enough to separate read and writes access for different agents. Here, agent with identities \"1\" and \"2\" can both read and write.</Body_Text>\n                    <Body_Text>A good design should be granular enough to provide separate access controls to separate actions. Access control for reads should be separate from writes. Below is an example of such implementation where two policy registers are defined for each of these actions. The policy is defined such that: the AES-key registers can only be read or used by a crypto agent with identity \"1\" when bit #1 is set. The AES-key registers can only be programmed by a trusted firmware with identity \"2\" when bit #2 is set.</Body_Text>\n                    <Example_Code Nature=\"Good\">\n                        <xhtml:table>\n                            <xhtml:tr>\n                                <xhtml:td>AES_KEY_READ_POLICY</xhtml:td>\n                                <xhtml:td>[31:0] Default 0x00000002 - meaning only Crypto engine with identity \"1\" can read registers: AES_ENC_DEC_KEY_0, AES_ENC_DEC_KEY_1, AES_ENC_DEC_KEY_2, AES_ENC_DEC_KEY_3</xhtml:td>\n                            </xhtml:tr>\n                            <xhtml:tr>\n                                <xhtml:td>AES_KEY_WRITE_POLICY</xhtml:td>\n                                <xhtml:td>[31:0] Default 0x00000004 - meaning only trusted firmware with identity \"2\" can program registers: AES_ENC_DEC_KEY_0, AES_ENC_DEC_KEY_1, AES_ENC_DEC_KEY_2, AES_ENC_DEC_KEY_3</xhtml:td>\n                            </xhtml:tr>\n                        </xhtml:table>\n                    </Example_Code>\n                "
+		},
+		{
+			"text": "\n                    <Intro_Text>\n                        <xhtml:p>Within the AXI node interface wrapper module in the RISC-V AXI module of the HACK@DAC'19 CVA6 SoC [REF-1346], an access control mechanism is employed to regulate the access of different privileged users to peripherals.</xhtml:p>\n                    </Intro_Text>\n                    <Body_Text>The AXI ensures that only users with appropriate privileges can access specific peripherals. For instance, a ROM module is accessible exclusively with Machine privilege, and AXI enforces that users attempting to read data from the ROM must possess machine privilege; otherwise, access to the ROM is denied. The access control information and configurations are stored in a ROM.</Body_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                        <xhtml:div>...<xhtml:br/>\n                            <xhtml:div style=\"margin-left:1em;\">for (i=0; i&lt;NB_SUBORDINATE; i++)<xhtml:br/>\n                            begin\n                                <xhtml:div style=\"margin-left:1em;\">for (j=0; j&lt;NB_MANAGER; j++)<xhtml:br/>\n                                begin\n                                    <xhtml:div style=\"margin-left:1em;\"><xhtml:b>assign connectivity_map_o[i][j] = access_ctrl_i[i][j][priv_lvl_i] || ((j==6) &amp;&amp; access_ctrl_i[i][7][priv_lvl_i]);</xhtml:b></xhtml:div>\n                            end</xhtml:div>\n                        end</xhtml:div>\n                        ...</xhtml:div>\n                    </Example_Code>\n                    <Body_Text>However, in the example code above, while assigning distinct privileges to AXI manager and subordinates, both the Platform-Level Interrupt Controller Specification (PLIC) and the Core-local Interrupt Controller (CLINT) (which are peripheral numbers 6 and 7 respectively) utilize the same access control configuration. This common configuration diminishes the granularity of the AXI access control mechanism.</Body_Text>\n                    <Body_Text>In certain situations, it might be necessary to grant higher privileges for accessing the PLIC than those required for accessing the CLINT. Unfortunately, this differentiation is overlooked, allowing an attacker to access the PLIC with lower privileges than intended.</Body_Text>\n                    <Body_Text>As a consequence, unprivileged code can read and write to the PLIC even when it was not intended to do so. In the worst-case scenario, the attacker could manipulate interrupt priorities, potentially modifying the system's behavior or availability.</Body_Text>\n                    <Body_Text>To address the aforementioned vulnerability, developers must enhance the AXI access control granularity by implementing distinct access control entries for the Platform-Level Interrupt Controller (PLIC) and the Core-local Interrupt Controller (CLINT). By doing so, different privilege levels can be defined for accessing PLIC and CLINT, effectively thwarting the potential attacks previously highlighted. This approach ensures a more robust and secure system, safeguarding against unauthorized access and manipulation of interrupt priorities. [REF-1347]</Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"Verilog\">\n                        <xhtml:div>...<xhtml:br/>\n                            <xhtml:div style=\"margin-left:1em;\">for (i=0; i&lt;NB_SUBORDINATE; i++)<xhtml:br/>\n                            begin\n                                <xhtml:div style=\"margin-left:1em;\">for (j=0; j&lt;NB_MANAGER; j++)<xhtml:br/>\n                                begin\n                                    <xhtml:div style=\"margin-left:1em;\"><xhtml:b>assign connectivity_map_o[i][j] = access_ctrl_i[i][j][priv_lvl_i];</xhtml:b></xhtml:div>\n                            end</xhtml:div>\n                        end</xhtml:div>\n                        ...</xhtml:div>\n                    </Example_Code>\n                "
+		},
+		{
+			"text": "\n\t      <Intro_Text>Consider the following SoC\n\t      design. The sram in HRoT has an address range that is readable and writable by unprivileged\n\t      software and it has an area that is only readable by unprivileged software. The tbus\n\t      interconnect enforces access control for subordinates on the bus but uses only one bit to control\n\t      both read and write access. Address 0xA0000000 - 0xA000FFFF is readable and writable\n\t      by the untrusted cores core{0-N} and address 0xA0010000 - 0xA001FFFF is only\n\t      readable by the untrusted cores core{0-N}.</Intro_Text>\n\t    <Body_Text>\n\t    <xhtml:img src=\"https://cwe.mitre.org/data/images/HRoT-CWE.png\" alt=\"Hardware Root of Trust\"/>\n\t    <xhtml:p>\n\t      The security policy access control is not granular enough, as it uses one bit to enable both\n\t      read and write access. This gives write access to an area that should only be readable\n\t      by unprivileged agents.\n\t      </xhtml:p>\n\t    <xhtml:p>\n\t      Access control logic should differentiate between read and write access and to have\n\t      sufficient address granularity.\n\t    </xhtml:p>\n\t    </Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-24985",
+			"description": "A form hosting website only checks the session authentication status for a single form, making it possible to bypass authentication when there are multiple forms",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-24985"
+		},
+		{
+			"reference": "CVE-2021-36934",
+			"description": "An operating system has an overly permission Access Control List onsome system files, including those related to user passwords",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-36934"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1346",
+			"title": "axi_node_intf_wrap.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac19/blob/619e9fb0ef32ee1e01ad76b8732a156572c65700/src/axi_node/src/axi_node_intf_wrap.sv#L430",
+			"publication_year": "2019",
+			"url_date": "2023-09-18"
+		},
+		{
+			"reference_id": "REF-1347",
+			"title": "axi_node_intf_wrap.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac19/blob/2078f2552194eda37ba87e54cbfef10f1aa41fa5/src/axi_node/src/axi_node_intf_wrap.sv#L430",
+			"publication_year": "2019",
+			"url_date": "2023-09-18"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+			"submission_organization": "Intel Corporation",
+			"submission_date": "2020-02-05"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples, References"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_organization": "Tortuga Logic",
+				"contribution_date": "2021-07-16",
+				"contribution_comment": "Provided Demonstrative Example for Hardware Root of Trust"
+			},
+			{
+				"type": "Content",
+				"contribution_organization": "Tortuga Logic",
+				"contribution_date": "2021-07-16",
+				"contribution_comment": "Provided Demonstrative Example for Hardware Root of Trust"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitoni",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Mohamadreza Rostami",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Pouya Mahmoody",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Rahul Kande",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"1",
+		"180"
+	]
 }

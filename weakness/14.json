@@ -1,300 +1,300 @@
 {
-  "id": "14",
-  "name": "Compiler Removal of Code to Clear Buffers",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "Sensitive memory is cleared according to the source code, but compiler optimizations leave the memory untouched when it is not read from again, aka \"dead store removal.\"",
-  "extended_description": "\n            <xhtml:p>This compiler optimization error occurs when:</xhtml:p>\n            <xhtml:ul>\n               <xhtml:li>1. Secret data are stored in memory.</xhtml:li>\n               <xhtml:li>2. The secret data are scrubbed from memory by overwriting its contents.</xhtml:li>\n               <xhtml:li>3. The source code is compiled using an optimizing compiler, which identifies and removes the function that overwrites the contents as a dead store because the memory is not used subsequently.</xhtml:li>\n            </xhtml:ul>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "733",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Build and Compilation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Access Control"
-      ],
-      "impact": [
-        "Read Memory",
-        "Bypass Protection Mechanism"
-      ],
-      "note": "This weakness will allow data that has not been cleared from memory to be read. If this data contains sensitive password information, then an attacker can read the password and use the information to bypass protection mechanisms."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Store the sensitive data in a \"volatile\" memory location if available."
-      ]
-    },
-    {
-      "phase": [
-        "Build and Compilation"
-      ],
-      "description": [
-        "If possible, configure your compiler so that it does not remove dead stores."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Where possible, encrypt sensitive data that are used by a software system."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following code reads a password from the user, uses the password to connect to a back-end mainframe and then attempts to scrub the password from memory using memset().</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void GetData(char *MFAddr) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char pwd[64];<xhtml:br/>if (GetPasswordFromUser(pwd, sizeof(pwd))) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>if (ConnectToMainframe(MFAddr, pwd)) {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// Interaction with mainframe</xhtml:i>\n                                       <xhtml:br/>\n                                    </xhtml:div>\n                                 </xhtml:div>}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>memset(pwd, 0, sizeof(pwd));</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code in the example will behave correctly if it is executed verbatim, but if the code is compiled using an optimizing compiler, such as Microsoft Visual C++ .NET or GCC 3.x, then the call to memset() will be removed as a dead store because the buffer pwd is not used after its value is overwritten [18]. Because the buffer pwd contains a sensitive value, the application may be vulnerable to attack if the data are left memory resident. If attackers are able to access the correct region of memory, they may use the recovered password to gain control of the system.</Body_Text>\n               <Body_Text>It is common practice to overwrite sensitive data manipulated in memory, such as passwords or cryptographic keys, in order to prevent attackers from learning system secrets. However, with the advent of optimizing compilers, programs do not always behave as their source code alone would suggest. In the example, the compiler interprets the call to memset() as dead code because the memory being written to is not subsequently used, despite the fact that there is clearly a security motivation for the operation to occur. The problem here is that many compilers, and in fact many programming languages, do not take this and other security concerns into consideration in their efforts to improve efficiency.</Body_Text>\n               <Body_Text>Attackers typically exploit this type of vulnerability by using a core dump or runtime mechanism to access the memory used by a particular application and recover the secret information. Once an attacker has access to the secret information, it is relatively straightforward to further exploit the system and possibly compromise other resources with which the application interacts.</Body_Text>\n            "
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-6",
-      "author": [
-        "Katrina Tsipenyuk",
-        "Brian Chess",
-        "Gary McGraw"
-      ],
-      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
-      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
-      "publication_year": "2005",
-      "publication_month": "--11",
-      "publication_day": "---07",
-      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
-      "publisher": "NIST"
-    },
-    {
-      "section": "Chapter 9, \"A Compiler Optimization Caveat\" Page 322",
-      "reference_id": "REF-7",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc"
-      ],
-      "title": "Writing Secure Code",
-      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
-      "publication_year": "2002",
-      "publication_month": "--12",
-      "publication_day": "---04",
-      "publisher": "Microsoft Press",
-      "edition": "2nd Edition"
-    },
-    {
-      "reference_id": "REF-124",
-      "author": [
-        "Michael Howard"
-      ],
-      "title": "When scrubbing secrets in memory doesn't work",
-      "url": "http://cert.uni-stuttgart.de/archive/bugtraq/2002/11/msg00046.html",
-      "publication_year": "2002",
-      "publication_month": "--11",
-      "publication_day": "---05",
-      "publication": "BugTraq"
-    },
-    {
-      "reference_id": "REF-125",
-      "author": [
-        "Michael Howard"
-      ],
-      "title": "Some Bad News and Some Good News",
-      "url": "https://learn.microsoft.com/en-us/previous-versions/ms972826(v=msdn.10)",
-      "publication_year": "2002",
-      "publication_month": "--10",
-      "publication_day": "---21",
-      "publisher": "Microsoft",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-126",
-      "author": [
-        "Joseph Wagner"
-      ],
-      "title": "GNU GCC: Optimizer Removes Code Necessary for Security",
-      "url": "https://seclists.org/bugtraq/2002/Nov/266",
-      "publication_year": "2002",
-      "publication_month": "--11",
-      "publication_day": "---16",
-      "publication": "Bugtraq",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "7 Pernicious Kingdoms",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Applicable_Platforms, Description, Detection_Factors, Other_Notes, Potential_Mitigations, Relationships, Taxonomy_Mappings, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-01-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated References, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Insecure Compiler Optimization",
-        "date": "2008-04-11"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "method": "Black Box",
-      "description": "This specific weakness is impossible to detect using black box methods. While an analyst could examine memory to see that it has not been scrubbed, an analysis of the executable would not be successful. This is because the compiler has already removed the relevant code. Only the source code shows whether the programmer intended to clear the memory or not, so this weakness is indistinguishable from others."
-    },
-    {
-      "method": "White Box",
-      "description": "This weakness is only detectable using white box methods (see black box detection factor). Careful analysis is required to determine if the code is likely to be removed by the compiler."
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "Insecure Compiler Optimization"
-    },
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Sensitive memory uncleared by compiler optimization"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2004",
-      "entry_name": "Insecure Storage",
-      "entry_id": "A8",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Be aware of compiler optimization when dealing with sensitive data",
-      "entry_id": "MSC06-C"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Exposed Data",
-      "entry_id": "SFP23"
-    }
-  ],
-  "affected_resources": [
-    "Memory"
-  ]
+	"id": "14",
+	"name": "Compiler Removal of Code to Clear Buffers",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "Sensitive memory is cleared according to the source code, but compiler optimizations leave the memory untouched when it is not read from again, aka \"dead store removal.\"",
+	"extended_description": "\n            <xhtml:p>This compiler optimization error occurs when:</xhtml:p>\n            <xhtml:ul>\n               <xhtml:li>1. Secret data are stored in memory.</xhtml:li>\n               <xhtml:li>2. The secret data are scrubbed from memory by overwriting its contents.</xhtml:li>\n               <xhtml:li>3. The source code is compiled using an optimizing compiler, which identifies and removes the function that overwrites the contents as a dead store because the memory is not used subsequently.</xhtml:li>\n            </xhtml:ul>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "733",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Build and Compilation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Access Control"
+			],
+			"impact": [
+				"Read Memory",
+				"Bypass Protection Mechanism"
+			],
+			"note": "This weakness will allow data that has not been cleared from memory to be read. If this data contains sensitive password information, then an attacker can read the password and use the information to bypass protection mechanisms."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Store the sensitive data in a \"volatile\" memory location if available."
+			]
+		},
+		{
+			"phase": [
+				"Build and Compilation"
+			],
+			"description": [
+				"If possible, configure your compiler so that it does not remove dead stores."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Where possible, encrypt sensitive data that are used by a software system."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following code reads a password from the user, uses the password to connect to a back-end mainframe and then attempts to scrub the password from memory using memset().</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void GetData(char *MFAddr) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char pwd[64];<xhtml:br/>if (GetPasswordFromUser(pwd, sizeof(pwd))) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>if (ConnectToMainframe(MFAddr, pwd)) {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// Interaction with mainframe</xhtml:i>\n                                       <xhtml:br/>\n                                    </xhtml:div>\n                                 </xhtml:div>}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>memset(pwd, 0, sizeof(pwd));</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code in the example will behave correctly if it is executed verbatim, but if the code is compiled using an optimizing compiler, such as Microsoft Visual C++ .NET or GCC 3.x, then the call to memset() will be removed as a dead store because the buffer pwd is not used after its value is overwritten [18]. Because the buffer pwd contains a sensitive value, the application may be vulnerable to attack if the data are left memory resident. If attackers are able to access the correct region of memory, they may use the recovered password to gain control of the system.</Body_Text>\n               <Body_Text>It is common practice to overwrite sensitive data manipulated in memory, such as passwords or cryptographic keys, in order to prevent attackers from learning system secrets. However, with the advent of optimizing compilers, programs do not always behave as their source code alone would suggest. In the example, the compiler interprets the call to memset() as dead code because the memory being written to is not subsequently used, despite the fact that there is clearly a security motivation for the operation to occur. The problem here is that many compilers, and in fact many programming languages, do not take this and other security concerns into consideration in their efforts to improve efficiency.</Body_Text>\n               <Body_Text>Attackers typically exploit this type of vulnerability by using a core dump or runtime mechanism to access the memory used by a particular application and recover the secret information. Once an attacker has access to the secret information, it is relatively straightforward to further exploit the system and possibly compromise other resources with which the application interacts.</Body_Text>\n            "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-6",
+			"author": [
+				"Katrina Tsipenyuk",
+				"Brian Chess",
+				"Gary McGraw"
+			],
+			"title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+			"url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+			"publication_year": "2005",
+			"publication_month": "--11",
+			"publication_day": "---07",
+			"publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+			"publisher": "NIST"
+		},
+		{
+			"section": "Chapter 9, \"A Compiler Optimization Caveat\" Page 322",
+			"reference_id": "REF-7",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc"
+			],
+			"title": "Writing Secure Code",
+			"url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+			"publication_year": "2002",
+			"publication_month": "--12",
+			"publication_day": "---04",
+			"publisher": "Microsoft Press",
+			"edition": "2nd Edition"
+		},
+		{
+			"reference_id": "REF-124",
+			"author": [
+				"Michael Howard"
+			],
+			"title": "When scrubbing secrets in memory doesn't work",
+			"url": "http://cert.uni-stuttgart.de/archive/bugtraq/2002/11/msg00046.html",
+			"publication_year": "2002",
+			"publication_month": "--11",
+			"publication_day": "---05",
+			"publication": "BugTraq"
+		},
+		{
+			"reference_id": "REF-125",
+			"author": [
+				"Michael Howard"
+			],
+			"title": "Some Bad News and Some Good News",
+			"url": "https://learn.microsoft.com/en-us/previous-versions/ms972826(v=msdn.10)",
+			"publication_year": "2002",
+			"publication_month": "--10",
+			"publication_day": "---21",
+			"publisher": "Microsoft",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-126",
+			"author": [
+				"Joseph Wagner"
+			],
+			"title": "GNU GCC: Optimizer Removes Code Necessary for Security",
+			"url": "https://seclists.org/bugtraq/2002/Nov/266",
+			"publication_year": "2002",
+			"publication_month": "--11",
+			"publication_day": "---16",
+			"publication": "Bugtraq",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "7 Pernicious Kingdoms",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Applicable_Platforms, Description, Detection_Factors, Other_Notes, Potential_Mitigations, Relationships, Taxonomy_Mappings, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-01-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated References, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Insecure Compiler Optimization",
+				"date": "2008-04-11"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"method": "Black Box",
+			"description": "This specific weakness is impossible to detect using black box methods. While an analyst could examine memory to see that it has not been scrubbed, an analysis of the executable would not be successful. This is because the compiler has already removed the relevant code. Only the source code shows whether the programmer intended to clear the memory or not, so this weakness is indistinguishable from others."
+		},
+		{
+			"method": "White Box",
+			"description": "This weakness is only detectable using white box methods (see black box detection factor). Careful analysis is required to determine if the code is likely to be removed by the compiler."
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "Insecure Compiler Optimization"
+		},
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Sensitive memory uncleared by compiler optimization"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2004",
+			"entry_name": "Insecure Storage",
+			"entry_id": "A8",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Be aware of compiler optimization when dealing with sensitive data",
+			"entry_id": "MSC06-C"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Exposed Data",
+			"entry_id": "SFP23"
+		}
+	],
+	"affected_resources": [
+		"Memory"
+	]
 }

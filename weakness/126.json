@@ -1,261 +1,261 @@
 {
-  "id": "126",
-  "name": "Buffer Over-read",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product reads from a buffer using buffer access mechanisms such as indexes or pointers that reference memory locations after the targeted buffer.",
-  "extended_description": "This typically occurs when the pointer or its index is incremented to a position beyond the bounds of the buffer or when pointer arithmetic results in a position outside of the valid memory location to name a few. This may result in exposure of sensitive information or possibly a crash.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "125",
-      "view_id": "1000"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "788",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Memory"
-      ]
-    },
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism"
-      ],
-      "note": "By reading out-of-bounds memory, an attacker might be able to get secret values, such as memory addresses, which can be bypass protection mechanisms such as ASLR in order to improve the reliability and likelihood of exploiting a separate weakness to achieve code execution instead of just denial of service."
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-91",
-      "text": "\n               <Intro_Text>In the following C/C++ example the method processMessageFromSocket() will get a message from a socket, placed into a buffer, and will parse the contents of the buffer into a structure that contains the message length and the message body. A for loop is used to copy the message body into a local character string which will be passed to another method for processing.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int processMessageFromSocket(int socket) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int success;<xhtml:br/>\n                           <xhtml:br/>char buffer[BUFFER_SIZE];<xhtml:br/>char message[MESSAGE_SIZE];<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// get message from socket and store into buffer</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>//Ignoring possibliity that buffer &gt; BUFFER_SIZE</xhtml:i>\n                           <xhtml:br/>if (getMessage(socket, buffer, BUFFER_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>// place contents of the buffer into message structure</xhtml:i>\n                                 <xhtml:br/>ExMessage *msg = recastBuffer(buffer);<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// copy message body into string for processing</xhtml:i>\n                                 <xhtml:br/>int index;<xhtml:br/>for (index = 0; index &lt; msg-&gt;msgLength; index++) {<xhtml:div style=\"margin-left:1em;\">message[index] = msg-&gt;msgBody[index];</xhtml:div>}<xhtml:br/>message[index] = '\\0';<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// process message</xhtml:i>\n                                 <xhtml:br/>success = processMessage(message);</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return success;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the message length variable from the structure is used as the condition for ending the for loop without validating that the message length variable accurately reflects the length of the message body (CWE-606). This can result in a buffer over-read (CWE-125) by reading from memory beyond the bounds of the buffer if the message length variable indicates a length that is longer than the size of a message body (CWE-130).</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>The following C/C++ example demonstrates a buffer over-read due to a missing NULL terminator. The main method of a pattern matching utility that looks for a specific pattern within a specific file uses the string strncopy() method to copy the command line user input file name and pattern to the Filename and Pattern character arrays respectively.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int main(int argc, char **argv)<xhtml:br/>{<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">char Filename[256];<xhtml:br/>char Pattern[32];<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>/* Validate number of parameters and ensure valid content */</xhtml:i>\n                        <xhtml:br/>...<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>/* copy filename parameter to variable, may cause off-by-one overflow */</xhtml:i>\n                        <xhtml:br/>strncpy(Filename, argv[1], sizeof(Filename));<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>/* copy pattern parameter to variable, may cause off-by-one overflow */</xhtml:i>\n                        <xhtml:br/>strncpy(Pattern, argv[2], sizeof(Pattern));<xhtml:br/>\n                        <xhtml:br/>printf(\"Searching file: %s for the pattern: %s\\n\", Filename, Pattern);<xhtml:br/>Scan_File(Filename, Pattern);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the code do not take into account that strncpy() will not add a NULL terminator when the source buffer is equal in length of longer than that provide size attribute. Therefore if a user enters a filename or pattern that are the same size as (or larger than) their respective character arrays, a NULL terminator will not be added (CWE-170) which leads to the printf() read beyond the expected end of the Filename and Pattern buffers.</Body_Text>\n               <Body_Text>To fix this problem, be sure to subtract 1 from the sizeof() call to allow room for the null byte to be added.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>\n                     <xhtml:i>/* copy filename parameter to variable, no off-by-one overflow */</xhtml:i>\n                     <xhtml:br/>strncpy(Filename, argv[2], sizeof(Filename)-1);<xhtml:br/>Filename[255]='\\0';<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>/* copy pattern parameter to variable, no off-by-one overflow */</xhtml:i>\n                     <xhtml:br/>strncpy(Pattern, argv[3], sizeof(Pattern)-1);</xhtml:div>Pattern[31]='\\0';<xhtml:br/>\n               </Example_Code>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-1733",
-      "description": "Text editor has out-of-bounds read past end of line while indenting C code",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-1733"
-    },
-    {
-      "reference": "CVE-2014-0160",
-      "description": "Chain: \"Heartbleed\" bug receives an inconsistent length parameter (CWE-130) enabling an out-of-bounds read (CWE-126), returning memory that could include private cryptographic keys and other sensitive data.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2014-0160"
-    },
-    {
-      "reference": "CVE-2009-2523",
-      "description": "Chain: product does not handle when an input string is not NULL terminated, leading to buffer over-read or heap-based buffer overflow.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2523"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1034",
-      "author": [
-        "Raoul Strackx",
-        "Yves Younan",
-        "Pieter Philippaerts",
-        "Frank Piessens",
-        "Sven Lachmund",
-        "Thomas Walter"
-      ],
-      "title": "Breaking the memory secrecy assumption",
-      "url": "https://dl.acm.org/doi/10.1145/1519144.1519145",
-      "publication_year": "2009",
-      "publication_month": "--03",
-      "publication_day": "---31",
-      "publisher": "ACM",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1035",
-      "author": [
-        "Fermin J. Serna"
-      ],
-      "title": "The info leak era on software exploitation",
-      "url": "https://media.blackhat.com/bh-us-12/Briefings/Serna/BH_US_12_Serna_Leak_Era_Slides.pdf",
-      "publication_year": "2012",
-      "publication_month": "--07",
-      "publication_day": "---25"
-    },
-    {
-      "section": "\"Sin 5: Buffer Overruns.\" Page 89",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Description, Relationship_Notes, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Causal_Nature, Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Common_Consequences, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Buffer over-read"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Faulty Buffer Access",
-      "entry_id": "SFP8"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "These problems may be resultant from missing sentinel values (CWE-463) or trusting a user-influenced input length variable."
-    }
-  ]
+	"id": "126",
+	"name": "Buffer Over-read",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product reads from a buffer using buffer access mechanisms such as indexes or pointers that reference memory locations after the targeted buffer.",
+	"extended_description": "This typically occurs when the pointer or its index is incremented to a position beyond the bounds of the buffer or when pointer arithmetic results in a position outside of the valid memory location to name a few. This may result in exposure of sensitive information or possibly a crash.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "125",
+			"view_id": "1000"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "788",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Memory"
+			]
+		},
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			],
+			"note": "By reading out-of-bounds memory, an attacker might be able to get secret values, such as memory addresses, which can be bypass protection mechanisms such as ASLR in order to improve the reliability and likelihood of exploiting a separate weakness to achieve code execution instead of just denial of service."
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-91",
+			"text": "\n               <Intro_Text>In the following C/C++ example the method processMessageFromSocket() will get a message from a socket, placed into a buffer, and will parse the contents of the buffer into a structure that contains the message length and the message body. A for loop is used to copy the message body into a local character string which will be passed to another method for processing.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int processMessageFromSocket(int socket) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int success;<xhtml:br/>\n                           <xhtml:br/>char buffer[BUFFER_SIZE];<xhtml:br/>char message[MESSAGE_SIZE];<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// get message from socket and store into buffer</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>//Ignoring possibliity that buffer &gt; BUFFER_SIZE</xhtml:i>\n                           <xhtml:br/>if (getMessage(socket, buffer, BUFFER_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>// place contents of the buffer into message structure</xhtml:i>\n                                 <xhtml:br/>ExMessage *msg = recastBuffer(buffer);<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// copy message body into string for processing</xhtml:i>\n                                 <xhtml:br/>int index;<xhtml:br/>for (index = 0; index &lt; msg-&gt;msgLength; index++) {<xhtml:div style=\"margin-left:1em;\">message[index] = msg-&gt;msgBody[index];</xhtml:div>}<xhtml:br/>message[index] = '\\0';<xhtml:br/>\n                                 <xhtml:br/>\n                                 <xhtml:i>// process message</xhtml:i>\n                                 <xhtml:br/>success = processMessage(message);</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return success;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the message length variable from the structure is used as the condition for ending the for loop without validating that the message length variable accurately reflects the length of the message body (CWE-606). This can result in a buffer over-read (CWE-125) by reading from memory beyond the bounds of the buffer if the message length variable indicates a length that is longer than the size of a message body (CWE-130).</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>The following C/C++ example demonstrates a buffer over-read due to a missing NULL terminator. The main method of a pattern matching utility that looks for a specific pattern within a specific file uses the string strncopy() method to copy the command line user input file name and pattern to the Filename and Pattern character arrays respectively.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int main(int argc, char **argv)<xhtml:br/>{<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">char Filename[256];<xhtml:br/>char Pattern[32];<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>/* Validate number of parameters and ensure valid content */</xhtml:i>\n                        <xhtml:br/>...<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>/* copy filename parameter to variable, may cause off-by-one overflow */</xhtml:i>\n                        <xhtml:br/>strncpy(Filename, argv[1], sizeof(Filename));<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>/* copy pattern parameter to variable, may cause off-by-one overflow */</xhtml:i>\n                        <xhtml:br/>strncpy(Pattern, argv[2], sizeof(Pattern));<xhtml:br/>\n                        <xhtml:br/>printf(\"Searching file: %s for the pattern: %s\\n\", Filename, Pattern);<xhtml:br/>Scan_File(Filename, Pattern);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the code do not take into account that strncpy() will not add a NULL terminator when the source buffer is equal in length of longer than that provide size attribute. Therefore if a user enters a filename or pattern that are the same size as (or larger than) their respective character arrays, a NULL terminator will not be added (CWE-170) which leads to the printf() read beyond the expected end of the Filename and Pattern buffers.</Body_Text>\n               <Body_Text>To fix this problem, be sure to subtract 1 from the sizeof() call to allow room for the null byte to be added.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>\n                     <xhtml:i>/* copy filename parameter to variable, no off-by-one overflow */</xhtml:i>\n                     <xhtml:br/>strncpy(Filename, argv[2], sizeof(Filename)-1);<xhtml:br/>Filename[255]='\\0';<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i>/* copy pattern parameter to variable, no off-by-one overflow */</xhtml:i>\n                     <xhtml:br/>strncpy(Pattern, argv[3], sizeof(Pattern)-1);</xhtml:div>Pattern[31]='\\0';<xhtml:br/>\n               </Example_Code>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-1733",
+			"description": "Text editor has out-of-bounds read past end of line while indenting C code",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-1733"
+		},
+		{
+			"reference": "CVE-2014-0160",
+			"description": "Chain: \"Heartbleed\" bug receives an inconsistent length parameter (CWE-130) enabling an out-of-bounds read (CWE-126), returning memory that could include private cryptographic keys and other sensitive data.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2014-0160"
+		},
+		{
+			"reference": "CVE-2009-2523",
+			"description": "Chain: product does not handle when an input string is not NULL terminated, leading to buffer over-read or heap-based buffer overflow.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2523"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1034",
+			"author": [
+				"Raoul Strackx",
+				"Yves Younan",
+				"Pieter Philippaerts",
+				"Frank Piessens",
+				"Sven Lachmund",
+				"Thomas Walter"
+			],
+			"title": "Breaking the memory secrecy assumption",
+			"url": "https://dl.acm.org/doi/10.1145/1519144.1519145",
+			"publication_year": "2009",
+			"publication_month": "--03",
+			"publication_day": "---31",
+			"publisher": "ACM",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1035",
+			"author": [
+				"Fermin J. Serna"
+			],
+			"title": "The info leak era on software exploitation",
+			"url": "https://media.blackhat.com/bh-us-12/Briefings/Serna/BH_US_12_Serna_Leak_Era_Slides.pdf",
+			"publication_year": "2012",
+			"publication_month": "--07",
+			"publication_day": "---25"
+		},
+		{
+			"section": "\"Sin 5: Buffer Overruns.\" Page 89",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Description, Relationship_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Causal_Nature, Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Common_Consequences, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Buffer over-read"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Faulty Buffer Access",
+			"entry_id": "SFP8"
+		}
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "These problems may be resultant from missing sentinel values (CWE-463) or trusting a user-influenced input length variable."
+		}
+	]
 }

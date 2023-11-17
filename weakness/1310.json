@@ -1,169 +1,169 @@
 {
-  "id": "1310",
-  "name": "Missing Ability to Patch ROM Code",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "Missing an ability to patch ROM code may leave a System or System-on-Chip (SoC) in a vulnerable state.",
-  "extended_description": "\n\t\t\t\t<xhtml:p>A System or System-on-Chip (SoC) that implements a boot process utilizing security mechanisms such as Root-of-Trust (RoT) typically starts by executing code from a Read-only-Memory (ROM) component. The code in ROM is immutable, hence any security vulnerabilities discovered in the ROM code can never be fixed for the systems that are already in use.</xhtml:p>\n\t\t\t\t\n\t\t\t\t<xhtml:p>A common weakness is that the ROM does not have the ability to patch if security vulnerabilities are uncovered after the system gets shipped.  This leaves the system in a vulnerable state where an adversary can compromise the SoC.</xhtml:p>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1329",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "System on Chip",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "This issue could be introduced during hardware architecture and design and can be identified later during Testing."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "This issue could be introduced during implementation and can be identified later during Testing."
-      ]
-    },
-    {
-      "phase": "Integration",
-      "note": [
-        "This issue could be introduced during integration and can be identified later during Testing."
-      ]
-    },
-    {
-      "phase": "Manufacturing",
-      "note": [
-        "This issue could be introduced during manufacturing and can be identified later during Testing."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Varies by Context",
-        "Reduce Maintainability"
-      ],
-      "note": "When the system is unable to be patched, it can be left in a vulnerable state.",
-      "likelihood": "High"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation"
-      ],
-      "description": [
-        "\n\t\t\t\t\t  Secure patch support to allow ROM code to be patched on the next boot.\n                    "
-      ],
-      "effectiveness": "Moderate",
-      "effectiveness_notes": "\n                        Some parts of the hardware initialization or signature verification done to authenticate patches will always be \"not patchable.\"\n                    "
-    },
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation"
-      ],
-      "description": [
-        "\n\t\t\t\t\t    Support patches that can be programmed in-field or during manufacturing through hardware fuses. This feature can be used for limited patching of devices after shipping, or for the next batch of silicon devices manufactured, without changing the full device ROM.\n                    "
-      ],
-      "effectiveness": "Moderate",
-      "effectiveness_notes": "\n                        Patches that use hardware fuses will have limitations in terms of size and the number of patches that can be supported. Note that some parts of the hardware initialization or signature verification done to authenticate patches will always be \"not patchable.\"\n                    "
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-146",
-      "text": "\n\t\t\t\t\t<Intro_Text>\n\t\t\t\t\t\t<xhtml:p>A System-on-Chip (SOC) implements a Root-of-Trust (RoT) in ROM to boot secure code. However, at times this ROM code might have security vulnerabilities and need to be patched. Since ROM is immutable, it can be impossible to patch.</xhtml:p>\n\t\t\t\t\t</Intro_Text>\n\t\t\t\t\t<Body_Text>ROM does not have built-in application-programming interfaces (APIs) to patch if the code is vulnerable. Implement mechanisms to patch the vulnerable ROM code.</Body_Text>\n\t\t\t\t"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Narasimha Kumar V Mangipudi",
-      "submission_organization": "Intel Corporation",
-      "submission_date": "2020-04-25"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Maintenance_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Demonstrative_Examples, Maintenance_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated References, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Feedback",
-        "contribution_name": "Jason Fung",
-        "contribution_organization": "Intel",
-        "contribution_date": "2022-09-07",
-        "contribution_comment": "suggested removal of incorrect references"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "682"
-  ]
+	"id": "1310",
+	"name": "Missing Ability to Patch ROM Code",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "Missing an ability to patch ROM code may leave a System or System-on-Chip (SoC) in a vulnerable state.",
+	"extended_description": "\n\t\t\t\t<xhtml:p>A System or System-on-Chip (SoC) that implements a boot process utilizing security mechanisms such as Root-of-Trust (RoT) typically starts by executing code from a Read-only-Memory (ROM) component. The code in ROM is immutable, hence any security vulnerabilities discovered in the ROM code can never be fixed for the systems that are already in use.</xhtml:p>\n\t\t\t\t\n\t\t\t\t<xhtml:p>A common weakness is that the ROM does not have the ability to patch if security vulnerabilities are uncovered after the system gets shipped.  This leaves the system in a vulnerable state where an adversary can compromise the SoC.</xhtml:p>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1329",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "System on Chip",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"This issue could be introduced during hardware architecture and design and can be identified later during Testing."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"This issue could be introduced during implementation and can be identified later during Testing."
+			]
+		},
+		{
+			"phase": "Integration",
+			"note": [
+				"This issue could be introduced during integration and can be identified later during Testing."
+			]
+		},
+		{
+			"phase": "Manufacturing",
+			"note": [
+				"This issue could be introduced during manufacturing and can be identified later during Testing."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Varies by Context",
+				"Reduce Maintainability"
+			],
+			"note": "When the system is unable to be patched, it can be left in a vulnerable state.",
+			"likelihood": "High"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"\n\t\t\t\t\t  Secure patch support to allow ROM code to be patched on the next boot.\n                    "
+			],
+			"effectiveness": "Moderate",
+			"effectiveness_notes": "\n                        Some parts of the hardware initialization or signature verification done to authenticate patches will always be \"not patchable.\"\n                    "
+		},
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"\n\t\t\t\t\t    Support patches that can be programmed in-field or during manufacturing through hardware fuses. This feature can be used for limited patching of devices after shipping, or for the next batch of silicon devices manufactured, without changing the full device ROM.\n                    "
+			],
+			"effectiveness": "Moderate",
+			"effectiveness_notes": "\n                        Patches that use hardware fuses will have limitations in terms of size and the number of patches that can be supported. Note that some parts of the hardware initialization or signature verification done to authenticate patches will always be \"not patchable.\"\n                    "
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-146",
+			"text": "\n\t\t\t\t\t<Intro_Text>\n\t\t\t\t\t\t<xhtml:p>A System-on-Chip (SOC) implements a Root-of-Trust (RoT) in ROM to boot secure code. However, at times this ROM code might have security vulnerabilities and need to be patched. Since ROM is immutable, it can be impossible to patch.</xhtml:p>\n\t\t\t\t\t</Intro_Text>\n\t\t\t\t\t<Body_Text>ROM does not have built-in application-programming interfaces (APIs) to patch if the code is vulnerable. Implement mechanisms to patch the vulnerable ROM code.</Body_Text>\n\t\t\t\t"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Narasimha Kumar V Mangipudi",
+			"submission_organization": "Intel Corporation",
+			"submission_date": "2020-04-25"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Maintenance_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Demonstrative_Examples, Maintenance_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated References, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Feedback",
+				"contribution_name": "Jason Fung",
+				"contribution_organization": "Intel",
+				"contribution_date": "2022-09-07",
+				"contribution_comment": "suggested removal of incorrect references"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"682"
+	]
 }

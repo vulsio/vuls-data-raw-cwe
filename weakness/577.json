@@ -1,144 +1,144 @@
 {
-  "id": "577",
-  "name": "EJB Bad Practices: Use of Sockets",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product violates the Enterprise JavaBeans (EJB) specification by using sockets.",
-  "extended_description": "The Enterprise JavaBeans specification requires that every bean provider follow a set of programming guidelines designed to ensure that the bean will be portable and behave consistently in any EJB container. In this case, the product violates the following EJB guideline: \"An enterprise bean must not attempt to listen on a socket, accept connections on a socket, or use a socket for multicast.\" The specification justifies this requirement in the following way: \"The EJB architecture allows an enterprise bean instance to be a network socket client, but it does not allow it to be a network server. Allowing the instance to become a network server would conflict with the basic function of the enterprise bean-- to serve the EJB clients.\"",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "573",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Quality Degradation"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation"
-      ],
-      "description": [
-        "Do not use Sockets when writing EJBs."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following Java example is a simple stateless Enterprise JavaBean that retrieves stock symbols and stock values. The Enterprise JavaBean creates a socket and listens for and accepts connections from clients on the socket.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class StockSymbolBean implements StockSymbolRemote {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>ServerSocket serverSocket = null;<xhtml:br/>Socket clientSocket = null;<xhtml:br/>\n                           <xhtml:br/>public StockSymbolBean() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">serverSocket = new ServerSocket(Constants.SOCKET_PORT);</xhtml:div>} catch (IOException ex) {...}<xhtml:br/>\n                                 <xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">clientSocket = serverSocket.accept();</xhtml:div>} catch (IOException e) {...}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public String getStockSymbol(String name) {...}<xhtml:br/>\n                           <xhtml:br/>public BigDecimal getStockValue(String symbol) {...}<xhtml:br/>\n                           <xhtml:br/>private void processClientInputFromSocket() {...}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>And the following Java example is similar to the previous example but demonstrates the use of multicast socket connections within an Enterprise JavaBean.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class StockSymbolBean extends Thread implements StockSymbolRemote {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>ServerSocket serverSocket = null;<xhtml:br/>Socket clientSocket = null;<xhtml:br/>boolean listening = false;<xhtml:br/>\n                           <xhtml:br/>public StockSymbolBean() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">serverSocket = new ServerSocket(Constants.SOCKET_PORT);</xhtml:div>} catch (IOException ex) {...}<xhtml:br/>\n                                 <xhtml:br/>listening = true;<xhtml:br/>while(listening) {<xhtml:div style=\"margin-left:1em;\">start();</xhtml:div>}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public String getStockSymbol(String name) {...}<xhtml:br/>\n                           <xhtml:br/>public BigDecimal getStockValue(String symbol) {...}<xhtml:br/>\n                           <xhtml:br/>public void run() {<xhtml:div style=\"margin-left:1em;\">try {<xhtml:div style=\"margin-left:1em;\">clientSocket = serverSocket.accept();</xhtml:div>} catch (IOException e) {...}<xhtml:br/>...</xhtml:div>}<xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The previous two examples within any type of Enterprise JavaBean violate the EJB specification by attempting to listen on a socket, accepting connections on a socket, or using a socket for multicast.</Body_Text>\n            "
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Community",
-      "submission_date": "2006-12-15",
-      "submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Description, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Use of an improper API",
-      "entry_id": "SFP3"
-    }
-  ]
+	"id": "577",
+	"name": "EJB Bad Practices: Use of Sockets",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product violates the Enterprise JavaBeans (EJB) specification by using sockets.",
+	"extended_description": "The Enterprise JavaBeans specification requires that every bean provider follow a set of programming guidelines designed to ensure that the bean will be portable and behave consistently in any EJB container. In this case, the product violates the following EJB guideline: \"An enterprise bean must not attempt to listen on a socket, accept connections on a socket, or use a socket for multicast.\" The specification justifies this requirement in the following way: \"The EJB architecture allows an enterprise bean instance to be a network socket client, but it does not allow it to be a network server. Allowing the instance to become a network server would conflict with the basic function of the enterprise bean-- to serve the EJB clients.\"",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "573",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Quality Degradation"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"Do not use Sockets when writing EJBs."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following Java example is a simple stateless Enterprise JavaBean that retrieves stock symbols and stock values. The Enterprise JavaBean creates a socket and listens for and accepts connections from clients on the socket.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class StockSymbolBean implements StockSymbolRemote {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>ServerSocket serverSocket = null;<xhtml:br/>Socket clientSocket = null;<xhtml:br/>\n                           <xhtml:br/>public StockSymbolBean() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">serverSocket = new ServerSocket(Constants.SOCKET_PORT);</xhtml:div>} catch (IOException ex) {...}<xhtml:br/>\n                                 <xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">clientSocket = serverSocket.accept();</xhtml:div>} catch (IOException e) {...}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public String getStockSymbol(String name) {...}<xhtml:br/>\n                           <xhtml:br/>public BigDecimal getStockValue(String symbol) {...}<xhtml:br/>\n                           <xhtml:br/>private void processClientInputFromSocket() {...}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>And the following Java example is similar to the previous example but demonstrates the use of multicast socket connections within an Enterprise JavaBean.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class StockSymbolBean extends Thread implements StockSymbolRemote {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>ServerSocket serverSocket = null;<xhtml:br/>Socket clientSocket = null;<xhtml:br/>boolean listening = false;<xhtml:br/>\n                           <xhtml:br/>public StockSymbolBean() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">serverSocket = new ServerSocket(Constants.SOCKET_PORT);</xhtml:div>} catch (IOException ex) {...}<xhtml:br/>\n                                 <xhtml:br/>listening = true;<xhtml:br/>while(listening) {<xhtml:div style=\"margin-left:1em;\">start();</xhtml:div>}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public String getStockSymbol(String name) {...}<xhtml:br/>\n                           <xhtml:br/>public BigDecimal getStockValue(String symbol) {...}<xhtml:br/>\n                           <xhtml:br/>public void run() {<xhtml:div style=\"margin-left:1em;\">try {<xhtml:div style=\"margin-left:1em;\">clientSocket = serverSocket.accept();</xhtml:div>} catch (IOException e) {...}<xhtml:br/>...</xhtml:div>}<xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The previous two examples within any type of Enterprise JavaBean violate the EJB specification by attempting to listen on a socket, accepting connections on a socket, or using a socket for multicast.</Body_Text>\n            "
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Community",
+			"submission_date": "2006-12-15",
+			"submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Description, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Use of an improper API",
+			"entry_id": "SFP3"
+		}
+	]
 }

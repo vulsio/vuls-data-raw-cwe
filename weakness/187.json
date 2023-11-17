@@ -1,211 +1,211 @@
 {
-  "id": "187",
-  "name": "Partial String Comparison",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product performs a comparison that only examines a portion of a factor before determining whether there is a match, such as a substring, leading to resultant weaknesses.",
-  "extended_description": "For example, an attacker might succeed in authentication by providing a small password that matches the associated portion of the larger, correct password.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1023",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Access Control"
-      ],
-      "impact": [
-        "Alter Execution Logic",
-        "Bypass Protection Mechanism"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Testing"
-      ],
-      "description": [
-        "Thoroughly test the comparison scheme before deploying code into production. Perform positive testing as well as negative testing."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>This example defines a fixed username and password. The AuthenticateUser() function is intended to accept a username and a password from an untrusted user, and check to ensure that it matches the username and password. If the username and password match, AuthenticateUser() is intended to indicate that authentication succeeded.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>/* Ignore CWE-259 (hard-coded password) and CWE-309 (use of password system for authentication) for this example. */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>char *username = \"admin\";<xhtml:br/>char *pass = \"password\";<xhtml:br/>\n                     <xhtml:br/>int AuthenticateUser(char *inUser, char *inPass) {<xhtml:div style=\"margin-left:1em;\">if (strncmp(username, inUser, strlen(inUser))) {<xhtml:div style=\"margin-left:1em;\">logEvent(\"Auth failure of username using strlen of inUser\");<xhtml:br/>return(AUTH_FAIL);</xhtml:div>}<xhtml:br/>if (! strncmp(pass, inPass, strlen(inPass))) {<xhtml:div style=\"margin-left:1em;\">logEvent(\"Auth success of password using strlen of inUser\");<xhtml:br/>return(AUTH_SUCCESS);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">logEvent(\"Auth fail of password using sizeof\");<xhtml:br/>return(AUTH_FAIL);</xhtml:div>}</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main (int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int authResult;<xhtml:br/>\n                           <xhtml:br/>if (argc &lt; 3) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Usage: Provide a username and password\");</xhtml:div>}<xhtml:br/>authResult = AuthenticateUser(argv[1], argv[2]);<xhtml:br/>if (authResult == AUTH_SUCCESS) {<xhtml:div style=\"margin-left:1em;\">DoAuthenticatedTask(argv[1]);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Authentication failed\");</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In AuthenticateUser(), the strncmp() call uses the string length of an attacker-provided inPass parameter in order to determine how many characters to check in the password. So, if the attacker only provides a password of length 1, the check will only examine the first byte of the application's password before determining success.</Body_Text>\n               <Body_Text>As a result, this partial comparison leads to improper authentication (CWE-287).</Body_Text>\n               <Body_Text>Any of these passwords would still cause authentication to succeed for the \"admin\" user:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>p<xhtml:br/>pa<xhtml:br/>pas<xhtml:br/>pass</xhtml:div>\n               </Example_Code>\n               <Body_Text>This significantly reduces the search space for an attacker, making brute force attacks more feasible.</Body_Text>\n               <Body_Text>The same problem also applies to the username, so values such as \"a\" and \"adm\" will succeed for the username.</Body_Text>\n               <Body_Text>While this demonstrative example may not seem realistic, see the Observed Examples for CVE entries that effectively reflect this same weakness.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2014-6394",
-      "description": "Product does not prevent access to restricted directories due to partial string comparison with a public directory",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2014-6394"
-    },
-    {
-      "reference": "CVE-2004-1012",
-      "description": "Argument parser of an IMAP server treats a partial command \"body[p\" as if it is \"body.peek\", leading to index error and out-of-bounds corruption.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1012"
-    },
-    {
-      "reference": "CVE-2004-0765",
-      "description": "Web browser only checks the hostname portion of a certificate when the hostname portion of the URI is not a fully qualified domain name (FQDN), which allows remote attackers to spoof trusted certificates.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0765"
-    },
-    {
-      "reference": "CVE-2002-1374",
-      "description": "One-character password by attacker checks only against first character of real password.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1374"
-    },
-    {
-      "reference": "CVE-2000-0979",
-      "description": "One-character password by attacker checks only against first character of real password.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0979"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, Other_Notes, Relationship_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated Name, Observed_Examples, Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Partial Comparison",
-        "date": "2018-03-27"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Partial Comparison"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "This is conceptually similar to other weaknesses, such as insufficient verification and regular expression errors. It is primary to some weaknesses."
-    }
-  ]
+	"id": "187",
+	"name": "Partial String Comparison",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product performs a comparison that only examines a portion of a factor before determining whether there is a match, such as a substring, leading to resultant weaknesses.",
+	"extended_description": "For example, an attacker might succeed in authentication by providing a small password that matches the associated portion of the larger, correct password.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1023",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Access Control"
+			],
+			"impact": [
+				"Alter Execution Logic",
+				"Bypass Protection Mechanism"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Testing"
+			],
+			"description": [
+				"Thoroughly test the comparison scheme before deploying code into production. Perform positive testing as well as negative testing."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>This example defines a fixed username and password. The AuthenticateUser() function is intended to accept a username and a password from an untrusted user, and check to ensure that it matches the username and password. If the username and password match, AuthenticateUser() is intended to indicate that authentication succeeded.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>/* Ignore CWE-259 (hard-coded password) and CWE-309 (use of password system for authentication) for this example. */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>char *username = \"admin\";<xhtml:br/>char *pass = \"password\";<xhtml:br/>\n                     <xhtml:br/>int AuthenticateUser(char *inUser, char *inPass) {<xhtml:div style=\"margin-left:1em;\">if (strncmp(username, inUser, strlen(inUser))) {<xhtml:div style=\"margin-left:1em;\">logEvent(\"Auth failure of username using strlen of inUser\");<xhtml:br/>return(AUTH_FAIL);</xhtml:div>}<xhtml:br/>if (! strncmp(pass, inPass, strlen(inPass))) {<xhtml:div style=\"margin-left:1em;\">logEvent(\"Auth success of password using strlen of inUser\");<xhtml:br/>return(AUTH_SUCCESS);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">logEvent(\"Auth fail of password using sizeof\");<xhtml:br/>return(AUTH_FAIL);</xhtml:div>}</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main (int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>int authResult;<xhtml:br/>\n                           <xhtml:br/>if (argc &lt; 3) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Usage: Provide a username and password\");</xhtml:div>}<xhtml:br/>authResult = AuthenticateUser(argv[1], argv[2]);<xhtml:br/>if (authResult == AUTH_SUCCESS) {<xhtml:div style=\"margin-left:1em;\">DoAuthenticatedTask(argv[1]);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Authentication failed\");</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In AuthenticateUser(), the strncmp() call uses the string length of an attacker-provided inPass parameter in order to determine how many characters to check in the password. So, if the attacker only provides a password of length 1, the check will only examine the first byte of the application's password before determining success.</Body_Text>\n               <Body_Text>As a result, this partial comparison leads to improper authentication (CWE-287).</Body_Text>\n               <Body_Text>Any of these passwords would still cause authentication to succeed for the \"admin\" user:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>p<xhtml:br/>pa<xhtml:br/>pas<xhtml:br/>pass</xhtml:div>\n               </Example_Code>\n               <Body_Text>This significantly reduces the search space for an attacker, making brute force attacks more feasible.</Body_Text>\n               <Body_Text>The same problem also applies to the username, so values such as \"a\" and \"adm\" will succeed for the username.</Body_Text>\n               <Body_Text>While this demonstrative example may not seem realistic, see the Observed Examples for CVE entries that effectively reflect this same weakness.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2014-6394",
+			"description": "Product does not prevent access to restricted directories due to partial string comparison with a public directory",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2014-6394"
+		},
+		{
+			"reference": "CVE-2004-1012",
+			"description": "Argument parser of an IMAP server treats a partial command \"body[p\" as if it is \"body.peek\", leading to index error and out-of-bounds corruption.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-1012"
+		},
+		{
+			"reference": "CVE-2004-0765",
+			"description": "Web browser only checks the hostname portion of a certificate when the hostname portion of the URI is not a fully qualified domain name (FQDN), which allows remote attackers to spoof trusted certificates.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0765"
+		},
+		{
+			"reference": "CVE-2002-1374",
+			"description": "One-character password by attacker checks only against first character of real password.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1374"
+		},
+		{
+			"reference": "CVE-2000-0979",
+			"description": "One-character password by attacker checks only against first character of real password.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0979"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples, Other_Notes, Relationship_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated Name, Observed_Examples, Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Partial Comparison",
+				"date": "2018-03-27"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Partial Comparison"
+		}
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "This is conceptually similar to other weaknesses, such as insufficient verification and regular expression errors. It is primary to some weaknesses."
+		}
+	]
 }

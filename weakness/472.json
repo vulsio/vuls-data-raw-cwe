@@ -1,366 +1,366 @@
 {
-  "id": "472",
-  "name": "External Control of Assumed-Immutable Web Parameter",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The web application does not sufficiently verify inputs that are assumed to be immutable but are actually externally controllable, such as hidden form fields.",
-  "extended_description": "\n            <xhtml:p>If a web product does not properly protect assumed-immutable values from modification in hidden form fields, parameters, cookies, or URLs, this can lead to modification of critical data. Web applications often mistakenly make the assumption that data passed to the client in hidden fields or cookies is not susceptible to tampering. Improper validation of data that are user-controllable can lead to the application processing incorrect, and often malicious, input.</xhtml:p>\n            <xhtml:p>For example, custom cookies commonly store session data or persistent data across sessions. This kind of session data is normally involved in security related decisions on the server side, such as user authentication and access control. Thus, the cookies might contain sensitive data such as user credentials and privileges. This is a dangerous practice, as it can often lead to improper reliance on the value of the client-provided cookie by the server side application.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "642",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "471",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "OMISSION: This weakness is caused by missing a security tactic during the architecture and design phase."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Modify Application Data"
-      ],
-      "note": "Without appropriate protection mechanisms, the client can easily tamper with cookies and similar web data. Reliance on the cookies without detailed validation can lead to problems such as SQL injection. If you use cookie values for security related decisions on the server side, manipulating the cookies might lead to violations of security policies such as authentication bypassing, user impersonation and privilege escalation. In addition, storing sensitive data in the cookie without appropriate protection can also lead to disclosure of sensitive user data, especially data stored in persistent cookies."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "mitigation_id": "MIT-5",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n               "
-      ],
-      "strategy": "Input Validation"
-    },
-    {
-      "mitigation_id": "MIT-20",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Inputs should be decoded and canonicalized to the application's current internal representation before being validated (CWE-180). Make sure that the application does not decode the same input twice (CWE-174). Such errors could be used to bypass allowlist validation schemes by introducing dangerous inputs after they have been checked."
-      ],
-      "strategy": "Input Validation"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In this example, a web application uses the value of a hidden form field (accountID) without having done any input validation because it was assumed to be immutable.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String accountID = request.getParameter(\"accountID\");<xhtml:br/>User user = getUserFromID(Long.parseLong(accountID));</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>Hidden fields should not be trusted as secure parameters.</Intro_Text>\n               <Body_Text>An attacker can intercept and alter hidden fields in a post to the server as easily as user input fields. An attacker can simply parse the HTML for the substring:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"HTML\">\n                  <xhtml:div>&lt;input type=\"hidden\"</xhtml:div>\n               </Example_Code>\n               <Body_Text>or even just \"hidden\". Hidden field values displayed later in the session, such as on the following page, can open a site up to cross-site scripting attacks.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2002-0108",
-      "description": "Forum product allows spoofed messages of other users via hidden form fields for name and e-mail address.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0108"
-    },
-    {
-      "reference": "CVE-2000-0253",
-      "description": "Shopping cart allows price modification via hidden form field.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0253"
-    },
-    {
-      "reference": "CVE-2000-0254",
-      "description": "Shopping cart allows price modification via hidden form field.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0254"
-    },
-    {
-      "reference": "CVE-2000-0926",
-      "description": "Shopping cart allows price modification via hidden form field.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0926"
-    },
-    {
-      "reference": "CVE-2000-0101",
-      "description": "Shopping cart allows price modification via hidden form field.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0101"
-    },
-    {
-      "reference": "CVE-2000-0102",
-      "description": "Shopping cart allows price modification via hidden form field.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0102"
-    },
-    {
-      "reference": "CVE-2000-0758",
-      "description": "Allows admin access by modifying value of form field.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0758"
-    },
-    {
-      "reference": "CVE-2002-1880",
-      "description": "Read messages by modifying message ID parameter.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1880"
-    },
-    {
-      "reference": "CVE-2000-1234",
-      "description": "Send email to arbitrary users by modifying email parameter.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-1234"
-    },
-    {
-      "reference": "CVE-2005-1652",
-      "description": "Authentication bypass by setting a parameter.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1652"
-    },
-    {
-      "reference": "CVE-2005-1784",
-      "description": "Product does not check authorization for configuration change admin script, leading to password theft via modified e-mail address field.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1784"
-    },
-    {
-      "reference": "CVE-2005-2314",
-      "description": "Logic error leads to password disclosure.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2314"
-    },
-    {
-      "reference": "CVE-2005-1682",
-      "description": "Modification of message number parameter allows attackers to read other people's messages.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1682"
-    }
-  ],
-  "references": [
-    {
-      "section": "\"Sin 4: Use of Magic URLs, Predictable Cookies, and Hidden Form\n                  Fields.\" Page 75",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    },
-    {
-      "section": "Chapter 17, \"Embedding State in HTML and URLs\", Page 1032",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Sean Eidemiller",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "added/updated demonstrative examples"
-      },
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Other_Notes, Relationship_Notes, Theoretical_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Web Parameter Tampering",
-        "date": "2008-04-11"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "Assumed-Immutable Parameter Tampering"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Web Parameter Tampering"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2007",
-      "entry_name": "Insecure Direct Object Reference",
-      "entry_id": "A4",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2004",
-      "entry_name": "Unvalidated Input",
-      "entry_id": "A1",
-      "mapping_fit": "CWE More Specific"
-    }
-  ],
-  "related_attack_patterns": [
-    "146",
-    "226",
-    "31",
-    "39"
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "This is a primary weakness for many other weaknesses and functional consequences, including XSS, SQL injection, path disclosure, and file inclusion."
-    },
-    {
-      "type": "Theoretical",
-      "text": "This is a technology-specific MAID problem."
-    }
-  ]
+	"id": "472",
+	"name": "External Control of Assumed-Immutable Web Parameter",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The web application does not sufficiently verify inputs that are assumed to be immutable but are actually externally controllable, such as hidden form fields.",
+	"extended_description": "\n            <xhtml:p>If a web product does not properly protect assumed-immutable values from modification in hidden form fields, parameters, cookies, or URLs, this can lead to modification of critical data. Web applications often mistakenly make the assumption that data passed to the client in hidden fields or cookies is not susceptible to tampering. Improper validation of data that are user-controllable can lead to the application processing incorrect, and often malicious, input.</xhtml:p>\n            <xhtml:p>For example, custom cookies commonly store session data or persistent data across sessions. This kind of session data is normally involved in security related decisions on the server side, such as user authentication and access control. Thus, the cookies might contain sensitive data such as user credentials and privileges. This is a dangerous practice, as it can often lead to improper reliance on the value of the client-provided cookie by the server side application.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "642",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "471",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"OMISSION: This weakness is caused by missing a security tactic during the architecture and design phase."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Modify Application Data"
+			],
+			"note": "Without appropriate protection mechanisms, the client can easily tamper with cookies and similar web data. Reliance on the cookies without detailed validation can lead to problems such as SQL injection. If you use cookie values for security related decisions on the server side, manipulating the cookies might lead to violations of security policies such as authentication bypassing, user impersonation and privilege escalation. In addition, storing sensitive data in the cookie without appropriate protection can also lead to disclosure of sensitive user data, especially data stored in persistent cookies."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"mitigation_id": "MIT-5",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n               "
+			],
+			"strategy": "Input Validation"
+		},
+		{
+			"mitigation_id": "MIT-20",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Inputs should be decoded and canonicalized to the application's current internal representation before being validated (CWE-180). Make sure that the application does not decode the same input twice (CWE-174). Such errors could be used to bypass allowlist validation schemes by introducing dangerous inputs after they have been checked."
+			],
+			"strategy": "Input Validation"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In this example, a web application uses the value of a hidden form field (accountID) without having done any input validation because it was assumed to be immutable.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String accountID = request.getParameter(\"accountID\");<xhtml:br/>User user = getUserFromID(Long.parseLong(accountID));</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>Hidden fields should not be trusted as secure parameters.</Intro_Text>\n               <Body_Text>An attacker can intercept and alter hidden fields in a post to the server as easily as user input fields. An attacker can simply parse the HTML for the substring:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"HTML\">\n                  <xhtml:div>&lt;input type=\"hidden\"</xhtml:div>\n               </Example_Code>\n               <Body_Text>or even just \"hidden\". Hidden field values displayed later in the session, such as on the following page, can open a site up to cross-site scripting attacks.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2002-0108",
+			"description": "Forum product allows spoofed messages of other users via hidden form fields for name and e-mail address.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0108"
+		},
+		{
+			"reference": "CVE-2000-0253",
+			"description": "Shopping cart allows price modification via hidden form field.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0253"
+		},
+		{
+			"reference": "CVE-2000-0254",
+			"description": "Shopping cart allows price modification via hidden form field.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0254"
+		},
+		{
+			"reference": "CVE-2000-0926",
+			"description": "Shopping cart allows price modification via hidden form field.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0926"
+		},
+		{
+			"reference": "CVE-2000-0101",
+			"description": "Shopping cart allows price modification via hidden form field.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0101"
+		},
+		{
+			"reference": "CVE-2000-0102",
+			"description": "Shopping cart allows price modification via hidden form field.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0102"
+		},
+		{
+			"reference": "CVE-2000-0758",
+			"description": "Allows admin access by modifying value of form field.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0758"
+		},
+		{
+			"reference": "CVE-2002-1880",
+			"description": "Read messages by modifying message ID parameter.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1880"
+		},
+		{
+			"reference": "CVE-2000-1234",
+			"description": "Send email to arbitrary users by modifying email parameter.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-1234"
+		},
+		{
+			"reference": "CVE-2005-1652",
+			"description": "Authentication bypass by setting a parameter.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1652"
+		},
+		{
+			"reference": "CVE-2005-1784",
+			"description": "Product does not check authorization for configuration change admin script, leading to password theft via modified e-mail address field.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1784"
+		},
+		{
+			"reference": "CVE-2005-2314",
+			"description": "Logic error leads to password disclosure.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2314"
+		},
+		{
+			"reference": "CVE-2005-1682",
+			"description": "Modification of message number parameter allows attackers to read other people's messages.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1682"
+		}
+	],
+	"references": [
+		{
+			"section": "\"Sin 4: Use of Magic URLs, Predictable Cookies, and Hidden Form\n                  Fields.\" Page 75",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		},
+		{
+			"section": "Chapter 17, \"Embedding State in HTML and URLs\", Page 1032",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Sean Eidemiller",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "added/updated demonstrative examples"
+			},
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Other_Notes, Relationship_Notes, Theoretical_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Web Parameter Tampering",
+				"date": "2008-04-11"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "Assumed-Immutable Parameter Tampering"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Web Parameter Tampering"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2007",
+			"entry_name": "Insecure Direct Object Reference",
+			"entry_id": "A4",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2004",
+			"entry_name": "Unvalidated Input",
+			"entry_id": "A1",
+			"mapping_fit": "CWE More Specific"
+		}
+	],
+	"related_attack_patterns": [
+		"146",
+		"226",
+		"31",
+		"39"
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "This is a primary weakness for many other weaknesses and functional consequences, including XSS, SQL injection, path disclosure, and file inclusion."
+		},
+		{
+			"type": "Theoretical",
+			"text": "This is a technology-specific MAID problem."
+		}
+	]
 }

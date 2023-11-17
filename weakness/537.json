@@ -1,147 +1,147 @@
 {
-  "id": "537",
-  "name": "Java Runtime Error Message Containing Sensitive Information",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "In many cases, an attacker can leverage the conditions that cause unhandled exception errors in order to gain unauthorized access to the system.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "211",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Application Data"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Do not expose sensitive error information to the user."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the following Java example the class InputFileRead enables an input file to be read using a FileReader object. In the constructor of this class a default input file path is set to some directory on the local file system and the method setInputFile must be called to set the name of the input file to be read in the default directory. The method readInputFile will create the FileReader object and will read the contents of the file. If the method setInputFile is not called prior to calling the method readInputFile then the File object will remain null when initializing the FileReader object. A Java RuntimeException will be raised, and an error message will be output to the user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class InputFileRead {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>private File readFile = null;<xhtml:br/>private FileReader reader = null;<xhtml:br/>private String inputFilePath = null;<xhtml:br/>private final String DEFAULT_FILE_PATH = \"c:\\\\somedirectory\\\\\";<xhtml:br/>\n                           <xhtml:br/>public InputFileRead() {<xhtml:div style=\"margin-left:1em;\">inputFilePath = DEFAULT_FILE_PATH;</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public void setInputFile(String inputFile) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>/* Assume appropriate validation / encoding is used and privileges / permissions are preserved */</xhtml:i>\n                                 <xhtml:br/>\n                              </xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public void readInputFile() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">reader = new FileReader(readFile);<xhtml:br/>...</xhtml:div>} catch (RuntimeException rex) {<xhtml:div style=\"margin-left:1em;\">System.err.println(\"Error: Cannot open input file in the directory \" + inputFilePath);<xhtml:br/>System.err.println(\"Input file has not been set, call setInputFile method before calling readInputFile\");</xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:br/>} catch (FileNotFoundException ex) {...}<xhtml:br/>\n                              </xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the error message output to the user contains information regarding the default directory on the local file system. This information can be exploited and may lead to unauthorized access or use of the system. Any Java RuntimeExceptions that are handled should not expose sensitive information to the user.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>In the example below, the BankManagerLoginServlet servlet class will process a login request to determine if a user is authorized to use the BankManager Web service. The doPost method will retrieve the username and password from the servlet request and will determine if the user is authorized. If the user is authorized the servlet will go to the successful login page. Otherwise, the servlet will raise a FailedLoginException and output the failed login message to the error page of the service.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class BankManagerLoginServlet extends HttpServlet {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// Get username and password from login page request</xhtml:i>\n                                       <xhtml:br/>String username = request.getParameter(\"username\");<xhtml:br/>String password = request.getParameter(\"password\");<xhtml:br/>\n                                       <xhtml:i>// Authenticate user</xhtml:i>\n                                       <xhtml:br/>BankManager bankMgr = new BankManager();<xhtml:br/>boolean isAuthentic = bankMgr.authenticateUser(username, password);<xhtml:br/>\n                                       <xhtml:i>// If user is authenticated then go to successful login page</xhtml:i>\n                                       <xhtml:br/>if (isAuthentic) {<xhtml:div style=\"margin-left:1em;\">request.setAttribute(\"login\", new String(\"Login Successful.\"));<xhtml:br/>getServletContext().getRequestDispatcher(\"/BankManagerServiceLoggedIn.jsp\"). forward(request, response);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">\n                                          <xhtml:div>\n                                             <xhtml:br/>\n                                             <xhtml:i>// Otherwise, raise failed login exception and output unsuccessful login message to error page</xhtml:i>\n                                             <xhtml:br/>throw new FailedLoginException(\"Failed Login for user \" + username + \" with password \" + password);</xhtml:div>\n                                       </xhtml:div>}</xhtml:div>\n                                 </xhtml:div>} catch (FailedLoginException ex) {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// output failed login message to error page</xhtml:i>\n                                       <xhtml:br/>request.setAttribute(\"error\", new String(\"Login Error\"));<xhtml:br/>request.setAttribute(\"message\", ex.getMessage());<xhtml:br/>getServletContext().getRequestDispatcher(\"/ErrorPage.jsp\").forward(request, response);</xhtml:div>\n                                 </xhtml:div>}</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the output message generated by the FailedLoginException includes the user-supplied password. Even if the password is erroneous, it is probably close to the correct password. Since it is printed to the user's page, anybody who can see the screen display will be able to see the password. Also, if the page is cached, the password might be written to disk.</Body_Text>\n            "
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Anonymous Tool Vendor (under NDA)",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Demonstrative_Examples, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Information Leak Through Java Runtime Error Message",
-        "date": "2011-03-29"
-      },
-      {
-        "text": "Information Exposure Through Java Runtime Error Message",
-        "date": "2020-02-24"
-      }
-    ]
-  }
+	"id": "537",
+	"name": "Java Runtime Error Message Containing Sensitive Information",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "In many cases, an attacker can leverage the conditions that cause unhandled exception errors in order to gain unauthorized access to the system.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "211",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Application Data"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Do not expose sensitive error information to the user."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the following Java example the class InputFileRead enables an input file to be read using a FileReader object. In the constructor of this class a default input file path is set to some directory on the local file system and the method setInputFile must be called to set the name of the input file to be read in the default directory. The method readInputFile will create the FileReader object and will read the contents of the file. If the method setInputFile is not called prior to calling the method readInputFile then the File object will remain null when initializing the FileReader object. A Java RuntimeException will be raised, and an error message will be output to the user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class InputFileRead {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>private File readFile = null;<xhtml:br/>private FileReader reader = null;<xhtml:br/>private String inputFilePath = null;<xhtml:br/>private final String DEFAULT_FILE_PATH = \"c:\\\\somedirectory\\\\\";<xhtml:br/>\n                           <xhtml:br/>public InputFileRead() {<xhtml:div style=\"margin-left:1em;\">inputFilePath = DEFAULT_FILE_PATH;</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public void setInputFile(String inputFile) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>/* Assume appropriate validation / encoding is used and privileges / permissions are preserved */</xhtml:i>\n                                 <xhtml:br/>\n                              </xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public void readInputFile() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">reader = new FileReader(readFile);<xhtml:br/>...</xhtml:div>} catch (RuntimeException rex) {<xhtml:div style=\"margin-left:1em;\">System.err.println(\"Error: Cannot open input file in the directory \" + inputFilePath);<xhtml:br/>System.err.println(\"Input file has not been set, call setInputFile method before calling readInputFile\");</xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:br/>} catch (FileNotFoundException ex) {...}<xhtml:br/>\n                              </xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the error message output to the user contains information regarding the default directory on the local file system. This information can be exploited and may lead to unauthorized access or use of the system. Any Java RuntimeExceptions that are handled should not expose sensitive information to the user.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>In the example below, the BankManagerLoginServlet servlet class will process a login request to determine if a user is authorized to use the BankManager Web service. The doPost method will retrieve the username and password from the servlet request and will determine if the user is authorized. If the user is authorized the servlet will go to the successful login page. Otherwise, the servlet will raise a FailedLoginException and output the failed login message to the error page of the service.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class BankManagerLoginServlet extends HttpServlet {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// Get username and password from login page request</xhtml:i>\n                                       <xhtml:br/>String username = request.getParameter(\"username\");<xhtml:br/>String password = request.getParameter(\"password\");<xhtml:br/>\n                                       <xhtml:i>// Authenticate user</xhtml:i>\n                                       <xhtml:br/>BankManager bankMgr = new BankManager();<xhtml:br/>boolean isAuthentic = bankMgr.authenticateUser(username, password);<xhtml:br/>\n                                       <xhtml:i>// If user is authenticated then go to successful login page</xhtml:i>\n                                       <xhtml:br/>if (isAuthentic) {<xhtml:div style=\"margin-left:1em;\">request.setAttribute(\"login\", new String(\"Login Successful.\"));<xhtml:br/>getServletContext().getRequestDispatcher(\"/BankManagerServiceLoggedIn.jsp\"). forward(request, response);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">\n                                          <xhtml:div>\n                                             <xhtml:br/>\n                                             <xhtml:i>// Otherwise, raise failed login exception and output unsuccessful login message to error page</xhtml:i>\n                                             <xhtml:br/>throw new FailedLoginException(\"Failed Login for user \" + username + \" with password \" + password);</xhtml:div>\n                                       </xhtml:div>}</xhtml:div>\n                                 </xhtml:div>} catch (FailedLoginException ex) {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// output failed login message to error page</xhtml:i>\n                                       <xhtml:br/>request.setAttribute(\"error\", new String(\"Login Error\"));<xhtml:br/>request.setAttribute(\"message\", ex.getMessage());<xhtml:br/>getServletContext().getRequestDispatcher(\"/ErrorPage.jsp\").forward(request, response);</xhtml:div>\n                                 </xhtml:div>}</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the output message generated by the FailedLoginException includes the user-supplied password. Even if the password is erroneous, it is probably close to the correct password. Since it is printed to the user's page, anybody who can see the screen display will be able to see the password. Also, if the page is cached, the password might be written to disk.</Body_Text>\n            "
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Anonymous Tool Vendor (under NDA)",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Demonstrative_Examples, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Information Leak Through Java Runtime Error Message",
+				"date": "2011-03-29"
+			},
+			{
+				"text": "Information Exposure Through Java Runtime Error Message",
+				"date": "2020-02-24"
+			}
+		]
+	}
 }

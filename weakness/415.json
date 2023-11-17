@@ -1,429 +1,429 @@
 {
-  "id": "415",
-  "name": "Double Free",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product calls free() twice on the same memory address, potentially leading to modification of unexpected memory locations.",
-  "extended_description": "When a program calls free() twice with the same argument, the program's memory management data structures become corrupted. This corruption can cause the program to crash or, in some circumstances, cause two later calls to malloc() to return the same pointer. If malloc() returns the same value twice and the program later gives the attacker control over the data that is written into this doubly-allocated memory, the program becomes vulnerable to a buffer overflow attack.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "825",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "1341",
-      "view_id": "1000"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "672",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "672",
-      "view_id": "1305",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "672",
-      "view_id": "1340",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "666",
-      "view_id": "1000"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "416",
-      "view_id": "1000"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "123",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality",
-        "Availability"
-      ],
-      "impact": [
-        "Modify Memory",
-        "Execute Unauthorized Code or Commands"
-      ],
-      "note": "Doubly freeing memory may result in a write-what-where condition, allowing an attacker to execute arbitrary code."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Choose a language that provides automatic memory management."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Ensure that each allocation is freed only once. After freeing a chunk, set the pointer to NULL to ensure the pointer cannot be freed again. In complicated error conditions, be sure that clean-up routines respect the state of allocation properly. If the language is object oriented, ensure that object destructors delete each chunk of memory only once."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Use a static analysis tool to find double free instances."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-149",
-      "text": "\n               <Intro_Text>The following code shows a simple example of a double free vulnerability.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                 <xhtml:div>\n\t\t\t\t   char* ptr = (char*)malloc (SIZE);<xhtml:br/>\n\t\t\t\t   ...<xhtml:br/>\n\t\t\t\t   if (abrt) {\n\t\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t free(ptr);\n\t\t\t\t   </xhtml:div>\n\t\t\t\t   }<xhtml:br/>\n\t\t\t\t   ...<xhtml:br/>\n\t\t\t\t   free(ptr);\n\t\t\t\t </xhtml:div>\n               </Example_Code>\n               <Body_Text>Double free vulnerabilities have two common (and sometimes overlapping) causes:</Body_Text>\n               <Body_Text>\n                  <xhtml:ul>\n                     <xhtml:li>\n                        <xhtml:div>Error conditions and other exceptional circumstances</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>Confusion over which part of the program is responsible for freeing the memory</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ul>\n               </Body_Text>\n               <Body_Text>Although some double free vulnerabilities are not much more complicated than this example, most are spread out across hundreds of lines of code or even different files. Programmers seem particularly susceptible to freeing global variables more than once.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>While contrived, this code should be exploitable on Linux distributions that do not ship with heap-chunk check summing turned on.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#include &lt;stdio.h&gt;<xhtml:br/>#include &lt;unistd.h&gt;<xhtml:br/>#define BUFSIZE1 512<xhtml:br/>#define BUFSIZE2 ((BUFSIZE1/2) - 8)<xhtml:br/>\n                     <xhtml:br/>int main(int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">char *buf1R1;<xhtml:br/>char *buf2R1;<xhtml:br/>char *buf1R2;<xhtml:br/>buf1R1 = (char *) malloc(BUFSIZE2);<xhtml:br/>buf2R1 = (char *) malloc(BUFSIZE2);<xhtml:br/>free(buf1R1);<xhtml:br/>free(buf2R1);<xhtml:br/>buf1R2 = (char *) malloc(BUFSIZE1);<xhtml:br/>strncpy(buf1R2, argv[1], BUFSIZE1-1);<xhtml:br/>free(buf2R1);<xhtml:br/>free(buf1R2);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2006-5051",
-      "description": "Chain: Signal handler contains too much functionality (CWE-828), introducing a race condition (CWE-362) that leads to a double free (CWE-415).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-5051"
-    },
-    {
-      "reference": "CVE-2004-0642",
-      "description": "Double free resultant from certain error conditions.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0642"
-    },
-    {
-      "reference": "CVE-2004-0772",
-      "description": "Double free resultant from certain error conditions.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0772"
-    },
-    {
-      "reference": "CVE-2005-1689",
-      "description": "Double free resultant from certain error conditions.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1689"
-    },
-    {
-      "reference": "CVE-2003-0545",
-      "description": "Double free from invalid ASN.1 encoding.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0545"
-    },
-    {
-      "reference": "CVE-2003-1048",
-      "description": "Double free from malformed GIF.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-1048"
-    },
-    {
-      "reference": "CVE-2005-0891",
-      "description": "Double free from malformed GIF.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0891"
-    },
-    {
-      "reference": "CVE-2002-0059",
-      "description": "Double free from malformed compressed data.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0059"
-    }
-  ],
-  "references": [
-    {
-      "section": "\"Sin 8: C++ Catastrophes.\" Page 143",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    },
-    {
-      "section": "Chapter 7, \"Double Frees\", Page 379",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_organization": "KDM Analytics",
-        "modification_date": "2008-08-01",
-        "modification_comment": "added/updated white box definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Description, Maintenance_Notes, Relationships, Other_Notes, Relationship_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Likelihood_of_Exploit, Relationships, Taxonomy_Mappings, White_Box_Definitions"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Maintenance_Notes, Theoretical_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "Double-free"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-13",
-      "method": "Fuzzing",
-      "description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
-      "effectiveness": "High"
-    },
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "DFREE - Double-Free Vulnerability"
-    },
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "Double Free"
-    },
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Doubly freeing memory"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Allocate and free memory in the same module, at the same level of abstraction",
-      "entry_id": "MEM00-C"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Store a new value in pointers immediately after free()",
-      "entry_id": "MEM01-C"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not access freed memory",
-      "entry_id": "MEM30-C",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Free dynamically allocated memory exactly once",
-      "entry_id": "MEM31-C"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Faulty Memory Release",
-      "entry_id": "SFP12"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "This is usually resultant from another weakness, such as an unhandled error or race condition between threads. It could also be primary to weaknesses such as buffer overflows."
-    },
-    {
-      "type": "Theoretical",
-      "text": "It could be argued that Double Free would be most appropriately located as a child of \"Use after Free\", but \"Use\" and \"Release\" are considered to be distinct operations within vulnerability theory, therefore this is more accurately \"Release of a Resource after Expiration or Release\", which doesn't exist yet."
-    }
-  ],
-  "affected_resources": [
-    "Memory"
-  ]
+	"id": "415",
+	"name": "Double Free",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product calls free() twice on the same memory address, potentially leading to modification of unexpected memory locations.",
+	"extended_description": "When a program calls free() twice with the same argument, the program's memory management data structures become corrupted. This corruption can cause the program to crash or, in some circumstances, cause two later calls to malloc() to return the same pointer. If malloc() returns the same value twice and the program later gives the attacker control over the data that is written into this doubly-allocated memory, the program becomes vulnerable to a buffer overflow attack.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "825",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "1341",
+			"view_id": "1000"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "672",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "672",
+			"view_id": "1305",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "672",
+			"view_id": "1340",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "666",
+			"view_id": "1000"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "416",
+			"view_id": "1000"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "123",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality",
+				"Availability"
+			],
+			"impact": [
+				"Modify Memory",
+				"Execute Unauthorized Code or Commands"
+			],
+			"note": "Doubly freeing memory may result in a write-what-where condition, allowing an attacker to execute arbitrary code."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Choose a language that provides automatic memory management."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Ensure that each allocation is freed only once. After freeing a chunk, set the pointer to NULL to ensure the pointer cannot be freed again. In complicated error conditions, be sure that clean-up routines respect the state of allocation properly. If the language is object oriented, ensure that object destructors delete each chunk of memory only once."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Use a static analysis tool to find double free instances."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-149",
+			"text": "\n               <Intro_Text>The following code shows a simple example of a double free vulnerability.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                 <xhtml:div>\n\t\t\t\t   char* ptr = (char*)malloc (SIZE);<xhtml:br/>\n\t\t\t\t   ...<xhtml:br/>\n\t\t\t\t   if (abrt) {\n\t\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t free(ptr);\n\t\t\t\t   </xhtml:div>\n\t\t\t\t   }<xhtml:br/>\n\t\t\t\t   ...<xhtml:br/>\n\t\t\t\t   free(ptr);\n\t\t\t\t </xhtml:div>\n               </Example_Code>\n               <Body_Text>Double free vulnerabilities have two common (and sometimes overlapping) causes:</Body_Text>\n               <Body_Text>\n                  <xhtml:ul>\n                     <xhtml:li>\n                        <xhtml:div>Error conditions and other exceptional circumstances</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>Confusion over which part of the program is responsible for freeing the memory</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ul>\n               </Body_Text>\n               <Body_Text>Although some double free vulnerabilities are not much more complicated than this example, most are spread out across hundreds of lines of code or even different files. Programmers seem particularly susceptible to freeing global variables more than once.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>While contrived, this code should be exploitable on Linux distributions that do not ship with heap-chunk check summing turned on.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#include &lt;stdio.h&gt;<xhtml:br/>#include &lt;unistd.h&gt;<xhtml:br/>#define BUFSIZE1 512<xhtml:br/>#define BUFSIZE2 ((BUFSIZE1/2) - 8)<xhtml:br/>\n                     <xhtml:br/>int main(int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">char *buf1R1;<xhtml:br/>char *buf2R1;<xhtml:br/>char *buf1R2;<xhtml:br/>buf1R1 = (char *) malloc(BUFSIZE2);<xhtml:br/>buf2R1 = (char *) malloc(BUFSIZE2);<xhtml:br/>free(buf1R1);<xhtml:br/>free(buf2R1);<xhtml:br/>buf1R2 = (char *) malloc(BUFSIZE1);<xhtml:br/>strncpy(buf1R2, argv[1], BUFSIZE1-1);<xhtml:br/>free(buf2R1);<xhtml:br/>free(buf1R2);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2006-5051",
+			"description": "Chain: Signal handler contains too much functionality (CWE-828), introducing a race condition (CWE-362) that leads to a double free (CWE-415).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-5051"
+		},
+		{
+			"reference": "CVE-2004-0642",
+			"description": "Double free resultant from certain error conditions.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0642"
+		},
+		{
+			"reference": "CVE-2004-0772",
+			"description": "Double free resultant from certain error conditions.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0772"
+		},
+		{
+			"reference": "CVE-2005-1689",
+			"description": "Double free resultant from certain error conditions.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1689"
+		},
+		{
+			"reference": "CVE-2003-0545",
+			"description": "Double free from invalid ASN.1 encoding.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0545"
+		},
+		{
+			"reference": "CVE-2003-1048",
+			"description": "Double free from malformed GIF.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-1048"
+		},
+		{
+			"reference": "CVE-2005-0891",
+			"description": "Double free from malformed GIF.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-0891"
+		},
+		{
+			"reference": "CVE-2002-0059",
+			"description": "Double free from malformed compressed data.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0059"
+		}
+	],
+	"references": [
+		{
+			"section": "\"Sin 8: C++ Catastrophes.\" Page 143",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		},
+		{
+			"section": "Chapter 7, \"Double Frees\", Page 379",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_organization": "KDM Analytics",
+				"modification_date": "2008-08-01",
+				"modification_comment": "added/updated white box definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Description, Maintenance_Notes, Relationships, Other_Notes, Relationship_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Likelihood_of_Exploit, Relationships, Taxonomy_Mappings, White_Box_Definitions"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Maintenance_Notes, Theoretical_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "Double-free"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-13",
+			"method": "Fuzzing",
+			"description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
+			"effectiveness": "High"
+		},
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "DFREE - Double-Free Vulnerability"
+		},
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "Double Free"
+		},
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Doubly freeing memory"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Allocate and free memory in the same module, at the same level of abstraction",
+			"entry_id": "MEM00-C"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Store a new value in pointers immediately after free()",
+			"entry_id": "MEM01-C"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not access freed memory",
+			"entry_id": "MEM30-C",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Free dynamically allocated memory exactly once",
+			"entry_id": "MEM31-C"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Faulty Memory Release",
+			"entry_id": "SFP12"
+		}
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "This is usually resultant from another weakness, such as an unhandled error or race condition between threads. It could also be primary to weaknesses such as buffer overflows."
+		},
+		{
+			"type": "Theoretical",
+			"text": "It could be argued that Double Free would be most appropriately located as a child of \"Use after Free\", but \"Use\" and \"Release\" are considered to be distinct operations within vulnerability theory, therefore this is more accurately \"Release of a Resource after Expiration or Release\", which doesn't exist yet."
+		}
+	],
+	"affected_resources": [
+		"Memory"
+	]
 }

@@ -1,219 +1,219 @@
 {
-  "id": "181",
-  "name": "Incorrect Behavior Order: Validate Before Filter",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product validates data before it has been filtered, which prevents the product from detecting data that becomes invalid after the filtering step.",
-  "extended_description": "This can be used by an attacker to bypass the validation and launch attacks that expose weaknesses that would otherwise be prevented, such as injection.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "179",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation",
-        "Architecture and Design"
-      ],
-      "description": [
-        "Inputs should be decoded and canonicalized to the application's current internal representation before being filtered."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-36",
-      "text": "\n               <Intro_Text>This script creates a subdirectory within a user directory and sets the user as the owner.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function createDir($userName,$dirName){<xhtml:div style=\"margin-left:1em;\">$userDir = '/users/'. $userName;<xhtml:br/>if(strpos($dirName,'..') !== false){<xhtml:div style=\"margin-left:1em;\">echo 'Directory name contains invalid sequence';<xhtml:br/>return;</xhtml:div>}<xhtml:br/>\n                        <xhtml:i>//filter out '~' because other scripts identify user directories by this prefix</xhtml:i>\n                        <xhtml:br/>$dirName = str_replace('~','',$dirName);<xhtml:br/>$newDir = $userDir . $dirName;<xhtml:br/>mkdir($newDir, 0700);<xhtml:br/>chown($newDir,$userName);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>While the script attempts to screen for '..' sequences, an attacker can submit a directory path including \".~.\", which will then become \"..\" after the filtering step. This allows a Path Traversal (CWE-21) attack to occur.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2002-0934",
-      "description": "Directory traversal vulnerability allows remote attackers to read or modify arbitrary files via invalid characters between two . (dot) characters, which are filtered and result in a \"..\" sequence.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0934"
-    },
-    {
-      "reference": "CVE-2003-0282",
-      "description": "Directory traversal vulnerability allows attackers to overwrite arbitrary files via invalid characters between two . (dot) characters, which are filtered and result in a \"..\" sequence.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0282"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_organization": "Veracode",
-        "modification_date": "2008-08-15",
-        "modification_comment": "Suggested OWASP Top Ten 2004 mapping"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Functional_Areas, Relationships, Research_Gaps, Taxonomy_Mappings, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Description, Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-01-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Validate-before-filter",
-        "date": "2008-04-11"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "Validate-before-cleanse"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Validate-Before-Filter"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2004",
-      "entry_name": "Unvalidated Input",
-      "entry_id": "A1",
-      "mapping_fit": "CWE More Specific"
-    }
-  ],
-  "related_attack_patterns": [
-    "120",
-    "267",
-    "3",
-    "43",
-    "78",
-    "79",
-    "80"
-  ],
-  "notes": [
-    {
-      "type": "Research Gap",
-      "text": "This category is probably under-studied."
-    }
-  ],
-  "functional_areas": [
-    "Protection Mechanism"
-  ]
+	"id": "181",
+	"name": "Incorrect Behavior Order: Validate Before Filter",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product validates data before it has been filtered, which prevents the product from detecting data that becomes invalid after the filtering step.",
+	"extended_description": "This can be used by an attacker to bypass the validation and launch attacks that expose weaknesses that would otherwise be prevented, such as injection.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "179",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation",
+				"Architecture and Design"
+			],
+			"description": [
+				"Inputs should be decoded and canonicalized to the application's current internal representation before being filtered."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-36",
+			"text": "\n               <Intro_Text>This script creates a subdirectory within a user directory and sets the user as the owner.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>function createDir($userName,$dirName){<xhtml:div style=\"margin-left:1em;\">$userDir = '/users/'. $userName;<xhtml:br/>if(strpos($dirName,'..') !== false){<xhtml:div style=\"margin-left:1em;\">echo 'Directory name contains invalid sequence';<xhtml:br/>return;</xhtml:div>}<xhtml:br/>\n                        <xhtml:i>//filter out '~' because other scripts identify user directories by this prefix</xhtml:i>\n                        <xhtml:br/>$dirName = str_replace('~','',$dirName);<xhtml:br/>$newDir = $userDir . $dirName;<xhtml:br/>mkdir($newDir, 0700);<xhtml:br/>chown($newDir,$userName);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>While the script attempts to screen for '..' sequences, an attacker can submit a directory path including \".~.\", which will then become \"..\" after the filtering step. This allows a Path Traversal (CWE-21) attack to occur.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2002-0934",
+			"description": "Directory traversal vulnerability allows remote attackers to read or modify arbitrary files via invalid characters between two . (dot) characters, which are filtered and result in a \"..\" sequence.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0934"
+		},
+		{
+			"reference": "CVE-2003-0282",
+			"description": "Directory traversal vulnerability allows attackers to overwrite arbitrary files via invalid characters between two . (dot) characters, which are filtered and result in a \"..\" sequence.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0282"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_organization": "Veracode",
+				"modification_date": "2008-08-15",
+				"modification_comment": "Suggested OWASP Top Ten 2004 mapping"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Functional_Areas, Relationships, Research_Gaps, Taxonomy_Mappings, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Description, Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples, Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-01-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Validate-before-filter",
+				"date": "2008-04-11"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "Validate-before-cleanse"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Validate-Before-Filter"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2004",
+			"entry_name": "Unvalidated Input",
+			"entry_id": "A1",
+			"mapping_fit": "CWE More Specific"
+		}
+	],
+	"related_attack_patterns": [
+		"120",
+		"267",
+		"3",
+		"43",
+		"78",
+		"79",
+		"80"
+	],
+	"notes": [
+		{
+			"type": "Research Gap",
+			"text": "This category is probably under-studied."
+		}
+	],
+	"functional_areas": [
+		"Protection Mechanism"
+	]
 }

@@ -1,646 +1,646 @@
 {
-  "id": "250",
-  "name": "Execution with Unnecessary Privileges",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product performs an operation at a privilege level that is higher than the minimum level required, which creates new weaknesses or amplifies the consequences of other weaknesses.",
-  "extended_description": "\n            <xhtml:p>New weaknesses can be exposed because running with extra privileges, such as root or Administrator, can disable the normal security checks being performed by the operating system or surrounding environment. Other pre-existing weaknesses can turn into security vulnerabilities if they occur while operating at raised privileges.</xhtml:p>\n            <xhtml:p>Privilege management functions can behave in some less-than-obvious ways, and they have different quirks on different platforms. These inconsistencies are particularly pronounced if you are transitioning from one non-root user to another. Signal handlers and spawned processes run at the privilege of the owning process, so if a process is running as root when a signal fires or a sub-process is executed, the signal handler or sub-process will operate with root privileges.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "269",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "657",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Mobile",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "\n                  <xhtml:p>REALIZATION: This weakness is caused during implementation of an architectural security tactic.</xhtml:p>\n               "
-      ]
-    },
-    {
-      "phase": "Installation"
-    },
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "\n                  <xhtml:p>If an application has this design problem, then it can be easier for the developer to make implementation-related errors such as CWE-271 (Privilege Dropping / Lowering Errors). In addition, the consequences of Privilege Chaining (CWE-268) can become more severe.</xhtml:p>\n               "
-      ]
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Availability",
-        "Access Control"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity",
-        "Execute Unauthorized Code or Commands",
-        "Read Application Data",
-        "DoS: Crash, Exit, or Restart"
-      ],
-      "note": "An attacker will be able to gain access to any resources that are allowed by the extra privileges. Common results include executing code, disabling services, and reading restricted data."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "mitigation_id": "MIT-17",
-      "phase": [
-        "Architecture and Design",
-        "Operation"
-      ],
-      "description": [
-        "Run your code using the lowest privileges that are required to accomplish the necessary tasks [REF-76]. If possible, create isolated accounts with limited privileges that are only used for a single task. That way, a successful attack will not immediately give the attacker access to the rest of the software or its environment. For example, database applications rarely need to run as the database administrator, especially in day-to-day operations."
-      ],
-      "strategy": "Environment Hardening"
-    },
-    {
-      "mitigation_id": "MIT-18",
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Identify the functionality that requires additional privileges, such as access to privileged operating system resources. Wrap and centralize this functionality if possible, and isolate the privileged code as much as possible from other code [REF-76]. Raise privileges as late as possible, and drop them as soon as possible to avoid CWE-271. Avoid weaknesses such as CWE-288 and CWE-420 by protecting all possible communication channels that could interact with the privileged code, such as a secondary socket that is only intended to be accessed by administrators."
-      ],
-      "strategy": "Separation of Privilege"
-    },
-    {
-      "mitigation_id": "MIT-18",
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Identify the functionality that requires additional privileges, such as access to privileged operating system resources. Wrap and centralize this functionality if possible, and isolate the privileged code as much as possible from other code [REF-76]. Raise privileges as late as possible, and drop them as soon as possible to avoid CWE-271. Avoid weaknesses such as CWE-288 and CWE-420 by protecting all possible communication channels that could interact with the privileged code, such as a secondary socket that is only intended to be accessed by administrators."
-      ],
-      "strategy": "Attack Surface Reduction"
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Perform extensive input validation for any privileged code that must be exposed to the user and reject anything that does not fit your strict requirements."
-      ]
-    },
-    {
-      "mitigation_id": "MIT-19",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "When dropping privileges, ensure that they have been dropped successfully to avoid CWE-273. As protection mechanisms in the environment get stronger, privilege-dropping calls may fail even if it seems like they would always succeed."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "If circumstances force you to run with extra privileges, then determine the minimum access level necessary. First identify the different permissions that the software and its users will need to perform their actions, such as file read and write permissions, network socket permissions, and so forth. Then explicitly allow those actions while denying all else [REF-76]. Perform extensive input validation and canonicalization to minimize the chances of introducing a separate vulnerability. This mitigation is much more prone to error than dropping the privileges in the first place."
-      ]
-    },
-    {
-      "mitigation_id": "MIT-37",
-      "phase": [
-        "Operation",
-        "System Configuration"
-      ],
-      "description": [
-        "Ensure that the software runs properly under the United States Government Configuration Baseline (USGCB) [REF-199] or an equivalent hardening configuration guide, which many organizations use to limit the attack surface and potential risk of deployed software."
-      ],
-      "strategy": "Environment Hardening"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-126",
-      "text": "\n               <Intro_Text>This code temporarily raises the program's privileges to allow creation of a new user folder.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>def makeNewUserDir(username):<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if invalidUsername(username):<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>#avoid CWE-22 and CWE-78</xhtml:i>\n                                 <xhtml:br/>print('Usernames cannot contain invalid characters')<xhtml:br/>return False</xhtml:div>\n                           </xhtml:div>\n                           <xhtml:br/>try:<xhtml:div style=\"margin-left:1em;\">raisePrivileges()<xhtml:br/>os.mkdir('/home/' + username)<xhtml:br/>lowerPrivileges()</xhtml:div>\n                           <xhtml:br/>except OSError:<xhtml:div style=\"margin-left:1em;\">print('Unable to create new user directory for user:' + username)<xhtml:br/>return False</xhtml:div>\n                           <xhtml:br/>return True</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>While the program only raises its privilege level to create the folder and immediately lowers it again, if the call to os.mkdir() throws an exception, the call to lowerPrivileges() will not occur. As a result, the program is indefinitely operating in a raised privilege state, possibly allowing further exploitation to occur.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>The following code calls chroot() to restrict the application to a subset of the filesystem below APP_HOME in order to prevent an attacker from using the program to gain unauthorized access to files located elsewhere. The code then opens a file specified by the user and processes the contents of the file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>chroot(APP_HOME);<xhtml:br/>chdir(\"/\");<xhtml:br/>FILE* data = fopen(argv[1], \"r+\");<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>Constraining the process inside the application's home directory before opening any files is a valuable security measure. However, the absence of a call to setuid() with some non-zero value means the application is continuing to operate with unnecessary root privileges. Any successful exploit carried out by an attacker against the application can now result in a privilege escalation attack because any malicious operations will be performed with the privileges of the superuser. If the application drops to the privilege level of a non-root user, the potential for damage is substantially reduced.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>This application intends to use a user's location to determine the timezone the user is in:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>locationClient = new LocationClient(this, this, this);<xhtml:br/>locationClient.connect();<xhtml:br/>Location userCurrLocation;<xhtml:br/>userCurrLocation = locationClient.getLastLocation();<xhtml:br/>setTimeZone(userCurrLocation);</xhtml:div>\n               </Example_Code>\n               <Body_Text>This is unnecessary use of the location API, as this information is already available using the Android Time API. Always be sure there is not another way to obtain needed information before resorting to using the location API.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-111",
-      "text": "\n               <Intro_Text>This code uses location to determine the user's current US State location.</Intro_Text>\n               <Body_Text>First the application must declare that it requires the ACCESS_FINE_LOCATION permission in the application's manifest.xml:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>During execution, a call to getLastLocation() will return a location based on the application's location permissions. In this case the application has permission for the most accurate location possible:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>locationClient = new LocationClient(this, this, this);<xhtml:br/>locationClient.connect();<xhtml:br/>Location userCurrLocation;<xhtml:br/>userCurrLocation = locationClient.getLastLocation();<xhtml:br/>deriveStateFromCoords(userCurrLocation);</xhtml:div>\n               </Example_Code>\n               <Body_Text>While the application needs this information, it does not need to use the ACCESS_FINE_LOCATION permission, as the ACCESS_COARSE_LOCATION permission will be sufficient to identify which US state the user is in.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2007-4217",
-      "description": "FTP client program on a certain OS runs with setuid privileges and has a buffer overflow. Most clients do not need extra privileges, so an overflow is not a vulnerability for those clients.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4217"
-    },
-    {
-      "reference": "CVE-2008-1877",
-      "description": "Program runs with privileges and calls another program with the same privileges, which allows read of arbitrary files.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-1877"
-    },
-    {
-      "reference": "CVE-2007-5159",
-      "description": "OS incorrectly installs a program with setuid privileges, allowing users to gain privileges.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-5159"
-    },
-    {
-      "reference": "CVE-2008-4638",
-      "description": "Composite: application running with high privileges (CWE-250) allows user to specify a restricted file to process, which generates a parsing error that leaks the contents of the file (CWE-209).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4638"
-    },
-    {
-      "reference": "CVE-2008-0162",
-      "description": "Program does not drop privileges before calling another program, allowing code execution.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-0162"
-    },
-    {
-      "reference": "CVE-2008-0368",
-      "description": "setuid root program allows creation of arbitrary files through command line argument.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-0368"
-    },
-    {
-      "reference": "CVE-2007-3931",
-      "description": "Installation script installs some programs as setuid when they shouldn't be.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-3931"
-    },
-    {
-      "reference": "CVE-2020-3812",
-      "description": "mail program runs as root but does not drop its privileges before attempting to access a file. Attacker can use a symlink from their home directory to a directory only readable by root, then determine whether the file exists based on the response.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-3812"
-    },
-    {
-      "reference": "CVE-2003-0908",
-      "description": "Product launches Help functionality while running with raised privileges, allowing command execution using Windows message to access \"open file\" dialog.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0908"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-6",
-      "author": [
-        "Katrina Tsipenyuk",
-        "Brian Chess",
-        "Gary McGraw"
-      ],
-      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
-      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
-      "publication_year": "2005",
-      "publication_month": "--11",
-      "publication_day": "---07",
-      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
-      "publisher": "NIST"
-    },
-    {
-      "reference_id": "REF-196",
-      "author": [
-        "Jerome H. Saltzer",
-        "Michael D. Schroeder"
-      ],
-      "title": "The Protection of Information in Computer Systems",
-      "url": "http://web.mit.edu/Saltzer/www/publications/protection/",
-      "publication_year": "1975",
-      "publication_month": "--09",
-      "publication": "Proceedings of the IEEE 63"
-    },
-    {
-      "reference_id": "REF-76",
-      "author": [
-        "Sean Barnum",
-        "Michael Gegick"
-      ],
-      "title": "Least Privilege",
-      "url": "https://web.archive.org/web/20211209014121/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/least-privilege",
-      "publication_year": "2005",
-      "publication_month": "--09",
-      "publication_day": "---14",
-      "url_date": "2023-04-07"
-    },
-    {
-      "section": "Chapter 7, \"Running with Least Privilege\" Page 207",
-      "reference_id": "REF-7",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc"
-      ],
-      "title": "Writing Secure Code",
-      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
-      "publication_year": "2002",
-      "publication_month": "--12",
-      "publication_day": "---04",
-      "publisher": "Microsoft Press",
-      "edition": "2nd Edition"
-    },
-    {
-      "reference_id": "REF-199",
-      "author": [
-        "NIST"
-      ],
-      "title": "United States Government Configuration Baseline (USGCB)",
-      "url": "https://csrc.nist.gov/Projects/United-States-Government-Configuration-Baseline",
-      "url_date": "2023-03-28"
-    },
-    {
-      "section": "\"Sin 16: Executing Code With Too Much Privilege.\" Page 243",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    },
-    {
-      "section": "Chapter 9, \"Privilege Vulnerabilities\", Page 477",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "7 Pernicious Kingdoms",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Modes_of_Introduction, Relationships, Other_Notes, Relationship_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Description, Maintenance_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Common_Consequences, Description, Likelihood_of_Exploit, Maintenance_Notes, Name, Observed_Examples, Other_Notes, Potential_Mitigations, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Detection_Factors, Potential_Mitigations, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Detection_Factors, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Potential_Mitigations, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-07-17",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-02-18",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Detection_Factors"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Modes_of_Introduction, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Applicable_Platforms, Detection_Factors, Observed_Examples, References, Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description, Maintenance_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Potential_Mitigations, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Often Misused: Privilege Management",
-        "date": "2008-01-30"
-      },
-      {
-        "text": "Design Principle Violation: Failure to Use Least Privilege",
-        "date": "2009-01-12"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
-        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
-        "contribution_date": "2023-01-24",
-        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
-      },
-      {
-        "type": "Content",
-        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
-        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
-        "contribution_date": "2023-04-25",
-        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "method": "Manual Analysis",
-      "description": "This weakness can be detected using tools and techniques that require manual (human) analysis, such as penetration testing, threat modeling, and interactive tools that allow the tester to record and modify an active session.",
-      "effectiveness_notes": "These may be more effective than strictly automated techniques. This is especially the case with weaknesses that are related to design and business rules."
-    },
-    {
-      "detection_method_id": "DM-11.7",
-      "method": "Black Box",
-      "description": "\n                  <xhtml:p>Use monitoring tools that examine the software's process as it interacts with the operating system and the network. This technique is useful in cases when source code is unavailable, if the software was not developed by you, or if you want to verify that the build phase did not introduce any new weaknesses. Examples include debuggers that directly attach to the running process; system-call tracing utilities such as truss (Solaris) and strace (Linux); system activity monitors such as FileMon, RegMon, Process Monitor, and other Sysinternals utilities (Windows); and sniffers and protocol analyzers that monitor network traffic.</xhtml:p>\n                  <xhtml:p>Attach the monitor to the process and perform a login. Look for library functions and system calls that indicate when privileges are being raised or dropped. Look for accesses of resources that are restricted to normal users.</xhtml:p>\n               ",
-      "effectiveness_notes": "Note that this technique is only useful for privilege issues related to system resources. It is not likely to detect application-level business rules that are related to privileges, such as if a blog system allows a user to delete a blog entry without first checking that the user has administrator privileges."
-    },
-    {
-      "method": "Automated Static Analysis - Binary or Bytecode",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Compare binary / bytecode to application permission manifest</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                           <xhtml:li>Binary Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Manual Static Analysis - Binary or Bytecode",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Automated Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Host-based Vulnerability Scanners - Examine configuration for flaws, verifying that audit mechanisms work, ensure host configuration meets certain predefined criteria</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Dynamic Analysis with Manual Results Interpretation",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Host Application Interface Scanner</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Manual Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Automated Static Analysis - Source Code",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Automated Static Analysis",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Configuration Checker</xhtml:li>\n                           <xhtml:li>Permission Manifest Analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "SOAR Partial"
-    },
-    {
-      "method": "Architecture or Design Review",
-      "description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Attack Modeling</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "Often Misused: Privilege Management"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Minimize privileges before deserializing from a privilege context",
-      "entry_id": "SER09-J"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SP.03.05 BR",
-      "entry_id": "Part 2-4"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SP.03.08 BR",
-      "entry_id": "Part 2-4"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SP.03.08 RE(1)",
-      "entry_id": "Part 2-4"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SP.05.07 BR",
-      "entry_id": "Part 2-4"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SP.09.02 RE(4)",
-      "entry_id": "Part 2-4"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SP.09.03 BR",
-      "entry_id": "Part 2-4"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SP.09.04 BR",
-      "entry_id": "Part 2-4"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR 1.1",
-      "entry_id": "Part 3-3"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR 1.2",
-      "entry_id": "Part 3-3"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR 2.1",
-      "entry_id": "Part 3-3"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR 2.1 RE 1",
-      "entry_id": "Part 3-3"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SD-4",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CCSC 3",
-      "entry_id": "Part 4-2"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR 1.1",
-      "entry_id": "Part 4-2"
-    }
-  ],
-  "related_attack_patterns": [
-    "104",
-    "470",
-    "69"
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "There is a close association with CWE-653 (Insufficient Separation of Privileges). CWE-653 is about providing separate components for each privilege; CWE-250 is about ensuring that each component has the least amount of privileges possible."
-    },
-    {
-      "type": "Maintenance",
-      "text": "CWE-271, CWE-272, and CWE-250 are all closely related and possibly overlapping. CWE-271 is probably better suited as a category. Both CWE-272 and CWE-250 are in active use by the community. The \"least privilege\" phrase has multiple interpretations."
-    },
-    {
-      "type": "Maintenance",
-      "text": "The Taxonomy_Mappings to ISA/IEC 62443 were added in CWE 4.10, but they are still under review and might change in future CWE versions. These draft mappings were performed by members of the \"Mapping CWE to 62443\" subgroup of the CWE-CAPEC ICS/OT Special Interest Group (SIG), and their work is incomplete as of CWE 4.10. The mappings are included to facilitate discussion and review by the broader ICS/OT community, and they are likely to change in future CWE versions."
-    }
-  ]
+	"id": "250",
+	"name": "Execution with Unnecessary Privileges",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product performs an operation at a privilege level that is higher than the minimum level required, which creates new weaknesses or amplifies the consequences of other weaknesses.",
+	"extended_description": "\n            <xhtml:p>New weaknesses can be exposed because running with extra privileges, such as root or Administrator, can disable the normal security checks being performed by the operating system or surrounding environment. Other pre-existing weaknesses can turn into security vulnerabilities if they occur while operating at raised privileges.</xhtml:p>\n            <xhtml:p>Privilege management functions can behave in some less-than-obvious ways, and they have different quirks on different platforms. These inconsistencies are particularly pronounced if you are transitioning from one non-root user to another. Signal handlers and spawned processes run at the privilege of the owning process, so if a process is running as root when a signal fires or a sub-process is executed, the signal handler or sub-process will operate with root privileges.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "269",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "657",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Mobile",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"\n                  <xhtml:p>REALIZATION: This weakness is caused during implementation of an architectural security tactic.</xhtml:p>\n               "
+			]
+		},
+		{
+			"phase": "Installation"
+		},
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"\n                  <xhtml:p>If an application has this design problem, then it can be easier for the developer to make implementation-related errors such as CWE-271 (Privilege Dropping / Lowering Errors). In addition, the consequences of Privilege Chaining (CWE-268) can become more severe.</xhtml:p>\n               "
+			]
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Availability",
+				"Access Control"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity",
+				"Execute Unauthorized Code or Commands",
+				"Read Application Data",
+				"DoS: Crash, Exit, or Restart"
+			],
+			"note": "An attacker will be able to gain access to any resources that are allowed by the extra privileges. Common results include executing code, disabling services, and reading restricted data."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"mitigation_id": "MIT-17",
+			"phase": [
+				"Architecture and Design",
+				"Operation"
+			],
+			"description": [
+				"Run your code using the lowest privileges that are required to accomplish the necessary tasks [REF-76]. If possible, create isolated accounts with limited privileges that are only used for a single task. That way, a successful attack will not immediately give the attacker access to the rest of the software or its environment. For example, database applications rarely need to run as the database administrator, especially in day-to-day operations."
+			],
+			"strategy": "Environment Hardening"
+		},
+		{
+			"mitigation_id": "MIT-18",
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Identify the functionality that requires additional privileges, such as access to privileged operating system resources. Wrap and centralize this functionality if possible, and isolate the privileged code as much as possible from other code [REF-76]. Raise privileges as late as possible, and drop them as soon as possible to avoid CWE-271. Avoid weaknesses such as CWE-288 and CWE-420 by protecting all possible communication channels that could interact with the privileged code, such as a secondary socket that is only intended to be accessed by administrators."
+			],
+			"strategy": "Separation of Privilege"
+		},
+		{
+			"mitigation_id": "MIT-18",
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Identify the functionality that requires additional privileges, such as access to privileged operating system resources. Wrap and centralize this functionality if possible, and isolate the privileged code as much as possible from other code [REF-76]. Raise privileges as late as possible, and drop them as soon as possible to avoid CWE-271. Avoid weaknesses such as CWE-288 and CWE-420 by protecting all possible communication channels that could interact with the privileged code, such as a secondary socket that is only intended to be accessed by administrators."
+			],
+			"strategy": "Attack Surface Reduction"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Perform extensive input validation for any privileged code that must be exposed to the user and reject anything that does not fit your strict requirements."
+			]
+		},
+		{
+			"mitigation_id": "MIT-19",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"When dropping privileges, ensure that they have been dropped successfully to avoid CWE-273. As protection mechanisms in the environment get stronger, privilege-dropping calls may fail even if it seems like they would always succeed."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"If circumstances force you to run with extra privileges, then determine the minimum access level necessary. First identify the different permissions that the software and its users will need to perform their actions, such as file read and write permissions, network socket permissions, and so forth. Then explicitly allow those actions while denying all else [REF-76]. Perform extensive input validation and canonicalization to minimize the chances of introducing a separate vulnerability. This mitigation is much more prone to error than dropping the privileges in the first place."
+			]
+		},
+		{
+			"mitigation_id": "MIT-37",
+			"phase": [
+				"Operation",
+				"System Configuration"
+			],
+			"description": [
+				"Ensure that the software runs properly under the United States Government Configuration Baseline (USGCB) [REF-199] or an equivalent hardening configuration guide, which many organizations use to limit the attack surface and potential risk of deployed software."
+			],
+			"strategy": "Environment Hardening"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-126",
+			"text": "\n               <Intro_Text>This code temporarily raises the program's privileges to allow creation of a new user folder.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>def makeNewUserDir(username):<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if invalidUsername(username):<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>#avoid CWE-22 and CWE-78</xhtml:i>\n                                 <xhtml:br/>print('Usernames cannot contain invalid characters')<xhtml:br/>return False</xhtml:div>\n                           </xhtml:div>\n                           <xhtml:br/>try:<xhtml:div style=\"margin-left:1em;\">raisePrivileges()<xhtml:br/>os.mkdir('/home/' + username)<xhtml:br/>lowerPrivileges()</xhtml:div>\n                           <xhtml:br/>except OSError:<xhtml:div style=\"margin-left:1em;\">print('Unable to create new user directory for user:' + username)<xhtml:br/>return False</xhtml:div>\n                           <xhtml:br/>return True</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>While the program only raises its privilege level to create the folder and immediately lowers it again, if the call to os.mkdir() throws an exception, the call to lowerPrivileges() will not occur. As a result, the program is indefinitely operating in a raised privilege state, possibly allowing further exploitation to occur.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>The following code calls chroot() to restrict the application to a subset of the filesystem below APP_HOME in order to prevent an attacker from using the program to gain unauthorized access to files located elsewhere. The code then opens a file specified by the user and processes the contents of the file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>chroot(APP_HOME);<xhtml:br/>chdir(\"/\");<xhtml:br/>FILE* data = fopen(argv[1], \"r+\");<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>Constraining the process inside the application's home directory before opening any files is a valuable security measure. However, the absence of a call to setuid() with some non-zero value means the application is continuing to operate with unnecessary root privileges. Any successful exploit carried out by an attacker against the application can now result in a privilege escalation attack because any malicious operations will be performed with the privileges of the superuser. If the application drops to the privilege level of a non-root user, the potential for damage is substantially reduced.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>This application intends to use a user's location to determine the timezone the user is in:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>locationClient = new LocationClient(this, this, this);<xhtml:br/>locationClient.connect();<xhtml:br/>Location userCurrLocation;<xhtml:br/>userCurrLocation = locationClient.getLastLocation();<xhtml:br/>setTimeZone(userCurrLocation);</xhtml:div>\n               </Example_Code>\n               <Body_Text>This is unnecessary use of the location API, as this information is already available using the Android Time API. Always be sure there is not another way to obtain needed information before resorting to using the location API.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-111",
+			"text": "\n               <Intro_Text>This code uses location to determine the user's current US State location.</Intro_Text>\n               <Body_Text>First the application must declare that it requires the ACCESS_FINE_LOCATION permission in the application's manifest.xml:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>During execution, a call to getLastLocation() will return a location based on the application's location permissions. In this case the application has permission for the most accurate location possible:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>locationClient = new LocationClient(this, this, this);<xhtml:br/>locationClient.connect();<xhtml:br/>Location userCurrLocation;<xhtml:br/>userCurrLocation = locationClient.getLastLocation();<xhtml:br/>deriveStateFromCoords(userCurrLocation);</xhtml:div>\n               </Example_Code>\n               <Body_Text>While the application needs this information, it does not need to use the ACCESS_FINE_LOCATION permission, as the ACCESS_COARSE_LOCATION permission will be sufficient to identify which US state the user is in.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2007-4217",
+			"description": "FTP client program on a certain OS runs with setuid privileges and has a buffer overflow. Most clients do not need extra privileges, so an overflow is not a vulnerability for those clients.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4217"
+		},
+		{
+			"reference": "CVE-2008-1877",
+			"description": "Program runs with privileges and calls another program with the same privileges, which allows read of arbitrary files.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-1877"
+		},
+		{
+			"reference": "CVE-2007-5159",
+			"description": "OS incorrectly installs a program with setuid privileges, allowing users to gain privileges.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-5159"
+		},
+		{
+			"reference": "CVE-2008-4638",
+			"description": "Composite: application running with high privileges (CWE-250) allows user to specify a restricted file to process, which generates a parsing error that leaks the contents of the file (CWE-209).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-4638"
+		},
+		{
+			"reference": "CVE-2008-0162",
+			"description": "Program does not drop privileges before calling another program, allowing code execution.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-0162"
+		},
+		{
+			"reference": "CVE-2008-0368",
+			"description": "setuid root program allows creation of arbitrary files through command line argument.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-0368"
+		},
+		{
+			"reference": "CVE-2007-3931",
+			"description": "Installation script installs some programs as setuid when they shouldn't be.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-3931"
+		},
+		{
+			"reference": "CVE-2020-3812",
+			"description": "mail program runs as root but does not drop its privileges before attempting to access a file. Attacker can use a symlink from their home directory to a directory only readable by root, then determine whether the file exists based on the response.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-3812"
+		},
+		{
+			"reference": "CVE-2003-0908",
+			"description": "Product launches Help functionality while running with raised privileges, allowing command execution using Windows message to access \"open file\" dialog.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0908"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-6",
+			"author": [
+				"Katrina Tsipenyuk",
+				"Brian Chess",
+				"Gary McGraw"
+			],
+			"title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+			"url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+			"publication_year": "2005",
+			"publication_month": "--11",
+			"publication_day": "---07",
+			"publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+			"publisher": "NIST"
+		},
+		{
+			"reference_id": "REF-196",
+			"author": [
+				"Jerome H. Saltzer",
+				"Michael D. Schroeder"
+			],
+			"title": "The Protection of Information in Computer Systems",
+			"url": "http://web.mit.edu/Saltzer/www/publications/protection/",
+			"publication_year": "1975",
+			"publication_month": "--09",
+			"publication": "Proceedings of the IEEE 63"
+		},
+		{
+			"reference_id": "REF-76",
+			"author": [
+				"Sean Barnum",
+				"Michael Gegick"
+			],
+			"title": "Least Privilege",
+			"url": "https://web.archive.org/web/20211209014121/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/least-privilege",
+			"publication_year": "2005",
+			"publication_month": "--09",
+			"publication_day": "---14",
+			"url_date": "2023-04-07"
+		},
+		{
+			"section": "Chapter 7, \"Running with Least Privilege\" Page 207",
+			"reference_id": "REF-7",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc"
+			],
+			"title": "Writing Secure Code",
+			"url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+			"publication_year": "2002",
+			"publication_month": "--12",
+			"publication_day": "---04",
+			"publisher": "Microsoft Press",
+			"edition": "2nd Edition"
+		},
+		{
+			"reference_id": "REF-199",
+			"author": [
+				"NIST"
+			],
+			"title": "United States Government Configuration Baseline (USGCB)",
+			"url": "https://csrc.nist.gov/Projects/United-States-Government-Configuration-Baseline",
+			"url_date": "2023-03-28"
+		},
+		{
+			"section": "\"Sin 16: Executing Code With Too Much Privilege.\" Page 243",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		},
+		{
+			"section": "Chapter 9, \"Privilege Vulnerabilities\", Page 477",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "7 Pernicious Kingdoms",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Modes_of_Introduction, Relationships, Other_Notes, Relationship_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Description, Maintenance_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Common_Consequences, Description, Likelihood_of_Exploit, Maintenance_Notes, Name, Observed_Examples, Other_Notes, Potential_Mitigations, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Detection_Factors, Potential_Mitigations, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Detection_Factors, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Potential_Mitigations, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-07-17",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-02-18",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Detection_Factors"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Modes_of_Introduction, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Applicable_Platforms, Detection_Factors, Observed_Examples, References, Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description, Maintenance_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Potential_Mitigations, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Often Misused: Privilege Management",
+				"date": "2008-01-30"
+			},
+			{
+				"text": "Design Principle Violation: Failure to Use Least Privilege",
+				"date": "2009-01-12"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
+				"contribution_date": "2023-01-24",
+				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			},
+			{
+				"type": "Content",
+				"contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
+				"contribution_date": "2023-04-25",
+				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"method": "Manual Analysis",
+			"description": "This weakness can be detected using tools and techniques that require manual (human) analysis, such as penetration testing, threat modeling, and interactive tools that allow the tester to record and modify an active session.",
+			"effectiveness_notes": "These may be more effective than strictly automated techniques. This is especially the case with weaknesses that are related to design and business rules."
+		},
+		{
+			"detection_method_id": "DM-11.7",
+			"method": "Black Box",
+			"description": "\n                  <xhtml:p>Use monitoring tools that examine the software's process as it interacts with the operating system and the network. This technique is useful in cases when source code is unavailable, if the software was not developed by you, or if you want to verify that the build phase did not introduce any new weaknesses. Examples include debuggers that directly attach to the running process; system-call tracing utilities such as truss (Solaris) and strace (Linux); system activity monitors such as FileMon, RegMon, Process Monitor, and other Sysinternals utilities (Windows); and sniffers and protocol analyzers that monitor network traffic.</xhtml:p>\n                  <xhtml:p>Attach the monitor to the process and perform a login. Look for library functions and system calls that indicate when privileges are being raised or dropped. Look for accesses of resources that are restricted to normal users.</xhtml:p>\n               ",
+			"effectiveness_notes": "Note that this technique is only useful for privilege issues related to system resources. It is not likely to detect application-level business rules that are related to privileges, such as if a blog system allows a user to delete a blog entry without first checking that the user has administrator privileges."
+		},
+		{
+			"method": "Automated Static Analysis - Binary or Bytecode",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Compare binary / bytecode to application permission manifest</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Bytecode Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                           <xhtml:li>Binary Weakness Analysis - including disassembler + source code weakness analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Manual Static Analysis - Binary or Bytecode",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Binary / Bytecode disassembler - then use manual analysis for vulnerabilities &amp; anomalies</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Automated Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Host-based Vulnerability Scanners - Examine configuration for flaws, verifying that audit mechanisms work, ensure host configuration meets certain predefined criteria</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Dynamic Analysis with Manual Results Interpretation",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Host Application Interface Scanner</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Manual Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Manual Source Code Review (not inspections)</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Focused Manual Spotcheck - Focused manual analysis of source</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Automated Static Analysis - Source Code",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Source code Weakness Analyzer</xhtml:li>\n                           <xhtml:li>Context-configured Source Code Weakness Analyzer</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Automated Static Analysis",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Configuration Checker</xhtml:li>\n                           <xhtml:li>Permission Manifest Analysis</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "SOAR Partial"
+		},
+		{
+			"method": "Architecture or Design Review",
+			"description": "\n                  <xhtml:p>According to SOAR, the following detection techniques may be useful:</xhtml:p>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:div>Highly cost effective:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Inspection (IEEE 1028 standard) (can apply to requirements, design, source code, etc.)</xhtml:li>\n                           <xhtml:li>Formal Methods / Correct-By-Construction</xhtml:li>\n                        </xhtml:ul>\n                     <xhtml:div>Cost effective for partial coverage:</xhtml:div>\n                        <xhtml:ul>\n                           <xhtml:li>Attack Modeling</xhtml:li>\n                        </xhtml:ul>\n                  </xhtml:div>\n               ",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "Often Misused: Privilege Management"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Minimize privileges before deserializing from a privilege context",
+			"entry_id": "SER09-J"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SP.03.05 BR",
+			"entry_id": "Part 2-4"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SP.03.08 BR",
+			"entry_id": "Part 2-4"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SP.03.08 RE(1)",
+			"entry_id": "Part 2-4"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SP.05.07 BR",
+			"entry_id": "Part 2-4"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SP.09.02 RE(4)",
+			"entry_id": "Part 2-4"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SP.09.03 BR",
+			"entry_id": "Part 2-4"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SP.09.04 BR",
+			"entry_id": "Part 2-4"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR 1.1",
+			"entry_id": "Part 3-3"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR 1.2",
+			"entry_id": "Part 3-3"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR 2.1",
+			"entry_id": "Part 3-3"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR 2.1 RE 1",
+			"entry_id": "Part 3-3"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SD-4",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CCSC 3",
+			"entry_id": "Part 4-2"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR 1.1",
+			"entry_id": "Part 4-2"
+		}
+	],
+	"related_attack_patterns": [
+		"104",
+		"470",
+		"69"
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "There is a close association with CWE-653 (Insufficient Separation of Privileges). CWE-653 is about providing separate components for each privilege; CWE-250 is about ensuring that each component has the least amount of privileges possible."
+		},
+		{
+			"type": "Maintenance",
+			"text": "CWE-271, CWE-272, and CWE-250 are all closely related and possibly overlapping. CWE-271 is probably better suited as a category. Both CWE-272 and CWE-250 are in active use by the community. The \"least privilege\" phrase has multiple interpretations."
+		},
+		{
+			"type": "Maintenance",
+			"text": "The Taxonomy_Mappings to ISA/IEC 62443 were added in CWE 4.10, but they are still under review and might change in future CWE versions. These draft mappings were performed by members of the \"Mapping CWE to 62443\" subgroup of the CWE-CAPEC ICS/OT Special Interest Group (SIG), and their work is incomplete as of CWE 4.10. The mappings are included to facilitate discussion and review by the broader ICS/OT community, and they are likely to change in future CWE versions."
+		}
+	]
 }

@@ -1,158 +1,158 @@
 {
-  "id": "799",
-  "name": "Improper Control of Interaction Frequency",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product does not properly limit the number or frequency of interactions that it has with an actor, such as the number of incoming requests.",
-  "extended_description": "This can allow the actor to perform actions more frequently than expected. The actor could be a human or an automated process such as a virus or bot. This could be used to cause a denial of service, compromise program logic (such as limiting humans to a single vote), or other consequences. For example, an authentication routine might not limit the number of times an attacker can guess a password. Or, a web site might conduct a poll but only expect humans to vote a maximum of once a day.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "691",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability",
-        "Access Control",
-        "Other"
-      ],
-      "impact": [
-        "DoS: Resource Consumption (Other)",
-        "Bypass Protection Mechanism",
-        "Other"
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the following code a username and password is read from a socket and an attempt is made to authenticate the username and password. The code will continuously checked the socket for a username and password until it has been authenticated.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char username[USERNAME_SIZE];<xhtml:br/>char password[PASSWORD_SIZE];<xhtml:br/>\n                     <xhtml:br/>while (isValidUser == 0) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if (getNextMessage(socket, username, USERNAME_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">if (getNextMessage(socket, password, PASSWORD_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">isValidUser = AuthenticateUser(username, password);</xhtml:div>}</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>return(SUCCESS);</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code does not place any restriction on the number of authentication attempts made. There should be a limit on the number of authentication attempts made to prevent brute force attacks as in the following example code.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>int count = 0;<xhtml:br/>while ((isValidUser == 0) &amp;&amp; (count &lt; MAX_ATTEMPTS)) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if (getNextMessage(socket, username, USERNAME_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">if (getNextMessage(socket, password, PASSWORD_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">isValidUser = AuthenticateUser(username, password);</xhtml:div>}</xhtml:div>}<xhtml:br/>count++;</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>if (isValidUser) {<xhtml:div style=\"margin-left:1em;\">return(SUCCESS);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">return(FAIL);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2002-1876",
-      "description": "Mail server allows attackers to prevent other users from accessing mail by sending large number of rapid requests.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1876"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-731",
-      "author": [
-        "Web Application Security Consortium"
-      ],
-      "title": "Insufficient Anti-automation",
-      "url": "http://projects.webappsec.org/Insufficient+Anti-automation"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2010-01-15",
-      "submission_comment": "New entry to handle anti-automation as identified in WASC."
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "alternate_terms": [
-    {
-      "term": "Insufficient anti-automation",
-      "description": "The term \"insufficient anti-automation\" focuses primarly on non-human actors such as viruses or bots, but the scope of this CWE entry is broader."
-    },
-    {
-      "term": "Brute force",
-      "description": "Vulnerabilities that can be targeted using brute force attacks are often symptomatic of this weakness."
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "WASC",
-      "entry_name": "Insufficient Anti-Automation",
-      "entry_id": "21"
-    }
-  ]
+	"id": "799",
+	"name": "Improper Control of Interaction Frequency",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product does not properly limit the number or frequency of interactions that it has with an actor, such as the number of incoming requests.",
+	"extended_description": "This can allow the actor to perform actions more frequently than expected. The actor could be a human or an automated process such as a virus or bot. This could be used to cause a denial of service, compromise program logic (such as limiting humans to a single vote), or other consequences. For example, an authentication routine might not limit the number of times an attacker can guess a password. Or, a web site might conduct a poll but only expect humans to vote a maximum of once a day.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "691",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability",
+				"Access Control",
+				"Other"
+			],
+			"impact": [
+				"DoS: Resource Consumption (Other)",
+				"Bypass Protection Mechanism",
+				"Other"
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the following code a username and password is read from a socket and an attempt is made to authenticate the username and password. The code will continuously checked the socket for a username and password until it has been authenticated.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char username[USERNAME_SIZE];<xhtml:br/>char password[PASSWORD_SIZE];<xhtml:br/>\n                     <xhtml:br/>while (isValidUser == 0) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if (getNextMessage(socket, username, USERNAME_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">if (getNextMessage(socket, password, PASSWORD_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">isValidUser = AuthenticateUser(username, password);</xhtml:div>}</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>return(SUCCESS);</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code does not place any restriction on the number of authentication attempts made. There should be a limit on the number of authentication attempts made to prevent brute force attacks as in the following example code.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>int count = 0;<xhtml:br/>while ((isValidUser == 0) &amp;&amp; (count &lt; MAX_ATTEMPTS)) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if (getNextMessage(socket, username, USERNAME_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">if (getNextMessage(socket, password, PASSWORD_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">isValidUser = AuthenticateUser(username, password);</xhtml:div>}</xhtml:div>}<xhtml:br/>count++;</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>if (isValidUser) {<xhtml:div style=\"margin-left:1em;\">return(SUCCESS);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">return(FAIL);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2002-1876",
+			"description": "Mail server allows attackers to prevent other users from accessing mail by sending large number of rapid requests.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1876"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-731",
+			"author": [
+				"Web Application Security Consortium"
+			],
+			"title": "Insufficient Anti-automation",
+			"url": "http://projects.webappsec.org/Insufficient+Anti-automation"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2010-01-15",
+			"submission_comment": "New entry to handle anti-automation as identified in WASC."
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"alternate_terms": [
+		{
+			"term": "Insufficient anti-automation",
+			"description": "The term \"insufficient anti-automation\" focuses primarly on non-human actors such as viruses or bots, but the scope of this CWE entry is broader."
+		},
+		{
+			"term": "Brute force",
+			"description": "Vulnerabilities that can be targeted using brute force attacks are often symptomatic of this weakness."
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "WASC",
+			"entry_name": "Insufficient Anti-Automation",
+			"entry_id": "21"
+		}
+	]
 }

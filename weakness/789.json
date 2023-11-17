@@ -1,318 +1,318 @@
 {
-  "id": "789",
-  "name": "Memory Allocation with Excessive Size Value",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product allocates memory based on an untrusted, large size value, but it does not ensure that the size is within expected limits, allowing arbitrary amounts of memory to be allocated.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "770",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "476",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      },
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Resource Consumption (Memory)"
-      ],
-      "note": "Not controlling memory allocation can result in a request for too much system memory, possibly leading to a crash of the application due to out-of-memory conditions, or the consumption of a large amount of memory on the system."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation",
-        "Architecture and Design"
-      ],
-      "description": [
-        "Perform adequate input validation against any value that influences the amount of memory that is allocated. Define an appropriate strategy for handling requests that exceed the limit, and consider supporting a configuration option so that the administrator can extend the amount of memory to be used if necessary."
-      ]
-    },
-    {
-      "phase": [
-        "Operation"
-      ],
-      "description": [
-        "Run your program using system-provided resource limits for memory. This might still cause the program to crash or exit, but the impact to the rest of the system will be minimized."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>Consider the following code, which accepts an untrusted size value and allocates a buffer to contain a string of the given size.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned int size = GetUntrustedInt();<xhtml:br/>\n                     <xhtml:i>/* ignore integer overflow (CWE-190) for this example */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>unsigned int totBytes = size * sizeof(char);<xhtml:br/>char *string = (char *)malloc(totBytes);<xhtml:br/>InitializeString(string);</xhtml:div>\n               </Example_Code>\n               <Body_Text>Suppose an attacker provides a size value of:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>12345678</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>This will cause 305,419,896 bytes (over 291 megabytes) to be allocated for the string.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>Consider the following code, which accepts an untrusted size value and uses the size as an initial capacity for a HashMap.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>unsigned int size = GetUntrustedInt();<xhtml:br/>HashMap list = new HashMap(size);</xhtml:div>\n               </Example_Code>\n               <Body_Text>The HashMap constructor will verify that the initial capacity is not negative, however there is no check in place to verify that sufficient memory is present. If the attacker provides a large enough value, the application will run into an OutOfMemoryError.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-137",
-      "text": "\n               <Intro_Text>This code performs a stack allocation based on a length calculation.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>\n\t\t    int a = 5, b = 6;<xhtml:br/>\n\t\t    size_t len = a - b;<xhtml:br/>\n\t\t    char buf[len];    // Just blows up the stack\n\t\t  </xhtml:div>\n\t\t  }\n               </Example_Code>\n               <Body_Text>Since a and b are declared as signed ints, the \"a - b\" subtraction gives a negative result (-1). However, since len is declared to be unsigned, len is cast to an extremely large positive number (on 32-bit systems - 4294967295). As a result, the buffer buf[len] declaration uses an extremely large size to allocate on the stack, very likely more than the entire computer's memory space.</Body_Text>\n\t       <Body_Text>Miscalculations usually will not be so obvious. The calculation will either be complicated or the result of an attacker's input to attain the negative value.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-138",
-      "text": "\n               <Intro_Text>This example shows a typical attempt to parse a string with an error resulting from a difference in assumptions between the caller to a function and the function's action.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n\t\t int proc_msg(char *s, int msg_len)<xhtml:br/>\n\t\t {<xhtml:br/>\n                  <xhtml:div>\n\t\t    <xhtml:i>// Note space at the end of the string - assume all strings have preamble with space</xhtml:i><xhtml:br/>\n\t\t    int pre_len = sizeof(\"preamble: \");<xhtml:br/>\n\t\t    char buf[pre_len - msg_len];<xhtml:br/>\n\t\t    <xhtml:i>... Do processing here if we get this far</xhtml:i>\n\t\t  </xhtml:div>\n\t\t  }<xhtml:br/>\n\t\t  char *s = \"preamble: message\\n\";<xhtml:br/>\n\t\t  char *sl = strchr(s, ':');        // Number of characters up to ':' (not including space)<xhtml:br/>\n\t\t  int jnklen = sl == NULL ? 0 : sl - s;    // If undefined pointer, use zero length<xhtml:br/>\n\t\t  int ret_val = proc_msg (\"s\",  jnklen);    // Violate assumption of preamble length, end up with negative value, blow out stack<xhtml:br/>\n               </Example_Code>\n               <Body_Text>The buffer length ends up being -1, resulting in a blown out stack. The space character after the colon is included in the function calculation, but not in the caller's calculation. This, unfortunately, is not usually so obvious but exists in an obtuse series of calculations.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>The following code obtains an untrusted number that is used as an index into an array of messages.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>my $num = GetUntrustedNumber();<xhtml:br/>my @messages = ();<xhtml:br/>\n                     <xhtml:br/>$messages[$num] = \"Hello World\";</xhtml:div>\n               </Example_Code>\n               <Body_Text>The index is not validated at all (CWE-129), so it might be possible for an attacker to modify an element in @messages that was not intended. If an index is used that is larger than the current size of the array, the Perl interpreter automatically expands the array so that the large index works.</Body_Text>\n               <Body_Text>If $num is a large value such as 2147483648 (1&lt;&lt;31), then the assignment to $messages[$num] would attempt to create a very large array, then eventually produce an error message such as:</Body_Text>\n               <Body_Text>Out of memory during array extend</Body_Text>\n               <Body_Text>This memory exhaustion will cause the Perl program to exit, possibly a denial of service. In addition, the lack of memory could also prevent many other programs from successfully running on the system.</Body_Text>\n            "
-    },
-    {
-      "text": "\n          <Intro_Text>This example shows a typical attempt to parse a string with an error resulting from a difference in assumptions between the caller to a function and the function's action. The buffer length ends up being -1 resulting in a blown out stack. The space character after the colon is included  in the function calculation, but not in the caller's calculation. This, unfortunately, is not usually so obvious but exists in an obtuse series of calculations.</Intro_Text>\n          <Example_Code Nature=\"Bad\" Language=\"C\">\nint proc_msg(char *s, int msg_len)<xhtml:br/>\n{<xhtml:br/>\n<xhtml:div style=\"margin-left:1em;\">int pre_len = sizeof(\"preamble: \");    // Note space at the end of the string - assume all strings have preamble with space</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">char buf[pre_len - msg_len];</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">... Do processing here and set status</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">return status;</xhtml:div>\n}\n<xhtml:br/>\nchar *s = \"preamble: message\\n\";<xhtml:br/>\nchar *sl = strchr(s, ':');        // Number of characters up to ':' (not including space)<xhtml:br/>\nint jnklen = sl == NULL ? 0 : sl - s;    // If undefined pointer, use zero length<xhtml:br/>\nint ret_val = proc_msg (\"s\",  jnklen);    // Violate assumption of preamble length, end up with negative value, blow out stack\n         </Example_Code>\n          <Example_Code Nature=\"Good\" Language=\"C\">\nint proc_msg(char *s, int msg_len)<xhtml:br/>\n{<xhtml:br/>\n<xhtml:div style=\"margin-left:1em;\">int pre_len = sizeof(\"preamble: \");    // Note space at the end of the string - assume all strings have preamble with space</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">if (pre_len &lt;= msg_len) { // Log error; return error_code; }</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">char buf[pre_len - msg_len];</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">... Do processing here and set status</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">return status;</xhtml:div>\n}\n<xhtml:br/>\nchar *s = \"preamble: message\\n\";<xhtml:br/>\nchar *sl = strchr(s, ':');        // Number of characters up to ':' (not including space)<xhtml:br/>\nint jnklen = sl == NULL ? 0 : sl - s;    // If undefined pointer, use zero length<xhtml:br/>\nint ret_val = proc_msg (\"s\",  jnklen);    // Violate assumption of preamble length, end up with negative value, blow out stack\n         </Example_Code>\n        "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-21668",
-      "description": "Chain: Python library does not limit the resources used to process images that specify a very large number of bands (CWE-1284), leading to excessive memory consumption (CWE-789) or an integer overflow (CWE-190).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-21668"
-    },
-    {
-      "reference": "CVE-2010-3701",
-      "description": "program uses ::alloca() for encoding messages, but large messages trigger segfault",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2010-3701"
-    },
-    {
-      "reference": "CVE-2008-1708",
-      "description": "memory consumption and daemon exit by specifying a large value in a length field",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-1708"
-    },
-    {
-      "reference": "CVE-2008-0977",
-      "description": "large value in a length field leads to memory consumption and crash when no more memory is available",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-0977"
-    },
-    {
-      "reference": "CVE-2006-3791",
-      "description": "large key size in game program triggers crash when a resizing function cannot allocate enough memory",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-3791"
-    },
-    {
-      "reference": "CVE-2004-2589",
-      "description": "large Content-Length HTTP header value triggers application crash in instant messaging application due to failure in memory allocation",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2589"
-    }
-  ],
-  "references": [
-    {
-      "section": "Chapter 10, \"Resource Limits\", Page 574",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "section": "ASCSM-CWE-789",
-      "reference_id": "REF-962",
-      "author": [
-        "Object Management Group (OMG)"
-      ],
-      "title": "Automated Source Code Security Measure (ASCSM)",
-      "url": "http://www.omg.org/spec/ASCSM/1.0/",
-      "publication_year": "2016",
-      "publication_month": "--01"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2009-10-21"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Common_Consequences, Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Alternate_Terms, Demonstrative_Examples, Description, Likelihood_of_Exploit, Name, Observed_Examples, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Uncontrolled Memory Allocation",
-        "date": "2020-12-10"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    },
-    {
-      "ordinality": "Resultant"
-    }
-  ],
-  "alternate_terms": [
-    {
-      "term": "Stack Exhaustion",
-      "description": "When a weakness allocates excessive memory on the stack, it is often described as \"stack exhaustion,\" which is a technical impact of the weakness. This technical impact is often encountered as a consequence of CWE-789 and/or CWE-1325."
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-13",
-      "method": "Fuzzing",
-      "description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
-      "effectiveness": "High"
-    },
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "WASC",
-      "entry_name": "SOAP Array Abuse",
-      "entry_id": "35"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Allocate sufficient memory for an object",
-      "entry_id": "MEM35-C",
-      "mapping_fit": "Imprecise"
-    },
-    {
-      "taxonomy_name": "SEI CERT Perl Coding Standard",
-      "entry_name": "Validate any integer that is used as an array index",
-      "entry_id": "IDS32-PL",
-      "mapping_fit": "Imprecise"
-    },
-    {
-      "taxonomy_name": "OMG ASCSM",
-      "entry_id": "ASCSM-CWE-789"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "This weakness can be closely associated with integer overflows (CWE-190). Integer overflow attacks would concentrate on providing an extremely large number that triggers an overflow that causes less memory to be allocated than expected. By providing a large value that does not trigger an integer overflow, the attacker could still cause excessive amounts of memory to be allocated."
-    },
-    {
-      "type": "Applicable Platform",
-      "text": "\n               <xhtml:p>Uncontrolled memory allocation is possible in many languages, such as dynamic array allocation in perl or initial size parameters in Collections in Java. However, languages like C and C++ where programmers have the power to more directly control memory management will be more susceptible.</xhtml:p>\n            "
-    }
-  ]
+	"id": "789",
+	"name": "Memory Allocation with Excessive Size Value",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product allocates memory based on an untrusted, large size value, but it does not ensure that the size is within expected limits, allowing arbitrary amounts of memory to be allocated.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "770",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "476",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			},
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Resource Consumption (Memory)"
+			],
+			"note": "Not controlling memory allocation can result in a request for too much system memory, possibly leading to a crash of the application due to out-of-memory conditions, or the consumption of a large amount of memory on the system."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation",
+				"Architecture and Design"
+			],
+			"description": [
+				"Perform adequate input validation against any value that influences the amount of memory that is allocated. Define an appropriate strategy for handling requests that exceed the limit, and consider supporting a configuration option so that the administrator can extend the amount of memory to be used if necessary."
+			]
+		},
+		{
+			"phase": [
+				"Operation"
+			],
+			"description": [
+				"Run your program using system-provided resource limits for memory. This might still cause the program to crash or exit, but the impact to the rest of the system will be minimized."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>Consider the following code, which accepts an untrusted size value and allocates a buffer to contain a string of the given size.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>unsigned int size = GetUntrustedInt();<xhtml:br/>\n                     <xhtml:i>/* ignore integer overflow (CWE-190) for this example */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>unsigned int totBytes = size * sizeof(char);<xhtml:br/>char *string = (char *)malloc(totBytes);<xhtml:br/>InitializeString(string);</xhtml:div>\n               </Example_Code>\n               <Body_Text>Suppose an attacker provides a size value of:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>12345678</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>This will cause 305,419,896 bytes (over 291 megabytes) to be allocated for the string.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>Consider the following code, which accepts an untrusted size value and uses the size as an initial capacity for a HashMap.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>unsigned int size = GetUntrustedInt();<xhtml:br/>HashMap list = new HashMap(size);</xhtml:div>\n               </Example_Code>\n               <Body_Text>The HashMap constructor will verify that the initial capacity is not negative, however there is no check in place to verify that sufficient memory is present. If the attacker provides a large enough value, the application will run into an OutOfMemoryError.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-137",
+			"text": "\n               <Intro_Text>This code performs a stack allocation based on a length calculation.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>\n\t\t    int a = 5, b = 6;<xhtml:br/>\n\t\t    size_t len = a - b;<xhtml:br/>\n\t\t    char buf[len];    // Just blows up the stack\n\t\t  </xhtml:div>\n\t\t  }\n               </Example_Code>\n               <Body_Text>Since a and b are declared as signed ints, the \"a - b\" subtraction gives a negative result (-1). However, since len is declared to be unsigned, len is cast to an extremely large positive number (on 32-bit systems - 4294967295). As a result, the buffer buf[len] declaration uses an extremely large size to allocate on the stack, very likely more than the entire computer's memory space.</Body_Text>\n\t       <Body_Text>Miscalculations usually will not be so obvious. The calculation will either be complicated or the result of an attacker's input to attain the negative value.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-138",
+			"text": "\n               <Intro_Text>This example shows a typical attempt to parse a string with an error resulting from a difference in assumptions between the caller to a function and the function's action.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n\t\t int proc_msg(char *s, int msg_len)<xhtml:br/>\n\t\t {<xhtml:br/>\n                  <xhtml:div>\n\t\t    <xhtml:i>// Note space at the end of the string - assume all strings have preamble with space</xhtml:i><xhtml:br/>\n\t\t    int pre_len = sizeof(\"preamble: \");<xhtml:br/>\n\t\t    char buf[pre_len - msg_len];<xhtml:br/>\n\t\t    <xhtml:i>... Do processing here if we get this far</xhtml:i>\n\t\t  </xhtml:div>\n\t\t  }<xhtml:br/>\n\t\t  char *s = \"preamble: message\\n\";<xhtml:br/>\n\t\t  char *sl = strchr(s, ':');        // Number of characters up to ':' (not including space)<xhtml:br/>\n\t\t  int jnklen = sl == NULL ? 0 : sl - s;    // If undefined pointer, use zero length<xhtml:br/>\n\t\t  int ret_val = proc_msg (\"s\",  jnklen);    // Violate assumption of preamble length, end up with negative value, blow out stack<xhtml:br/>\n               </Example_Code>\n               <Body_Text>The buffer length ends up being -1, resulting in a blown out stack. The space character after the colon is included in the function calculation, but not in the caller's calculation. This, unfortunately, is not usually so obvious but exists in an obtuse series of calculations.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>The following code obtains an untrusted number that is used as an index into an array of messages.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>my $num = GetUntrustedNumber();<xhtml:br/>my @messages = ();<xhtml:br/>\n                     <xhtml:br/>$messages[$num] = \"Hello World\";</xhtml:div>\n               </Example_Code>\n               <Body_Text>The index is not validated at all (CWE-129), so it might be possible for an attacker to modify an element in @messages that was not intended. If an index is used that is larger than the current size of the array, the Perl interpreter automatically expands the array so that the large index works.</Body_Text>\n               <Body_Text>If $num is a large value such as 2147483648 (1&lt;&lt;31), then the assignment to $messages[$num] would attempt to create a very large array, then eventually produce an error message such as:</Body_Text>\n               <Body_Text>Out of memory during array extend</Body_Text>\n               <Body_Text>This memory exhaustion will cause the Perl program to exit, possibly a denial of service. In addition, the lack of memory could also prevent many other programs from successfully running on the system.</Body_Text>\n            "
+		},
+		{
+			"text": "\n          <Intro_Text>This example shows a typical attempt to parse a string with an error resulting from a difference in assumptions between the caller to a function and the function's action. The buffer length ends up being -1 resulting in a blown out stack. The space character after the colon is included  in the function calculation, but not in the caller's calculation. This, unfortunately, is not usually so obvious but exists in an obtuse series of calculations.</Intro_Text>\n          <Example_Code Nature=\"Bad\" Language=\"C\">\nint proc_msg(char *s, int msg_len)<xhtml:br/>\n{<xhtml:br/>\n<xhtml:div style=\"margin-left:1em;\">int pre_len = sizeof(\"preamble: \");    // Note space at the end of the string - assume all strings have preamble with space</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">char buf[pre_len - msg_len];</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">... Do processing here and set status</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">return status;</xhtml:div>\n}\n<xhtml:br/>\nchar *s = \"preamble: message\\n\";<xhtml:br/>\nchar *sl = strchr(s, ':');        // Number of characters up to ':' (not including space)<xhtml:br/>\nint jnklen = sl == NULL ? 0 : sl - s;    // If undefined pointer, use zero length<xhtml:br/>\nint ret_val = proc_msg (\"s\",  jnklen);    // Violate assumption of preamble length, end up with negative value, blow out stack\n         </Example_Code>\n          <Example_Code Nature=\"Good\" Language=\"C\">\nint proc_msg(char *s, int msg_len)<xhtml:br/>\n{<xhtml:br/>\n<xhtml:div style=\"margin-left:1em;\">int pre_len = sizeof(\"preamble: \");    // Note space at the end of the string - assume all strings have preamble with space</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">if (pre_len &lt;= msg_len) { // Log error; return error_code; }</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">char buf[pre_len - msg_len];</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">... Do processing here and set status</xhtml:div>\n<xhtml:div style=\"margin-left:1em;\">return status;</xhtml:div>\n}\n<xhtml:br/>\nchar *s = \"preamble: message\\n\";<xhtml:br/>\nchar *sl = strchr(s, ':');        // Number of characters up to ':' (not including space)<xhtml:br/>\nint jnklen = sl == NULL ? 0 : sl - s;    // If undefined pointer, use zero length<xhtml:br/>\nint ret_val = proc_msg (\"s\",  jnklen);    // Violate assumption of preamble length, end up with negative value, blow out stack\n         </Example_Code>\n        "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-21668",
+			"description": "Chain: Python library does not limit the resources used to process images that specify a very large number of bands (CWE-1284), leading to excessive memory consumption (CWE-789) or an integer overflow (CWE-190).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-21668"
+		},
+		{
+			"reference": "CVE-2010-3701",
+			"description": "program uses ::alloca() for encoding messages, but large messages trigger segfault",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2010-3701"
+		},
+		{
+			"reference": "CVE-2008-1708",
+			"description": "memory consumption and daemon exit by specifying a large value in a length field",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-1708"
+		},
+		{
+			"reference": "CVE-2008-0977",
+			"description": "large value in a length field leads to memory consumption and crash when no more memory is available",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-0977"
+		},
+		{
+			"reference": "CVE-2006-3791",
+			"description": "large key size in game program triggers crash when a resizing function cannot allocate enough memory",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-3791"
+		},
+		{
+			"reference": "CVE-2004-2589",
+			"description": "large Content-Length HTTP header value triggers application crash in instant messaging application due to failure in memory allocation",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-2589"
+		}
+	],
+	"references": [
+		{
+			"section": "Chapter 10, \"Resource Limits\", Page 574",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"section": "ASCSM-CWE-789",
+			"reference_id": "REF-962",
+			"author": [
+				"Object Management Group (OMG)"
+			],
+			"title": "Automated Source Code Security Measure (ASCSM)",
+			"url": "http://www.omg.org/spec/ASCSM/1.0/",
+			"publication_year": "2016",
+			"publication_month": "--01"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2009-10-21"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Common_Consequences, Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Alternate_Terms, Demonstrative_Examples, Description, Likelihood_of_Exploit, Name, Observed_Examples, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Uncontrolled Memory Allocation",
+				"date": "2020-12-10"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		},
+		{
+			"ordinality": "Resultant"
+		}
+	],
+	"alternate_terms": [
+		{
+			"term": "Stack Exhaustion",
+			"description": "When a weakness allocates excessive memory on the stack, it is often described as \"stack exhaustion,\" which is a technical impact of the weakness. This technical impact is often encountered as a consequence of CWE-789 and/or CWE-1325."
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-13",
+			"method": "Fuzzing",
+			"description": "Fuzz testing (fuzzing) is a powerful technique for generating large numbers of diverse inputs - either randomly or algorithmically - and dynamically invoking the code with those inputs. Even with random inputs, it is often capable of generating unexpected results such as crashes, memory corruption, or resource consumption. Fuzzing effectively produces repeatable test cases that clearly indicate bugs, which helps developers to diagnose the issues.",
+			"effectiveness": "High"
+		},
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "WASC",
+			"entry_name": "SOAP Array Abuse",
+			"entry_id": "35"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Allocate sufficient memory for an object",
+			"entry_id": "MEM35-C",
+			"mapping_fit": "Imprecise"
+		},
+		{
+			"taxonomy_name": "SEI CERT Perl Coding Standard",
+			"entry_name": "Validate any integer that is used as an array index",
+			"entry_id": "IDS32-PL",
+			"mapping_fit": "Imprecise"
+		},
+		{
+			"taxonomy_name": "OMG ASCSM",
+			"entry_id": "ASCSM-CWE-789"
+		}
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "This weakness can be closely associated with integer overflows (CWE-190). Integer overflow attacks would concentrate on providing an extremely large number that triggers an overflow that causes less memory to be allocated than expected. By providing a large value that does not trigger an integer overflow, the attacker could still cause excessive amounts of memory to be allocated."
+		},
+		{
+			"type": "Applicable Platform",
+			"text": "\n               <xhtml:p>Uncontrolled memory allocation is possible in many languages, such as dynamic array allocation in perl or initial size parameters in Collections in Java. However, languages like C and C++ where programmers have the power to more directly control memory management will be more susceptible.</xhtml:p>\n            "
+		}
+	]
 }

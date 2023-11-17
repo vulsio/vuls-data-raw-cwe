@@ -1,182 +1,182 @@
 {
-  "id": "55",
-  "name": "Path Equivalence: '/./' (Single Dot Directory)",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product accepts path input in the form of single dot directory exploit ('/./') without appropriate validation, which can lead to ambiguous path resolution and allow an attacker to traverse the file system to unintended locations or access arbitrary files.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "41",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity"
-      ],
-      "impact": [
-        "Read Files or Directories",
-        "Modify Files or Directories"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "mitigation_id": "MIT-20",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Inputs should be decoded and canonicalized to the application's current internal representation before being validated (CWE-180). Make sure that the application does not decode the same input twice (CWE-174). Such errors could be used to bypass allowlist validation schemes by introducing dangerous inputs after they have been checked."
-      ],
-      "strategy": "Input Validation"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2000-0004",
-      "description": "Server allows remote attackers to read source code for executable files by inserting a . (dot) into the URL.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0004"
-    },
-    {
-      "reference": "CVE-2002-0304",
-      "description": "Server allows remote attackers to read password-protected files via a /./ in the HTTP request.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0304"
-    },
-    {
-      "reference": "BID:6042",
-      "description": "Input Validation error",
-      "link": "http://www.securityfocus.com/bid/6042"
-    },
-    {
-      "reference": "CVE-1999-1083",
-      "description": "Possibly (could be a cleansing error)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1083"
-    },
-    {
-      "reference": "CVE-2004-0815",
-      "description": "\"/./////etc\" cleansed to \".///etc\" then \"/etc\"",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0815"
-    },
-    {
-      "reference": "CVE-2002-0112",
-      "description": "Server allows remote attackers to view password protected files via /./ in the URL.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0112"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Path Issue - Single Dot Directory - /./",
-        "date": "2008-04-11"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "/./ (single dot directory)"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Path Traversal",
-      "entry_id": "SFP16"
-    }
-  ]
+	"id": "55",
+	"name": "Path Equivalence: '/./' (Single Dot Directory)",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product accepts path input in the form of single dot directory exploit ('/./') without appropriate validation, which can lead to ambiguous path resolution and allow an attacker to traverse the file system to unintended locations or access arbitrary files.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "41",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity"
+			],
+			"impact": [
+				"Read Files or Directories",
+				"Modify Files or Directories"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"mitigation_id": "MIT-20",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Inputs should be decoded and canonicalized to the application's current internal representation before being validated (CWE-180). Make sure that the application does not decode the same input twice (CWE-174). Such errors could be used to bypass allowlist validation schemes by introducing dangerous inputs after they have been checked."
+			],
+			"strategy": "Input Validation"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2000-0004",
+			"description": "Server allows remote attackers to read source code for executable files by inserting a . (dot) into the URL.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0004"
+		},
+		{
+			"reference": "CVE-2002-0304",
+			"description": "Server allows remote attackers to read password-protected files via a /./ in the HTTP request.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0304"
+		},
+		{
+			"reference": "BID:6042",
+			"description": "Input Validation error",
+			"link": "http://www.securityfocus.com/bid/6042"
+		},
+		{
+			"reference": "CVE-1999-1083",
+			"description": "Possibly (could be a cleansing error)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-1083"
+		},
+		{
+			"reference": "CVE-2004-0815",
+			"description": "\"/./////etc\" cleansed to \".///etc\" then \"/etc\"",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0815"
+		},
+		{
+			"reference": "CVE-2002-0112",
+			"description": "Server allows remote attackers to view password protected files via /./ in the URL.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0112"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Path Issue - Single Dot Directory - /./",
+				"date": "2008-04-11"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "/./ (single dot directory)"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Path Traversal",
+			"entry_id": "SFP16"
+		}
+	]
 }

@@ -1,123 +1,123 @@
 {
-  "id": "1234",
-  "name": "Hardware Internal or Debug Modes Allow Override of Locks",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "System configuration protection may be bypassed during debug mode.",
-  "extended_description": "\n     \t<xhtml:p>Device configuration controls are commonly programmed after a device power reset by a trusted firmware or software module (e.g., BIOS/bootloader) and then locked from any further modification. This is commonly implemented using a trusted lock bit, which when set, disables writes to a protected set of registers or address regions. The lock protection is intended to prevent modification of certain system configuration (e.g., memory/memory protection unit configuration). If debug features supported by hardware or internal modes/system states are supported in the hardware design, modification of the lock protection may be allowed allowing access and modification of configuration information.</xhtml:p>\n\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "667",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism"
-      ],
-      "note": "Bypass of lock bit allows access and modification of system configuration even when the lock bit is set.",
-      "likelihood": "High"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation",
-        "Testing"
-      ],
-      "description": [
-        "\n         <xhtml:ul>\n          <xhtml:li>Security Lock bit protections should be reviewed for any bypass/override modes supported.</xhtml:li>\n          <xhtml:li>Any supported override modes either should be removed or protected using authenticated debug modes.</xhtml:li>\n          <xhtml:li>Security lock programming flow and lock properties should be tested in pre-silicon and post-silicon testing.</xhtml:li>\n        </xhtml:ul>\n       "
-      ],
-      "effectiveness": "High"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n       <Intro_Text>\n         For example, consider the example Locked_override_register example. This register module supports a lock mode that blocks any writes after lock is set to 1.\n        <xhtml:br/>\n         However, it also allows override of the lock protection when scan_mode or debug_unlocked modes are active.\n       </Intro_Text>\n        <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n          module Locked_register_example<xhtml:br/>\n          (<xhtml:br/>\n\t\t  input [15:0] Data_in,<xhtml:br/>\n\t\t  input Clk,<xhtml:br/>\n\t\t  input resetn,<xhtml:br/>\n\t\t  input write,<xhtml:br/>\n\t\t  input Lock,<xhtml:br/>\n\t\t  input scan_mode,<xhtml:br/>\n\t\t  input debug_unlocked,<xhtml:br/>\n\t\t  output reg [15:0] Data_out<xhtml:br/>\n\t\t  );<xhtml:br/>\n          <xhtml:br/>\n          reg lock_status;<xhtml:br/>\n          <xhtml:br/>\n          always @(posedge Clk or negedge resetn)<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\tif (~resetn) // Register is reset resetn<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  lock_status &lt;= 1'b0;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (Lock)<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  lock_status &lt;= 1'b1;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (~Lock)<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  lock_status &lt;= lock_status<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t  </xhtml:div>\n\t\t  always @(posedge Clk or negedge resetn)<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\tif (~resetn) // Register is reset resetn<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  Data_out &lt;= 16'h0000;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (write &amp; (~lock_status | scan_mode | debug_unlocked) ) // Register protected by Lock bit input, overrides supported for scan_mode &amp; debug_unlocked<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  Data_out &lt;= Data_in;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (~write)<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  Data_out &lt;= Data_out;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t  </xhtml:div>\n\t\t  endmodule<xhtml:br/>\n\t\t</Example_Code>\n        <Body_Text>If either the scan_mode or the debug_unlocked modes can be triggered by software, then the lock protection may be bypassed.</Body_Text>\n        <Example_Code Nature=\"Good\">\n          Either remove the debug and scan mode overrides or protect enabling of these modes so that only trusted and authorized users may enable these modes.\n       </Example_Code>\n     "
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
-      "submission_organization": "Intel Corporation",
-      "submission_date": "2020-01-15"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Modes_of_Introduction, Potential_Mitigations, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "176"
-  ]
+	"id": "1234",
+	"name": "Hardware Internal or Debug Modes Allow Override of Locks",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "System configuration protection may be bypassed during debug mode.",
+	"extended_description": "\n     \t<xhtml:p>Device configuration controls are commonly programmed after a device power reset by a trusted firmware or software module (e.g., BIOS/bootloader) and then locked from any further modification. This is commonly implemented using a trusted lock bit, which when set, disables writes to a protected set of registers or address regions. The lock protection is intended to prevent modification of certain system configuration (e.g., memory/memory protection unit configuration). If debug features supported by hardware or internal modes/system states are supported in the hardware design, modification of the lock protection may be allowed allowing access and modification of configuration information.</xhtml:p>\n\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "667",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			],
+			"note": "Bypass of lock bit allows access and modification of system configuration even when the lock bit is set.",
+			"likelihood": "High"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation",
+				"Testing"
+			],
+			"description": [
+				"\n         <xhtml:ul>\n          <xhtml:li>Security Lock bit protections should be reviewed for any bypass/override modes supported.</xhtml:li>\n          <xhtml:li>Any supported override modes either should be removed or protected using authenticated debug modes.</xhtml:li>\n          <xhtml:li>Security lock programming flow and lock properties should be tested in pre-silicon and post-silicon testing.</xhtml:li>\n        </xhtml:ul>\n       "
+			],
+			"effectiveness": "High"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n       <Intro_Text>\n         For example, consider the example Locked_override_register example. This register module supports a lock mode that blocks any writes after lock is set to 1.\n        <xhtml:br/>\n         However, it also allows override of the lock protection when scan_mode or debug_unlocked modes are active.\n       </Intro_Text>\n        <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n          module Locked_register_example<xhtml:br/>\n          (<xhtml:br/>\n\t\t  input [15:0] Data_in,<xhtml:br/>\n\t\t  input Clk,<xhtml:br/>\n\t\t  input resetn,<xhtml:br/>\n\t\t  input write,<xhtml:br/>\n\t\t  input Lock,<xhtml:br/>\n\t\t  input scan_mode,<xhtml:br/>\n\t\t  input debug_unlocked,<xhtml:br/>\n\t\t  output reg [15:0] Data_out<xhtml:br/>\n\t\t  );<xhtml:br/>\n          <xhtml:br/>\n          reg lock_status;<xhtml:br/>\n          <xhtml:br/>\n          always @(posedge Clk or negedge resetn)<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\tif (~resetn) // Register is reset resetn<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  lock_status &lt;= 1'b0;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (Lock)<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  lock_status &lt;= 1'b1;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (~Lock)<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  lock_status &lt;= lock_status<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t  </xhtml:div>\n\t\t  always @(posedge Clk or negedge resetn)<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\tif (~resetn) // Register is reset resetn<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  Data_out &lt;= 16'h0000;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (write &amp; (~lock_status | scan_mode | debug_unlocked) ) // Register protected by Lock bit input, overrides supported for scan_mode &amp; debug_unlocked<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  Data_out &lt;= Data_in;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (~write)<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  Data_out &lt;= Data_out;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t  </xhtml:div>\n\t\t  endmodule<xhtml:br/>\n\t\t</Example_Code>\n        <Body_Text>If either the scan_mode or the debug_unlocked modes can be triggered by software, then the lock protection may be bypassed.</Body_Text>\n        <Example_Code Nature=\"Good\">\n          Either remove the debug and scan mode overrides or protect enabling of these modes so that only trusted and authorized users may enable these modes.\n       </Example_Code>\n     "
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+			"submission_organization": "Intel Corporation",
+			"submission_date": "2020-01-15"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, Description, Modes_of_Introduction, Potential_Mitigations, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"176"
+	]
 }

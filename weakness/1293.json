@@ -1,172 +1,172 @@
 {
-  "id": "1293",
-  "name": "Missing Source Correlation of Multiple Independent Data",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product relies on one source of data, preventing the ability to detect if an adversary has compromised a data source.",
-  "extended_description": "\n\t\t\t\t<xhtml:p>To operate successfully, a product sometimes has to implicitly trust the integrity of an information source. When information is implicitly signed, one can ensure that the data was not tampered in transit. This does not ensure that the information source was not compromised when responding to a request. By requesting information from multiple sources, one can check if all of the data is the same. If they are not, the system should report the information sources that respond with a different or minority value as potentially compromised. If there are not enough answers to provide a majority or plurality of responses, the system should report all of the sources as potentially compromised. As the seriousness of the impact of incorrect integrity increases, so should the number of independent information sources that would need to be queried.</xhtml:p>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "345",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "654",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "This flaw could be introduced during the design of the application or misconfiguration at run time by only specifying a single point of validation."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "Such issues could be introduced during hardware implementation, then identified later during Testing or System Configuration phases."
-      ]
-    },
-    {
-      "phase": "Operation",
-      "note": [
-        "This weakness could be introduced by intentionally failing all but one of the devices used to retrieve the data or by failing the devices that validate the data."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity"
-      ],
-      "impact": [
-        "Read Application Data",
-        "Modify Application Data",
-        "Gain Privileges or Assume Identity"
-      ],
-      "note": "An attacker that may be able to execute a single Person-in-the-Middle attack can subvert a check of an external oracle (e.g. the ACME protocol check for a file on a website), and thus inject an arbitrary reply to the single perspective request to the external oracle."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Requirements"
-      ],
-      "description": [
-        "Design system to use a Practical Byzantine fault method, to request information from multiple sources to verify the data and report on potentially compromised information sources."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Failure to use a Practical Byzantine fault method when requesting data. Lack of place to report potentially compromised information sources. Relying on non-independent information sources for integrity checking. Failure to report information sources that respond in the minority to incident response procedures."
-      ]
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1125",
-      "author": [
-        "moparisthebest"
-      ],
-      "title": "Validation Vulnerabilities",
-      "url": "https://mailarchive.ietf.org/arch/msg/acme/s6Q5PdJP48LEUwgzrVuw_XPKCsM/",
-      "publication_year": "2015",
-      "publication_month": "--06",
-      "publication_day": "---05"
-    },
-    {
-      "reference_id": "REF-1126",
-      "author": [
-        "Josh Aas",
-        "Daniel McCarney",
-        "Roland Shoemaker"
-      ],
-      "title": "Multi-Perspective Validation Improves Domain Validation Security",
-      "url": "https://letsencrypt.org/2020/02/19/multi-perspective-validation.html",
-      "publication_year": "2020",
-      "publication_month": "--02",
-      "publication_day": "---19"
-    },
-    {
-      "reference_id": "REF-1127",
-      "author": [
-        "Miguel Castro",
-        "Barbara Liskov"
-      ],
-      "title": "Practical Byzantine Fault Tolerance and Proactive Recovery",
-      "url": "https://dl.acm.org/doi/pdf/10.1145/571637.571640",
-      "publication_year": "2002",
-      "publication_month": "--11",
-      "publication_day": "---04",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Kurt Seifried",
-      "submission_organization": "Cloud Security Alliance",
-      "submission_date": "2020-04-03"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Description, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  }
+	"id": "1293",
+	"name": "Missing Source Correlation of Multiple Independent Data",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product relies on one source of data, preventing the ability to detect if an adversary has compromised a data source.",
+	"extended_description": "\n\t\t\t\t<xhtml:p>To operate successfully, a product sometimes has to implicitly trust the integrity of an information source. When information is implicitly signed, one can ensure that the data was not tampered in transit. This does not ensure that the information source was not compromised when responding to a request. By requesting information from multiple sources, one can check if all of the data is the same. If they are not, the system should report the information sources that respond with a different or minority value as potentially compromised. If there are not enough answers to provide a majority or plurality of responses, the system should report all of the sources as potentially compromised. As the seriousness of the impact of incorrect integrity increases, so should the number of independent information sources that would need to be queried.</xhtml:p>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "345",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "654",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"This flaw could be introduced during the design of the application or misconfiguration at run time by only specifying a single point of validation."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"Such issues could be introduced during hardware implementation, then identified later during Testing or System Configuration phases."
+			]
+		},
+		{
+			"phase": "Operation",
+			"note": [
+				"This weakness could be introduced by intentionally failing all but one of the devices used to retrieve the data or by failing the devices that validate the data."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity"
+			],
+			"impact": [
+				"Read Application Data",
+				"Modify Application Data",
+				"Gain Privileges or Assume Identity"
+			],
+			"note": "An attacker that may be able to execute a single Person-in-the-Middle attack can subvert a check of an external oracle (e.g. the ACME protocol check for a file on a website), and thus inject an arbitrary reply to the single perspective request to the external oracle."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Requirements"
+			],
+			"description": [
+				"Design system to use a Practical Byzantine fault method, to request information from multiple sources to verify the data and report on potentially compromised information sources."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Failure to use a Practical Byzantine fault method when requesting data. Lack of place to report potentially compromised information sources. Relying on non-independent information sources for integrity checking. Failure to report information sources that respond in the minority to incident response procedures."
+			]
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1125",
+			"author": [
+				"moparisthebest"
+			],
+			"title": "Validation Vulnerabilities",
+			"url": "https://mailarchive.ietf.org/arch/msg/acme/s6Q5PdJP48LEUwgzrVuw_XPKCsM/",
+			"publication_year": "2015",
+			"publication_month": "--06",
+			"publication_day": "---05"
+		},
+		{
+			"reference_id": "REF-1126",
+			"author": [
+				"Josh Aas",
+				"Daniel McCarney",
+				"Roland Shoemaker"
+			],
+			"title": "Multi-Perspective Validation Improves Domain Validation Security",
+			"url": "https://letsencrypt.org/2020/02/19/multi-perspective-validation.html",
+			"publication_year": "2020",
+			"publication_month": "--02",
+			"publication_day": "---19"
+		},
+		{
+			"reference_id": "REF-1127",
+			"author": [
+				"Miguel Castro",
+				"Barbara Liskov"
+			],
+			"title": "Practical Byzantine Fault Tolerance and Proactive Recovery",
+			"url": "https://dl.acm.org/doi/pdf/10.1145/571637.571640",
+			"publication_year": "2002",
+			"publication_month": "--11",
+			"publication_day": "---04",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Kurt Seifried",
+			"submission_organization": "Cloud Security Alliance",
+			"submission_date": "2020-04-03"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Description, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	}
 }

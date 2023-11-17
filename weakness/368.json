@@ -1,190 +1,190 @@
 {
-  "id": "368",
-  "name": "Context Switching Race Condition",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "A product performs a series of non-atomic actions to switch between contexts that cross privilege or other security boundaries, but a race condition allows an attacker to modify or misrepresent the product's behavior during the switch.",
-  "extended_description": "This is commonly seen in web browser vulnerabilities in which the attacker can perform certain actions while the browser is transitioning from a trusted to an untrusted domain, or vice versa, and the browser performs the actions on one domain using the trust level and resources of the other domain.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "362",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanAlsoBe",
-      "cweid": "364",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality"
-      ],
-      "impact": [
-        "Modify Application Data",
-        "Read Application Data"
-      ]
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2009-1837",
-      "description": "Chain: race condition (CWE-362) from improper handling of a page transition in web client while an applet is loading (CWE-368) leads to use after free (CWE-416)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1837"
-    },
-    {
-      "reference": "CVE-2004-2260",
-      "description": "Browser updates address bar as soon as user clicks on a link instead of when the page has loaded, allowing spoofing by redirecting to another page using onUnload method. ** this is one example of the role of \"hooks\" and context switches, and should be captured somehow - also a race condition of sorts **",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2260"
-    },
-    {
-      "reference": "CVE-2004-0191",
-      "description": "XSS when web browser executes Javascript events in the context of a new page while it's being loaded, allowing interaction with previous page in different domain.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0191"
-    },
-    {
-      "reference": "CVE-2004-2491",
-      "description": "Web browser fills in address bar of clicked-on link before page has been loaded, and doesn't update afterward.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2491"
-    }
-  ],
-  "references": [
-    {
-      "section": "\"Sin 13: Race Conditions.\" Page 205",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated Description, Other_Notes, Relationship_Notes, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-12-13",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary",
-      "description": "This weakness can be primary to almost anything, depending on the context of the race condition."
-    },
-    {
-      "ordinality": "Resultant",
-      "description": "This weakness can be resultant from insufficient compartmentalization (CWE-653), incorrect locking, improper initialization or shutdown, or a number of other weaknesses."
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Context Switching Race Condition"
-    }
-  ],
-  "related_attack_patterns": [
-    "26",
-    "29"
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "Can overlap signal handler race conditions."
-    },
-    {
-      "type": "Research Gap",
-      "text": "Under-studied as a concept. Frequency unknown; few vulnerability reports give enough detail to know when a context switching race condition is a factor."
-    }
-  ]
+	"id": "368",
+	"name": "Context Switching Race Condition",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "A product performs a series of non-atomic actions to switch between contexts that cross privilege or other security boundaries, but a race condition allows an attacker to modify or misrepresent the product's behavior during the switch.",
+	"extended_description": "This is commonly seen in web browser vulnerabilities in which the attacker can perform certain actions while the browser is transitioning from a trusted to an untrusted domain, or vice versa, and the browser performs the actions on one domain using the trust level and resources of the other domain.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "362",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanAlsoBe",
+			"cweid": "364",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality"
+			],
+			"impact": [
+				"Modify Application Data",
+				"Read Application Data"
+			]
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2009-1837",
+			"description": "Chain: race condition (CWE-362) from improper handling of a page transition in web client while an applet is loading (CWE-368) leads to use after free (CWE-416)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-1837"
+		},
+		{
+			"reference": "CVE-2004-2260",
+			"description": "Browser updates address bar as soon as user clicks on a link instead of when the page has loaded, allowing spoofing by redirecting to another page using onUnload method. ** this is one example of the role of \"hooks\" and context switches, and should be captured somehow - also a race condition of sorts **",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-2260"
+		},
+		{
+			"reference": "CVE-2004-0191",
+			"description": "XSS when web browser executes Javascript events in the context of a new page while it's being loaded, allowing interaction with previous page in different domain.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0191"
+		},
+		{
+			"reference": "CVE-2004-2491",
+			"description": "Web browser fills in address bar of clicked-on link before page has been loaded, and doesn't update afterward.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-2491"
+		}
+	],
+	"references": [
+		{
+			"section": "\"Sin 13: Race Conditions.\" Page 205",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated Description, Other_Notes, Relationship_Notes, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-12-13",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary",
+			"description": "This weakness can be primary to almost anything, depending on the context of the race condition."
+		},
+		{
+			"ordinality": "Resultant",
+			"description": "This weakness can be resultant from insufficient compartmentalization (CWE-653), incorrect locking, improper initialization or shutdown, or a number of other weaknesses."
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Context Switching Race Condition"
+		}
+	],
+	"related_attack_patterns": [
+		"26",
+		"29"
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "Can overlap signal handler race conditions."
+		},
+		{
+			"type": "Research Gap",
+			"text": "Under-studied as a concept. Frequency unknown; few vulnerability reports give enough detail to know when a context switching race condition is a factor."
+		}
+	]
 }

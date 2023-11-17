@@ -1,172 +1,172 @@
 {
-  "id": "1190",
-  "name": "DMA Device Enabled Too Early in Boot Phase",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product enables a Direct Memory Access (DMA) capable device before the security configuration settings are established, which allows an attacker to extract data from or gain privileges on the product.",
-  "extended_description": "\n            <xhtml:p>DMA is included in a number of devices because it allows\n              data transfer between the computer and the connected device, using\n              direct hardware access to read or write directly to main memory\n              without any OS interaction. An attacker could exploit this to\n              access secrets. Several virtualization-based mitigations have been introduced to thwart DMA attacks. These are usually\n              configured/setup during boot time. However, certain IPs that are\n              powered up before boot is complete (known as early boot IPs) may\n              be DMA capable. Such IPs, if not trusted, could launch DMA\n              attacks and gain access to assets that should otherwise be\n              protected.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "696",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "System on Chip",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism",
-        "Modify Memory"
-      ],
-      "note": "DMA devices have direct write access to main memory and\n                 due to time of attack will be able to bypass OS or Bootloader\n                 access control.",
-      "likelihood": "High"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Utilize an IOMMU to orchestrate IO access from\n                 the start of the boot process."
-      ]
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1038",
-      "title": "DMA attack",
-      "url": "https://en.wikipedia.org/wiki/DMA_attack",
-      "publication_year": "2019",
-      "publication_month": "--10",
-      "publication_day": "---19"
-    },
-    {
-      "reference_id": "REF-1039",
-      "author": [
-        "A. Theodore Markettos",
-        "Colin Rothwell",
-        "Brett F. Gutstein",
-        "Allison Pearce",
-        "Peter G. Neumann",
-        "Simon W. Moore",
-        "Robert N. M. Watson"
-      ],
-      "title": "Thunderclap: Exploring Vulnerabilities in Operating System IOMMU Protection via DMA from Untrustworthy Peripherals",
-      "url": "https://www.ndss-symposium.org/wp-content/uploads/2019/02/ndss2019_05A-1_Markettos_paper.pdf",
-      "publication_year": "2019",
-      "publication_month": "--02",
-      "publication_day": "---25"
-    },
-    {
-      "reference_id": "REF-1040",
-      "author": [
-        "Maximillian Dornseif",
-        "Michael Becher",
-        "Christian N. Klein"
-      ],
-      "title": "FireWire all your memory are belong to us",
-      "url": "http://www.orkspace.net/secdocs/Conferences/CanSecWest/2005/0wn3d%20by%20an%20iPod%20-%20Firewire1394%20Issues.pdf",
-      "publication_year": "2005",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1041",
-      "author": [
-        "Rory Breuk",
-        "Albert Spruyt",
-        "Adam Boileau"
-      ],
-      "title": "Integrating DMA attacks in exploitation frameworks",
-      "url": "https://www.os3.nl/_media/2011-2012/courses/rp1/p14_report.pdf",
-      "publication_year": "2012",
-      "publication_month": "--02",
-      "publication_day": "---20"
-    },
-    {
-      "reference_id": "REF-1042",
-      "author": [
-        "Maximillian Dornseif"
-      ],
-      "title": "Owned by an iPod",
-      "url": "https://web.archive.org/web/20060505224959/https://pacsec.jp/psj04/psj04-dornseif-e.ppt",
-      "publication_year": "2004",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1044",
-      "author": [
-        "Dmytro Oleksiuk"
-      ],
-      "title": "My aimful life",
-      "url": "http://blog.cr4.sh/2015/09/breaking-uefi-security-with-software.html",
-      "publication_year": "2015",
-      "publication_month": "--09",
-      "publication_day": "---12"
-    },
-    {
-      "reference_id": "REF-1046",
-      "author": [
-        "A. Theodore Markettos",
-        "Adam Boileau"
-      ],
-      "title": "Hit by a Bus:Physical Access Attacks with Firewire",
-      "url": "https://security-assessment.com/files/presentations/ab_firewire_rux2k6-final.pdf",
-      "publication_year": "2006"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
-      "submission_organization": "Intel Corporation",
-      "submission_date": "2019-10-15"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "related_attack_patterns": [
-    "180"
-  ]
+	"id": "1190",
+	"name": "DMA Device Enabled Too Early in Boot Phase",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product enables a Direct Memory Access (DMA) capable device before the security configuration settings are established, which allows an attacker to extract data from or gain privileges on the product.",
+	"extended_description": "\n            <xhtml:p>DMA is included in a number of devices because it allows\n              data transfer between the computer and the connected device, using\n              direct hardware access to read or write directly to main memory\n              without any OS interaction. An attacker could exploit this to\n              access secrets. Several virtualization-based mitigations have been introduced to thwart DMA attacks. These are usually\n              configured/setup during boot time. However, certain IPs that are\n              powered up before boot is complete (known as early boot IPs) may\n              be DMA capable. Such IPs, if not trusted, could launch DMA\n              attacks and gain access to assets that should otherwise be\n              protected.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "696",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "System on Chip",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Bypass Protection Mechanism",
+				"Modify Memory"
+			],
+			"note": "DMA devices have direct write access to main memory and\n                 due to time of attack will be able to bypass OS or Bootloader\n                 access control.",
+			"likelihood": "High"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Utilize an IOMMU to orchestrate IO access from\n                 the start of the boot process."
+			]
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1038",
+			"title": "DMA attack",
+			"url": "https://en.wikipedia.org/wiki/DMA_attack",
+			"publication_year": "2019",
+			"publication_month": "--10",
+			"publication_day": "---19"
+		},
+		{
+			"reference_id": "REF-1039",
+			"author": [
+				"A. Theodore Markettos",
+				"Colin Rothwell",
+				"Brett F. Gutstein",
+				"Allison Pearce",
+				"Peter G. Neumann",
+				"Simon W. Moore",
+				"Robert N. M. Watson"
+			],
+			"title": "Thunderclap: Exploring Vulnerabilities in Operating System IOMMU Protection via DMA from Untrustworthy Peripherals",
+			"url": "https://www.ndss-symposium.org/wp-content/uploads/2019/02/ndss2019_05A-1_Markettos_paper.pdf",
+			"publication_year": "2019",
+			"publication_month": "--02",
+			"publication_day": "---25"
+		},
+		{
+			"reference_id": "REF-1040",
+			"author": [
+				"Maximillian Dornseif",
+				"Michael Becher",
+				"Christian N. Klein"
+			],
+			"title": "FireWire all your memory are belong to us",
+			"url": "http://www.orkspace.net/secdocs/Conferences/CanSecWest/2005/0wn3d%20by%20an%20iPod%20-%20Firewire1394%20Issues.pdf",
+			"publication_year": "2005",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1041",
+			"author": [
+				"Rory Breuk",
+				"Albert Spruyt",
+				"Adam Boileau"
+			],
+			"title": "Integrating DMA attacks in exploitation frameworks",
+			"url": "https://www.os3.nl/_media/2011-2012/courses/rp1/p14_report.pdf",
+			"publication_year": "2012",
+			"publication_month": "--02",
+			"publication_day": "---20"
+		},
+		{
+			"reference_id": "REF-1042",
+			"author": [
+				"Maximillian Dornseif"
+			],
+			"title": "Owned by an iPod",
+			"url": "https://web.archive.org/web/20060505224959/https://pacsec.jp/psj04/psj04-dornseif-e.ppt",
+			"publication_year": "2004",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1044",
+			"author": [
+				"Dmytro Oleksiuk"
+			],
+			"title": "My aimful life",
+			"url": "http://blog.cr4.sh/2015/09/breaking-uefi-security-with-software.html",
+			"publication_year": "2015",
+			"publication_month": "--09",
+			"publication_day": "---12"
+		},
+		{
+			"reference_id": "REF-1046",
+			"author": [
+				"A. Theodore Markettos",
+				"Adam Boileau"
+			],
+			"title": "Hit by a Bus:Physical Access Attacks with Firewire",
+			"url": "https://security-assessment.com/files/presentations/ab_firewire_rux2k6-final.pdf",
+			"publication_year": "2006"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna, Narasimha Kumar V Mangipudi",
+			"submission_organization": "Intel Corporation",
+			"submission_date": "2019-10-15"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"related_attack_patterns": [
+		"180"
+	]
 }

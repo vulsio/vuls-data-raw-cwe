@@ -1,458 +1,458 @@
 {
-  "id": "269",
-  "name": "Improper Privilege Management",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not properly assign, modify, track, or check privileges for an actor, creating an unintended sphere of control for that actor.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "284",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "mitigation_id": "MIT-1",
-      "phase": [
-        "Architecture and Design",
-        "Operation"
-      ],
-      "description": [
-        "Very carefully manage the setting, management, and handling of privileges. Explicitly manage trust zones in the software."
-      ]
-    },
-    {
-      "mitigation_id": "MIT-48",
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Follow the principle of least privilege when assigning access rights to entities in a software system."
-      ],
-      "strategy": "Separation of Privilege"
-    },
-    {
-      "mitigation_id": "MIT-49",
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Consider following the principle of separation of privilege. Require multiple conditions to be met before permitting access to a system resource."
-      ],
-      "strategy": "Separation of Privilege"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-126",
-      "text": "\n               <Intro_Text>This code temporarily raises the program's privileges to allow creation of a new user folder.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>def makeNewUserDir(username):<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if invalidUsername(username):<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>#avoid CWE-22 and CWE-78</xhtml:i>\n                                 <xhtml:br/>print('Usernames cannot contain invalid characters')<xhtml:br/>return False</xhtml:div>\n                           </xhtml:div>\n                           <xhtml:br/>try:<xhtml:div style=\"margin-left:1em;\">raisePrivileges()<xhtml:br/>os.mkdir('/home/' + username)<xhtml:br/>lowerPrivileges()</xhtml:div>\n                           <xhtml:br/>except OSError:<xhtml:div style=\"margin-left:1em;\">print('Unable to create new user directory for user:' + username)<xhtml:br/>return False</xhtml:div>\n                           <xhtml:br/>return True</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>While the program only raises its privilege level to create the folder and immediately lowers it again, if the call to os.mkdir() throws an exception, the call to lowerPrivileges() will not occur. As a result, the program is indefinitely operating in a raised privilege state, possibly allowing further exploitation to occur.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-97",
-      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>seteuid(0);<xhtml:br/>\n                     <xhtml:i>/* do some stuff */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>seteuid(getuid());</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-142",
-      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>AccessController.doPrivileged(new PrivilegedAction() {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>public Object run() {<xhtml:div style=\"margin-left:1em;\">\n                                 <xhtml:i>// privileged code goes here, for example:</xhtml:i>\n                                 <xhtml:br/>System.loadLibrary(\"awt\");<xhtml:br/>return null;<xhtml:br/>\n                                 <xhtml:i>// nothing to return</xhtml:i>\n                                 <xhtml:br/>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-127",
-      "text": "\n               <Intro_Text>This code intends to allow only Administrators to print debug information about a system.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public enum Roles {<xhtml:div style=\"margin-left:1em;\">ADMIN,USER,GUEST</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>public void printDebugInfo(User requestingUser){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if(isAuthenticated(requestingUser)){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>switch(requestingUser.role){<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>case GUEST:<xhtml:div style=\"margin-left:1em;\">System.out.println(\"You are not authorized to perform this command\");<xhtml:br/>break;</xhtml:div>\n                                       <xhtml:br/>default:<xhtml:div style=\"margin-left:1em;\">System.out.println(currentDebugState());<xhtml:br/>break;</xhtml:div>\n                                    </xhtml:div>\n                                 </xhtml:div>}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">System.out.println(\"You must be logged in to perform this command\");</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>While the intention was to only allow Administrators to print the debug information, the code as written only excludes those with the role of \"GUEST\". Someone with the role of \"ADMIN\" or \"USER\" will be allowed access, which goes against the original intent. An attacker may be able to use this debug information to craft an attack on the system.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-128",
-      "text": "\n               <Intro_Text>This code allows someone with the role of \"ADMIN\" or \"OPERATOR\" to reset a user's password. The role of \"OPERATOR\" is intended to have less privileges than an \"ADMIN\", but still be able to help users with small issues such as forgotten passwords.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public enum Roles {<xhtml:div style=\"margin-left:1em;\">ADMIN,OPERATOR,USER,GUEST</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>public void resetPassword(User requestingUser, User user, String password ){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if(isAuthenticated(requestingUser)){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>switch(requestingUser.role){<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>case GUEST:<xhtml:div style=\"margin-left:1em;\">System.out.println(\"You are not authorized to perform this command\");<xhtml:br/>break;</xhtml:div>\n                                       <xhtml:br/>case USER:<xhtml:div style=\"margin-left:1em;\">System.out.println(\"You are not authorized to perform this command\");<xhtml:br/>break;</xhtml:div>\n                                       <xhtml:br/>default:<xhtml:div style=\"margin-left:1em;\">setPassword(user,password);<xhtml:br/>break;</xhtml:div>}</xhtml:div>\n                                 </xhtml:div>}</xhtml:div>\n                           </xhtml:div>\n                           <xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">System.out.println(\"You must be logged in to perform this command\");</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code does not check the role of the user whose password is being reset. It is possible for an Operator to gain Admin privileges by resetting the password of an Admin account and taking control of that account.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2001-1555",
-      "description": "Terminal privileges are not reset when a user logs out.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1555"
-    },
-    {
-      "reference": "CVE-2001-1514",
-      "description": "Does not properly pass security context to child processes in certain cases, allows privilege escalation.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-1514"
-    },
-    {
-      "reference": "CVE-2001-0128",
-      "description": "Does not properly compute roles.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0128"
-    },
-    {
-      "reference": "CVE-1999-1193",
-      "description": "untrusted user placed in unix \"wheel\" group",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1193"
-    },
-    {
-      "reference": "CVE-2005-2741",
-      "description": "Product allows users to grant themselves certain rights that can be used to escalate privileges.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2741"
-    },
-    {
-      "reference": "CVE-2005-2496",
-      "description": "Product uses group ID of a user instead of the group, causing it to run with different privileges. This is resultant from some other unknown issue.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2496"
-    },
-    {
-      "reference": "CVE-2004-0274",
-      "description": "Product mistakenly assigns a particular status to an entity, leading to increased privileges.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0274"
-    },
-    {
-      "reference": "CVE-2007-4217",
-      "description": "FTP client program on a certain OS runs with setuid privileges and has a buffer overflow. Most clients do not need extra privileges, so an overflow is not a vulnerability for those clients.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4217"
-    },
-    {
-      "reference": "CVE-2007-5159",
-      "description": "OS incorrectly installs a program with setuid privileges, allowing users to gain privileges.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-5159"
-    },
-    {
-      "reference": "CVE-2008-4638",
-      "description": "Composite: application running with high privileges (CWE-250) allows user to specify a restricted file to process, which generates a parsing error that leaks the contents of the file (CWE-209).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4638"
-    },
-    {
-      "reference": "CVE-2007-3931",
-      "description": "Installation script installs some programs as setuid when they shouldn't be.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-3931"
-    },
-    {
-      "reference": "CVE-2002-1981",
-      "description": "Roles have access to dangerous procedures (Accessible entities).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1981"
-    },
-    {
-      "reference": "CVE-2002-1671",
-      "description": "Untrusted object/method gets access to clipboard (Accessible entities).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1671"
-    },
-    {
-      "reference": "CVE-2000-0315",
-      "description": "Traceroute program allows unprivileged users to modify source address of packet (Accessible entities).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0315"
-    },
-    {
-      "reference": "CVE-2000-0506",
-      "description": "User with capability can prevent setuid program from dropping privileges (Unsafe privileged actions).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0506"
-    }
-  ],
-  "references": [
-    {
-      "section": "\"Sin 16: Executing Code With Too Much Privilege.\" Page 243",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    },
-    {
-      "section": "Chapter 9, \"Dropping Privileges Permanently\", Page 479",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "section": "Details of Problematic Mappings",
-      "reference_id": "REF-1287",
-      "author": [
-        "MITRE"
-      ],
-      "title": "Supplemental Details - 2022 CWE Top 25",
-      "url": "https://cwe.mitre.org/top25/archive/2022/2022_cwe_top25_supplemental.html#problematicMappingDetails",
-      "publication_year": "2022",
-      "publication_month": "--06",
-      "publication_day": "---28"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_organization": "CWE Team",
-        "modification_date": "2008-09-08",
-        "modification_comment": "Moved this entry higher up in the Research view."
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Maintenance_Notes, Name, Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Description, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Causal_Nature, Modes_of_Introduction, Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Demonstrative_Examples, Maintenance_Notes, Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships, Taxonomy_Mappings"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Privilege Management Error",
-        "date": "2008-09-09"
-      },
-      {
-        "text": "Insecure Privilege Management",
-        "date": "2009-05-27"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
-        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
-        "contribution_date": "2023-06-29",
-        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Privilege Management Error"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SP.03.08 BR",
-      "entry_id": "Part 2-4"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR 3.1",
-      "entry_id": "Part 3-2"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR 1.2",
-      "entry_id": "Part 3-3"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR 2.1",
-      "entry_id": "Part 3-3"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SD-3",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SD-4",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SI-1",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR 1.1",
-      "entry_id": "Part 4-2"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR 2.1",
-      "entry_id": "Part 4-2"
-    }
-  ],
-  "related_attack_patterns": [
-    "122",
-    "233",
-    "58"
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "The relationships between privileges, permissions, and actors (e.g. users and groups) need further refinement within the Research view. One complication is that these concepts apply to two different pillars, related to control of resources (CWE-664) and protection mechanism failures (CWE-693)."
-    }
-  ]
+	"id": "269",
+	"name": "Improper Privilege Management",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not properly assign, modify, track, or check privileges for an actor, creating an unintended sphere of control for that actor.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "284",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"mitigation_id": "MIT-1",
+			"phase": [
+				"Architecture and Design",
+				"Operation"
+			],
+			"description": [
+				"Very carefully manage the setting, management, and handling of privileges. Explicitly manage trust zones in the software."
+			]
+		},
+		{
+			"mitigation_id": "MIT-48",
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Follow the principle of least privilege when assigning access rights to entities in a software system."
+			],
+			"strategy": "Separation of Privilege"
+		},
+		{
+			"mitigation_id": "MIT-49",
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Consider following the principle of separation of privilege. Require multiple conditions to be met before permitting access to a system resource."
+			],
+			"strategy": "Separation of Privilege"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-126",
+			"text": "\n               <Intro_Text>This code temporarily raises the program's privileges to allow creation of a new user folder.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>def makeNewUserDir(username):<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if invalidUsername(username):<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>#avoid CWE-22 and CWE-78</xhtml:i>\n                                 <xhtml:br/>print('Usernames cannot contain invalid characters')<xhtml:br/>return False</xhtml:div>\n                           </xhtml:div>\n                           <xhtml:br/>try:<xhtml:div style=\"margin-left:1em;\">raisePrivileges()<xhtml:br/>os.mkdir('/home/' + username)<xhtml:br/>lowerPrivileges()</xhtml:div>\n                           <xhtml:br/>except OSError:<xhtml:div style=\"margin-left:1em;\">print('Unable to create new user directory for user:' + username)<xhtml:br/>return False</xhtml:div>\n                           <xhtml:br/>return True</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>While the program only raises its privilege level to create the folder and immediately lowers it again, if the call to os.mkdir() throws an exception, the call to lowerPrivileges() will not occur. As a result, the program is indefinitely operating in a raised privilege state, possibly allowing further exploitation to occur.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-97",
+			"text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>seteuid(0);<xhtml:br/>\n                     <xhtml:i>/* do some stuff */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>seteuid(getuid());</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-142",
+			"text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>AccessController.doPrivileged(new PrivilegedAction() {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>public Object run() {<xhtml:div style=\"margin-left:1em;\">\n                                 <xhtml:i>// privileged code goes here, for example:</xhtml:i>\n                                 <xhtml:br/>System.loadLibrary(\"awt\");<xhtml:br/>return null;<xhtml:br/>\n                                 <xhtml:i>// nothing to return</xhtml:i>\n                                 <xhtml:br/>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-127",
+			"text": "\n               <Intro_Text>This code intends to allow only Administrators to print debug information about a system.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public enum Roles {<xhtml:div style=\"margin-left:1em;\">ADMIN,USER,GUEST</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>public void printDebugInfo(User requestingUser){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if(isAuthenticated(requestingUser)){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>switch(requestingUser.role){<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>case GUEST:<xhtml:div style=\"margin-left:1em;\">System.out.println(\"You are not authorized to perform this command\");<xhtml:br/>break;</xhtml:div>\n                                       <xhtml:br/>default:<xhtml:div style=\"margin-left:1em;\">System.out.println(currentDebugState());<xhtml:br/>break;</xhtml:div>\n                                    </xhtml:div>\n                                 </xhtml:div>}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">System.out.println(\"You must be logged in to perform this command\");</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>While the intention was to only allow Administrators to print the debug information, the code as written only excludes those with the role of \"GUEST\". Someone with the role of \"ADMIN\" or \"USER\" will be allowed access, which goes against the original intent. An attacker may be able to use this debug information to craft an attack on the system.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-128",
+			"text": "\n               <Intro_Text>This code allows someone with the role of \"ADMIN\" or \"OPERATOR\" to reset a user's password. The role of \"OPERATOR\" is intended to have less privileges than an \"ADMIN\", but still be able to help users with small issues such as forgotten passwords.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public enum Roles {<xhtml:div style=\"margin-left:1em;\">ADMIN,OPERATOR,USER,GUEST</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>public void resetPassword(User requestingUser, User user, String password ){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if(isAuthenticated(requestingUser)){<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>switch(requestingUser.role){<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>case GUEST:<xhtml:div style=\"margin-left:1em;\">System.out.println(\"You are not authorized to perform this command\");<xhtml:br/>break;</xhtml:div>\n                                       <xhtml:br/>case USER:<xhtml:div style=\"margin-left:1em;\">System.out.println(\"You are not authorized to perform this command\");<xhtml:br/>break;</xhtml:div>\n                                       <xhtml:br/>default:<xhtml:div style=\"margin-left:1em;\">setPassword(user,password);<xhtml:br/>break;</xhtml:div>}</xhtml:div>\n                                 </xhtml:div>}</xhtml:div>\n                           </xhtml:div>\n                           <xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">System.out.println(\"You must be logged in to perform this command\");</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code does not check the role of the user whose password is being reset. It is possible for an Operator to gain Admin privileges by resetting the password of an Admin account and taking control of that account.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2001-1555",
+			"description": "Terminal privileges are not reset when a user logs out.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1555"
+		},
+		{
+			"reference": "CVE-2001-1514",
+			"description": "Does not properly pass security context to child processes in certain cases, allows privilege escalation.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-1514"
+		},
+		{
+			"reference": "CVE-2001-0128",
+			"description": "Does not properly compute roles.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0128"
+		},
+		{
+			"reference": "CVE-1999-1193",
+			"description": "untrusted user placed in unix \"wheel\" group",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-1193"
+		},
+		{
+			"reference": "CVE-2005-2741",
+			"description": "Product allows users to grant themselves certain rights that can be used to escalate privileges.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2741"
+		},
+		{
+			"reference": "CVE-2005-2496",
+			"description": "Product uses group ID of a user instead of the group, causing it to run with different privileges. This is resultant from some other unknown issue.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2496"
+		},
+		{
+			"reference": "CVE-2004-0274",
+			"description": "Product mistakenly assigns a particular status to an entity, leading to increased privileges.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0274"
+		},
+		{
+			"reference": "CVE-2007-4217",
+			"description": "FTP client program on a certain OS runs with setuid privileges and has a buffer overflow. Most clients do not need extra privileges, so an overflow is not a vulnerability for those clients.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4217"
+		},
+		{
+			"reference": "CVE-2007-5159",
+			"description": "OS incorrectly installs a program with setuid privileges, allowing users to gain privileges.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-5159"
+		},
+		{
+			"reference": "CVE-2008-4638",
+			"description": "Composite: application running with high privileges (CWE-250) allows user to specify a restricted file to process, which generates a parsing error that leaks the contents of the file (CWE-209).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-4638"
+		},
+		{
+			"reference": "CVE-2007-3931",
+			"description": "Installation script installs some programs as setuid when they shouldn't be.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-3931"
+		},
+		{
+			"reference": "CVE-2002-1981",
+			"description": "Roles have access to dangerous procedures (Accessible entities).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1981"
+		},
+		{
+			"reference": "CVE-2002-1671",
+			"description": "Untrusted object/method gets access to clipboard (Accessible entities).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1671"
+		},
+		{
+			"reference": "CVE-2000-0315",
+			"description": "Traceroute program allows unprivileged users to modify source address of packet (Accessible entities).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0315"
+		},
+		{
+			"reference": "CVE-2000-0506",
+			"description": "User with capability can prevent setuid program from dropping privileges (Unsafe privileged actions).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0506"
+		}
+	],
+	"references": [
+		{
+			"section": "\"Sin 16: Executing Code With Too Much Privilege.\" Page 243",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		},
+		{
+			"section": "Chapter 9, \"Dropping Privileges Permanently\", Page 479",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"section": "Details of Problematic Mappings",
+			"reference_id": "REF-1287",
+			"author": [
+				"MITRE"
+			],
+			"title": "Supplemental Details - 2022 CWE Top 25",
+			"url": "https://cwe.mitre.org/top25/archive/2022/2022_cwe_top25_supplemental.html#problematicMappingDetails",
+			"publication_year": "2022",
+			"publication_month": "--06",
+			"publication_day": "---28"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_organization": "CWE Team",
+				"modification_date": "2008-09-08",
+				"modification_comment": "Moved this entry higher up in the Research view."
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Maintenance_Notes, Name, Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Description, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Causal_Nature, Modes_of_Introduction, Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Demonstrative_Examples, Maintenance_Notes, Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships, Taxonomy_Mappings"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Privilege Management Error",
+				"date": "2008-09-09"
+			},
+			{
+				"text": "Insecure Privilege Management",
+				"date": "2009-05-27"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
+				"contribution_date": "2023-06-29",
+				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Privilege Management Error"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SP.03.08 BR",
+			"entry_id": "Part 2-4"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR 3.1",
+			"entry_id": "Part 3-2"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR 1.2",
+			"entry_id": "Part 3-3"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR 2.1",
+			"entry_id": "Part 3-3"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SD-3",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SD-4",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SI-1",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR 1.1",
+			"entry_id": "Part 4-2"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR 2.1",
+			"entry_id": "Part 4-2"
+		}
+	],
+	"related_attack_patterns": [
+		"122",
+		"233",
+		"58"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "The relationships between privileges, permissions, and actors (e.g. users and groups) need further refinement within the Research view. One complication is that these concepts apply to two different pillars, related to control of resources (CWE-664) and protection mechanism failures (CWE-693)."
+		}
+	]
 }

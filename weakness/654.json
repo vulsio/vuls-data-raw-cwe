@@ -1,304 +1,304 @@
 {
-  "id": "654",
-  "name": "Reliance on a Single Factor in a Security Decision",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "A protection mechanism relies exclusively, or to a large extent, on the evaluation of a single condition or the integrity of a single object or entity in order to make a decision about granting access to restricted resources or functionality.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "657",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "693",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity"
-      ],
-      "note": "If the single factor is compromised (e.g. by theft or spoofing), then the integrity of the entire security mechanism can be violated with respect to the user that is identified by that factor."
-    },
-    {
-      "scope": [
-        "Non-Repudiation"
-      ],
-      "impact": [
-        "Hide Activities"
-      ],
-      "note": "It can become difficult or impossible for the product to be able to distinguish between legitimate activities by the entity who provided the factor, versus illegitimate activities by an attacker."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Use multiple simultaneous checks before granting access to critical operations or granting critical privileges. A weaker but helpful mitigation is to use several successive checks (multiple layers of security)."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Use redundant access rules on different choke points (e.g., firewalls)."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>Password-only authentication is perhaps the most well-known example of use of a single factor. Anybody who knows a user's password can impersonate that user.</Intro_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>When authenticating, use multiple factors, such as \"something you know\" (such as a password) and \"something you have\" (such as a hardware-based one-time password generator, or a biometric device).</Intro_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-35248",
-      "description": "Chat application skips validation when Central Authentication Service\n\t\t\t (CAS) is enabled, effectively removing the second factor from\n\t\t\t two-factor authentication",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-35248"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-196",
-      "author": [
-        "Jerome H. Saltzer",
-        "Michael D. Schroeder"
-      ],
-      "title": "The Protection of Information in Computer Systems",
-      "url": "http://web.mit.edu/Saltzer/www/publications/protection/",
-      "publication_year": "1975",
-      "publication_month": "--09",
-      "publication": "Proceedings of the IEEE 63"
-    },
-    {
-      "reference_id": "REF-535",
-      "author": [
-        "Sean Barnum",
-        "Michael Gegick"
-      ],
-      "title": "Separation of Privilege",
-      "url": "https://web.archive.org/web/20220126060047/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/separation-of-privilege",
-      "publication_year": "2005",
-      "publication_month": "--12",
-      "publication_day": "---06",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Pascal Meunier",
-      "submission_organization": "Purdue University",
-      "submission_date": "2008-01-18"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Alternate_Terms, Common_Consequences, Relationships, Other_Notes, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Description, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Maintenance_Notes, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Causal_Nature"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Alternate_Terms, Maintenance_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Design Principle Violation: Reliance on a Single Factor in a Security Decision",
-        "date": "2009-01-12"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
-        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
-        "contribution_date": "2023-04-25",
-        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "alternate_terms": [
-    {
-      "term": "Separation of Privilege",
-      "description": "Some people and publications use the term \"Separation of Privilege\" to describe this weakness, but this term has dual meanings in current usage. While this entry is closely associated with the original definition of \"Separation of Privilege\" by Saltzer and Schroeder, others use the same term to describe poor compartmentalization (CWE-653). Because there are multiple interpretations, use of the \"Separation of Privilege\" term is discouraged."
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SD-3",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SD-4",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SI-1",
-      "entry_id": "Part 4-1"
-    }
-  ],
-  "related_attack_patterns": [
-    "16",
-    "274",
-    "49",
-    "55",
-    "560",
-    "565",
-    "600",
-    "652",
-    "653",
-    "70"
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "This entry is closely associated with the term \"Separation of Privilege.\" This term is used in several different ways in the industry, but they generally combine two closely related principles: compartmentalization (CWE-653) and using only one factor in a security decision (this entry). Proper compartmentalization implicitly introduces multiple factors into a security decision, but there can be cases in which multiple factors are required for authentication or other mechanisms that do not involve compartmentalization, such as performing all required checks on a submitted certificate. It is likely that CWE-653 and CWE-654 will provoke further discussion."
-    }
-  ]
+	"id": "654",
+	"name": "Reliance on a Single Factor in a Security Decision",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "A protection mechanism relies exclusively, or to a large extent, on the evaluation of a single condition or the integrity of a single object or entity in order to make a decision about granting access to restricted resources or functionality.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "657",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "693",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity"
+			],
+			"note": "If the single factor is compromised (e.g. by theft or spoofing), then the integrity of the entire security mechanism can be violated with respect to the user that is identified by that factor."
+		},
+		{
+			"scope": [
+				"Non-Repudiation"
+			],
+			"impact": [
+				"Hide Activities"
+			],
+			"note": "It can become difficult or impossible for the product to be able to distinguish between legitimate activities by the entity who provided the factor, versus illegitimate activities by an attacker."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Use multiple simultaneous checks before granting access to critical operations or granting critical privileges. A weaker but helpful mitigation is to use several successive checks (multiple layers of security)."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Use redundant access rules on different choke points (e.g., firewalls)."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>Password-only authentication is perhaps the most well-known example of use of a single factor. Anybody who knows a user's password can impersonate that user.</Intro_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>When authenticating, use multiple factors, such as \"something you know\" (such as a password) and \"something you have\" (such as a hardware-based one-time password generator, or a biometric device).</Intro_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-35248",
+			"description": "Chat application skips validation when Central Authentication Service\n\t\t\t (CAS) is enabled, effectively removing the second factor from\n\t\t\t two-factor authentication",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-35248"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-196",
+			"author": [
+				"Jerome H. Saltzer",
+				"Michael D. Schroeder"
+			],
+			"title": "The Protection of Information in Computer Systems",
+			"url": "http://web.mit.edu/Saltzer/www/publications/protection/",
+			"publication_year": "1975",
+			"publication_month": "--09",
+			"publication": "Proceedings of the IEEE 63"
+		},
+		{
+			"reference_id": "REF-535",
+			"author": [
+				"Sean Barnum",
+				"Michael Gegick"
+			],
+			"title": "Separation of Privilege",
+			"url": "https://web.archive.org/web/20220126060047/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/separation-of-privilege",
+			"publication_year": "2005",
+			"publication_month": "--12",
+			"publication_day": "---06",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Pascal Meunier",
+			"submission_organization": "Purdue University",
+			"submission_date": "2008-01-18"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Alternate_Terms, Common_Consequences, Relationships, Other_Notes, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Description, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Maintenance_Notes, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Causal_Nature"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Alternate_Terms, Maintenance_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Design Principle Violation: Reliance on a Single Factor in a Security Decision",
+				"date": "2009-01-12"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
+				"contribution_date": "2023-04-25",
+				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"alternate_terms": [
+		{
+			"term": "Separation of Privilege",
+			"description": "Some people and publications use the term \"Separation of Privilege\" to describe this weakness, but this term has dual meanings in current usage. While this entry is closely associated with the original definition of \"Separation of Privilege\" by Saltzer and Schroeder, others use the same term to describe poor compartmentalization (CWE-653). Because there are multiple interpretations, use of the \"Separation of Privilege\" term is discouraged."
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SD-3",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SD-4",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SI-1",
+			"entry_id": "Part 4-1"
+		}
+	],
+	"related_attack_patterns": [
+		"16",
+		"274",
+		"49",
+		"55",
+		"560",
+		"565",
+		"600",
+		"652",
+		"653",
+		"70"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "This entry is closely associated with the term \"Separation of Privilege.\" This term is used in several different ways in the industry, but they generally combine two closely related principles: compartmentalization (CWE-653) and using only one factor in a security decision (this entry). Proper compartmentalization implicitly introduces multiple factors into a security decision, but there can be cases in which multiple factors are required for authentication or other mechanisms that do not involve compartmentalization, such as performing all required checks on a submitted certificate. It is likely that CWE-653 and CWE-654 will provoke further discussion."
+		}
+	]
 }

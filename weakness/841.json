@@ -1,267 +1,267 @@
 {
-  "id": "841",
-  "name": "Improper Enforcement of Behavioral Workflow",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product supports a session in which more than one behavior must be performed by an actor, but it does not properly ensure that the actor performs the behaviors in the required sequence.",
-  "extended_description": "\n            <xhtml:p>By performing actions in an unexpected order, or by omitting steps, an attacker could manipulate the business logic of the product or cause it to enter an invalid state. In some cases, this can also expose resultant weaknesses.</xhtml:p>\n            <xhtml:p>For example, a file-sharing protocol might require that an actor perform separate steps to provide a username, then a password, before being able to transfer files. If the file-sharing server accepts a password command followed by a transfer command, without any username being provided, the product might still perform the transfer.</xhtml:p>\n            <xhtml:p>Note that this is different than CWE-696, which focuses on when the product performs actions in the wrong sequence; this entry is closely related, but it is focused on ensuring that the actor performs actions in the correct sequence.</xhtml:p>\n            <xhtml:p>Workflow-related behaviors include:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>Steps are performed in the expected order.</xhtml:li>\n                  <xhtml:li>Required steps are not omitted.</xhtml:li>\n                  <xhtml:li>Steps are not interrupted.</xhtml:li>\n                  <xhtml:li>Steps are performed in a timely fashion.</xhtml:li>\n               </xhtml:ul>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "691",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {},
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Alter Execution Logic"
-      ],
-      "note": "An attacker could cause the product to skip critical steps or perform them in the wrong order, bypassing its intended business logic. This can sometimes have security implications."
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>This code is part of an FTP server and deals with various commands that could be sent by a user. It is intended that a user must successfully login before performing any other action such as retrieving or listing files.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>def dispatchCommand(command, user, args):<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if command == 'Login':<xhtml:div style=\"margin-left:1em;\">loginUser(args)<xhtml:br/>return</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i># user has requested a file</xhtml:i>\n                           <xhtml:br/>if command == 'Retrieve_file':\n\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t   if authenticated(user) and ownsFile(user,args):\n\t\t\t   <xhtml:br/>\n\t\t\t   <xhtml:div style=\"margin-left:1em;\">sendFile(args)<xhtml:br/>return</xhtml:div>\n\t\t\t   </xhtml:div>\n                           <xhtml:br/>if command == 'List_files':<xhtml:div style=\"margin-left:1em;\">listFiles(args)<xhtml:br/>return</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>The server correctly avoids sending files to a user that isn't logged in and doesn't own the file. However, the server will incorrectly list the files in any directory without confirming the command came from an authenticated user, and that the user is authorized to see the directory's contents.</Body_Text>\n               <Body_Text>Here is a fixed version of the above example:</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Python\">\n                  <xhtml:div>def dispatchCommand(command, user, args):<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>if command == 'List_files':<xhtml:div style=\"margin-left:1em;\">if authenticated(user) and ownsDirectory(user,args):<xhtml:div style=\"margin-left:1em;\">listFiles(args)<xhtml:br/>return</xhtml:div>\n                           </xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2011-0348",
-      "description": "Bypass of access/billing restrictions by sending traffic to an unrestricted destination before sending to a restricted destination.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2011-0348"
-    },
-    {
-      "reference": "CVE-2007-3012",
-      "description": "Attacker can access portions of a restricted page by canceling out of a dialog.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-3012"
-    },
-    {
-      "reference": "CVE-2009-5056",
-      "description": "Ticket-tracking system does not enforce a permission setting.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-5056"
-    },
-    {
-      "reference": "CVE-2004-2164",
-      "description": "Shopping cart does not close a database connection when user restores a previous order, leading to connection exhaustion.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2164"
-    },
-    {
-      "reference": "CVE-2003-0777",
-      "description": "Chain: product does not properly handle dropped connections, leading to missing NULL terminator (CWE-170) and segmentation fault.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0777"
-    },
-    {
-      "reference": "CVE-2005-3327",
-      "description": "Chain: Authentication bypass by skipping the first startup step as required by the protocol.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3327"
-    },
-    {
-      "reference": "CVE-2004-0829",
-      "description": "Chain: File server crashes when sent a \"find next\" request without an initial \"find first.\"",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0829"
-    },
-    {
-      "reference": "CVE-2010-2620",
-      "description": "FTP server allows remote attackers to bypass authentication by sending (1) LIST, (2) RETR, (3) STOR, or other commands without performing the required login steps first.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2010-2620"
-    },
-    {
-      "reference": "CVE-2005-3296",
-      "description": "FTP server allows remote attackers to list arbitrary directories as root by running the LIST command before logging in.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-3296"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-795",
-      "author": [
-        "Jeremiah Grossman"
-      ],
-      "title": "Business Logic Flaws and Yahoo Games",
-      "url": "https://blog.jeremiahgrossman.com/2006/12/business-logic-flaws.html",
-      "publication_year": "2006",
-      "publication_month": "--12",
-      "publication_day": "---08",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-796",
-      "author": [
-        "Jeremiah Grossman"
-      ],
-      "title": "Seven Business Logic Flaws That Put Your Website At Risk",
-      "url": "https://docplayer.net/10021793-Seven-business-logic-flaws-that-put-your-website-at-risk.html",
-      "publication_year": "2007",
-      "publication_month": "--10",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-797",
-      "author": [
-        "WhiteHat Security"
-      ],
-      "title": "Business Logic Flaws",
-      "url": "https://web.archive.org/web/20080720171327/http://www.whitehatsec.com/home/solutions/BL_auction.html",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-806",
-      "author": [
-        "WASC"
-      ],
-      "title": "Insufficient Process Validation",
-      "url": "http://projects.webappsec.org/w/page/13246943/Insufficient-Process-Validation"
-    },
-    {
-      "reference_id": "REF-799",
-      "author": [
-        "Rafal Los",
-        "Prajakta Jagdale"
-      ],
-      "title": "Defying Logic: Theory, Design, and Implementation of Complex Systems for Testing Application Logic",
-      "url": "https://www.slideshare.net/RafalLos/defying-logic-business-logic-testing-with-automation",
-      "publication_year": "2011",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-667",
-      "author": [
-        "Rafal Los"
-      ],
-      "title": "Real-Life Example of a 'Business Logic Defect' (Screen Shots!)",
-      "url": "http://h30501.www3.hp.com/t5/Following-the-White-Rabbit-A/Real-Life-Example-of-a-Business-Logic-Defect-Screen-Shots/ba-p/22581",
-      "publication_year": "2011"
-    },
-    {
-      "reference_id": "REF-801",
-      "author": [
-        "Viktoria Felmetsger",
-        "Ludovico Cavedon",
-        "Christopher Kruegel",
-        "Giovanni Vigna"
-      ],
-      "title": "Toward Automated Detection of Logic Vulnerabilities in Web Applications",
-      "url": "https://www.usenix.org/legacy/events/sec10/tech/full_papers/Felmetsger.pdf",
-      "publication_year": "2010",
-      "publication_month": "--08",
-      "publication": "USENIX Security Symposium 2010",
-      "url_date": "2023-04-07"
-    },
-    {
-      "section": "pages 29 - 41",
-      "reference_id": "REF-802",
-      "author": [
-        "Faisal Nabi"
-      ],
-      "title": "Designing a Framework Method for Secure Business Application Logic Integrity in e-Commerce Systems",
-      "url": "http://ijns.femto.com.tw/contents/ijns-v12-n1/ijns-2011-v12-n1-p29-41.pdf",
-      "publication_year": "2011",
-      "publication": "International Journal of Network Security, Vol.12, No.1"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2011-03-24"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences, Observed_Examples, Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Modes_of_Introduction, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Common_Consequences, Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Feedback",
-        "contribution_name": "Anonymous External Contributor",
-        "contribution_date": "2021-11-11",
-        "contribution_comment": "Reported an error in a demonstrative example"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "WASC",
-      "entry_name": "Insufficient Process Validation",
-      "entry_id": "40"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Research Gap",
-      "text": "\n               <xhtml:p>This weakness is typically associated with business logic flaws, except when it produces resultant weaknesses.</xhtml:p>\n               <xhtml:p>The classification of business logic flaws has been under-studied, although exploitation of business flaws frequently happens in real-world systems, and many applied vulnerability researchers investigate them. The greatest focus is in web applications. There is debate within the community about whether these problems represent particularly new concepts, or if they are variations of well-known principles.</xhtml:p>\n               <xhtml:p>Many business logic flaws appear to be oriented toward business processes, application flows, and sequences of behaviors, which are not as well-represented in CWE as weaknesses related to input validation, memory management, etc.</xhtml:p>\n            "
-    }
-  ]
+	"id": "841",
+	"name": "Improper Enforcement of Behavioral Workflow",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product supports a session in which more than one behavior must be performed by an actor, but it does not properly ensure that the actor performs the behaviors in the required sequence.",
+	"extended_description": "\n            <xhtml:p>By performing actions in an unexpected order, or by omitting steps, an attacker could manipulate the business logic of the product or cause it to enter an invalid state. In some cases, this can also expose resultant weaknesses.</xhtml:p>\n            <xhtml:p>For example, a file-sharing protocol might require that an actor perform separate steps to provide a username, then a password, before being able to transfer files. If the file-sharing server accepts a password command followed by a transfer command, without any username being provided, the product might still perform the transfer.</xhtml:p>\n            <xhtml:p>Note that this is different than CWE-696, which focuses on when the product performs actions in the wrong sequence; this entry is closely related, but it is focused on ensuring that the actor performs actions in the correct sequence.</xhtml:p>\n            <xhtml:p>Workflow-related behaviors include:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>Steps are performed in the expected order.</xhtml:li>\n                  <xhtml:li>Required steps are not omitted.</xhtml:li>\n                  <xhtml:li>Steps are not interrupted.</xhtml:li>\n                  <xhtml:li>Steps are performed in a timely fashion.</xhtml:li>\n               </xhtml:ul>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "691",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Alter Execution Logic"
+			],
+			"note": "An attacker could cause the product to skip critical steps or perform them in the wrong order, bypassing its intended business logic. This can sometimes have security implications."
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>This code is part of an FTP server and deals with various commands that could be sent by a user. It is intended that a user must successfully login before performing any other action such as retrieving or listing files.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>def dispatchCommand(command, user, args):<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if command == 'Login':<xhtml:div style=\"margin-left:1em;\">loginUser(args)<xhtml:br/>return</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i># user has requested a file</xhtml:i>\n                           <xhtml:br/>if command == 'Retrieve_file':\n\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t   if authenticated(user) and ownsFile(user,args):\n\t\t\t   <xhtml:br/>\n\t\t\t   <xhtml:div style=\"margin-left:1em;\">sendFile(args)<xhtml:br/>return</xhtml:div>\n\t\t\t   </xhtml:div>\n                           <xhtml:br/>if command == 'List_files':<xhtml:div style=\"margin-left:1em;\">listFiles(args)<xhtml:br/>return</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>The server correctly avoids sending files to a user that isn't logged in and doesn't own the file. However, the server will incorrectly list the files in any directory without confirming the command came from an authenticated user, and that the user is authorized to see the directory's contents.</Body_Text>\n               <Body_Text>Here is a fixed version of the above example:</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Python\">\n                  <xhtml:div>def dispatchCommand(command, user, args):<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>if command == 'List_files':<xhtml:div style=\"margin-left:1em;\">if authenticated(user) and ownsDirectory(user,args):<xhtml:div style=\"margin-left:1em;\">listFiles(args)<xhtml:br/>return</xhtml:div>\n                           </xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>...</xhtml:i>\n                           <xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2011-0348",
+			"description": "Bypass of access/billing restrictions by sending traffic to an unrestricted destination before sending to a restricted destination.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2011-0348"
+		},
+		{
+			"reference": "CVE-2007-3012",
+			"description": "Attacker can access portions of a restricted page by canceling out of a dialog.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-3012"
+		},
+		{
+			"reference": "CVE-2009-5056",
+			"description": "Ticket-tracking system does not enforce a permission setting.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-5056"
+		},
+		{
+			"reference": "CVE-2004-2164",
+			"description": "Shopping cart does not close a database connection when user restores a previous order, leading to connection exhaustion.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-2164"
+		},
+		{
+			"reference": "CVE-2003-0777",
+			"description": "Chain: product does not properly handle dropped connections, leading to missing NULL terminator (CWE-170) and segmentation fault.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0777"
+		},
+		{
+			"reference": "CVE-2005-3327",
+			"description": "Chain: Authentication bypass by skipping the first startup step as required by the protocol.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3327"
+		},
+		{
+			"reference": "CVE-2004-0829",
+			"description": "Chain: File server crashes when sent a \"find next\" request without an initial \"find first.\"",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0829"
+		},
+		{
+			"reference": "CVE-2010-2620",
+			"description": "FTP server allows remote attackers to bypass authentication by sending (1) LIST, (2) RETR, (3) STOR, or other commands without performing the required login steps first.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2010-2620"
+		},
+		{
+			"reference": "CVE-2005-3296",
+			"description": "FTP server allows remote attackers to list arbitrary directories as root by running the LIST command before logging in.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3296"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-795",
+			"author": [
+				"Jeremiah Grossman"
+			],
+			"title": "Business Logic Flaws and Yahoo Games",
+			"url": "https://blog.jeremiahgrossman.com/2006/12/business-logic-flaws.html",
+			"publication_year": "2006",
+			"publication_month": "--12",
+			"publication_day": "---08",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-796",
+			"author": [
+				"Jeremiah Grossman"
+			],
+			"title": "Seven Business Logic Flaws That Put Your Website At Risk",
+			"url": "https://docplayer.net/10021793-Seven-business-logic-flaws-that-put-your-website-at-risk.html",
+			"publication_year": "2007",
+			"publication_month": "--10",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-797",
+			"author": [
+				"WhiteHat Security"
+			],
+			"title": "Business Logic Flaws",
+			"url": "https://web.archive.org/web/20080720171327/http://www.whitehatsec.com/home/solutions/BL_auction.html",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-806",
+			"author": [
+				"WASC"
+			],
+			"title": "Insufficient Process Validation",
+			"url": "http://projects.webappsec.org/w/page/13246943/Insufficient-Process-Validation"
+		},
+		{
+			"reference_id": "REF-799",
+			"author": [
+				"Rafal Los",
+				"Prajakta Jagdale"
+			],
+			"title": "Defying Logic: Theory, Design, and Implementation of Complex Systems for Testing Application Logic",
+			"url": "https://www.slideshare.net/RafalLos/defying-logic-business-logic-testing-with-automation",
+			"publication_year": "2011",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-667",
+			"author": [
+				"Rafal Los"
+			],
+			"title": "Real-Life Example of a 'Business Logic Defect' (Screen Shots!)",
+			"url": "http://h30501.www3.hp.com/t5/Following-the-White-Rabbit-A/Real-Life-Example-of-a-Business-Logic-Defect-Screen-Shots/ba-p/22581",
+			"publication_year": "2011"
+		},
+		{
+			"reference_id": "REF-801",
+			"author": [
+				"Viktoria Felmetsger",
+				"Ludovico Cavedon",
+				"Christopher Kruegel",
+				"Giovanni Vigna"
+			],
+			"title": "Toward Automated Detection of Logic Vulnerabilities in Web Applications",
+			"url": "https://www.usenix.org/legacy/events/sec10/tech/full_papers/Felmetsger.pdf",
+			"publication_year": "2010",
+			"publication_month": "--08",
+			"publication": "USENIX Security Symposium 2010",
+			"url_date": "2023-04-07"
+		},
+		{
+			"section": "pages 29 - 41",
+			"reference_id": "REF-802",
+			"author": [
+				"Faisal Nabi"
+			],
+			"title": "Designing a Framework Method for Secure Business Application Logic Integrity in e-Commerce Systems",
+			"url": "http://ijns.femto.com.tw/contents/ijns-v12-n1/ijns-2011-v12-n1-p29-41.pdf",
+			"publication_year": "2011",
+			"publication": "International Journal of Network Security, Vol.12, No.1"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2011-03-24"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences, Observed_Examples, Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Modes_of_Introduction, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Common_Consequences, Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Feedback",
+				"contribution_name": "Anonymous External Contributor",
+				"contribution_date": "2021-11-11",
+				"contribution_comment": "Reported an error in a demonstrative example"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "WASC",
+			"entry_name": "Insufficient Process Validation",
+			"entry_id": "40"
+		}
+	],
+	"notes": [
+		{
+			"type": "Research Gap",
+			"text": "\n               <xhtml:p>This weakness is typically associated with business logic flaws, except when it produces resultant weaknesses.</xhtml:p>\n               <xhtml:p>The classification of business logic flaws has been under-studied, although exploitation of business flaws frequently happens in real-world systems, and many applied vulnerability researchers investigate them. The greatest focus is in web applications. There is debate within the community about whether these problems represent particularly new concepts, or if they are variations of well-known principles.</xhtml:p>\n               <xhtml:p>Many business logic flaws appear to be oriented toward business processes, application flows, and sequences of behaviors, which are not as well-represented in CWE as weaknesses related to input validation, memory management, etc.</xhtml:p>\n            "
+		}
+	]
 }

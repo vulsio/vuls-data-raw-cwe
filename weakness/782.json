@@ -1,198 +1,198 @@
 {
-  "id": "782",
-  "name": "Exposed IOCTL with Insufficient Access Control",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product implements an IOCTL with functionality that should be restricted, but it does not properly enforce access control for the IOCTL.",
-  "extended_description": "\n            <xhtml:p>When an IOCTL contains privileged functionality and is exposed unnecessarily, attackers may be able to access this functionality by invoking the IOCTL. Even if the functionality is benign, if the programmer has assumed that the IOCTL would only be accessed by a trusted process, there may be little or no validation of the incoming data, exposing weaknesses that would never be reachable if the attacker cannot call the IOCTL directly.</xhtml:p>\n            <xhtml:p>The implementations of IOCTLs will differ between operating system types and versions, so the methods of attack and prevention may vary widely.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "749",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "781",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Often",
-        "name": "C"
-      },
-      {
-        "prevalence": "Often",
-        "name": "C++"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Unix",
-        "prevalence": "Undetermined"
-      },
-      {
-        "class": "Windows",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Availability",
-        "Confidentiality"
-      ],
-      "impact": [
-        "Varies by Context"
-      ],
-      "note": "Attackers can invoke any functionality that the IOCTL offers. Depending on the functionality, the consequences may include code execution, denial-of-service, and theft of data."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "In Windows environments, use proper access control for the associated device or device namespace. See References."
-      ]
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2009-2208",
-      "description": "Operating system does not enforce permissions on an IOCTL that can be used to modify network settings.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2208"
-    },
-    {
-      "reference": "CVE-2008-3831",
-      "description": "Device driver does not restrict ioctl calls to its direct rendering manager.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-3831"
-    },
-    {
-      "reference": "CVE-2008-3525",
-      "description": "ioctl does not check for a required capability before processing certain requests.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-3525"
-    },
-    {
-      "reference": "CVE-2008-0322",
-      "description": "Chain: insecure device permissions allows access to an IOCTL, allowing arbitrary memory to be overwritten.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-0322"
-    },
-    {
-      "reference": "CVE-2007-4277",
-      "description": "Chain: anti-virus product uses weak permissions for a device, leading to resultant buffer overflow in an exposed IOCTL.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4277"
-    },
-    {
-      "reference": "CVE-2007-1400",
-      "description": "Chain: sandbox allows opening of a TTY device, enabling shell commands through an exposed ioctl.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-1400"
-    },
-    {
-      "reference": "CVE-2006-4926",
-      "description": "Anti-virus product uses insecure security descriptor for a device driver, allowing access to a privileged IOCTL.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4926"
-    },
-    {
-      "reference": "CVE-1999-0728",
-      "description": "Unauthorized user can disable keyboard or mouse by directly invoking a privileged IOCTL.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-0728"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-701",
-      "author": [
-        "Microsoft"
-      ],
-      "title": "Securing Device Objects",
-      "url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/controlling-device-access",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2009-07-15"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Likelihood_of_Exploit, Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Common_Consequences"
-      }
-    ]
-  },
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "This can be primary to many other weaknesses when the programmer assumes that the IOCTL can only be accessed by trusted parties. For example, a program or driver might not validate incoming addresses in METHOD_NEITHER IOCTLs in Windows environments (CWE-781), which could allow buffer overflow and similar attacks to take place, even when the attacker never should have been able to access the IOCTL at all."
-    },
-    {
-      "type": "Applicable Platform",
-      "text": "\n               <xhtml:p>Because IOCTL functionality is typically performing low-level actions and closely interacts with the operating system, this weakness may only appear in code that is written in low-level languages.</xhtml:p>\n            "
-    }
-  ]
+	"id": "782",
+	"name": "Exposed IOCTL with Insufficient Access Control",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product implements an IOCTL with functionality that should be restricted, but it does not properly enforce access control for the IOCTL.",
+	"extended_description": "\n            <xhtml:p>When an IOCTL contains privileged functionality and is exposed unnecessarily, attackers may be able to access this functionality by invoking the IOCTL. Even if the functionality is benign, if the programmer has assumed that the IOCTL would only be accessed by a trusted process, there may be little or no validation of the incoming data, exposing weaknesses that would never be reachable if the attacker cannot call the IOCTL directly.</xhtml:p>\n            <xhtml:p>The implementations of IOCTLs will differ between operating system types and versions, so the methods of attack and prevention may vary widely.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "749",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "781",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Often",
+				"name": "C"
+			},
+			{
+				"prevalence": "Often",
+				"name": "C++"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Unix",
+				"prevalence": "Undetermined"
+			},
+			{
+				"class": "Windows",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Availability",
+				"Confidentiality"
+			],
+			"impact": [
+				"Varies by Context"
+			],
+			"note": "Attackers can invoke any functionality that the IOCTL offers. Depending on the functionality, the consequences may include code execution, denial-of-service, and theft of data."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"In Windows environments, use proper access control for the associated device or device namespace. See References."
+			]
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2009-2208",
+			"description": "Operating system does not enforce permissions on an IOCTL that can be used to modify network settings.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2208"
+		},
+		{
+			"reference": "CVE-2008-3831",
+			"description": "Device driver does not restrict ioctl calls to its direct rendering manager.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-3831"
+		},
+		{
+			"reference": "CVE-2008-3525",
+			"description": "ioctl does not check for a required capability before processing certain requests.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-3525"
+		},
+		{
+			"reference": "CVE-2008-0322",
+			"description": "Chain: insecure device permissions allows access to an IOCTL, allowing arbitrary memory to be overwritten.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-0322"
+		},
+		{
+			"reference": "CVE-2007-4277",
+			"description": "Chain: anti-virus product uses weak permissions for a device, leading to resultant buffer overflow in an exposed IOCTL.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4277"
+		},
+		{
+			"reference": "CVE-2007-1400",
+			"description": "Chain: sandbox allows opening of a TTY device, enabling shell commands through an exposed ioctl.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-1400"
+		},
+		{
+			"reference": "CVE-2006-4926",
+			"description": "Anti-virus product uses insecure security descriptor for a device driver, allowing access to a privileged IOCTL.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-4926"
+		},
+		{
+			"reference": "CVE-1999-0728",
+			"description": "Unauthorized user can disable keyboard or mouse by directly invoking a privileged IOCTL.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-0728"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-701",
+			"author": [
+				"Microsoft"
+			],
+			"title": "Securing Device Objects",
+			"url": "https://learn.microsoft.com/en-us/windows-hardware/drivers/kernel/controlling-device-access",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2009-07-15"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Likelihood_of_Exploit, Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Common_Consequences"
+			}
+		]
+	},
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "This can be primary to many other weaknesses when the programmer assumes that the IOCTL can only be accessed by trusted parties. For example, a program or driver might not validate incoming addresses in METHOD_NEITHER IOCTLs in Windows environments (CWE-781), which could allow buffer overflow and similar attacks to take place, even when the attacker never should have been able to access the IOCTL at all."
+		},
+		{
+			"type": "Applicable Platform",
+			"text": "\n               <xhtml:p>Because IOCTL functionality is typically performing low-level actions and closely interacts with the operating system, this weakness may only appear in code that is written in low-level languages.</xhtml:p>\n            "
+		}
+	]
 }

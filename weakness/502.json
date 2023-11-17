@@ -1,540 +1,540 @@
 {
-  "id": "502",
-  "name": "Deserialization of Untrusted Data",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product deserializes untrusted data without sufficiently verifying that the resulting data will be valid.",
-  "extended_description": "\n            <xhtml:p>It is often convenient to serialize objects for communication or to save them for later use. However, deserialized data or code can often be modified without using the provided accessor functions if it does not use cryptography to protect itself. Furthermore, any cryptography would still be client-side security -- which is a dangerous security assumption.</xhtml:p>\n            <xhtml:p>Data that is untrusted can not be trusted to be well-formed.</xhtml:p>\n            <xhtml:p>When developers place no restrictions on \"gadget chains,\" or series of instances and method invocations that can self-execute during the deserialization process (i.e., before the object is returned to the caller), it is sometimes possible for attackers to leverage them to perform unauthorized actions, like generating a shell.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "913",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "913",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "915",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Ruby"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "PHP"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Python"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "JavaScript"
-      }
-    ],
-    "technology": [
-      {
-        "class": "ICS/OT",
-        "prevalence": "Often"
-      }
-    ]
-  },
-  "background_details": [
-    "Serialization and deserialization refer to the process of taking program-internal object-related data, packaging it in a way that allows the data to be externally stored or transferred (\"serialization\"), then extracting the serialized data to reconstruct the original object (\"deserialization\")."
-  ],
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "OMISSION: This weakness is caused by missing a security tactic during the architecture and design phase."
-      ]
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Modify Application Data",
-        "Unexpected State"
-      ],
-      "note": "Attackers can modify unexpected objects or data that was assumed to be safe from modification."
-    },
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Resource Consumption (CPU)"
-      ],
-      "note": "If a function is making an assumption on when to terminate, based on a sentry in a string, it could easily never terminate."
-    },
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Varies by Context"
-      ],
-      "note": "The consequences can vary widely, because it depends on which objects or methods are being deserialized, and how they are used. Making an assumption that the code in the deserialized object is valid is dangerous and can enable exploitation."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation"
-      ],
-      "description": [
-        "If available, use the signing/sealing features of the programming language to assure that deserialized data has not been tainted. For example, a hash-based message authentication code (HMAC) could be used to ensure that data has not been modified."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "When deserializing data, populate a new object rather than just deserializing. The result is that the data flows through safe input validation and that the functions are safe."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Explicitly define a final object() to prevent deserialization."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design",
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Make fields transient to protect them from deserialization.</xhtml:p>\n                  <xhtml:p>An attempt to serialize and then deserialize a class containing transient fields will result in NULLs where the transient data should be. This is an excellent way to prevent time, environment-based, or sensitive variables from being carried over and used improperly.</xhtml:p>\n               "
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Avoid having unnecessary types or gadgets available that can be leveraged for malicious ends. This limits the potential for unintended or unauthorized types and gadgets to be leveraged by the attacker. Add only acceptable classes to an allowlist. Note: new gadgets are constantly being discovered, so this alone is not a sufficient mitigation."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>This code snippet deserializes an object from a file and uses it as a UI button:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">File file = new File(\"object.obj\");<xhtml:br/>ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));<xhtml:br/>javax.swing.JButton button = (javax.swing.JButton) in.readObject();<xhtml:br/>in.close();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code does not attempt to verify the source or contents of the file before deserializing it. An attacker may be able to replace the intended file with a file that contains arbitrary malicious code which will be executed when the button is pressed.</Body_Text>\n               <Body_Text>To mitigate this, explicitly define final readObject() to prevent deserialization. An example of this is:</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>private final void readObject(ObjectInputStream in) throws java.io.IOException {<xhtml:br/>throw new java.io.IOException(\"Cannot be deserialized\"); }</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>In Python, the Pickle library handles the serialization and deserialization processes. In this example derived from [REF-467], the code receives and parses data, and afterwards tries to authenticate a user based on validating a token.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>class ExampleProtocol(protocol.Protocol):<xhtml:br/>def dataReceived(self, data):<xhtml:br/>\n                           <xhtml:br/># Code that would be here would parse the incoming data<xhtml:br/># After receiving headers, call confirmAuth() to authenticate<xhtml:br/>\n                           <xhtml:br/>def confirmAuth(self, headers):<xhtml:br/>try:<xhtml:br/>token = cPickle.loads(base64.b64decode(headers['AuthToken']))<xhtml:br/>if not check_hmac(token['signature'], token['data'], getSecretKey()):<xhtml:br/>raise AuthFail<xhtml:br/>self.secure_data = token['data']<xhtml:br/>except:<xhtml:br/>raise AuthFail</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Unfortunately, the code does not verify that the incoming data is legitimate. An attacker can construct a illegitimate, serialized object \"AuthToken\" that instantiates one of Python's subprocesses to execute arbitrary commands. For instance,the attacker could construct a pickle that leverages Python's subprocess module, which spawns new processes and includes a number of arguments for various uses. Since Pickle allows objects to define the process for how they should be unpickled, the attacker can direct the unpickle process to call Popen in the subprocess module and execute /bin/sh.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2019-12799",
-      "description": "chain: bypass of untrusted deserialization issue (CWE-502) by using an assumed-trusted class (CWE-183)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2019-12799"
-    },
-    {
-      "reference": "CVE-2015-8103",
-      "description": "Deserialization issue in commonly-used Java library allows remote execution.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2015-8103"
-    },
-    {
-      "reference": "CVE-2015-4852",
-      "description": "Deserialization issue in commonly-used Java library allows remote execution.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2015-4852"
-    },
-    {
-      "reference": "CVE-2013-1465",
-      "description": "Use of PHP unserialize function on untrusted input allows attacker to modify application configuration.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2013-1465"
-    },
-    {
-      "reference": "CVE-2012-3527",
-      "description": "Use of PHP unserialize function on untrusted input in content management system might allow code execution.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2012-3527"
-    },
-    {
-      "reference": "CVE-2012-0911",
-      "description": "Use of PHP unserialize function on untrusted input in content management system allows code execution using a crafted cookie value.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2012-0911"
-    },
-    {
-      "reference": "CVE-2012-0911",
-      "description": "Content management system written in PHP allows unserialize of arbitrary objects, possibly allowing code execution.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2012-0911"
-    },
-    {
-      "reference": "CVE-2011-2520",
-      "description": "Python script allows local users to execute code via pickled data.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2011-2520"
-    },
-    {
-      "reference": "CVE-2012-4406",
-      "description": "Unsafe deserialization using pickle in a Python script.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2012-4406"
-    },
-    {
-      "reference": "CVE-2003-0791",
-      "description": "Web browser allows execution of native methods via a crafted string to a JavaScript function that deserializes the string.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0791"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    },
-    {
-      "reference_id": "REF-461",
-      "author": [
-        "Matthias Kaiser"
-      ],
-      "title": "Exploiting Deserialization Vulnerabilities in Java",
-      "url": "https://www.slideshare.net/codewhitesec/exploiting-deserialization-vulnerabilities-in-java-54707478",
-      "publication_year": "2015",
-      "publication_month": "--10",
-      "publication_day": "---28",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-462",
-      "author": [
-        "Sam Thomas"
-      ],
-      "title": "PHP unserialization vulnerabilities: What are we missing?",
-      "url": "https://www.slideshare.net/_s_n_t/php-unserialization-vulnerabilities-what-are-we-missing",
-      "publication_year": "2015",
-      "publication_month": "--08",
-      "publication_day": "---27",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-463",
-      "author": [
-        "Gabriel Lawrence",
-        "Chris Frohoff"
-      ],
-      "title": "Marshalling Pickles: How deserializing objects can ruin your day",
-      "url": "https://www.slideshare.net/frohoff1/appseccali-2015-marshalling-pickles",
-      "publication_year": "2015",
-      "publication_month": "--01",
-      "publication_day": "---28",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-464",
-      "author": [
-        "Heine Deelstra"
-      ],
-      "title": "Unserializing user-supplied data, a bad idea",
-      "url": "https://drupalsun.com/heine/2010/08/25/unserializing-user-supplied-data-bad-idea",
-      "publication_year": "2010",
-      "publication_month": "--08",
-      "publication_day": "---25",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-465",
-      "author": [
-        "Manish S. Saindane"
-      ],
-      "title": "Black Hat EU 2010 - Attacking Java Serialized Communication",
-      "url": "https://www.slideshare.net/msaindane/black-hat-eu-2010-attacking-java-serialized-communication",
-      "publication_year": "2010",
-      "publication_month": "--04",
-      "publication_day": "---26",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-466",
-      "author": [
-        "Nadia Alramli"
-      ],
-      "title": "Why Python Pickle is Insecure",
-      "url": "http://michael-rushanan.blogspot.com/2012/10/why-python-pickle-is-insecure.html",
-      "publication_year": "2009",
-      "publication_month": "--09",
-      "publication_day": "---09",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-467",
-      "author": [
-        "Nelson Elhage"
-      ],
-      "title": "Exploiting misuse of Python's \"pickle\"",
-      "url": "https://blog.nelhage.com/2011/03/exploiting-pickle/",
-      "publication_year": "2011",
-      "publication_month": "--03",
-      "publication_day": "---20"
-    },
-    {
-      "reference_id": "REF-468",
-      "author": [
-        "Chris Frohoff"
-      ],
-      "title": "Deserialize My Shorts: Or How I Learned to Start Worrying and Hate Java Object Deserialization",
-      "url": "https://speakerdeck.com/frohoff/owasp-sd-deserialize-my-shorts-or-how-i-learned-to-start-worrying-and-hate-java-object-deserialization",
-      "publication_year": "2016",
-      "publication_month": "--03",
-      "publication_day": "---21",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Common_Consequences, Description, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Description, Other_Notes, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Alternate_Terms, Applicable_Platforms, Background_Details, Common_Consequences, Maintenance_Notes, Observed_Examples, Potential_Mitigations, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Observed_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-05-03",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Potential_Mitigations, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Modes_of_Introduction, Potential_Mitigations, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Observed_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Alternate_Terms, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "Marshaling, Unmarshaling",
-      "description": "Marshaling and unmarshaling are effectively synonyms for serialization and deserialization, respectively."
-    },
-    {
-      "term": "Pickling, Unpickling",
-      "description": "In Python, the \"pickle\" functionality is used to perform serialization and deserialization."
-    },
-    {
-      "term": "PHP Object Injection",
-      "description": "Some PHP application researchers use this term when attacking unsafe use of the unserialize() function; but it is also used for CWE-915."
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Deserialization of untrusted data"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not deviate from the proper signatures of serialization methods",
-      "entry_id": "SER01-J"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not serialize unencrypted, sensitive data",
-      "entry_id": "SER03-J"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Make defensive copies of private mutable components during deserialization",
-      "entry_id": "SER06-J"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not use the default serialized form for implementation defined invariants",
-      "entry_id": "SER08-J"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Tainted input to variable",
-      "entry_id": "SFP25"
-    }
-  ],
-  "related_attack_patterns": [
-    "586"
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "The relationships between CWE-502 and CWE-915 need further exploration. CWE-915 is more narrowly scoped to object modification, and is not necessarily used for deserialization."
-    }
-  ]
+	"id": "502",
+	"name": "Deserialization of Untrusted Data",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product deserializes untrusted data without sufficiently verifying that the resulting data will be valid.",
+	"extended_description": "\n            <xhtml:p>It is often convenient to serialize objects for communication or to save them for later use. However, deserialized data or code can often be modified without using the provided accessor functions if it does not use cryptography to protect itself. Furthermore, any cryptography would still be client-side security -- which is a dangerous security assumption.</xhtml:p>\n            <xhtml:p>Data that is untrusted can not be trusted to be well-formed.</xhtml:p>\n            <xhtml:p>When developers place no restrictions on \"gadget chains,\" or series of instances and method invocations that can self-execute during the deserialization process (i.e., before the object is returned to the caller), it is sometimes possible for attackers to leverage them to perform unauthorized actions, like generating a shell.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "913",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "913",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "915",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Ruby"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "PHP"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Python"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "JavaScript"
+			}
+		],
+		"technology": [
+			{
+				"class": "ICS/OT",
+				"prevalence": "Often"
+			}
+		]
+	},
+	"background_details": [
+		"Serialization and deserialization refer to the process of taking program-internal object-related data, packaging it in a way that allows the data to be externally stored or transferred (\"serialization\"), then extracting the serialized data to reconstruct the original object (\"deserialization\")."
+	],
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"OMISSION: This weakness is caused by missing a security tactic during the architecture and design phase."
+			]
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Modify Application Data",
+				"Unexpected State"
+			],
+			"note": "Attackers can modify unexpected objects or data that was assumed to be safe from modification."
+		},
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Resource Consumption (CPU)"
+			],
+			"note": "If a function is making an assumption on when to terminate, based on a sentry in a string, it could easily never terminate."
+		},
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Varies by Context"
+			],
+			"note": "The consequences can vary widely, because it depends on which objects or methods are being deserialized, and how they are used. Making an assumption that the code in the deserialized object is valid is dangerous and can enable exploitation."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"If available, use the signing/sealing features of the programming language to assure that deserialized data has not been tainted. For example, a hash-based message authentication code (HMAC) could be used to ensure that data has not been modified."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"When deserializing data, populate a new object rather than just deserializing. The result is that the data flows through safe input validation and that the functions are safe."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Explicitly define a final object() to prevent deserialization."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Make fields transient to protect them from deserialization.</xhtml:p>\n                  <xhtml:p>An attempt to serialize and then deserialize a class containing transient fields will result in NULLs where the transient data should be. This is an excellent way to prevent time, environment-based, or sensitive variables from being carried over and used improperly.</xhtml:p>\n               "
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Avoid having unnecessary types or gadgets available that can be leveraged for malicious ends. This limits the potential for unintended or unauthorized types and gadgets to be leveraged by the attacker. Add only acceptable classes to an allowlist. Note: new gadgets are constantly being discovered, so this alone is not a sufficient mitigation."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>This code snippet deserializes an object from a file and uses it as a UI button:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">File file = new File(\"object.obj\");<xhtml:br/>ObjectInputStream in = new ObjectInputStream(new FileInputStream(file));<xhtml:br/>javax.swing.JButton button = (javax.swing.JButton) in.readObject();<xhtml:br/>in.close();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code does not attempt to verify the source or contents of the file before deserializing it. An attacker may be able to replace the intended file with a file that contains arbitrary malicious code which will be executed when the button is pressed.</Body_Text>\n               <Body_Text>To mitigate this, explicitly define final readObject() to prevent deserialization. An example of this is:</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>private final void readObject(ObjectInputStream in) throws java.io.IOException {<xhtml:br/>throw new java.io.IOException(\"Cannot be deserialized\"); }</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>In Python, the Pickle library handles the serialization and deserialization processes. In this example derived from [REF-467], the code receives and parses data, and afterwards tries to authenticate a user based on validating a token.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>class ExampleProtocol(protocol.Protocol):<xhtml:br/>def dataReceived(self, data):<xhtml:br/>\n                           <xhtml:br/># Code that would be here would parse the incoming data<xhtml:br/># After receiving headers, call confirmAuth() to authenticate<xhtml:br/>\n                           <xhtml:br/>def confirmAuth(self, headers):<xhtml:br/>try:<xhtml:br/>token = cPickle.loads(base64.b64decode(headers['AuthToken']))<xhtml:br/>if not check_hmac(token['signature'], token['data'], getSecretKey()):<xhtml:br/>raise AuthFail<xhtml:br/>self.secure_data = token['data']<xhtml:br/>except:<xhtml:br/>raise AuthFail</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Unfortunately, the code does not verify that the incoming data is legitimate. An attacker can construct a illegitimate, serialized object \"AuthToken\" that instantiates one of Python's subprocesses to execute arbitrary commands. For instance,the attacker could construct a pickle that leverages Python's subprocess module, which spawns new processes and includes a number of arguments for various uses. Since Pickle allows objects to define the process for how they should be unpickled, the attacker can direct the unpickle process to call Popen in the subprocess module and execute /bin/sh.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2019-12799",
+			"description": "chain: bypass of untrusted deserialization issue (CWE-502) by using an assumed-trusted class (CWE-183)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-12799"
+		},
+		{
+			"reference": "CVE-2015-8103",
+			"description": "Deserialization issue in commonly-used Java library allows remote execution.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2015-8103"
+		},
+		{
+			"reference": "CVE-2015-4852",
+			"description": "Deserialization issue in commonly-used Java library allows remote execution.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2015-4852"
+		},
+		{
+			"reference": "CVE-2013-1465",
+			"description": "Use of PHP unserialize function on untrusted input allows attacker to modify application configuration.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2013-1465"
+		},
+		{
+			"reference": "CVE-2012-3527",
+			"description": "Use of PHP unserialize function on untrusted input in content management system might allow code execution.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2012-3527"
+		},
+		{
+			"reference": "CVE-2012-0911",
+			"description": "Use of PHP unserialize function on untrusted input in content management system allows code execution using a crafted cookie value.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2012-0911"
+		},
+		{
+			"reference": "CVE-2012-0911",
+			"description": "Content management system written in PHP allows unserialize of arbitrary objects, possibly allowing code execution.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2012-0911"
+		},
+		{
+			"reference": "CVE-2011-2520",
+			"description": "Python script allows local users to execute code via pickled data.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2011-2520"
+		},
+		{
+			"reference": "CVE-2012-4406",
+			"description": "Unsafe deserialization using pickle in a Python script.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2012-4406"
+		},
+		{
+			"reference": "CVE-2003-0791",
+			"description": "Web browser allows execution of native methods via a crafted string to a JavaScript function that deserializes the string.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0791"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		},
+		{
+			"reference_id": "REF-461",
+			"author": [
+				"Matthias Kaiser"
+			],
+			"title": "Exploiting Deserialization Vulnerabilities in Java",
+			"url": "https://www.slideshare.net/codewhitesec/exploiting-deserialization-vulnerabilities-in-java-54707478",
+			"publication_year": "2015",
+			"publication_month": "--10",
+			"publication_day": "---28",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-462",
+			"author": [
+				"Sam Thomas"
+			],
+			"title": "PHP unserialization vulnerabilities: What are we missing?",
+			"url": "https://www.slideshare.net/_s_n_t/php-unserialization-vulnerabilities-what-are-we-missing",
+			"publication_year": "2015",
+			"publication_month": "--08",
+			"publication_day": "---27",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-463",
+			"author": [
+				"Gabriel Lawrence",
+				"Chris Frohoff"
+			],
+			"title": "Marshalling Pickles: How deserializing objects can ruin your day",
+			"url": "https://www.slideshare.net/frohoff1/appseccali-2015-marshalling-pickles",
+			"publication_year": "2015",
+			"publication_month": "--01",
+			"publication_day": "---28",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-464",
+			"author": [
+				"Heine Deelstra"
+			],
+			"title": "Unserializing user-supplied data, a bad idea",
+			"url": "https://drupalsun.com/heine/2010/08/25/unserializing-user-supplied-data-bad-idea",
+			"publication_year": "2010",
+			"publication_month": "--08",
+			"publication_day": "---25",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-465",
+			"author": [
+				"Manish S. Saindane"
+			],
+			"title": "Black Hat EU 2010 - Attacking Java Serialized Communication",
+			"url": "https://www.slideshare.net/msaindane/black-hat-eu-2010-attacking-java-serialized-communication",
+			"publication_year": "2010",
+			"publication_month": "--04",
+			"publication_day": "---26",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-466",
+			"author": [
+				"Nadia Alramli"
+			],
+			"title": "Why Python Pickle is Insecure",
+			"url": "http://michael-rushanan.blogspot.com/2012/10/why-python-pickle-is-insecure.html",
+			"publication_year": "2009",
+			"publication_month": "--09",
+			"publication_day": "---09",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-467",
+			"author": [
+				"Nelson Elhage"
+			],
+			"title": "Exploiting misuse of Python's \"pickle\"",
+			"url": "https://blog.nelhage.com/2011/03/exploiting-pickle/",
+			"publication_year": "2011",
+			"publication_month": "--03",
+			"publication_day": "---20"
+		},
+		{
+			"reference_id": "REF-468",
+			"author": [
+				"Chris Frohoff"
+			],
+			"title": "Deserialize My Shorts: Or How I Learned to Start Worrying and Hate Java Object Deserialization",
+			"url": "https://speakerdeck.com/frohoff/owasp-sd-deserialize-my-shorts-or-how-i-learned-to-start-worrying-and-hate-java-object-deserialization",
+			"publication_year": "2016",
+			"publication_month": "--03",
+			"publication_day": "---21",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Common_Consequences, Description, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Description, Other_Notes, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Alternate_Terms, Applicable_Platforms, Background_Details, Common_Consequences, Maintenance_Notes, Observed_Examples, Potential_Mitigations, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Observed_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-05-03",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Potential_Mitigations, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Demonstrative_Examples, Modes_of_Introduction, Potential_Mitigations, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Observed_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Alternate_Terms, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "Marshaling, Unmarshaling",
+			"description": "Marshaling and unmarshaling are effectively synonyms for serialization and deserialization, respectively."
+		},
+		{
+			"term": "Pickling, Unpickling",
+			"description": "In Python, the \"pickle\" functionality is used to perform serialization and deserialization."
+		},
+		{
+			"term": "PHP Object Injection",
+			"description": "Some PHP application researchers use this term when attacking unsafe use of the unserialize() function; but it is also used for CWE-915."
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Deserialization of untrusted data"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not deviate from the proper signatures of serialization methods",
+			"entry_id": "SER01-J"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not serialize unencrypted, sensitive data",
+			"entry_id": "SER03-J"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Make defensive copies of private mutable components during deserialization",
+			"entry_id": "SER06-J"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not use the default serialized form for implementation defined invariants",
+			"entry_id": "SER08-J"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Tainted input to variable",
+			"entry_id": "SFP25"
+		}
+	],
+	"related_attack_patterns": [
+		"586"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "The relationships between CWE-502 and CWE-915 need further exploration. CWE-915 is more narrowly scoped to object modification, and is not necessarily used for deserialization."
+		}
+	]
 }

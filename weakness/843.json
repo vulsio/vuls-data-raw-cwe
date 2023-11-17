@@ -1,216 +1,216 @@
 {
-  "id": "843",
-  "name": "Access of Resource Using Incompatible Type ('Type Confusion')",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product allocates or initializes a resource such as a pointer, object, or variable using one type, but it later accesses that resource using a type that is incompatible with the original type.",
-  "extended_description": "\n            <xhtml:p>When the product accesses the resource using an incompatible type, this could trigger logical errors because the resource does not have expected properties. In languages without memory safety, such as C and C++, type confusion can lead to out-of-bounds memory access.</xhtml:p>\n            <xhtml:p>While this weakness is frequently associated with unions when parsing data with many different embedded object types in C, it can be present in any application that can interpret the same variable or memory location in multiple ways.</xhtml:p>\n            <xhtml:p>This weakness is not unique to C and C++. For example, errors in PHP applications can be triggered by providing array parameters when scalars are expected, or vice versa. Languages such as Perl, which perform automatic conversion of a variable of one type when it is accessed as if it were another type, can also contain these issues.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "704",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "704",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "119",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability",
-        "Integrity",
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Memory",
-        "Modify Memory",
-        "Execute Unauthorized Code or Commands",
-        "DoS: Crash, Exit, or Restart"
-      ],
-      "note": "When a memory buffer is accessed using the wrong type, it could read or write memory out of the bounds of the buffer, if the allocated buffer is smaller than the type that the code is attempting to access, leading to a crash and possibly code execution."
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-188",
-      "text": "\n               <Intro_Text>The following code uses a union to support the representation of different types of messages. It formats messages differently, depending on their type.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define NAME_TYPE 1<xhtml:br/>#define ID_TYPE 2<xhtml:br/>\n                     <xhtml:br/>struct MessageBuffer<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">int msgType;<xhtml:br/>union {<xhtml:div style=\"margin-left:1em;\">char *name;<xhtml:br/>int nameID;</xhtml:div>};</xhtml:div>};<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:br/>int main (int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>struct MessageBuffer buf;<xhtml:br/>char *defaultMessage = \"Hello World\";<xhtml:br/>\n                           <xhtml:br/>buf.msgType = NAME_TYPE;<xhtml:br/>buf.name = defaultMessage;<xhtml:br/>printf(\"Pointer of buf.name is %p\\n\", buf.name);<xhtml:br/>\n                           <xhtml:i>/* This particular value for nameID is used to make the code architecture-independent. If coming from untrusted input, it could be any value. */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>buf.nameID = (int)(defaultMessage + 1);<xhtml:br/>printf(\"Pointer of buf.name is now %p\\n\", buf.name);<xhtml:br/>if (buf.msgType == NAME_TYPE) {<xhtml:div style=\"margin-left:1em;\">printf(\"Message: %s\\n\", buf.name);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">printf(\"Message: Use ID %d\\n\", buf.nameID);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code intends to process the message as a NAME_TYPE, and sets the default message to \"Hello World.\" However, since both buf.name and buf.nameID are part of the same union, they can act as aliases for the same memory location, depending on memory layout after compilation.</Body_Text>\n               <Body_Text>As a result, modification of buf.nameID - an int - can effectively modify the pointer that is stored in buf.name - a string.</Body_Text>\n               <Body_Text>Execution of the program might generate output such as:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>Pointer of name is 10830</xhtml:div>\n                     <xhtml:div>Pointer of name is now 10831</xhtml:div>\n                     <xhtml:div>Message: ello World</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>Notice how the pointer for buf.name was changed, even though buf.name was not explicitly modified.</Body_Text>\n               <Body_Text>In this case, the first \"H\" character of the message is omitted. However, if an attacker is able to fully control the value of buf.nameID, then buf.name could contain an arbitrary pointer, leading to out-of-bounds reads or writes.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>The following PHP code accepts a value, adds 5, and prints the sum.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$value = $_GET['value'];<xhtml:br/>$sum = $value + 5;<xhtml:br/>echo \"value parameter is '$value'&lt;p&gt;\";<xhtml:br/>echo \"SUM is $sum\";</xhtml:div>\n               </Example_Code>\n               <Body_Text>When called with the following query string:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>value=123</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>the program calculates the sum and prints out:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>SUM is 128</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>However, the attacker could supply a query string such as:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>value[]=123</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>The \"[]\" array syntax causes $value to be treated as an array type, which then generates a fatal error when calculating $sum:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>Fatal error: Unsupported operand types in program.php on line 2</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>The following Perl code is intended to look up the privileges for user ID's between 0 and 3, by performing an access of the $UserPrivilegeArray reference. It is expected that only userID 3 is an admin (since this is listed in the third element of the array).</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>my $UserPrivilegeArray = [\"user\", \"user\", \"admin\", \"user\"];<xhtml:br/>\n                     <xhtml:br/>my $userID = get_current_user_ID();<xhtml:br/>\n                     <xhtml:br/>if ($UserPrivilegeArray eq \"user\") {<xhtml:div style=\"margin-left:1em;\">print \"Regular user!\\n\";</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">print \"Admin!\\n\";</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>print \"\\$UserPrivilegeArray = $UserPrivilegeArray\\n\";</xhtml:div>\n               </Example_Code>\n               <Body_Text>In this case, the programmer intended to use \"$UserPrivilegeArray-&gt;{$userID}\" to access the proper position in the array. But because the subscript was omitted, the \"user\" string was compared to the scalar representation of the $UserPrivilegeArray reference, which might be of the form \"ARRAY(0x229e8)\" or similar.</Body_Text>\n               <Body_Text>Since the logic also \"fails open\" (CWE-636), the result of this bug is that all users are assigned administrator privileges.</Body_Text>\n               <Body_Text>While this is a forced example, it demonstrates how type confusion can have security consequences, even in memory-safe languages.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2010-4577",
-      "description": "Type confusion in CSS sequence leads to out-of-bounds read.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2010-4577"
-    },
-    {
-      "reference": "CVE-2011-0611",
-      "description": "Size inconsistency allows code execution, first discovered when it was actively exploited in-the-wild.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2011-0611"
-    },
-    {
-      "reference": "CVE-2010-0258",
-      "description": "Improperly-parsed file containing records of different types leads to code execution when a memory location is interpreted as a different object than intended.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2010-0258"
-    }
-  ],
-  "references": [
-    {
-      "section": "\"Type Confusion Vulnerabilities,\" page 59",
-      "reference_id": "REF-811",
-      "author": [
-        "Mark Dowd",
-        "Ryan Smith",
-        "David Dewey"
-      ],
-      "title": "Attacking Interoperability",
-      "url": "http://hustlelabs.com/stuff/bh2009_dowd_smith_dewey.pdf",
-      "publication_year": "2009",
-      "url_date": "2023-04-07"
-    },
-    {
-      "section": "Chapter 7, \"Type Confusion\", Page 319",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2011-05-15"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Common_Consequences, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Research_Gaps"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Demonstrative_Examples"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "Object Type Confusion"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not access a variable through a pointer of an incompatible type",
-      "entry_id": "EXP39-C",
-      "mapping_fit": "Exact"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Applicable Platform",
-      "text": "\n               <xhtml:p>This weakness is possible in any type-unsafe programming language.</xhtml:p>\n            "
-    },
-    {
-      "type": "Research Gap",
-      "text": "\n               <xhtml:p>Type confusion weaknesses have received some attention by applied researchers and major software vendors for C and C++ code. Some publicly-reported vulnerabilities probably have type confusion as a root-cause weakness, but these may be described as \"memory corruption\" instead.</xhtml:p>\n               <xhtml:p>For other languages, there are very few public reports of type confusion weaknesses. These are probably under-studied. Since many programs rely directly or indirectly on loose typing, a potential \"type confusion\" behavior might be intentional, possibly requiring more manual analysis.</xhtml:p>\n            "
-    }
-  ]
+	"id": "843",
+	"name": "Access of Resource Using Incompatible Type ('Type Confusion')",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product allocates or initializes a resource such as a pointer, object, or variable using one type, but it later accesses that resource using a type that is incompatible with the original type.",
+	"extended_description": "\n            <xhtml:p>When the product accesses the resource using an incompatible type, this could trigger logical errors because the resource does not have expected properties. In languages without memory safety, such as C and C++, type confusion can lead to out-of-bounds memory access.</xhtml:p>\n            <xhtml:p>While this weakness is frequently associated with unions when parsing data with many different embedded object types in C, it can be present in any application that can interpret the same variable or memory location in multiple ways.</xhtml:p>\n            <xhtml:p>This weakness is not unique to C and C++. For example, errors in PHP applications can be triggered by providing array parameters when scalars are expected, or vice versa. Languages such as Perl, which perform automatic conversion of a variable of one type when it is accessed as if it were another type, can also contain these issues.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "704",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "704",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "119",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability",
+				"Integrity",
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Memory",
+				"Modify Memory",
+				"Execute Unauthorized Code or Commands",
+				"DoS: Crash, Exit, or Restart"
+			],
+			"note": "When a memory buffer is accessed using the wrong type, it could read or write memory out of the bounds of the buffer, if the allocated buffer is smaller than the type that the code is attempting to access, leading to a crash and possibly code execution."
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-188",
+			"text": "\n               <Intro_Text>The following code uses a union to support the representation of different types of messages. It formats messages differently, depending on their type.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define NAME_TYPE 1<xhtml:br/>#define ID_TYPE 2<xhtml:br/>\n                     <xhtml:br/>struct MessageBuffer<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">int msgType;<xhtml:br/>union {<xhtml:div style=\"margin-left:1em;\">char *name;<xhtml:br/>int nameID;</xhtml:div>};</xhtml:div>};<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:br/>int main (int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>struct MessageBuffer buf;<xhtml:br/>char *defaultMessage = \"Hello World\";<xhtml:br/>\n                           <xhtml:br/>buf.msgType = NAME_TYPE;<xhtml:br/>buf.name = defaultMessage;<xhtml:br/>printf(\"Pointer of buf.name is %p\\n\", buf.name);<xhtml:br/>\n                           <xhtml:i>/* This particular value for nameID is used to make the code architecture-independent. If coming from untrusted input, it could be any value. */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>buf.nameID = (int)(defaultMessage + 1);<xhtml:br/>printf(\"Pointer of buf.name is now %p\\n\", buf.name);<xhtml:br/>if (buf.msgType == NAME_TYPE) {<xhtml:div style=\"margin-left:1em;\">printf(\"Message: %s\\n\", buf.name);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">printf(\"Message: Use ID %d\\n\", buf.nameID);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code intends to process the message as a NAME_TYPE, and sets the default message to \"Hello World.\" However, since both buf.name and buf.nameID are part of the same union, they can act as aliases for the same memory location, depending on memory layout after compilation.</Body_Text>\n               <Body_Text>As a result, modification of buf.nameID - an int - can effectively modify the pointer that is stored in buf.name - a string.</Body_Text>\n               <Body_Text>Execution of the program might generate output such as:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>Pointer of name is 10830</xhtml:div>\n                     <xhtml:div>Pointer of name is now 10831</xhtml:div>\n                     <xhtml:div>Message: ello World</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>Notice how the pointer for buf.name was changed, even though buf.name was not explicitly modified.</Body_Text>\n               <Body_Text>In this case, the first \"H\" character of the message is omitted. However, if an attacker is able to fully control the value of buf.nameID, then buf.name could contain an arbitrary pointer, leading to out-of-bounds reads or writes.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>The following PHP code accepts a value, adds 5, and prints the sum.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$value = $_GET['value'];<xhtml:br/>$sum = $value + 5;<xhtml:br/>echo \"value parameter is '$value'&lt;p&gt;\";<xhtml:br/>echo \"SUM is $sum\";</xhtml:div>\n               </Example_Code>\n               <Body_Text>When called with the following query string:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>value=123</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>the program calculates the sum and prints out:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>SUM is 128</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>However, the attacker could supply a query string such as:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>value[]=123</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n               <Body_Text>The \"[]\" array syntax causes $value to be treated as an array type, which then generates a fatal error when calculating $sum:</Body_Text>\n               <Body_Text>\n                  <xhtml:div>\n                     <xhtml:div>Fatal error: Unsupported operand types in program.php on line 2</xhtml:div>\n                  </xhtml:div>\n               </Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>The following Perl code is intended to look up the privileges for user ID's between 0 and 3, by performing an access of the $UserPrivilegeArray reference. It is expected that only userID 3 is an admin (since this is listed in the third element of the array).</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>my $UserPrivilegeArray = [\"user\", \"user\", \"admin\", \"user\"];<xhtml:br/>\n                     <xhtml:br/>my $userID = get_current_user_ID();<xhtml:br/>\n                     <xhtml:br/>if ($UserPrivilegeArray eq \"user\") {<xhtml:div style=\"margin-left:1em;\">print \"Regular user!\\n\";</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">print \"Admin!\\n\";</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>print \"\\$UserPrivilegeArray = $UserPrivilegeArray\\n\";</xhtml:div>\n               </Example_Code>\n               <Body_Text>In this case, the programmer intended to use \"$UserPrivilegeArray-&gt;{$userID}\" to access the proper position in the array. But because the subscript was omitted, the \"user\" string was compared to the scalar representation of the $UserPrivilegeArray reference, which might be of the form \"ARRAY(0x229e8)\" or similar.</Body_Text>\n               <Body_Text>Since the logic also \"fails open\" (CWE-636), the result of this bug is that all users are assigned administrator privileges.</Body_Text>\n               <Body_Text>While this is a forced example, it demonstrates how type confusion can have security consequences, even in memory-safe languages.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2010-4577",
+			"description": "Type confusion in CSS sequence leads to out-of-bounds read.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2010-4577"
+		},
+		{
+			"reference": "CVE-2011-0611",
+			"description": "Size inconsistency allows code execution, first discovered when it was actively exploited in-the-wild.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2011-0611"
+		},
+		{
+			"reference": "CVE-2010-0258",
+			"description": "Improperly-parsed file containing records of different types leads to code execution when a memory location is interpreted as a different object than intended.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2010-0258"
+		}
+	],
+	"references": [
+		{
+			"section": "\"Type Confusion Vulnerabilities,\" page 59",
+			"reference_id": "REF-811",
+			"author": [
+				"Mark Dowd",
+				"Ryan Smith",
+				"David Dewey"
+			],
+			"title": "Attacking Interoperability",
+			"url": "http://hustlelabs.com/stuff/bh2009_dowd_smith_dewey.pdf",
+			"publication_year": "2009",
+			"url_date": "2023-04-07"
+		},
+		{
+			"section": "Chapter 7, \"Type Confusion\", Page 319",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2011-05-15"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Common_Consequences, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Research_Gaps"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Demonstrative_Examples"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "Object Type Confusion"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not access a variable through a pointer of an incompatible type",
+			"entry_id": "EXP39-C",
+			"mapping_fit": "Exact"
+		}
+	],
+	"notes": [
+		{
+			"type": "Applicable Platform",
+			"text": "\n               <xhtml:p>This weakness is possible in any type-unsafe programming language.</xhtml:p>\n            "
+		},
+		{
+			"type": "Research Gap",
+			"text": "\n               <xhtml:p>Type confusion weaknesses have received some attention by applied researchers and major software vendors for C and C++ code. Some publicly-reported vulnerabilities probably have type confusion as a root-cause weakness, but these may be described as \"memory corruption\" instead.</xhtml:p>\n               <xhtml:p>For other languages, there are very few public reports of type confusion weaknesses. These are probably under-studied. Since many programs rely directly or indirectly on loose typing, a potential \"type confusion\" behavior might be intentional, possibly requiring more manual analysis.</xhtml:p>\n            "
+		}
+	]
 }

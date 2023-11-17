@@ -1,233 +1,233 @@
 {
-  "id": "213",
-  "name": "Exposure of Sensitive Information Due to Incompatible Policies",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product's intended functionality exposes information to certain actors in accordance with the developer's security policy, but this information is regarded as sensitive according to the intended security policies of other stakeholders such as the product's administrator, users, or others whose information is being processed.",
-  "extended_description": "\n\t   <xhtml:p>When handling information, the developer must consider whether the information is regarded as sensitive by different stakeholders, such as users or administrators.  Each stakeholder effectively has its own intended security policy that the product is expected to uphold.  When a developer does not treat that information as sensitive, this can introduce a vulnerability that violates the expectations of the product's users.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "200",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Policy",
-      "note": [
-        "This can occur when the product's policy does not account for all relevant stakeholders, or when the policies of other stakeholders are not interpreted properly."
-      ]
-    },
-    {
-      "phase": "Requirements",
-      "note": [
-        "This can occur when requirements do not explicitly account for all relevant stakeholders."
-      ]
-    },
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "Communications or data exchange frameworks may be chosen that exchange or provide access to more information than strictly needed."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "This can occur when the developer does not properly track the flow of sensitive information and how it is exposed, e.g., via an API."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Application Data"
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-130",
-      "text": "\n               <Intro_Text>This code displays some information on a web page.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"JSP\">\n                  <xhtml:div>Social Security Number: &lt;%= ssn %&gt;&lt;/br&gt;Credit Card Number: &lt;%= ccn %&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code displays a user's credit card and social security numbers, even though they aren't absolutely necessary.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2002-1725",
-      "description": "Script calls phpinfo()",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1725"
-    },
-    {
-      "reference": "CVE-2004-0033",
-      "description": "Script calls phpinfo()",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0033"
-    },
-    {
-      "reference": "CVE-2003-1181",
-      "description": "Script calls phpinfo()",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-1181"
-    },
-    {
-      "reference": "CVE-2004-1422",
-      "description": "Script calls phpinfo()",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1422"
-    },
-    {
-      "reference": "CVE-2004-1590",
-      "description": "Script calls phpinfo()",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1590"
-    },
-    {
-      "reference": "CVE-2003-1038",
-      "description": "Product lists DLLs and full pathnames.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-1038"
-    },
-    {
-      "reference": "CVE-2005-1205",
-      "description": "Telnet protocol allows servers to obtain sensitive environment information from clients.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-1205"
-    },
-    {
-      "reference": "CVE-2005-0488",
-      "description": "Telnet protocol allows servers to obtain sensitive environment information from clients.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0488"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Sean Eidemiller",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "added/updated demonstrative examples"
-      },
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Other_Notes, Relationship_Notes, Theoretical_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Demonstrative_Examples, Description, Maintenance_Notes, Modes_of_Introduction, Name, Other_Notes, Relationship_Notes, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Intended Information Leak",
-        "date": "2011-03-29"
-      },
-      {
-        "text": "Intentional Information Exposure",
-        "date": "2020-02-24"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Intended information leak"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "This entry is being considered for deprecation.  It overlaps many other entries related to information exposures.  It might not be essential to preserve this entry, since other key stakeholder policies are covered elsewhere, e.g. personal privacy leaks (CWE-359) and system-level exposures that are important to system administrators (CWE-497)."
-    },
-    {
-      "type": "Theoretical",
-      "text": "In vulnerability theory terms, this covers cases in which the developer's Intended Policy allows the information to be made available, but the information might be in violation of a Universal Policy in which the product's administrator should have control over which information is considered sensitive and therefore should not be exposed."
-    }
-  ]
+	"id": "213",
+	"name": "Exposure of Sensitive Information Due to Incompatible Policies",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product's intended functionality exposes information to certain actors in accordance with the developer's security policy, but this information is regarded as sensitive according to the intended security policies of other stakeholders such as the product's administrator, users, or others whose information is being processed.",
+	"extended_description": "\n\t   <xhtml:p>When handling information, the developer must consider whether the information is regarded as sensitive by different stakeholders, such as users or administrators.  Each stakeholder effectively has its own intended security policy that the product is expected to uphold.  When a developer does not treat that information as sensitive, this can introduce a vulnerability that violates the expectations of the product's users.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "200",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Policy",
+			"note": [
+				"This can occur when the product's policy does not account for all relevant stakeholders, or when the policies of other stakeholders are not interpreted properly."
+			]
+		},
+		{
+			"phase": "Requirements",
+			"note": [
+				"This can occur when requirements do not explicitly account for all relevant stakeholders."
+			]
+		},
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"Communications or data exchange frameworks may be chosen that exchange or provide access to more information than strictly needed."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"This can occur when the developer does not properly track the flow of sensitive information and how it is exposed, e.g., via an API."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Application Data"
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-130",
+			"text": "\n               <Intro_Text>This code displays some information on a web page.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"JSP\">\n                  <xhtml:div>Social Security Number: &lt;%= ssn %&gt;&lt;/br&gt;Credit Card Number: &lt;%= ccn %&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code displays a user's credit card and social security numbers, even though they aren't absolutely necessary.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2002-1725",
+			"description": "Script calls phpinfo()",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1725"
+		},
+		{
+			"reference": "CVE-2004-0033",
+			"description": "Script calls phpinfo()",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0033"
+		},
+		{
+			"reference": "CVE-2003-1181",
+			"description": "Script calls phpinfo()",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-1181"
+		},
+		{
+			"reference": "CVE-2004-1422",
+			"description": "Script calls phpinfo()",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-1422"
+		},
+		{
+			"reference": "CVE-2004-1590",
+			"description": "Script calls phpinfo()",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-1590"
+		},
+		{
+			"reference": "CVE-2003-1038",
+			"description": "Product lists DLLs and full pathnames.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-1038"
+		},
+		{
+			"reference": "CVE-2005-1205",
+			"description": "Telnet protocol allows servers to obtain sensitive environment information from clients.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-1205"
+		},
+		{
+			"reference": "CVE-2005-0488",
+			"description": "Telnet protocol allows servers to obtain sensitive environment information from clients.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-0488"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Sean Eidemiller",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "added/updated demonstrative examples"
+			},
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Other_Notes, Relationship_Notes, Theoretical_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Demonstrative_Examples, Description, Maintenance_Notes, Modes_of_Introduction, Name, Other_Notes, Relationship_Notes, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Intended Information Leak",
+				"date": "2011-03-29"
+			},
+			{
+				"text": "Intentional Information Exposure",
+				"date": "2020-02-24"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Intended information leak"
+		}
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "This entry is being considered for deprecation.  It overlaps many other entries related to information exposures.  It might not be essential to preserve this entry, since other key stakeholder policies are covered elsewhere, e.g. personal privacy leaks (CWE-359) and system-level exposures that are important to system administrators (CWE-497)."
+		},
+		{
+			"type": "Theoretical",
+			"text": "In vulnerability theory terms, this covers cases in which the developer's Intended Policy allows the information to be made available, but the information might be in violation of a Universal Policy in which the product's administrator should have control over which information is considered sensitive and therefore should not be exposed."
+		}
+	]
 }

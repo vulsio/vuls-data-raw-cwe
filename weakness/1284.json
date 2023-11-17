@@ -1,125 +1,125 @@
 {
-  "id": "1284",
-  "name": "Improper Validation of Specified Quantity in Input",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product receives input that is expected to specify a quantity (such as size or length), but it does not validate or incorrectly validates that the quantity has the required properties.",
-  "extended_description": "\n\t\t\t\t<xhtml:p>Specified quantities include size, length, frequency, price, rate, number of operations, time, and others. Code may rely on specified quantities to allocate resources, perform calculations, control iteration, etc. When the quantity is not properly validated, then attackers can specify malicious quantities to cause excessive resource allocation, trigger unexpected failures, enable buffer overflows, etc.</xhtml:p>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "20",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "20",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanPrecede",
-      "cweid": "789",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Often"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Varies by Context"
-      ],
-      "note": "Since quantities are used so often to affect resource allocation or process financial data, they are often present in many places in the code."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "mitigation_id": "MIT-5",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n               "
-      ],
-      "effectiveness": "High",
-      "strategy": "Input Validation"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-135",
-      "text": "\n               <Intro_Text>This example demonstrates a shopping interaction in which the user is free to specify the quantity of items to be purchased and a total is calculated.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>...<xhtml:br/>public static final double price = 20.00;<xhtml:br/>int quantity = currentUser.getAttribute(\"quantity\");<xhtml:br/>double total = price * quantity;<xhtml:br/>chargeUser(total);<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The user has no control over the price variable, however the code does not prevent a negative value from being specified for quantity. If an attacker were to provide a negative value, then the user would have their account credited instead of debited.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-136",
-      "text": "\n               <Intro_Text>This example asks the user for a height and width of an m X n game board with a maximum dimension of 100 squares.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>...<xhtml:br/>#define MAX_DIM 100<xhtml:br/>...<xhtml:br/>\n                     <xhtml:i>/* board dimensions */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>int m,n, error;<xhtml:br/>board_square_t *board;<xhtml:br/>printf(\"Please specify the board height: \\n\");<xhtml:br/>error = scanf(\"%d\", &amp;m);<xhtml:br/>if ( EOF == error ){<xhtml:div style=\"margin-left:1em;\">die(\"No integer passed: Die evil hacker!\\n\");</xhtml:div>}<xhtml:br/>printf(\"Please specify the board width: \\n\");<xhtml:br/>error = scanf(\"%d\", &amp;n);<xhtml:br/>if ( EOF == error ){<xhtml:div style=\"margin-left:1em;\">die(\"No integer passed: Die evil hacker!\\n\");</xhtml:div>}<xhtml:br/>if ( m &gt; MAX_DIM || n &gt; MAX_DIM ) {<xhtml:div style=\"margin-left:1em;\">die(\"Value too large: Die evil hacker!\\n\");</xhtml:div>}<xhtml:br/>board = (board_square_t*) malloc( m * n * sizeof(board_square_t));<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>While this code checks to make sure the user cannot specify large, positive integers and consume too much memory, it does not check for negative values supplied by the user. As a result, an attacker can perform a resource consumption (CWE-400) attack against this program by specifying two, large negative values that will not overflow, resulting in a very large memory allocation (CWE-789) and possibly a system crash. Alternatively, an attacker can provide very large negative values which will cause an integer overflow (CWE-190) and unexpected behavior will follow depending on how the values are treated in the remainder of the program.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-21668",
-      "description": "Chain: Python library does not limit the resources used to process images that specify a very large number of bands (CWE-1284), leading to excessive memory consumption (CWE-789) or an integer overflow (CWE-190).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-21668"
-    },
-    {
-      "reference": "CVE-2008-1440",
-      "description": "lack of validation of length field leads to infinite loop",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-1440"
-    },
-    {
-      "reference": "CVE-2008-2374",
-      "description": "lack of validation of string length fields allows memory consumption or buffer over-read",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2374"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2020-06-24"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      }
-    ]
-  },
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "This entry is still under development and will continue to see updates and content improvements."
-    }
-  ]
+	"id": "1284",
+	"name": "Improper Validation of Specified Quantity in Input",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product receives input that is expected to specify a quantity (such as size or length), but it does not validate or incorrectly validates that the quantity has the required properties.",
+	"extended_description": "\n\t\t\t\t<xhtml:p>Specified quantities include size, length, frequency, price, rate, number of operations, time, and others. Code may rely on specified quantities to allocate resources, perform calculations, control iteration, etc. When the quantity is not properly validated, then attackers can specify malicious quantities to cause excessive resource allocation, trigger unexpected failures, enable buffer overflows, etc.</xhtml:p>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "20",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "20",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanPrecede",
+			"cweid": "789",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Often"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Varies by Context"
+			],
+			"note": "Since quantities are used so often to affect resource allocation or process financial data, they are often present in many places in the code."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"mitigation_id": "MIT-5",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Assume all input is malicious. Use an \"accept known good\" input validation strategy, i.e., use a list of acceptable inputs that strictly conform to specifications. Reject any input that does not strictly conform to specifications, or transform it into something that does.</xhtml:p>\n                  <xhtml:p>When performing input validation, consider all potentially relevant properties, including length, type of input, the full range of acceptable values, missing or extra inputs, syntax, consistency across related fields, and conformance to business rules. As an example of business rule logic, \"boat\" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if the input is only expected to contain colors such as \"red\" or \"blue.\"</xhtml:p>\n                  <xhtml:p>Do not rely exclusively on looking for malicious or malformed inputs.  This is likely to miss at least one undesirable input, especially if the code's environment changes. This can give attackers enough room to bypass the intended validation. However, denylists can be useful for detecting potential attacks or determining which inputs are so malformed that they should be rejected outright.</xhtml:p>\n               "
+			],
+			"effectiveness": "High",
+			"strategy": "Input Validation"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-135",
+			"text": "\n               <Intro_Text>This example demonstrates a shopping interaction in which the user is free to specify the quantity of items to be purchased and a total is calculated.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>...<xhtml:br/>public static final double price = 20.00;<xhtml:br/>int quantity = currentUser.getAttribute(\"quantity\");<xhtml:br/>double total = price * quantity;<xhtml:br/>chargeUser(total);<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The user has no control over the price variable, however the code does not prevent a negative value from being specified for quantity. If an attacker were to provide a negative value, then the user would have their account credited instead of debited.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-136",
+			"text": "\n               <Intro_Text>This example asks the user for a height and width of an m X n game board with a maximum dimension of 100 squares.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>...<xhtml:br/>#define MAX_DIM 100<xhtml:br/>...<xhtml:br/>\n                     <xhtml:i>/* board dimensions */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>int m,n, error;<xhtml:br/>board_square_t *board;<xhtml:br/>printf(\"Please specify the board height: \\n\");<xhtml:br/>error = scanf(\"%d\", &amp;m);<xhtml:br/>if ( EOF == error ){<xhtml:div style=\"margin-left:1em;\">die(\"No integer passed: Die evil hacker!\\n\");</xhtml:div>}<xhtml:br/>printf(\"Please specify the board width: \\n\");<xhtml:br/>error = scanf(\"%d\", &amp;n);<xhtml:br/>if ( EOF == error ){<xhtml:div style=\"margin-left:1em;\">die(\"No integer passed: Die evil hacker!\\n\");</xhtml:div>}<xhtml:br/>if ( m &gt; MAX_DIM || n &gt; MAX_DIM ) {<xhtml:div style=\"margin-left:1em;\">die(\"Value too large: Die evil hacker!\\n\");</xhtml:div>}<xhtml:br/>board = (board_square_t*) malloc( m * n * sizeof(board_square_t));<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>While this code checks to make sure the user cannot specify large, positive integers and consume too much memory, it does not check for negative values supplied by the user. As a result, an attacker can perform a resource consumption (CWE-400) attack against this program by specifying two, large negative values that will not overflow, resulting in a very large memory allocation (CWE-789) and possibly a system crash. Alternatively, an attacker can provide very large negative values which will cause an integer overflow (CWE-190) and unexpected behavior will follow depending on how the values are treated in the remainder of the program.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-21668",
+			"description": "Chain: Python library does not limit the resources used to process images that specify a very large number of bands (CWE-1284), leading to excessive memory consumption (CWE-789) or an integer overflow (CWE-190).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-21668"
+		},
+		{
+			"reference": "CVE-2008-1440",
+			"description": "lack of validation of length field leads to infinite loop",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-1440"
+		},
+		{
+			"reference": "CVE-2008-2374",
+			"description": "lack of validation of string length fields allows memory consumption or buffer over-read",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-2374"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2020-06-24"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			}
+		]
+	},
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "This entry is still under development and will continue to see updates and content improvements."
+		}
+	]
 }

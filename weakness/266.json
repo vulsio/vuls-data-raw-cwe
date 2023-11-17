@@ -1,256 +1,256 @@
 {
-  "id": "266",
-  "name": "Incorrect Privilege Assignment",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "A product incorrectly assigns a privilege to a particular actor, creating an unintended sphere of control for that actor.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "269",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "CanAlsoBe",
-      "cweid": "286",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity"
-      ],
-      "note": "A user can access restricted functionality and/or sensitive information that may include administrative functionality and user accounts."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "mitigation_id": "MIT-1",
-      "phase": [
-        "Architecture and Design",
-        "Operation"
-      ],
-      "description": [
-        "Very carefully manage the setting, management, and handling of privileges. Explicitly manage trust zones in the software."
-      ]
-    },
-    {
-      "mitigation_id": "MIT-17",
-      "phase": [
-        "Architecture and Design",
-        "Operation"
-      ],
-      "description": [
-        "Run your code using the lowest privileges that are required to accomplish the necessary tasks [REF-76]. If possible, create isolated accounts with limited privileges that are only used for a single task. That way, a successful attack will not immediately give the attacker access to the rest of the software or its environment. For example, database applications rarely need to run as the database administrator, especially in day-to-day operations."
-      ],
-      "strategy": "Environment Hardening"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-97",
-      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>seteuid(0);<xhtml:br/>\n                     <xhtml:i>/* do some stuff */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>seteuid(getuid());</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-142",
-      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>AccessController.doPrivileged(new PrivilegedAction() {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>public Object run() {<xhtml:div style=\"margin-left:1em;\">\n                                 <xhtml:i>// privileged code goes here, for example:</xhtml:i>\n                                 <xhtml:br/>System.loadLibrary(\"awt\");<xhtml:br/>return null;<xhtml:br/>\n                                 <xhtml:i>// nothing to return</xhtml:i>\n                                 <xhtml:br/>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-108",
-      "text": "\n               <Intro_Text>This application sends a special intent with a flag that allows the receiving application to read a data file for backup purposes.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>Intent intent = new Intent();<xhtml:br/>intent.setAction(\"com.example.BackupUserData\");<xhtml:br/>intent.setData(file_uri);<xhtml:br/>intent.addFlags(FLAG_GRANT_READ_URI_PERMISSION);<xhtml:br/>sendBroadcast(intent);</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Attack\" Language=\"Java\">\n                  <xhtml:div>public class CallReceiver extends BroadcastReceiver {<xhtml:div style=\"margin-left:1em;\">@Override<xhtml:br/>public void onReceive(Context context, Intent intent) {<xhtml:div style=\"margin-left:1em;\">Uri userData = intent.getData();<xhtml:br/>stealUserData(userData);</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Any malicious application can register to receive this intent. Because of the FLAG_GRANT_READ_URI_PERMISSION included with the intent, the malicious receiver code can read the user's data.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-1999-1193",
-      "description": "untrusted user placed in unix \"wheel\" group",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1193"
-    },
-    {
-      "reference": "CVE-2005-2741",
-      "description": "Product allows users to grant themselves certain rights that can be used to escalate privileges.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2741"
-    },
-    {
-      "reference": "CVE-2005-2496",
-      "description": "Product uses group ID of a user instead of the group, causing it to run with different privileges. This is resultant from some other unknown issue.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2496"
-    },
-    {
-      "reference": "CVE-2004-0274",
-      "description": "Product mistakenly assigns a particular status to an entity, leading to increased privileges.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0274"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-76",
-      "author": [
-        "Sean Barnum",
-        "Michael Gegick"
-      ],
-      "title": "Least Privilege",
-      "url": "https://web.archive.org/web/20211209014121/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/least-privilege",
-      "publication_year": "2005",
-      "publication_month": "--09",
-      "publication_day": "---14",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-02-18",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Causal_Nature, Modes_of_Introduction, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Resultant"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Incorrect Privilege Assignment"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not allow privileged blocks to leak sensitive information across a trust boundary",
-      "entry_id": "SEC00-J"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not allow tainted variables in privileged blocks",
-      "entry_id": "SEC01-J"
-    }
-  ],
-  "affected_resources": [
-    "System Process"
-  ]
+	"id": "266",
+	"name": "Incorrect Privilege Assignment",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "A product incorrectly assigns a privilege to a particular actor, creating an unintended sphere of control for that actor.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "269",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "CanAlsoBe",
+			"cweid": "286",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity"
+			],
+			"note": "A user can access restricted functionality and/or sensitive information that may include administrative functionality and user accounts."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"mitigation_id": "MIT-1",
+			"phase": [
+				"Architecture and Design",
+				"Operation"
+			],
+			"description": [
+				"Very carefully manage the setting, management, and handling of privileges. Explicitly manage trust zones in the software."
+			]
+		},
+		{
+			"mitigation_id": "MIT-17",
+			"phase": [
+				"Architecture and Design",
+				"Operation"
+			],
+			"description": [
+				"Run your code using the lowest privileges that are required to accomplish the necessary tasks [REF-76]. If possible, create isolated accounts with limited privileges that are only used for a single task. That way, a successful attack will not immediately give the attacker access to the rest of the software or its environment. For example, database applications rarely need to run as the database administrator, especially in day-to-day operations."
+			],
+			"strategy": "Environment Hardening"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-97",
+			"text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>seteuid(0);<xhtml:br/>\n                     <xhtml:i>/* do some stuff */</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>seteuid(getuid());</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-142",
+			"text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>AccessController.doPrivileged(new PrivilegedAction() {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>public Object run() {<xhtml:div style=\"margin-left:1em;\">\n                                 <xhtml:i>// privileged code goes here, for example:</xhtml:i>\n                                 <xhtml:br/>System.loadLibrary(\"awt\");<xhtml:br/>return null;<xhtml:br/>\n                                 <xhtml:i>// nothing to return</xhtml:i>\n                                 <xhtml:br/>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-108",
+			"text": "\n               <Intro_Text>This application sends a special intent with a flag that allows the receiving application to read a data file for backup purposes.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>Intent intent = new Intent();<xhtml:br/>intent.setAction(\"com.example.BackupUserData\");<xhtml:br/>intent.setData(file_uri);<xhtml:br/>intent.addFlags(FLAG_GRANT_READ_URI_PERMISSION);<xhtml:br/>sendBroadcast(intent);</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Attack\" Language=\"Java\">\n                  <xhtml:div>public class CallReceiver extends BroadcastReceiver {<xhtml:div style=\"margin-left:1em;\">@Override<xhtml:br/>public void onReceive(Context context, Intent intent) {<xhtml:div style=\"margin-left:1em;\">Uri userData = intent.getData();<xhtml:br/>stealUserData(userData);</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Any malicious application can register to receive this intent. Because of the FLAG_GRANT_READ_URI_PERMISSION included with the intent, the malicious receiver code can read the user's data.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-1999-1193",
+			"description": "untrusted user placed in unix \"wheel\" group",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-1193"
+		},
+		{
+			"reference": "CVE-2005-2741",
+			"description": "Product allows users to grant themselves certain rights that can be used to escalate privileges.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2741"
+		},
+		{
+			"reference": "CVE-2005-2496",
+			"description": "Product uses group ID of a user instead of the group, causing it to run with different privileges. This is resultant from some other unknown issue.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2496"
+		},
+		{
+			"reference": "CVE-2004-0274",
+			"description": "Product mistakenly assigns a particular status to an entity, leading to increased privileges.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0274"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-76",
+			"author": [
+				"Sean Barnum",
+				"Michael Gegick"
+			],
+			"title": "Least Privilege",
+			"url": "https://web.archive.org/web/20211209014121/https://www.cisa.gov/uscert/bsi/articles/knowledge/principles/least-privilege",
+			"publication_year": "2005",
+			"publication_month": "--09",
+			"publication_day": "---14",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Relationships, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-02-18",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Causal_Nature, Modes_of_Introduction, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Resultant"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Incorrect Privilege Assignment"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not allow privileged blocks to leak sensitive information across a trust boundary",
+			"entry_id": "SEC00-J"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not allow tainted variables in privileged blocks",
+			"entry_id": "SEC01-J"
+		}
+	],
+	"affected_resources": [
+		"System Process"
+	]
 }

@@ -1,601 +1,601 @@
 {
-  "id": "209",
-  "name": "Generation of Error Message Containing Sensitive Information",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product generates an error message that includes sensitive information about its environment, users, or associated data.",
-  "extended_description": "<xhtml:p>The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more serious attacks. The error message may be created in different ways:</xhtml:p>\n           <xhtml:ul>\n             <xhtml:li>self-generated: the source code explicitly constructs the error message and delivers it</xhtml:li>\n\t     <xhtml:li>externally-generated: the external environment, such as a language interpreter, handles the error and constructs its own message, whose contents are not under direct control by the programmer</xhtml:li>\n\t   </xhtml:ul>\n\t <xhtml:p>An attacker may use the contents of error messages to help launch another, more focused attack. For example, an attempt to exploit a path traversal weakness (CWE-22) might yield the full pathname of the installed application. In turn, this could be used to select the proper number of \"..\" sequences to navigate to the targeted file. An attack using SQL injection (CWE-89) might not initially succeed, but an error message could reveal the malformed query, which would expose query logic and possibly even passwords or other sensitive information used within the query.</xhtml:p>",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "200",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "200",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "755",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Often",
-        "name": "PHP"
-      },
-      {
-        "prevalence": "Often",
-        "name": "Java"
-      },
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    },
-    {
-      "phase": "System Configuration"
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Application Data"
-      ],
-      "note": "Often this will either reveal sensitive information which may be used for a later attack or private information stored in the server."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "mitigation_id": "MIT-39",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Ensure that error messages only contain minimal details that are useful to the intended audience and no one else. The messages need to strike the balance between being too cryptic (which can confuse users) or being too detailed (which may reveal more than intended). The messages should not reveal the methods that were used to determine the error. Attackers can use detailed information to refine or optimize their original attack, thereby increasing their chances of success.</xhtml:p>\n                  <xhtml:p>If errors must be captured in some detail, record them in log messages, but consider what could occur if the log messages can be viewed by attackers. Highly sensitive information such as passwords should never be saved to log files.</xhtml:p>\n\t\t  <xhtml:p>Avoid inconsistent messaging that might accidentally tip off an attacker about internal state, such as whether a user account exists or not.</xhtml:p>\n               "
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Handle exceptions internally and do not display errors containing potentially sensitive information to a user."
-      ]
-    },
-    {
-      "mitigation_id": "MIT-33",
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Use naming conventions and strong types to make it easier to spot when sensitive data is being used. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible."
-      ],
-      "effectiveness": "Defense in Depth",
-      "effectiveness_notes": "This makes it easier to spot places in the code where data is being used that is unencrypted.",
-      "strategy": "Attack Surface Reduction"
-    },
-    {
-      "mitigation_id": "MIT-40",
-      "phase": [
-        "Implementation",
-        "Build and Compilation"
-      ],
-      "description": [
-        "Debugging information should not make its way into a production release."
-      ],
-      "strategy": "Compilation or Build Hardening"
-    },
-    {
-      "mitigation_id": "MIT-40",
-      "phase": [
-        "Implementation",
-        "Build and Compilation"
-      ],
-      "description": [
-        "Debugging information should not make its way into a production release."
-      ],
-      "strategy": "Environment Hardening"
-    },
-    {
-      "phase": [
-        "System Configuration"
-      ],
-      "description": [
-        "Where available, configure the environment to use less verbose error messages. For example, in PHP, disable the display_errors setting during configuration, or at runtime using the error_reporting() function."
-      ]
-    },
-    {
-      "phase": [
-        "System Configuration"
-      ],
-      "description": [
-        "Create default error pages or messages that do not leak any information."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the following example, sensitive information might be printed depending on the exception that occurs.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">/.../</xhtml:div>}<xhtml:br/>catch (Exception e) {<xhtml:div style=\"margin-left:1em;\">System.out.println(e);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If an exception related to SQL is handled by the catch, then the output might contain sensitive information such as SQL query structure or private information. If this output is redirected to a web user, this may represent a security problem.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-118",
-      "text": "\n               <Intro_Text>This code tries to open a database connection, and prints any exceptions that occur.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">openDbConnection();</xhtml:div>}<xhtml:br/>\n                     <xhtml:i>//print exception message that includes exception message and configuration file location</xhtml:i>\n                     <xhtml:br/>catch (Exception $e) {<xhtml:div style=\"margin-left:1em;\">echo 'Caught exception: ', $e-&gt;getMessage(), '\\n';<xhtml:br/>echo 'Check credentials in config file at: ', $Mysql_config_location, '\\n';</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If an exception occurs, the printed message exposes the location of the configuration file the script is using. An attacker can use this information to target the configuration file (perhaps exploiting a Path Traversal weakness). If the file can be read, the attacker could gain credentials for accessing the database. The attacker may also be able to replace the file with a malicious one, causing the application to use an arbitrary database.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>The following code generates an error message that leaks the full pathname of the configuration file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>$ConfigDir = \"/home/myprog/config\";<xhtml:br/>$uname = GetUserInput(\"username\");<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i># avoid CWE-22, CWE-78, others.</xhtml:i>\n                     <xhtml:br/>ExitError(\"Bad hacker!\") if ($uname !~ /^\\w+$/);<xhtml:br/>$file = \"$ConfigDir/$uname.txt\";<xhtml:br/>if (! (-e $file)) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Error: $file does not exist\");</xhtml:div>}<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>If this code is running on a server, such as a web application, then the person making the request should not know what the full pathname of the configuration directory is. By submitting a username that does not produce a $file that exists, an attacker could get this pathname. It could then be used to exploit path traversal or symbolic link following problems that may exist elsewhere in the application.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-119",
-      "text": "\n               <Intro_Text>In the example below, the method getUserBankAccount retrieves a bank account object from a database using the supplied username and account number to query the database. If an SQLException is raised when querying the database, an error message is created and output to a log file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public BankAccount getUserBankAccount(String username, String accountNumber) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BankAccount userAccount = null;<xhtml:br/>String query = null;<xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">if (isAuthorizedUser(username)) {<xhtml:div style=\"margin-left:1em;\">query = \"SELECT * FROM accounts WHERE owner = \"<xhtml:br/>+ username + \" AND accountID = \" + accountNumber;<xhtml:br/>DatabaseManager dbManager = new DatabaseManager();<xhtml:br/>Connection conn = dbManager.getConnection();<xhtml:br/>Statement stmt = conn.createStatement();<xhtml:br/>ResultSet queryResult = stmt.executeQuery(query);<xhtml:br/>userAccount = (BankAccount)queryResult.getObject(accountNumber);</xhtml:div>}</xhtml:div>} catch (SQLException ex) {<xhtml:div style=\"margin-left:1em;\">String logMessage = \"Unable to retrieve account information from database,\\nquery: \" + query;<xhtml:br/>Logger.getLogger(BankManager.class.getName()).log(Level.SEVERE, logMessage, ex);</xhtml:div>}<xhtml:br/>return userAccount;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The error message that is created includes information about the database query that may contain sensitive information about the database or query logic. In this case, the error message will expose the table name and column names used in the database. This data could be used to simplify other attacks, such as SQL injection (CWE-89) to directly access the database.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2008-2049",
-      "description": "POP3 server reveals a password in an error message after multiple APOP commands are sent. Might be resultant from another weakness.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2049"
-    },
-    {
-      "reference": "CVE-2007-5172",
-      "description": "Program reveals password in error message if attacker can trigger certain database errors.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-5172"
-    },
-    {
-      "reference": "CVE-2008-4638",
-      "description": "Composite: application running with high privileges (CWE-250) allows user to specify a restricted file to process, which generates a parsing error that leaks the contents of the file (CWE-209).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-4638"
-    },
-    {
-      "reference": "CVE-2008-1579",
-      "description": "Existence of user names can be determined by requesting a nonexistent blog and reading the error message.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-1579"
-    },
-    {
-      "reference": "CVE-2007-1409",
-      "description": "Direct request to library file in web application triggers pathname leak in error message.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-1409"
-    },
-    {
-      "reference": "CVE-2008-3060",
-      "description": "Malformed input to login page causes leak of full path when IMAP call fails.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-3060"
-    },
-    {
-      "reference": "CVE-2005-0603",
-      "description": "Malformed regexp syntax leads to information exposure in error message.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-0603"
-    },
-    {
-      "reference": "CVE-2017-9615",
-      "description": "verbose logging stores admin credentials in a world-readablelog file",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2017-9615"
-    },
-    {
-      "reference": "CVE-2018-1999036",
-      "description": "SSH password for private key stored in build log",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2018-1999036"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-174",
-      "author": [
-        "Web Application Security Consortium"
-      ],
-      "title": "Information Leakage",
-      "url": "http://projects.webappsec.org/w/page/13246936/Information%20Leakage",
-      "url_date": "2023-04-07"
-    },
-    {
-      "section": "Section 9.2, Page 326",
-      "reference_id": "REF-175",
-      "author": [
-        "Brian Chess",
-        "Jacob West"
-      ],
-      "title": "Secure Programming with Static Analysis",
-      "publication_year": "2007",
-      "publisher": "Addison-Wesley"
-    },
-    {
-      "section": "Chapter 16, \"General Good Practices.\" Page 415",
-      "reference_id": "REF-176",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc"
-      ],
-      "title": "Writing Secure Code",
-      "publication_year": "2001",
-      "publication_month": "--11",
-      "publication_day": "---13",
-      "publisher": "Microsoft Press",
-      "edition": "1st Edition"
-    },
-    {
-      "section": "\"Sin 11: Failure to Handle Errors Correctly.\" Page 183",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    },
-    {
-      "section": "\"Sin 12: Information Leakage.\" Page 191",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    },
-    {
-      "reference_id": "REF-179",
-      "author": [
-        "Johannes Ullrich"
-      ],
-      "title": "Top 25 Series - Rank 16 - Information Exposure Through an Error Message",
-      "url": "http://software-security.sans.org/blog/2010/03/17/top-25-series-rank-16-information-exposure-through-an-error-message",
-      "publication_year": "2010",
-      "publication_month": "--03",
-      "publication_day": "---17",
-      "publisher": "SANS Software Security Institute"
-    },
-    {
-      "section": "Chapter 3, \"Overly Verbose Error Messages\", Page 75",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_organization": "Veracode",
-        "modification_date": "2008-08-15",
-        "modification_comment": "Suggested OWASP Top Ten 2004 mapping"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Demonstrative_Examples, Description, Name, Observed_Examples, Other_Notes, Potential_Mitigations, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Demonstrative_Examples, Name, Potential_Mitigations, References, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Detection_Factors, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Common_Consequences, Detection_Factors, Potential_Mitigations, References"
-      },
-      {
-        "modification_organization": "Veracode",
-        "modification_date": "2010-09-09",
-        "modification_comment": "Suggested OWASP Top Ten mapping"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Potential_Mitigations, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-07-17",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Applicable_Platforms, Description, Name, Observed_Examples, References, Relationships, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Potential_Mitigations, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Error Message Information Leaks",
-        "date": "2009-01-12"
-      },
-      {
-        "text": "Error Message Information Leak",
-        "date": "2009-12-28"
-      },
-      {
-        "text": "Information Exposure Through an Error Message",
-        "date": "2020-02-24"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Feedback",
-        "contribution_name": "Nick Johnston",
-        "contribution_date": "2022-07-11",
-        "contribution_comment": "Identified incorrect language tag in demonstrative example."
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    },
-    {
-      "ordinality": "Resultant"
-    }
-  ],
-  "detection_methods": [
-    {
-      "method": "Manual Analysis",
-      "description": "This weakness generally requires domain-specific interpretation using manual analysis. However, the number of potential error conditions may be too large to cover completely within limited time constraints.",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Automated Analysis",
-      "description": "Automated methods may be able to detect certain idioms automatically, such as exposed stack traces or pathnames, but violation of business rules or privacy requirements is not typically feasible.",
-      "effectiveness": "Moderate"
-    },
-    {
-      "detection_method_id": "DM-2",
-      "method": "Automated Dynamic Analysis",
-      "description": "\n                  <xhtml:p>This weakness can be detected using dynamic tools and techniques that interact with the software using large test suites with many diverse inputs, such as fuzz testing (fuzzing), robustness testing, and fault injection. The software's operation may slow down, but it should not become unstable, crash, or generate incorrect results.</xhtml:p>\n                  <xhtml:p>Error conditions may be triggered with a stress-test by calling the software simultaneously from a large number of threads or processes, and look for evidence of any unexpected behavior.</xhtml:p>\n               ",
-      "effectiveness": "Moderate"
-    },
-    {
-      "detection_method_id": "DM-12",
-      "method": "Manual Dynamic Analysis",
-      "description": "Identify error conditions that are not likely to occur during normal usage and trigger them. For example, run the program under low memory conditions, run with insufficient privileges or permissions, interrupt a transaction before it is completed, or disable connectivity to basic network services such as DNS. Monitor the software for any unexpected behavior. If you trigger an unhandled exception or similar error that was discovered and handled by the application's environment, it may still indicate unexpected conditions that were not handled by the application itself."
-    },
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Accidental leaking of sensitive information through error messages"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2007",
-      "entry_name": "Information Leakage and Improper Error Handling",
-      "entry_id": "A6",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2004",
-      "entry_name": "Improper Error Handling",
-      "entry_id": "A7",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2004",
-      "entry_name": "Insecure Configuration Management",
-      "entry_id": "A10",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not allow exceptions to expose sensitive information",
-      "entry_id": "ERR01-J"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Exposed Data",
-      "entry_id": "SFP23"
-    }
-  ],
-  "related_attack_patterns": [
-    "215",
-    "463",
-    "54",
-    "7"
-  ]
+	"id": "209",
+	"name": "Generation of Error Message Containing Sensitive Information",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product generates an error message that includes sensitive information about its environment, users, or associated data.",
+	"extended_description": "<xhtml:p>The sensitive information may be valuable information on its own (such as a password), or it may be useful for launching other, more serious attacks. The error message may be created in different ways:</xhtml:p>\n           <xhtml:ul>\n             <xhtml:li>self-generated: the source code explicitly constructs the error message and delivers it</xhtml:li>\n\t     <xhtml:li>externally-generated: the external environment, such as a language interpreter, handles the error and constructs its own message, whose contents are not under direct control by the programmer</xhtml:li>\n\t   </xhtml:ul>\n\t <xhtml:p>An attacker may use the contents of error messages to help launch another, more focused attack. For example, an attempt to exploit a path traversal weakness (CWE-22) might yield the full pathname of the installed application. In turn, this could be used to select the proper number of \"..\" sequences to navigate to the targeted file. An attack using SQL injection (CWE-89) might not initially succeed, but an error message could reveal the malformed query, which would expose query logic and possibly even passwords or other sensitive information used within the query.</xhtml:p>",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "200",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "200",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "755",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Often",
+				"name": "PHP"
+			},
+			{
+				"prevalence": "Often",
+				"name": "Java"
+			},
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		},
+		{
+			"phase": "System Configuration"
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Application Data"
+			],
+			"note": "Often this will either reveal sensitive information which may be used for a later attack or private information stored in the server."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"mitigation_id": "MIT-39",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Ensure that error messages only contain minimal details that are useful to the intended audience and no one else. The messages need to strike the balance between being too cryptic (which can confuse users) or being too detailed (which may reveal more than intended). The messages should not reveal the methods that were used to determine the error. Attackers can use detailed information to refine or optimize their original attack, thereby increasing their chances of success.</xhtml:p>\n                  <xhtml:p>If errors must be captured in some detail, record them in log messages, but consider what could occur if the log messages can be viewed by attackers. Highly sensitive information such as passwords should never be saved to log files.</xhtml:p>\n\t\t  <xhtml:p>Avoid inconsistent messaging that might accidentally tip off an attacker about internal state, such as whether a user account exists or not.</xhtml:p>\n               "
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Handle exceptions internally and do not display errors containing potentially sensitive information to a user."
+			]
+		},
+		{
+			"mitigation_id": "MIT-33",
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Use naming conventions and strong types to make it easier to spot when sensitive data is being used. When creating structures, objects, or other complex entities, separate the sensitive and non-sensitive data as much as possible."
+			],
+			"effectiveness": "Defense in Depth",
+			"effectiveness_notes": "This makes it easier to spot places in the code where data is being used that is unencrypted.",
+			"strategy": "Attack Surface Reduction"
+		},
+		{
+			"mitigation_id": "MIT-40",
+			"phase": [
+				"Implementation",
+				"Build and Compilation"
+			],
+			"description": [
+				"Debugging information should not make its way into a production release."
+			],
+			"strategy": "Compilation or Build Hardening"
+		},
+		{
+			"mitigation_id": "MIT-40",
+			"phase": [
+				"Implementation",
+				"Build and Compilation"
+			],
+			"description": [
+				"Debugging information should not make its way into a production release."
+			],
+			"strategy": "Environment Hardening"
+		},
+		{
+			"phase": [
+				"System Configuration"
+			],
+			"description": [
+				"Where available, configure the environment to use less verbose error messages. For example, in PHP, disable the display_errors setting during configuration, or at runtime using the error_reporting() function."
+			]
+		},
+		{
+			"phase": [
+				"System Configuration"
+			],
+			"description": [
+				"Create default error pages or messages that do not leak any information."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the following example, sensitive information might be printed depending on the exception that occurs.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">/.../</xhtml:div>}<xhtml:br/>catch (Exception e) {<xhtml:div style=\"margin-left:1em;\">System.out.println(e);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If an exception related to SQL is handled by the catch, then the output might contain sensitive information such as SQL query structure or private information. If this output is redirected to a web user, this may represent a security problem.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-118",
+			"text": "\n               <Intro_Text>This code tries to open a database connection, and prints any exceptions that occur.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">openDbConnection();</xhtml:div>}<xhtml:br/>\n                     <xhtml:i>//print exception message that includes exception message and configuration file location</xhtml:i>\n                     <xhtml:br/>catch (Exception $e) {<xhtml:div style=\"margin-left:1em;\">echo 'Caught exception: ', $e-&gt;getMessage(), '\\n';<xhtml:br/>echo 'Check credentials in config file at: ', $Mysql_config_location, '\\n';</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If an exception occurs, the printed message exposes the location of the configuration file the script is using. An attacker can use this information to target the configuration file (perhaps exploiting a Path Traversal weakness). If the file can be read, the attacker could gain credentials for accessing the database. The attacker may also be able to replace the file with a malicious one, causing the application to use an arbitrary database.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>The following code generates an error message that leaks the full pathname of the configuration file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                  <xhtml:div>$ConfigDir = \"/home/myprog/config\";<xhtml:br/>$uname = GetUserInput(\"username\");<xhtml:br/>\n                     <xhtml:br/>\n                     <xhtml:i># avoid CWE-22, CWE-78, others.</xhtml:i>\n                     <xhtml:br/>ExitError(\"Bad hacker!\") if ($uname !~ /^\\w+$/);<xhtml:br/>$file = \"$ConfigDir/$uname.txt\";<xhtml:br/>if (! (-e $file)) {<xhtml:div style=\"margin-left:1em;\">ExitError(\"Error: $file does not exist\");</xhtml:div>}<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>If this code is running on a server, such as a web application, then the person making the request should not know what the full pathname of the configuration directory is. By submitting a username that does not produce a $file that exists, an attacker could get this pathname. It could then be used to exploit path traversal or symbolic link following problems that may exist elsewhere in the application.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-119",
+			"text": "\n               <Intro_Text>In the example below, the method getUserBankAccount retrieves a bank account object from a database using the supplied username and account number to query the database. If an SQLException is raised when querying the database, an error message is created and output to a log file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public BankAccount getUserBankAccount(String username, String accountNumber) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BankAccount userAccount = null;<xhtml:br/>String query = null;<xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">if (isAuthorizedUser(username)) {<xhtml:div style=\"margin-left:1em;\">query = \"SELECT * FROM accounts WHERE owner = \"<xhtml:br/>+ username + \" AND accountID = \" + accountNumber;<xhtml:br/>DatabaseManager dbManager = new DatabaseManager();<xhtml:br/>Connection conn = dbManager.getConnection();<xhtml:br/>Statement stmt = conn.createStatement();<xhtml:br/>ResultSet queryResult = stmt.executeQuery(query);<xhtml:br/>userAccount = (BankAccount)queryResult.getObject(accountNumber);</xhtml:div>}</xhtml:div>} catch (SQLException ex) {<xhtml:div style=\"margin-left:1em;\">String logMessage = \"Unable to retrieve account information from database,\\nquery: \" + query;<xhtml:br/>Logger.getLogger(BankManager.class.getName()).log(Level.SEVERE, logMessage, ex);</xhtml:div>}<xhtml:br/>return userAccount;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The error message that is created includes information about the database query that may contain sensitive information about the database or query logic. In this case, the error message will expose the table name and column names used in the database. This data could be used to simplify other attacks, such as SQL injection (CWE-89) to directly access the database.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2008-2049",
+			"description": "POP3 server reveals a password in an error message after multiple APOP commands are sent. Might be resultant from another weakness.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-2049"
+		},
+		{
+			"reference": "CVE-2007-5172",
+			"description": "Program reveals password in error message if attacker can trigger certain database errors.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-5172"
+		},
+		{
+			"reference": "CVE-2008-4638",
+			"description": "Composite: application running with high privileges (CWE-250) allows user to specify a restricted file to process, which generates a parsing error that leaks the contents of the file (CWE-209).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-4638"
+		},
+		{
+			"reference": "CVE-2008-1579",
+			"description": "Existence of user names can be determined by requesting a nonexistent blog and reading the error message.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-1579"
+		},
+		{
+			"reference": "CVE-2007-1409",
+			"description": "Direct request to library file in web application triggers pathname leak in error message.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-1409"
+		},
+		{
+			"reference": "CVE-2008-3060",
+			"description": "Malformed input to login page causes leak of full path when IMAP call fails.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-3060"
+		},
+		{
+			"reference": "CVE-2005-0603",
+			"description": "Malformed regexp syntax leads to information exposure in error message.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-0603"
+		},
+		{
+			"reference": "CVE-2017-9615",
+			"description": "verbose logging stores admin credentials in a world-readablelog file",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2017-9615"
+		},
+		{
+			"reference": "CVE-2018-1999036",
+			"description": "SSH password for private key stored in build log",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2018-1999036"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-174",
+			"author": [
+				"Web Application Security Consortium"
+			],
+			"title": "Information Leakage",
+			"url": "http://projects.webappsec.org/w/page/13246936/Information%20Leakage",
+			"url_date": "2023-04-07"
+		},
+		{
+			"section": "Section 9.2, Page 326",
+			"reference_id": "REF-175",
+			"author": [
+				"Brian Chess",
+				"Jacob West"
+			],
+			"title": "Secure Programming with Static Analysis",
+			"publication_year": "2007",
+			"publisher": "Addison-Wesley"
+		},
+		{
+			"section": "Chapter 16, \"General Good Practices.\" Page 415",
+			"reference_id": "REF-176",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc"
+			],
+			"title": "Writing Secure Code",
+			"publication_year": "2001",
+			"publication_month": "--11",
+			"publication_day": "---13",
+			"publisher": "Microsoft Press",
+			"edition": "1st Edition"
+		},
+		{
+			"section": "\"Sin 11: Failure to Handle Errors Correctly.\" Page 183",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		},
+		{
+			"section": "\"Sin 12: Information Leakage.\" Page 191",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		},
+		{
+			"reference_id": "REF-179",
+			"author": [
+				"Johannes Ullrich"
+			],
+			"title": "Top 25 Series - Rank 16 - Information Exposure Through an Error Message",
+			"url": "http://software-security.sans.org/blog/2010/03/17/top-25-series-rank-16-information-exposure-through-an-error-message",
+			"publication_year": "2010",
+			"publication_month": "--03",
+			"publication_day": "---17",
+			"publisher": "SANS Software Security Institute"
+		},
+		{
+			"section": "Chapter 3, \"Overly Verbose Error Messages\", Page 75",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_organization": "Veracode",
+				"modification_date": "2008-08-15",
+				"modification_comment": "Suggested OWASP Top Ten 2004 mapping"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Demonstrative_Examples, Description, Name, Observed_Examples, Other_Notes, Potential_Mitigations, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Demonstrative_Examples, Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Demonstrative_Examples, Name, Potential_Mitigations, References, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Detection_Factors, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Common_Consequences, Detection_Factors, Potential_Mitigations, References"
+			},
+			{
+				"modification_organization": "Veracode",
+				"modification_date": "2010-09-09",
+				"modification_comment": "Suggested OWASP Top Ten mapping"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Potential_Mitigations, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-07-17",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Applicable_Platforms, Description, Name, Observed_Examples, References, Relationships, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Potential_Mitigations, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Error Message Information Leaks",
+				"date": "2009-01-12"
+			},
+			{
+				"text": "Error Message Information Leak",
+				"date": "2009-12-28"
+			},
+			{
+				"text": "Information Exposure Through an Error Message",
+				"date": "2020-02-24"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Feedback",
+				"contribution_name": "Nick Johnston",
+				"contribution_date": "2022-07-11",
+				"contribution_comment": "Identified incorrect language tag in demonstrative example."
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		},
+		{
+			"ordinality": "Resultant"
+		}
+	],
+	"detection_methods": [
+		{
+			"method": "Manual Analysis",
+			"description": "This weakness generally requires domain-specific interpretation using manual analysis. However, the number of potential error conditions may be too large to cover completely within limited time constraints.",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Automated Analysis",
+			"description": "Automated methods may be able to detect certain idioms automatically, such as exposed stack traces or pathnames, but violation of business rules or privacy requirements is not typically feasible.",
+			"effectiveness": "Moderate"
+		},
+		{
+			"detection_method_id": "DM-2",
+			"method": "Automated Dynamic Analysis",
+			"description": "\n                  <xhtml:p>This weakness can be detected using dynamic tools and techniques that interact with the software using large test suites with many diverse inputs, such as fuzz testing (fuzzing), robustness testing, and fault injection. The software's operation may slow down, but it should not become unstable, crash, or generate incorrect results.</xhtml:p>\n                  <xhtml:p>Error conditions may be triggered with a stress-test by calling the software simultaneously from a large number of threads or processes, and look for evidence of any unexpected behavior.</xhtml:p>\n               ",
+			"effectiveness": "Moderate"
+		},
+		{
+			"detection_method_id": "DM-12",
+			"method": "Manual Dynamic Analysis",
+			"description": "Identify error conditions that are not likely to occur during normal usage and trigger them. For example, run the program under low memory conditions, run with insufficient privileges or permissions, interrupt a transaction before it is completed, or disable connectivity to basic network services such as DNS. Monitor the software for any unexpected behavior. If you trigger an unhandled exception or similar error that was discovered and handled by the application's environment, it may still indicate unexpected conditions that were not handled by the application itself."
+		},
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Accidental leaking of sensitive information through error messages"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2007",
+			"entry_name": "Information Leakage and Improper Error Handling",
+			"entry_id": "A6",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2004",
+			"entry_name": "Improper Error Handling",
+			"entry_id": "A7",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2004",
+			"entry_name": "Insecure Configuration Management",
+			"entry_id": "A10",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not allow exceptions to expose sensitive information",
+			"entry_id": "ERR01-J"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Exposed Data",
+			"entry_id": "SFP23"
+		}
+	],
+	"related_attack_patterns": [
+		"215",
+		"463",
+		"54",
+		"7"
+	]
 }

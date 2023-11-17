@@ -1,233 +1,233 @@
 {
-  "id": "106",
-  "name": "Struts: Plug-in Framework not in Use",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "When an application does not use an input validation framework such as the Struts Validator, there is a greater risk of introducing weaknesses related to insufficient input validation.",
-  "extended_description": "\n            <xhtml:p>Unchecked input is the leading cause of vulnerabilities in J2EE applications. Unchecked input leads to cross-site scripting, process control, and SQL injection vulnerabilities, among others.</xhtml:p>\n            <xhtml:p>Although J2EE applications are not generally susceptible to memory corruption attacks, if a J2EE application interfaces with native code that does not perform array bounds checking, an attacker may be able to use an input validation mistake in the J2EE application to launch a buffer overflow attack.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1173",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "20",
-      "view_id": "700",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Unexpected State"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Use an input validation framework such as Struts."
-      ],
-      "strategy": "Input Validation"
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Use an input validation framework such as Struts."
-      ],
-      "strategy": "Libraries or Frameworks"
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Use the Struts Validator to validate all program input before it is processed by the application. Ensure that there are no holes in the configuration of the Struts Validator. Example uses of the validator include checking to ensure that:</xhtml:p>\n                     <xhtml:ul>\n                        <xhtml:li>Phone number fields contain only valid characters in phone numbers</xhtml:li>\n                        <xhtml:li>Boolean values are only \"T\" or \"F\"</xhtml:li>\n                        <xhtml:li>Free-form strings are of a reasonable length and composition</xhtml:li>\n                     </xhtml:ul>\n               "
-      ],
-      "strategy": "Input Validation"
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Use the Struts Validator to validate all program input before it is processed by the application. Ensure that there are no holes in the configuration of the Struts Validator. Example uses of the validator include checking to ensure that:</xhtml:p>\n                     <xhtml:ul>\n                        <xhtml:li>Phone number fields contain only valid characters in phone numbers</xhtml:li>\n                        <xhtml:li>Boolean values are only \"T\" or \"F\"</xhtml:li>\n                        <xhtml:li>Free-form strings are of a reasonable length and composition</xhtml:li>\n                     </xhtml:ul>\n               "
-      ],
-      "strategy": "Libraries or Frameworks"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In the following Java example the class RegistrationForm is a Struts framework ActionForm Bean that will maintain user input data from a registration webpage for an online business site. The user will enter registration data and, through the Struts framework, the RegistrationForm bean will maintain the user data.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class RegistrationForm extends org.apache.struts.action.ActionForm {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:br/>\n                        <xhtml:i>// private variables for registration form</xhtml:i>\n                        <xhtml:br/>private String name;<xhtml:br/>private String email;<xhtml:br/>...<xhtml:br/>\n                        <xhtml:br/>public RegistrationForm() {<xhtml:div style=\"margin-left:1em;\">super();</xhtml:div>}<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>// getter and setter methods for private variables</xhtml:i>\n                        <xhtml:br/>...<xhtml:br/>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the RegistrationForm class extends the Struts ActionForm class which does use the Struts validator plug-in to provide validator capabilities. In the following example, the RegistrationForm Java class extends the ValidatorForm and Struts configuration XML file, struts-config.xml, instructs the application to use the Struts validator plug-in.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public class RegistrationForm extends org.apache.struts.validator.ValidatorForm {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:br/>\n                        <xhtml:i>// private variables for registration form</xhtml:i>\n                        <xhtml:br/>private String name;<xhtml:br/>private String email;<xhtml:br/>...<xhtml:br/>\n                        <xhtml:br/>public RegistrationForm() {<xhtml:div style=\"margin-left:1em;\">super();</xhtml:div>}<xhtml:br/>\n                        <xhtml:br/>public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {...}<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>// getter and setter methods for private variables</xhtml:i>\n                        <xhtml:br/>...<xhtml:br/>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The plug-in tag of the Struts configuration XML file includes the name of the validator plug-in to be used and includes a set-property tag to instruct the application to use the file, validator-rules.xml, for default validation rules and the file, validation.XML, for custom validation.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"XML\">\n                  <xhtml:div>&lt;struts-config&gt;<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:br/>&lt;form-beans&gt;<xhtml:div style=\"margin-left:1em;\">&lt;form-bean name=\"RegistrationForm\" type=\"RegistrationForm\"/&gt;</xhtml:div>&lt;/form-beans&gt;<xhtml:br/>\n                        <xhtml:br/>...<xhtml:br/>\n                        <xhtml:br/>&lt;!-- ========================= Validator plugin ================================= --&gt;<xhtml:br/>&lt;plug-in className=\"org.apache.struts.validator.ValidatorPlugIn\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;set-property<xhtml:div style=\"margin-left:1em;\">property=\"pathnames\"<xhtml:br/>value=\"/WEB-INF/validator-rules.xml,/WEB-INF/validation.xml\"/&gt;</xhtml:div>\n                        </xhtml:div>&lt;/plug-in&gt;</xhtml:div>\n                     <xhtml:br/>&lt;/struts-config&gt;</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-6",
-      "author": [
-        "Katrina Tsipenyuk",
-        "Brian Chess",
-        "Gary McGraw"
-      ],
-      "title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
-      "url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
-      "publication_year": "2005",
-      "publication_month": "--11",
-      "publication_day": "---07",
-      "publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
-      "publisher": "NIST"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "7 Pernicious Kingdoms",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-07-17",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Description, Other_Notes, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Causal_Nature, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "7 Pernicious Kingdoms",
-      "entry_name": "Struts: Plug-in Framework Not In Use"
-    }
-  ]
+	"id": "106",
+	"name": "Struts: Plug-in Framework not in Use",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "When an application does not use an input validation framework such as the Struts Validator, there is a greater risk of introducing weaknesses related to insufficient input validation.",
+	"extended_description": "\n            <xhtml:p>Unchecked input is the leading cause of vulnerabilities in J2EE applications. Unchecked input leads to cross-site scripting, process control, and SQL injection vulnerabilities, among others.</xhtml:p>\n            <xhtml:p>Although J2EE applications are not generally susceptible to memory corruption attacks, if a J2EE application interfaces with native code that does not perform array bounds checking, an attacker may be able to use an input validation mistake in the J2EE application to launch a buffer overflow attack.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1173",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "20",
+			"view_id": "700",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Unexpected State"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Use an input validation framework such as Struts."
+			],
+			"strategy": "Input Validation"
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Use an input validation framework such as Struts."
+			],
+			"strategy": "Libraries or Frameworks"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Use the Struts Validator to validate all program input before it is processed by the application. Ensure that there are no holes in the configuration of the Struts Validator. Example uses of the validator include checking to ensure that:</xhtml:p>\n                     <xhtml:ul>\n                        <xhtml:li>Phone number fields contain only valid characters in phone numbers</xhtml:li>\n                        <xhtml:li>Boolean values are only \"T\" or \"F\"</xhtml:li>\n                        <xhtml:li>Free-form strings are of a reasonable length and composition</xhtml:li>\n                     </xhtml:ul>\n               "
+			],
+			"strategy": "Input Validation"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Use the Struts Validator to validate all program input before it is processed by the application. Ensure that there are no holes in the configuration of the Struts Validator. Example uses of the validator include checking to ensure that:</xhtml:p>\n                     <xhtml:ul>\n                        <xhtml:li>Phone number fields contain only valid characters in phone numbers</xhtml:li>\n                        <xhtml:li>Boolean values are only \"T\" or \"F\"</xhtml:li>\n                        <xhtml:li>Free-form strings are of a reasonable length and composition</xhtml:li>\n                     </xhtml:ul>\n               "
+			],
+			"strategy": "Libraries or Frameworks"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In the following Java example the class RegistrationForm is a Struts framework ActionForm Bean that will maintain user input data from a registration webpage for an online business site. The user will enter registration data and, through the Struts framework, the RegistrationForm bean will maintain the user data.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class RegistrationForm extends org.apache.struts.action.ActionForm {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:br/>\n                        <xhtml:i>// private variables for registration form</xhtml:i>\n                        <xhtml:br/>private String name;<xhtml:br/>private String email;<xhtml:br/>...<xhtml:br/>\n                        <xhtml:br/>public RegistrationForm() {<xhtml:div style=\"margin-left:1em;\">super();</xhtml:div>}<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>// getter and setter methods for private variables</xhtml:i>\n                        <xhtml:br/>...<xhtml:br/>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the RegistrationForm class extends the Struts ActionForm class which does use the Struts validator plug-in to provide validator capabilities. In the following example, the RegistrationForm Java class extends the ValidatorForm and Struts configuration XML file, struts-config.xml, instructs the application to use the Struts validator plug-in.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public class RegistrationForm extends org.apache.struts.validator.ValidatorForm {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:br/>\n                        <xhtml:i>// private variables for registration form</xhtml:i>\n                        <xhtml:br/>private String name;<xhtml:br/>private String email;<xhtml:br/>...<xhtml:br/>\n                        <xhtml:br/>public RegistrationForm() {<xhtml:div style=\"margin-left:1em;\">super();</xhtml:div>}<xhtml:br/>\n                        <xhtml:br/>public ActionErrors validate(ActionMapping mapping, HttpServletRequest request) {...}<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>// getter and setter methods for private variables</xhtml:i>\n                        <xhtml:br/>...<xhtml:br/>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The plug-in tag of the Struts configuration XML file includes the name of the validator plug-in to be used and includes a set-property tag to instruct the application to use the file, validator-rules.xml, for default validation rules and the file, validation.XML, for custom validation.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"XML\">\n                  <xhtml:div>&lt;struts-config&gt;<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:br/>&lt;form-beans&gt;<xhtml:div style=\"margin-left:1em;\">&lt;form-bean name=\"RegistrationForm\" type=\"RegistrationForm\"/&gt;</xhtml:div>&lt;/form-beans&gt;<xhtml:br/>\n                        <xhtml:br/>...<xhtml:br/>\n                        <xhtml:br/>&lt;!-- ========================= Validator plugin ================================= --&gt;<xhtml:br/>&lt;plug-in className=\"org.apache.struts.validator.ValidatorPlugIn\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;set-property<xhtml:div style=\"margin-left:1em;\">property=\"pathnames\"<xhtml:br/>value=\"/WEB-INF/validator-rules.xml,/WEB-INF/validation.xml\"/&gt;</xhtml:div>\n                        </xhtml:div>&lt;/plug-in&gt;</xhtml:div>\n                     <xhtml:br/>&lt;/struts-config&gt;</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-6",
+			"author": [
+				"Katrina Tsipenyuk",
+				"Brian Chess",
+				"Gary McGraw"
+			],
+			"title": "Seven Pernicious Kingdoms: A Taxonomy of Software Security Errors",
+			"url": "https://samate.nist.gov/SSATTM_Content/papers/Seven%20Pernicious%20Kingdoms%20-%20Taxonomy%20of%20Sw%20Security%20Errors%20-%20Tsipenyuk%20-%20Chess%20-%20McGraw.pdf",
+			"publication_year": "2005",
+			"publication_month": "--11",
+			"publication_day": "---07",
+			"publication": "NIST Workshop on Software Security Assurance Tools Techniques and Metrics",
+			"publisher": "NIST"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "7 Pernicious Kingdoms",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-07-17",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Description, Other_Notes, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Causal_Nature, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "7 Pernicious Kingdoms",
+			"entry_name": "Struts: Plug-in Framework Not In Use"
+		}
+	]
 }

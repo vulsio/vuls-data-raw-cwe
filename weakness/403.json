@@ -1,244 +1,244 @@
 {
-  "id": "403",
-  "name": "Exposure of File Descriptor to Unintended Control Sphere ('File Descriptor Leak')",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "A process does not close sensitive file descriptors before invoking a child process, which allows the child to perform unauthorized I/O operations using those descriptors.",
-  "extended_description": "When a new process is forked or executed, the child process inherits any open file descriptors. When the child process has fewer privileges than the parent process, this might introduce a vulnerability if the child process can access the file descriptor but does not have the privileges to access the associated file.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "402",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Unix",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity"
-      ],
-      "impact": [
-        "Read Application Data",
-        "Modify Application Data"
-      ]
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2003-0740",
-      "description": "Server leaks a privileged file descriptor, allowing the server to be hijacked.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0740"
-    },
-    {
-      "reference": "CVE-2004-1033",
-      "description": "File descriptor leak allows read of restricted files.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-1033"
-    },
-    {
-      "reference": "CVE-2000-0094",
-      "description": "Access to restricted resource using modified file descriptor for stderr.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0094"
-    },
-    {
-      "reference": "CVE-2002-0638",
-      "description": "Open file descriptor used as alternate channel in complex race condition.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0638"
-    },
-    {
-      "reference": "CVE-2003-0489",
-      "description": "Program does not fully drop privileges after creating a file descriptor, which allows access to the descriptor via a separate vulnerability.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0489"
-    },
-    {
-      "reference": "CVE-2003-0937",
-      "description": "User bypasses restrictions by obtaining a file descriptor then calling setuid program, which does not close the descriptor.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0937"
-    },
-    {
-      "reference": "CVE-2004-2215",
-      "description": "Terminal manager does not properly close file descriptors, allowing attackers to access terminals of other users.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2215"
-    },
-    {
-      "reference": "CVE-2006-5397",
-      "description": "Module opens a file for reading twice, allowing attackers to read files.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-5397"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-392",
-      "author": [
-        "Paul Roberts"
-      ],
-      "title": "File descriptors and setuid applications",
-      "url": "https://blogs.oracle.com/paulr/entry/file_descriptors_and_setuid_applications",
-      "publication_year": "2007",
-      "publication_month": "--02",
-      "publication_day": "---05"
-    },
-    {
-      "section": "Elevating Privileges Safely",
-      "reference_id": "REF-393",
-      "author": [
-        "Apple"
-      ],
-      "title": "Introduction to Secure Coding Guide",
-      "url": "https://developer.apple.com/library/archive/documentation/Security/Conceptual/SecureCodingGuide/Articles/AccessControl.html",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Affected_Resources, Observed_Examples, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-02-21",
-        "modification_comment": "updated Alternate_Terms, Description, Name, Observed_Examples, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Affected_Resources, Applicable_Platforms, Modes_of_Introduction, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "UNIX File Descriptor Leak",
-        "date": "2011-03-29"
-      },
-      {
-        "text": "Exposure of File Descriptor to Unintended Control Sphere",
-        "date": "2013-02-21"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "File descriptor leak",
-      "description": "While this issue is frequently called a file descriptor leak, the \"leak\" term is often used in two different ways - exposure of a resource, or consumption of a resource. Use of this term could cause confusion."
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "UNIX file descriptor leak"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Ensure files are properly closed when they are no longer needed",
-      "entry_id": "FIO42-C"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Exposed Data",
-      "entry_id": "SFP23"
-    }
-  ],
-  "affected_resources": [
-    "System Process",
-    "File or Directory"
-  ]
+	"id": "403",
+	"name": "Exposure of File Descriptor to Unintended Control Sphere ('File Descriptor Leak')",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "A process does not close sensitive file descriptors before invoking a child process, which allows the child to perform unauthorized I/O operations using those descriptors.",
+	"extended_description": "When a new process is forked or executed, the child process inherits any open file descriptors. When the child process has fewer privileges than the parent process, this might introduce a vulnerability if the child process can access the file descriptor but does not have the privileges to access the associated file.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "402",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Unix",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity"
+			],
+			"impact": [
+				"Read Application Data",
+				"Modify Application Data"
+			]
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2003-0740",
+			"description": "Server leaks a privileged file descriptor, allowing the server to be hijacked.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0740"
+		},
+		{
+			"reference": "CVE-2004-1033",
+			"description": "File descriptor leak allows read of restricted files.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-1033"
+		},
+		{
+			"reference": "CVE-2000-0094",
+			"description": "Access to restricted resource using modified file descriptor for stderr.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0094"
+		},
+		{
+			"reference": "CVE-2002-0638",
+			"description": "Open file descriptor used as alternate channel in complex race condition.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0638"
+		},
+		{
+			"reference": "CVE-2003-0489",
+			"description": "Program does not fully drop privileges after creating a file descriptor, which allows access to the descriptor via a separate vulnerability.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0489"
+		},
+		{
+			"reference": "CVE-2003-0937",
+			"description": "User bypasses restrictions by obtaining a file descriptor then calling setuid program, which does not close the descriptor.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0937"
+		},
+		{
+			"reference": "CVE-2004-2215",
+			"description": "Terminal manager does not properly close file descriptors, allowing attackers to access terminals of other users.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-2215"
+		},
+		{
+			"reference": "CVE-2006-5397",
+			"description": "Module opens a file for reading twice, allowing attackers to read files.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-5397"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-392",
+			"author": [
+				"Paul Roberts"
+			],
+			"title": "File descriptors and setuid applications",
+			"url": "https://blogs.oracle.com/paulr/entry/file_descriptors_and_setuid_applications",
+			"publication_year": "2007",
+			"publication_month": "--02",
+			"publication_day": "---05"
+		},
+		{
+			"section": "Elevating Privileges Safely",
+			"reference_id": "REF-393",
+			"author": [
+				"Apple"
+			],
+			"title": "Introduction to Secure Coding Guide",
+			"url": "https://developer.apple.com/library/archive/documentation/Security/Conceptual/SecureCodingGuide/Articles/AccessControl.html",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Affected_Resources, Observed_Examples, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-02-21",
+				"modification_comment": "updated Alternate_Terms, Description, Name, Observed_Examples, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Affected_Resources, Applicable_Platforms, Modes_of_Introduction, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "UNIX File Descriptor Leak",
+				"date": "2011-03-29"
+			},
+			{
+				"text": "Exposure of File Descriptor to Unintended Control Sphere",
+				"date": "2013-02-21"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "File descriptor leak",
+			"description": "While this issue is frequently called a file descriptor leak, the \"leak\" term is often used in two different ways - exposure of a resource, or consumption of a resource. Use of this term could cause confusion."
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "UNIX file descriptor leak"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Ensure files are properly closed when they are no longer needed",
+			"entry_id": "FIO42-C"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Exposed Data",
+			"entry_id": "SFP23"
+		}
+	],
+	"affected_resources": [
+		"System Process",
+		"File or Directory"
+	]
 }

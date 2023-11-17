@@ -1,176 +1,176 @@
 {
-  "id": "1296",
-  "name": "Incorrect Chaining or Granularity of Debug Components",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product's debug components contain incorrect chaining or granularity of debug components.",
-  "extended_description": "\n\t\t\t\t<xhtml:p>For debugging and troubleshooting a chip, several hardware design elements are often implemented, including:</xhtml:p>\n\t\t\t\t<xhtml:ul>\n\t\t\t\t<xhtml:li>Various Test Access Ports (TAPs) allow boundary scan commands to be executed.</xhtml:li>\n\t\t\t\t<xhtml:li>For scanning the internal components of a chip, there are scan cells that allow the chip to be used as a \"stimulus and response\" mechanism.</xhtml:li>\n\t\t\t\t<xhtml:li>Chipmakers might create custom methods to observe the internal components of their chips by placing various tracing hubs within their chip and creating hierarchical or interconnected structures among those hubs.</xhtml:li>\n\t\t\t\t</xhtml:ul>\n\t\t\t\t<xhtml:p>Logic errors during design or synthesis could misconfigure the interconnection of the debug components, which could allow unintended access permissions.</xhtml:p>\n\t\t\t",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "284",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Verilog"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "VHDL"
-      },
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Processor Hardware"
-      },
-      {
-        "class": "Not Technology-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Not OS-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "architecture": [
-      {
-        "class": "Not Architecture-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality",
-        "Integrity",
-        "Access Control",
-        "Authentication",
-        "Authorization",
-        "Availability",
-        "Accountability"
-      ],
-      "impact": [
-        "Gain Privileges or Assume Identity",
-        "Bypass Protection Mechanism",
-        "Execute Unauthorized Code or Commands",
-        "Modify Memory",
-        "Modify Files or Directories"
-      ],
-      "note": "Depending on the access to debug component(s) erroneously granted, an attacker could use the debug component to gain additional understanding about the system to further an attack and/or execute other commands. This could compromise any security property, including the ones listed above.",
-      "likelihood": "Medium"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Ensure that debug components are properly chained and their granularity is maintained at different authentication levels."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n\t\t\t\t\t<Intro_Text>The following example shows how an attacker can take advantage of incorrect chaining or missing granularity of debug components.</Intro_Text>\n\t\t\t\t\t<Body_Text>In a System-on-Chip (SoC), the user might be able to access the SoC-level TAP with a certain level of authorization. However, this access should not also grant access to all of the internal TAPs (e.g., Core). Separately, if any of the internal TAPs is also stitched to the TAP chain when it should not be because of a logic error, then an attacker can access the internal TAPs as well and execute commands there.</Body_Text>\n\t\t\t\t\t<Body_Text>As a related example, suppose there is a hierarchy of TAPs (TAP_A is connected to TAP_B and TAP_C, then TAP_B is connected to TAP_D and TAP_E, then TAP_C is connected to TAP_F and TAP_G, etc.).  Architecture mandates that the user have one set of credentials for just accessing TAP_A, another set of credentials for accessing TAP_B and TAP_C, etc. However, if, during implementation, the designer mistakenly implements a daisy-chained TAP where all the TAPs are connected in a single TAP chain without the hierarchical structure, the correct granularity of debug components is not implemented and the attacker can gain unauthorized access.</Body_Text>\n\t\t\t\t"
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2017-18347",
-      "description": "Incorrect access control in RDP Level 1 on STMicroelectronics STM32F0 series devices allows physically present attackers to extract the device's protected firmware via a special sequence of Serial Wire Debug (SWD) commands because there is a race condition between full initialization of the SWD interface and the setup of flash protection. ",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2017-18347"
-    },
-    {
-      "reference": "CVE-2020-1791",
-      "description": "There is an improper authorization vulnerability in several smartphones.  The system has a logic-judging error, and, under certain scenarios, a successful exploit could allow the attacker to switch to third desktop after a series of operations in ADB mode. (Vulnerability ID: HWPSIRT-2019-10114).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-1791"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna",
-      "submission_organization": "Intel Corporation",
-      "submission_date": "2020-05-31"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Applicable_Platforms, Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "method": "Architecture or Design Review",
-      "description": "Appropriate Post-Si tests should be carried out at various authorization levels to ensure that debug components are properly chained and accessible only to users with appropriate credentials.",
-      "effectiveness": "High"
-    },
-    {
-      "method": "Dynamic Analysis with Manual Results Interpretation",
-      "description": "Appropriate Post-Si tests should be carried out at various authorization levels to ensure that debug components are properly chained and accessible only to users with appropriate credentials.",
-      "effectiveness": "High"
-    }
-  ],
-  "related_attack_patterns": [
-    "121",
-    "702"
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "This entry is still under development and will continue to see updates and content improvements."
-    }
-  ]
+	"id": "1296",
+	"name": "Incorrect Chaining or Granularity of Debug Components",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product's debug components contain incorrect chaining or granularity of debug components.",
+	"extended_description": "\n\t\t\t\t<xhtml:p>For debugging and troubleshooting a chip, several hardware design elements are often implemented, including:</xhtml:p>\n\t\t\t\t<xhtml:ul>\n\t\t\t\t<xhtml:li>Various Test Access Ports (TAPs) allow boundary scan commands to be executed.</xhtml:li>\n\t\t\t\t<xhtml:li>For scanning the internal components of a chip, there are scan cells that allow the chip to be used as a \"stimulus and response\" mechanism.</xhtml:li>\n\t\t\t\t<xhtml:li>Chipmakers might create custom methods to observe the internal components of their chips by placing various tracing hubs within their chip and creating hierarchical or interconnected structures among those hubs.</xhtml:li>\n\t\t\t\t</xhtml:ul>\n\t\t\t\t<xhtml:p>Logic errors during design or synthesis could misconfigure the interconnection of the debug components, which could allow unintended access permissions.</xhtml:p>\n\t\t\t",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "284",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Verilog"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "VHDL"
+			},
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Processor Hardware"
+			},
+			{
+				"class": "Not Technology-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Not OS-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"architecture": [
+			{
+				"class": "Not Architecture-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Access Control",
+				"Authentication",
+				"Authorization",
+				"Availability",
+				"Accountability"
+			],
+			"impact": [
+				"Gain Privileges or Assume Identity",
+				"Bypass Protection Mechanism",
+				"Execute Unauthorized Code or Commands",
+				"Modify Memory",
+				"Modify Files or Directories"
+			],
+			"note": "Depending on the access to debug component(s) erroneously granted, an attacker could use the debug component to gain additional understanding about the system to further an attack and/or execute other commands. This could compromise any security property, including the ones listed above.",
+			"likelihood": "Medium"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Ensure that debug components are properly chained and their granularity is maintained at different authentication levels."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>The following example shows how an attacker can take advantage of incorrect chaining or missing granularity of debug components.</Intro_Text>\n\t\t\t\t\t<Body_Text>In a System-on-Chip (SoC), the user might be able to access the SoC-level TAP with a certain level of authorization. However, this access should not also grant access to all of the internal TAPs (e.g., Core). Separately, if any of the internal TAPs is also stitched to the TAP chain when it should not be because of a logic error, then an attacker can access the internal TAPs as well and execute commands there.</Body_Text>\n\t\t\t\t\t<Body_Text>As a related example, suppose there is a hierarchy of TAPs (TAP_A is connected to TAP_B and TAP_C, then TAP_B is connected to TAP_D and TAP_E, then TAP_C is connected to TAP_F and TAP_G, etc.).  Architecture mandates that the user have one set of credentials for just accessing TAP_A, another set of credentials for accessing TAP_B and TAP_C, etc. However, if, during implementation, the designer mistakenly implements a daisy-chained TAP where all the TAPs are connected in a single TAP chain without the hierarchical structure, the correct granularity of debug components is not implemented and the attacker can gain unauthorized access.</Body_Text>\n\t\t\t\t"
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2017-18347",
+			"description": "Incorrect access control in RDP Level 1 on STMicroelectronics STM32F0 series devices allows physically present attackers to extract the device's protected firmware via a special sequence of Serial Wire Debug (SWD) commands because there is a race condition between full initialization of the SWD interface and the setup of flash protection. ",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2017-18347"
+		},
+		{
+			"reference": "CVE-2020-1791",
+			"description": "There is an improper authorization vulnerability in several smartphones.  The system has a logic-judging error, and, under certain scenarios, a successful exploit could allow the attacker to switch to third desktop after a series of operations in ADB mode. (Vulnerability ID: HWPSIRT-2019-10114).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-1791"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Arun Kanuparthi, Hareesh Khattri, Parbati Kumar Manna",
+			"submission_organization": "Intel Corporation",
+			"submission_date": "2020-05-31"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Applicable_Platforms, Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"method": "Architecture or Design Review",
+			"description": "Appropriate Post-Si tests should be carried out at various authorization levels to ensure that debug components are properly chained and accessible only to users with appropriate credentials.",
+			"effectiveness": "High"
+		},
+		{
+			"method": "Dynamic Analysis with Manual Results Interpretation",
+			"description": "Appropriate Post-Si tests should be carried out at various authorization levels to ensure that debug components are properly chained and accessible only to users with appropriate credentials.",
+			"effectiveness": "High"
+		}
+	],
+	"related_attack_patterns": [
+		"121",
+		"702"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "This entry is still under development and will continue to see updates and content improvements."
+		}
+	]
 }

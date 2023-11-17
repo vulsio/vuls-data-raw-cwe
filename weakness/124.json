@@ -1,316 +1,316 @@
 {
-  "id": "124",
-  "name": "Buffer Underwrite ('Buffer Underflow')",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product writes to a buffer using an index or pointer that references a memory location prior to the beginning of the buffer.",
-  "extended_description": "This typically occurs when a pointer or its index is decremented to a position before the buffer, when pointer arithmetic results in a position before the beginning of the valid memory location, or when a negative index is used.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "786",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "787",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Availability"
-      ],
-      "impact": [
-        "Modify Memory",
-        "DoS: Crash, Exit, or Restart"
-      ],
-      "note": "Out of bounds memory access will very likely result in the corruption of relevant memory, and perhaps instructions, possibly leading to a crash."
-    },
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality",
-        "Availability",
-        "Access Control",
-        "Other"
-      ],
-      "impact": [
-        "Execute Unauthorized Code or Commands",
-        "Modify Memory",
-        "Bypass Protection Mechanism",
-        "Other"
-      ],
-      "note": "If the corrupted memory can be effectively controlled, it may be possible to execute arbitrary code. If the corrupted memory is data rather than instructions, the system will continue to function with improper changes, possibly in violation of an implicit or explicit policy. The consequences would only be limited by how the affected data is used, such as an adjacent memory location that is used to specify whether the user has special privileges."
-    },
-    {
-      "scope": [
-        "Access Control",
-        "Other"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism",
-        "Other"
-      ],
-      "note": "When the consequence is arbitrary code execution, this can often be used to subvert any other security service."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Requirements"
-      ],
-      "description": [
-        "Choose a language that is not susceptible to these issues."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "All calculated values that are used as index or for pointer arithmetic should be validated to ensure that they are within an expected range."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-87",
-      "text": "\n               <Intro_Text>In the following C/C++ example, a utility function is used to trim trailing whitespace from a character string. The function copies the input string to a local character string and uses a while statement to remove the trailing whitespace by moving backward through the string and overwriting whitespace with a NUL character.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char* trimTrailingWhitespace(char *strMessage, int length) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char *retMessage;<xhtml:br/>char *message = malloc(sizeof(char)*(length+1));<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// copy input string to a temporary string</xhtml:i>\n                           <xhtml:br/>char message[length+1];<xhtml:br/>int index;<xhtml:br/>for (index = 0; index &lt; length; index++) {<xhtml:div style=\"margin-left:1em;\">message[index] = strMessage[index];</xhtml:div>}<xhtml:br/>message[index] = '\\0';<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// trim trailing whitespace</xhtml:i>\n                           <xhtml:br/>int len = index-1;<xhtml:br/>while (isspace(message[len])) {<xhtml:div style=\"margin-left:1em;\">message[len] = '\\0';<xhtml:br/>len--;</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// return string without trailing whitespace</xhtml:i>\n                           <xhtml:br/>retMessage = message;<xhtml:br/>return retMessage;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, this function can cause a buffer underwrite if the input character string contains all whitespace. On some systems the while statement will move backwards past the beginning of a character string and will call the isspace() function on an address outside of the bounds of the local buffer.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-88",
-      "text": "\n               <Intro_Text>The following is an example of code that may result in a buffer underwrite, if find() returns a negative value to indicate that ch is not found in srcBuf:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int main() {<xhtml:div style=\"margin-left:1em;\">...<xhtml:br/>strncpy(destBuf, &amp;srcBuf[find(srcBuf, ch)], 1024);<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the index to srcBuf is somehow under user control, this is an arbitrary write-what-where condition.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2021-24018",
-      "description": "buffer underwrite in firmware verification routine allows code execution via a crafted firmware image",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-24018"
-    },
-    {
-      "reference": "CVE-2002-2227",
-      "description": "Unchecked length of SSLv2 challenge value leads to buffer underflow.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-2227"
-    },
-    {
-      "reference": "CVE-2007-4580",
-      "description": "Buffer underflow from a small size value with a large buffer (length parameter inconsistency, CWE-130)",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4580"
-    },
-    {
-      "reference": "CVE-2007-1584",
-      "description": "Buffer underflow from an all-whitespace string, which causes a counter to be decremented before the buffer while looking for a non-whitespace character.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-1584"
-    },
-    {
-      "reference": "CVE-2007-0886",
-      "description": "Buffer underflow resultant from encoded data that triggers an integer overflow.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-0886"
-    },
-    {
-      "reference": "CVE-2006-6171",
-      "description": "Product sets an incorrect buffer size limit, leading to \"off-by-two\" buffer underflow.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-6171"
-    },
-    {
-      "reference": "CVE-2006-4024",
-      "description": "Negative value is used in a memcpy() operation, leading to buffer underflow.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-4024"
-    },
-    {
-      "reference": "CVE-2004-2620",
-      "description": "Buffer underflow due to mishandled special characters",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-2620"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-90",
-      "title": "Buffer UNDERFLOWS: What do you know about it?",
-      "url": "https://seclists.org/vuln-dev/2004/Jan/22",
-      "publication_year": "2004",
-      "publication_month": "--01",
-      "publication_day": "---10",
-      "publication": "Vuln-Dev Mailing List",
-      "url_date": "2023-04-07"
-    },
-    {
-      "section": "\"Sin 5: Buffer Overruns.\" Page 89",
-      "reference_id": "REF-44",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc",
-        "John Viega"
-      ],
-      "title": "24 Deadly Sins of Software Security",
-      "publication_year": "2010",
-      "publication": "McGraw-Hill"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Alternate_Terms, Applicable_Platforms, Common_Consequences, Description, Relationships, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Description, Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Demonstrative_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Causal_Nature, Demonstrative_Examples, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Research_Gaps"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Boundary Beginning Violation ('Buffer Underwrite')",
-        "date": "2009-10-29"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "alternate_terms": [
-    {
-      "term": "buffer underrun",
-      "description": "Some prominent vendors and researchers use the term \"buffer underrun\". \"Buffer underflow\" is more commonly used, although both terms are also sometimes used to describe a buffer under-read (CWE-127)."
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "UNDER - Boundary beginning violation ('buffer underflow'?)"
-    },
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Buffer underwrite"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Faulty Buffer Access",
-      "entry_id": "SFP8"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "This could be resultant from several errors, including a bad offset or an array index that decrements before the beginning of the buffer (see CWE-129)."
-    }
-  ]
+	"id": "124",
+	"name": "Buffer Underwrite ('Buffer Underflow')",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product writes to a buffer using an index or pointer that references a memory location prior to the beginning of the buffer.",
+	"extended_description": "This typically occurs when a pointer or its index is decremented to a position before the buffer, when pointer arithmetic results in a position before the beginning of the valid memory location, or when a negative index is used.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "786",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "787",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Availability"
+			],
+			"impact": [
+				"Modify Memory",
+				"DoS: Crash, Exit, or Restart"
+			],
+			"note": "Out of bounds memory access will very likely result in the corruption of relevant memory, and perhaps instructions, possibly leading to a crash."
+		},
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality",
+				"Availability",
+				"Access Control",
+				"Other"
+			],
+			"impact": [
+				"Execute Unauthorized Code or Commands",
+				"Modify Memory",
+				"Bypass Protection Mechanism",
+				"Other"
+			],
+			"note": "If the corrupted memory can be effectively controlled, it may be possible to execute arbitrary code. If the corrupted memory is data rather than instructions, the system will continue to function with improper changes, possibly in violation of an implicit or explicit policy. The consequences would only be limited by how the affected data is used, such as an adjacent memory location that is used to specify whether the user has special privileges."
+		},
+		{
+			"scope": [
+				"Access Control",
+				"Other"
+			],
+			"impact": [
+				"Bypass Protection Mechanism",
+				"Other"
+			],
+			"note": "When the consequence is arbitrary code execution, this can often be used to subvert any other security service."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Requirements"
+			],
+			"description": [
+				"Choose a language that is not susceptible to these issues."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"All calculated values that are used as index or for pointer arithmetic should be validated to ensure that they are within an expected range."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-87",
+			"text": "\n               <Intro_Text>In the following C/C++ example, a utility function is used to trim trailing whitespace from a character string. The function copies the input string to a local character string and uses a while statement to remove the trailing whitespace by moving backward through the string and overwriting whitespace with a NUL character.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char* trimTrailingWhitespace(char *strMessage, int length) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char *retMessage;<xhtml:br/>char *message = malloc(sizeof(char)*(length+1));<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// copy input string to a temporary string</xhtml:i>\n                           <xhtml:br/>char message[length+1];<xhtml:br/>int index;<xhtml:br/>for (index = 0; index &lt; length; index++) {<xhtml:div style=\"margin-left:1em;\">message[index] = strMessage[index];</xhtml:div>}<xhtml:br/>message[index] = '\\0';<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// trim trailing whitespace</xhtml:i>\n                           <xhtml:br/>int len = index-1;<xhtml:br/>while (isspace(message[len])) {<xhtml:div style=\"margin-left:1em;\">message[len] = '\\0';<xhtml:br/>len--;</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>// return string without trailing whitespace</xhtml:i>\n                           <xhtml:br/>retMessage = message;<xhtml:br/>return retMessage;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, this function can cause a buffer underwrite if the input character string contains all whitespace. On some systems the while statement will move backwards past the beginning of a character string and will call the isspace() function on an address outside of the bounds of the local buffer.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-88",
+			"text": "\n               <Intro_Text>The following is an example of code that may result in a buffer underwrite, if find() returns a negative value to indicate that ch is not found in srcBuf:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int main() {<xhtml:div style=\"margin-left:1em;\">...<xhtml:br/>strncpy(destBuf, &amp;srcBuf[find(srcBuf, ch)], 1024);<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the index to srcBuf is somehow under user control, this is an arbitrary write-what-where condition.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2021-24018",
+			"description": "buffer underwrite in firmware verification routine allows code execution via a crafted firmware image",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-24018"
+		},
+		{
+			"reference": "CVE-2002-2227",
+			"description": "Unchecked length of SSLv2 challenge value leads to buffer underflow.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-2227"
+		},
+		{
+			"reference": "CVE-2007-4580",
+			"description": "Buffer underflow from a small size value with a large buffer (length parameter inconsistency, CWE-130)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4580"
+		},
+		{
+			"reference": "CVE-2007-1584",
+			"description": "Buffer underflow from an all-whitespace string, which causes a counter to be decremented before the buffer while looking for a non-whitespace character.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-1584"
+		},
+		{
+			"reference": "CVE-2007-0886",
+			"description": "Buffer underflow resultant from encoded data that triggers an integer overflow.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-0886"
+		},
+		{
+			"reference": "CVE-2006-6171",
+			"description": "Product sets an incorrect buffer size limit, leading to \"off-by-two\" buffer underflow.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-6171"
+		},
+		{
+			"reference": "CVE-2006-4024",
+			"description": "Negative value is used in a memcpy() operation, leading to buffer underflow.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-4024"
+		},
+		{
+			"reference": "CVE-2004-2620",
+			"description": "Buffer underflow due to mishandled special characters",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-2620"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-90",
+			"title": "Buffer UNDERFLOWS: What do you know about it?",
+			"url": "https://seclists.org/vuln-dev/2004/Jan/22",
+			"publication_year": "2004",
+			"publication_month": "--01",
+			"publication_day": "---10",
+			"publication": "Vuln-Dev Mailing List",
+			"url_date": "2023-04-07"
+		},
+		{
+			"section": "\"Sin 5: Buffer Overruns.\" Page 89",
+			"reference_id": "REF-44",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc",
+				"John Viega"
+			],
+			"title": "24 Deadly Sins of Software Security",
+			"publication_year": "2010",
+			"publication": "McGraw-Hill"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Alternate_Terms, Applicable_Platforms, Common_Consequences, Description, Relationships, Relationship_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Description, Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Causal_Nature, Demonstrative_Examples, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Research_Gaps"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Boundary Beginning Violation ('Buffer Underwrite')",
+				"date": "2009-10-29"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"alternate_terms": [
+		{
+			"term": "buffer underrun",
+			"description": "Some prominent vendors and researchers use the term \"buffer underrun\". \"Buffer underflow\" is more commonly used, although both terms are also sometimes used to describe a buffer under-read (CWE-127)."
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "UNDER - Boundary beginning violation ('buffer underflow'?)"
+		},
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Buffer underwrite"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Faulty Buffer Access",
+			"entry_id": "SFP8"
+		}
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "This could be resultant from several errors, including a bad offset or an array index that decrements before the beginning of the buffer (see CWE-129)."
+		}
+	]
 }

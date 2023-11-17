@@ -1,276 +1,276 @@
 {
-  "id": "478",
-  "name": "Missing Default Case in Multiple Condition Expression",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The code does not have a default case in an expression with multiple conditions, such as a switch statement.",
-  "extended_description": "If a multiple-condition expression (such as a switch in C) omits the default case but does not consider or handle all possible values that could occur, then this might lead to complex logical errors and resultant weaknesses. Because of this, further decisions are made based on poor information, and cascading failure results. This cascading failure may result in any number of security issues, and constitutes a significant failure in the system.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1023",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "C"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C++"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "C#"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "Python"
-      },
-      {
-        "prevalence": "Undetermined",
-        "name": "JavaScript"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity"
-      ],
-      "impact": [
-        "Varies by Context",
-        "Alter Execution Logic"
-      ],
-      "note": "Depending on the logical circumstances involved, any consequences may result: e.g., issues of confidentiality, authentication, authorization, availability, integrity, accountability, or non-repudiation."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Ensure that there are no cases unaccounted for when adjusting program flow or values based on the value of a given variable. In the case of switch style statements, the very simple act of creating a default case can, if done correctly, mitigate this situation. Often however, the default case is used simply to represent an assumed option, as opposed to working as a check for invalid input. This is poor practice and in some cases is as bad as omitting a default case entirely."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following does not properly check the return code in the case where the security_check function returns a -1 value when an error occurs. If an attacker can supply data that will invoke an error, the attacker can bypass the security check:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define FAILED 0<xhtml:br/>#define PASSED 1<xhtml:br/>int result;<xhtml:br/>...<xhtml:br/>result = security_check(data);<xhtml:br/>switch (result) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>case FAILED:<xhtml:div style=\"margin-left:1em;\">printf(\"Security check failed!\\n\");<xhtml:br/>exit(-1);<xhtml:br/>\n                              <xhtml:i>//Break never reached because of exit()</xhtml:i>\n                              <xhtml:br/>break;</xhtml:div>\n                           <xhtml:br/>case PASSED:<xhtml:div style=\"margin-left:1em;\">printf(\"Security check passed.\\n\");<xhtml:br/>break;</xhtml:div>\n                        </xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:i>// program execution continues...</xhtml:i>\n                     <xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>Instead a default label should be used for unaccounted conditions:</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>#define FAILED 0<xhtml:br/>#define PASSED 1<xhtml:br/>int result;<xhtml:br/>...<xhtml:br/>result = security_check(data);<xhtml:br/>switch (result) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>case FAILED:<xhtml:div style=\"margin-left:1em;\">printf(\"Security check failed!\\n\");<xhtml:br/>exit(-1);<xhtml:br/>\n                              <xhtml:i>//Break never reached because of exit()</xhtml:i>\n                              <xhtml:br/>break;</xhtml:div>\n                           <xhtml:br/>case PASSED:<xhtml:div style=\"margin-left:1em;\">printf(\"Security check passed.\\n\");<xhtml:br/>break;</xhtml:div>\n                           <xhtml:br/>default:<xhtml:div style=\"margin-left:1em;\">printf(\"Unknown error (%d), exiting...\\n\",result);<xhtml:br/>exit(-1);</xhtml:div>\n                        </xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This label is used because the assumption cannot be made that all possible cases are accounted for. A good practice is to reserve the default case for error handling.</Body_Text>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>In the following Java example the method getInterestRate retrieves the interest rate for the number of points for a mortgage. The number of points is provided within the input parameter and a switch statement will set the interest rate value to be returned based on the number of points.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public static final String INTEREST_RATE_AT_ZERO_POINTS = \"5.00\";<xhtml:br/>public static final String INTEREST_RATE_AT_ONE_POINTS = \"4.75\";<xhtml:br/>public static final String INTEREST_RATE_AT_TWO_POINTS = \"4.50\";<xhtml:br/>...<xhtml:br/>public BigDecimal getInterestRate(int points) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BigDecimal result = new BigDecimal(INTEREST_RATE_AT_ZERO_POINTS);<xhtml:br/>\n                           <xhtml:br/>switch (points) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>case 0:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_ZERO_POINTS);<xhtml:br/>break;</xhtml:div>\n                                 <xhtml:br/>case 1:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_ONE_POINTS);<xhtml:br/>break;</xhtml:div>\n                                 <xhtml:br/>case 2:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_TWO_POINTS);<xhtml:br/>break;</xhtml:div>\n                              </xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return result;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, this code assumes that the value of the points input parameter will always be 0, 1 or 2 and does not check for other incorrect values passed to the method. This can be easily accomplished by providing a default label in the switch statement that outputs an error message indicating an invalid value for the points input parameter and returning a null value.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public static final String INTEREST_RATE_AT_ZERO_POINTS = \"5.00\";<xhtml:br/>public static final String INTEREST_RATE_AT_ONE_POINTS = \"4.75\";<xhtml:br/>public static final String INTEREST_RATE_AT_TWO_POINTS = \"4.50\";<xhtml:br/>...<xhtml:br/>public BigDecimal getInterestRate(int points) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BigDecimal result = new BigDecimal(INTEREST_RATE_AT_ZERO_POINTS);<xhtml:br/>\n                           <xhtml:br/>switch (points) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>case 0:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_ZERO_POINTS);<xhtml:br/>break;</xhtml:div>\n                                 <xhtml:br/>case 1:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_ONE_POINTS);<xhtml:br/>break;</xhtml:div>\n                                 <xhtml:br/>case 2:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_TWO_POINTS);<xhtml:br/>break;</xhtml:div>\n                                 <xhtml:br/>default:<xhtml:div style=\"margin-left:1em;\">System.err.println(\"Invalid value for points, must be 0, 1 or 2\");<xhtml:br/>System.err.println(\"Returning null value for interest rate\");<xhtml:br/>result = null;</xhtml:div>\n                              </xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>return result;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>In the following Python example the match-case statements (available in Python version 3.10 and later) perform actions based on the result of the process_data() function. The expected return is either 0 or 1. However, if an unexpected result (e.g., -1 or 2) is obtained then no actions will be taken potentially leading to an unexpected program state.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>result = process_data(data)\n                  <xhtml:br/>match result:\n                  <xhtml:div style=\"margin-left:1em;\">case 0:\n                     <xhtml:div style=\"margin-left:1em;\">print(\"Properly handle zero case.\")</xhtml:div>\n                  <xhtml:br/>case 1:\n                     <xhtml:div style=\"margin-left:1em;\">print(\"Properly handle one case.\")</xhtml:div>\n                  </xhtml:div>\n                  <xhtml:br/># program execution continues...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The recommended approach is to add a default case that captures any unexpected result conditions, regardless of how improbable these unexpected conditions might be, and properly handles them.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Python\">\n                  <xhtml:div>result = process_data(data)\n                  <xhtml:br/>match result:\n                  <xhtml:div style=\"margin-left:1em;\">case 0:\n                     <xhtml:div style=\"margin-left:1em;\">print(\"Properly handle zero case.\")</xhtml:div>\n                  <xhtml:br/>case 1:\n                     <xhtml:div style=\"margin-left:1em;\">print(\"Properly handle one case.\")</xhtml:div>\n                  <xhtml:br/>case _:\n                     <xhtml:div style=\"margin-left:1em;\">print(\"Properly handle unexpected condition.\")</xhtml:div>\n                  </xhtml:div>\n                  <xhtml:br/># program execution continues...</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>In the following JavaScript example the switch-case statements (available in JavaScript version 1.2 and later) are used to process a given step based on the result of a calcuation involving two inputs. The expected return is either 1, 2, or 3. However, if an unexpected result (e.g., 4) is obtained then no action will be taken potentially leading to an unexpected program state.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n                  <xhtml:div>let step = input1 + input2;\n                  <xhtml:br/>switch(step) {\n                  <xhtml:div style=\"margin-left:1em;\">case 1:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 1.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  <xhtml:br/>case 2:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 2.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  <xhtml:br/>case 3:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 3.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  </xhtml:div>\n                  <xhtml:br/>}\n                  <xhtml:br/>// program execution continues...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The recommended approach is to add a default case that captures any unexpected result conditions and properly handles them.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"JavaScript\">\n                  <xhtml:div>let step = input1 + input2;\n                  <xhtml:br/>switch(step) {\n                  <xhtml:div style=\"margin-left:1em;\">case 1:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 1.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  <xhtml:br/>case 2:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 2.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  <xhtml:br/>case 3:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 3.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  <xhtml:br/>default:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Unexpected step encountered.\");</xhtml:div>\n                  </xhtml:div>\n                  <xhtml:br/>}\n                  <xhtml:br/>// program execution continues...</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-152",
-      "text": "\n              <Intro_Text>The Finite State Machine (FSM) shown in the \"bad\" code snippet below assigns the output (\"out\") based on the value of state, which is determined based on the user provided input (\"user_input\").</Intro_Text>\n              <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                <xhtml:div>module fsm_1(out, user_input, clk, rst_n);\n                <xhtml:br/>input [2:0] user_input; \n                <xhtml:br/>input clk, rst_n;\n                <xhtml:br/>output reg [2:0] out;\n                <xhtml:br/>reg [1:0] state;\n                <xhtml:br/>always @ (posedge clk or negedge rst_n )\n                <xhtml:br/>\n                <xhtml:div style=\"margin-left:1em;\">begin\n                <xhtml:br/>\n                <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t  if (!rst_n)<xhtml:br/>\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tstate = 3'h0;\n\t\t\t\t  </xhtml:div>\n                  else<xhtml:br/>\n\t\t\t\t  case (user_input)\n                  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t3'h0:<xhtml:br/>\n\t\t\t\t\t3'h1:<xhtml:br/>\n\t\t\t\t\t3'h2:<xhtml:br/>\n\t\t\t\t\t3'h3: state = 2'h3;<xhtml:br/>\n\t\t\t\t\t3'h4: state = 2'h2;<xhtml:br/>\n\t\t\t\t\t3'h5: state = 2'h1;<xhtml:br/>\n                  </xhtml:div>\n                endcase\n                </xhtml:div>\n                end<xhtml:br/>\n                out &lt;= {1'h1, state};<xhtml:br/>\n                </xhtml:div>\n                endmodule\n                </xhtml:div>\n              </Example_Code>\n              <Body_Text>\n                <xhtml:p>The case statement does not include a default to handle the scenario when the user provides inputs of 3'h6 and 3'h7.  Those inputs push the system to an undefined state and might cause a crash (denial of service) or any other unanticipated outcome.</xhtml:p>\n                <xhtml:p>Adding a default statement to handle undefined inputs mitigates this issue.  This is shown in the \"Good\" code snippet below.  The default statement is in bold.</xhtml:p>\n              </Body_Text>\n              <Example_Code Nature=\"Good\" Language=\"Verilog\">\n                <xhtml:div>case (user_input)\n                <xhtml:br/><xhtml:div style=\"margin-left:1em;\">3'h0:\n                <xhtml:br/>3'h1:\n                <xhtml:br/>3'h2:\n                <xhtml:br/>3'h3: state = 2'h3;\n                <xhtml:br/>3'h4: state = 2'h2;\n                <xhtml:br/>3'h5: state = 2'h1;\n                <xhtml:br/><xhtml:b>default: state = 2'h0;</xhtml:b>\n              </xhtml:div>\n                endcase</xhtml:div>\n              </Example_Code>\n            "
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    },
-    {
-      "section": "Chapter 7, \"Switch Statements\", Page 337",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Common_Consequences, Description, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Description, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-06-23",
-        "modification_comment": "updated Description, Other_Notes, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated References, Relationships, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Name, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Failure to Account for Default Case in Switch",
-        "date": "2008-04-11"
-      },
-      {
-        "text": "Failure to Use Default Case in Switch",
-        "date": "2009-05-27"
-      },
-      {
-        "text": "Missing Default Case in Switch Statement",
-        "date": "2022-10-13"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "Drew Buttner",
-        "contribution_date": "2022-08-15",
-        "contribution_comment": "Suggested name change and other modifications, including a new demonstrative example."
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Primary"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Failure to account for default case in switch"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Unchecked Status Condition",
-      "entry_id": "SFP4"
-    }
-  ]
+	"id": "478",
+	"name": "Missing Default Case in Multiple Condition Expression",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The code does not have a default case in an expression with multiple conditions, such as a switch statement.",
+	"extended_description": "If a multiple-condition expression (such as a switch in C) omits the default case but does not consider or handle all possible values that could occur, then this might lead to complex logical errors and resultant weaknesses. Because of this, further decisions are made based on poor information, and cascading failure results. This cascading failure may result in any number of security issues, and constitutes a significant failure in the system.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1023",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "C"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C++"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "C#"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "Python"
+			},
+			{
+				"prevalence": "Undetermined",
+				"name": "JavaScript"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity"
+			],
+			"impact": [
+				"Varies by Context",
+				"Alter Execution Logic"
+			],
+			"note": "Depending on the logical circumstances involved, any consequences may result: e.g., issues of confidentiality, authentication, authorization, availability, integrity, accountability, or non-repudiation."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Ensure that there are no cases unaccounted for when adjusting program flow or values based on the value of a given variable. In the case of switch style statements, the very simple act of creating a default case can, if done correctly, mitigate this situation. Often however, the default case is used simply to represent an assumed option, as opposed to working as a check for invalid input. This is poor practice and in some cases is as bad as omitting a default case entirely."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following does not properly check the return code in the case where the security_check function returns a -1 value when an error occurs. If an attacker can supply data that will invoke an error, the attacker can bypass the security check:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define FAILED 0<xhtml:br/>#define PASSED 1<xhtml:br/>int result;<xhtml:br/>...<xhtml:br/>result = security_check(data);<xhtml:br/>switch (result) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>case FAILED:<xhtml:div style=\"margin-left:1em;\">printf(\"Security check failed!\\n\");<xhtml:br/>exit(-1);<xhtml:br/>\n                              <xhtml:i>//Break never reached because of exit()</xhtml:i>\n                              <xhtml:br/>break;</xhtml:div>\n                           <xhtml:br/>case PASSED:<xhtml:div style=\"margin-left:1em;\">printf(\"Security check passed.\\n\");<xhtml:br/>break;</xhtml:div>\n                        </xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:i>// program execution continues...</xhtml:i>\n                     <xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>Instead a default label should be used for unaccounted conditions:</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>#define FAILED 0<xhtml:br/>#define PASSED 1<xhtml:br/>int result;<xhtml:br/>...<xhtml:br/>result = security_check(data);<xhtml:br/>switch (result) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>case FAILED:<xhtml:div style=\"margin-left:1em;\">printf(\"Security check failed!\\n\");<xhtml:br/>exit(-1);<xhtml:br/>\n                              <xhtml:i>//Break never reached because of exit()</xhtml:i>\n                              <xhtml:br/>break;</xhtml:div>\n                           <xhtml:br/>case PASSED:<xhtml:div style=\"margin-left:1em;\">printf(\"Security check passed.\\n\");<xhtml:br/>break;</xhtml:div>\n                           <xhtml:br/>default:<xhtml:div style=\"margin-left:1em;\">printf(\"Unknown error (%d), exiting...\\n\",result);<xhtml:br/>exit(-1);</xhtml:div>\n                        </xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This label is used because the assumption cannot be made that all possible cases are accounted for. A good practice is to reserve the default case for error handling.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>In the following Java example the method getInterestRate retrieves the interest rate for the number of points for a mortgage. The number of points is provided within the input parameter and a switch statement will set the interest rate value to be returned based on the number of points.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public static final String INTEREST_RATE_AT_ZERO_POINTS = \"5.00\";<xhtml:br/>public static final String INTEREST_RATE_AT_ONE_POINTS = \"4.75\";<xhtml:br/>public static final String INTEREST_RATE_AT_TWO_POINTS = \"4.50\";<xhtml:br/>...<xhtml:br/>public BigDecimal getInterestRate(int points) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BigDecimal result = new BigDecimal(INTEREST_RATE_AT_ZERO_POINTS);<xhtml:br/>\n                           <xhtml:br/>switch (points) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>case 0:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_ZERO_POINTS);<xhtml:br/>break;</xhtml:div>\n                                 <xhtml:br/>case 1:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_ONE_POINTS);<xhtml:br/>break;</xhtml:div>\n                                 <xhtml:br/>case 2:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_TWO_POINTS);<xhtml:br/>break;</xhtml:div>\n                              </xhtml:div>\n                           </xhtml:div>}<xhtml:br/>return result;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, this code assumes that the value of the points input parameter will always be 0, 1 or 2 and does not check for other incorrect values passed to the method. This can be easily accomplished by providing a default label in the switch statement that outputs an error message indicating an invalid value for the points input parameter and returning a null value.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public static final String INTEREST_RATE_AT_ZERO_POINTS = \"5.00\";<xhtml:br/>public static final String INTEREST_RATE_AT_ONE_POINTS = \"4.75\";<xhtml:br/>public static final String INTEREST_RATE_AT_TWO_POINTS = \"4.50\";<xhtml:br/>...<xhtml:br/>public BigDecimal getInterestRate(int points) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>BigDecimal result = new BigDecimal(INTEREST_RATE_AT_ZERO_POINTS);<xhtml:br/>\n                           <xhtml:br/>switch (points) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>case 0:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_ZERO_POINTS);<xhtml:br/>break;</xhtml:div>\n                                 <xhtml:br/>case 1:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_ONE_POINTS);<xhtml:br/>break;</xhtml:div>\n                                 <xhtml:br/>case 2:<xhtml:div style=\"margin-left:1em;\">result = new BigDecimal(INTEREST_RATE_AT_TWO_POINTS);<xhtml:br/>break;</xhtml:div>\n                                 <xhtml:br/>default:<xhtml:div style=\"margin-left:1em;\">System.err.println(\"Invalid value for points, must be 0, 1 or 2\");<xhtml:br/>System.err.println(\"Returning null value for interest rate\");<xhtml:br/>result = null;</xhtml:div>\n                              </xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>return result;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>In the following Python example the match-case statements (available in Python version 3.10 and later) perform actions based on the result of the process_data() function. The expected return is either 0 or 1. However, if an unexpected result (e.g., -1 or 2) is obtained then no actions will be taken potentially leading to an unexpected program state.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>result = process_data(data)\n                  <xhtml:br/>match result:\n                  <xhtml:div style=\"margin-left:1em;\">case 0:\n                     <xhtml:div style=\"margin-left:1em;\">print(\"Properly handle zero case.\")</xhtml:div>\n                  <xhtml:br/>case 1:\n                     <xhtml:div style=\"margin-left:1em;\">print(\"Properly handle one case.\")</xhtml:div>\n                  </xhtml:div>\n                  <xhtml:br/># program execution continues...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The recommended approach is to add a default case that captures any unexpected result conditions, regardless of how improbable these unexpected conditions might be, and properly handles them.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Python\">\n                  <xhtml:div>result = process_data(data)\n                  <xhtml:br/>match result:\n                  <xhtml:div style=\"margin-left:1em;\">case 0:\n                     <xhtml:div style=\"margin-left:1em;\">print(\"Properly handle zero case.\")</xhtml:div>\n                  <xhtml:br/>case 1:\n                     <xhtml:div style=\"margin-left:1em;\">print(\"Properly handle one case.\")</xhtml:div>\n                  <xhtml:br/>case _:\n                     <xhtml:div style=\"margin-left:1em;\">print(\"Properly handle unexpected condition.\")</xhtml:div>\n                  </xhtml:div>\n                  <xhtml:br/># program execution continues...</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>In the following JavaScript example the switch-case statements (available in JavaScript version 1.2 and later) are used to process a given step based on the result of a calcuation involving two inputs. The expected return is either 1, 2, or 3. However, if an unexpected result (e.g., 4) is obtained then no action will be taken potentially leading to an unexpected program state.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n                  <xhtml:div>let step = input1 + input2;\n                  <xhtml:br/>switch(step) {\n                  <xhtml:div style=\"margin-left:1em;\">case 1:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 1.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  <xhtml:br/>case 2:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 2.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  <xhtml:br/>case 3:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 3.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  </xhtml:div>\n                  <xhtml:br/>}\n                  <xhtml:br/>// program execution continues...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The recommended approach is to add a default case that captures any unexpected result conditions and properly handles them.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"JavaScript\">\n                  <xhtml:div>let step = input1 + input2;\n                  <xhtml:br/>switch(step) {\n                  <xhtml:div style=\"margin-left:1em;\">case 1:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 1.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  <xhtml:br/>case 2:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 2.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  <xhtml:br/>case 3:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Process step 3.\");\n                     <xhtml:br/>break;</xhtml:div>\n                  <xhtml:br/>default:\n                     <xhtml:div style=\"margin-left:1em;\">alert(\"Unexpected step encountered.\");</xhtml:div>\n                  </xhtml:div>\n                  <xhtml:br/>}\n                  <xhtml:br/>// program execution continues...</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-152",
+			"text": "\n              <Intro_Text>The Finite State Machine (FSM) shown in the \"bad\" code snippet below assigns the output (\"out\") based on the value of state, which is determined based on the user provided input (\"user_input\").</Intro_Text>\n              <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                <xhtml:div>module fsm_1(out, user_input, clk, rst_n);\n                <xhtml:br/>input [2:0] user_input; \n                <xhtml:br/>input clk, rst_n;\n                <xhtml:br/>output reg [2:0] out;\n                <xhtml:br/>reg [1:0] state;\n                <xhtml:br/>always @ (posedge clk or negedge rst_n )\n                <xhtml:br/>\n                <xhtml:div style=\"margin-left:1em;\">begin\n                <xhtml:br/>\n                <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t  if (!rst_n)<xhtml:br/>\n\t\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tstate = 3'h0;\n\t\t\t\t  </xhtml:div>\n                  else<xhtml:br/>\n\t\t\t\t  case (user_input)\n                  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t3'h0:<xhtml:br/>\n\t\t\t\t\t3'h1:<xhtml:br/>\n\t\t\t\t\t3'h2:<xhtml:br/>\n\t\t\t\t\t3'h3: state = 2'h3;<xhtml:br/>\n\t\t\t\t\t3'h4: state = 2'h2;<xhtml:br/>\n\t\t\t\t\t3'h5: state = 2'h1;<xhtml:br/>\n                  </xhtml:div>\n                endcase\n                </xhtml:div>\n                end<xhtml:br/>\n                out &lt;= {1'h1, state};<xhtml:br/>\n                </xhtml:div>\n                endmodule\n                </xhtml:div>\n              </Example_Code>\n              <Body_Text>\n                <xhtml:p>The case statement does not include a default to handle the scenario when the user provides inputs of 3'h6 and 3'h7.  Those inputs push the system to an undefined state and might cause a crash (denial of service) or any other unanticipated outcome.</xhtml:p>\n                <xhtml:p>Adding a default statement to handle undefined inputs mitigates this issue.  This is shown in the \"Good\" code snippet below.  The default statement is in bold.</xhtml:p>\n              </Body_Text>\n              <Example_Code Nature=\"Good\" Language=\"Verilog\">\n                <xhtml:div>case (user_input)\n                <xhtml:br/><xhtml:div style=\"margin-left:1em;\">3'h0:\n                <xhtml:br/>3'h1:\n                <xhtml:br/>3'h2:\n                <xhtml:br/>3'h3: state = 2'h3;\n                <xhtml:br/>3'h4: state = 2'h2;\n                <xhtml:br/>3'h5: state = 2'h1;\n                <xhtml:br/><xhtml:b>default: state = 2'h0;</xhtml:b>\n              </xhtml:div>\n                endcase</xhtml:div>\n              </Example_Code>\n            "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		},
+		{
+			"section": "Chapter 7, \"Switch Statements\", Page 337",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Common_Consequences, Description, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Description, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-06-23",
+				"modification_comment": "updated Description, Other_Notes, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated References, Relationships, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Description, Name, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Failure to Account for Default Case in Switch",
+				"date": "2008-04-11"
+			},
+			{
+				"text": "Failure to Use Default Case in Switch",
+				"date": "2009-05-27"
+			},
+			{
+				"text": "Missing Default Case in Switch Statement",
+				"date": "2022-10-13"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Drew Buttner",
+				"contribution_date": "2022-08-15",
+				"contribution_comment": "Suggested name change and other modifications, including a new demonstrative example."
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Primary"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Failure to account for default case in switch"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Unchecked Status Condition",
+			"entry_id": "SFP4"
+		}
+	]
 }

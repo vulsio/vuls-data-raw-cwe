@@ -1,289 +1,289 @@
 {
-  "id": "1333",
-  "name": "Inefficient Regular Expression Complexity",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product uses a regular expression with an inefficient, possibly exponential worst-case computational complexity that consumes excessive CPU cycles.",
-  "extended_description": "Some regular expression engines have a feature called \"backtracking\". If the token cannot match, the engine \"backtracks\" to a position that may result in a different token that can match.<xhtml:br/>\n                Backtracking becomes a weakness if all of these conditions are met:<xhtml:br/>\n                <xhtml:ul>\n                    <xhtml:li>The number of possible backtracking attempts are exponential relative to the length of the input.</xhtml:li>\n                    <xhtml:li>The input can fail to match the regular expression.</xhtml:li>\n                    <xhtml:li>The input can be long enough.</xhtml:li>\n                </xhtml:ul>\n\t\t<xhtml:p>\n\t\t  Attackers can create crafted inputs that\n\t\t  intentionally cause the regular expression to use\n\t\t  excessive backtracking in a way that causes the CPU\n\t\t  consumption to spike.\n\t\t</xhtml:p>\n            ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "407",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "407",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "A RegEx can be easy to create and read using unbounded matching characters, but the programmer might not consider the risk of  excessive backtracking."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Resource Consumption (CPU)"
-      ],
-      "likelihood": "High"
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Use regular expressions that do not support backtracking, e.g. by removing nested quantifiers."
-      ],
-      "effectiveness": "High",
-      "effectiveness_notes": "This is one of the few effective solutions when using user-provided regular expressions."
-    },
-    {
-      "phase": [
-        "System Configuration"
-      ],
-      "description": [
-        "Set backtracking limits in the configuration of the regular expression implementation, such as PHP's pcre.backtrack_limit. Also consider limits on execution time for the process."
-      ],
-      "effectiveness": "Moderate"
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Do not use regular expressions with untrusted input. If regular expressions must be used, avoid using backtracking in the expression."
-      ],
-      "effectiveness": "High"
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Limit the length of the input that the regular expression will process."
-      ],
-      "effectiveness": "Moderate"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-158",
-      "text": "\n                    <Intro_Text>This example attempts to check if an input string is a \"sentence\" [REF-1164].</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n                        var test_string = \"Bad characters: $@#\";<xhtml:br/>\n                        var bad_pattern  = /^(\\w+\\s?)*$/i;<xhtml:br/>\n                        var result = test_string.search(bad_pattern);\n                     </Example_Code>\n                    <Body_Text><xhtml:p>The regular expression has a vulnerable backtracking clause inside (\\w+\\s?)*$ which can be triggered to cause a Denial of Service by processing particular phrases.</xhtml:p>\n\t\t    <xhtml:p>To fix the backtracking problem, backtracking is removed with the ?= portion of the expression which changes it to a lookahead and the \\2 which prevents the backtracking. The modified example is:</xhtml:p></Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"JavaScript\">\n                        var test_string = \"Bad characters: $@#\";<xhtml:br/>\n                        var good_pattern  = /^((?=(\\w+))\\2\\s?)*$/i;<xhtml:br/>\n                        var result = test_string.search(good_pattern);\n                    </Example_Code>\n                     <Body_Text>Note that [REF-1164] has a more thorough (and lengthy) explanation of everything going on within the RegEx.</Body_Text>\n               "
-    },
-    {
-      "text": "\n                    <Intro_Text>This example attempts to check if an input string is a \"sentence\" and is modified for Perl [REF-1164].</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                        my $test_string = \"Bad characters: \\$\\@\\#\";<xhtml:br/>\n                        my $bdrslt = $test_string;<xhtml:br/>\n                        $bdrslt =~ /^(\\w+\\s?)*$/i;\n                    </Example_Code>\n                    <Body_Text><xhtml:p>The regular expression has a vulnerable backtracking clause inside (\\w+\\s?)*$ which can be triggered to cause a Denial of Service by processing particular phrases.</xhtml:p>\n\t\t    <xhtml:p>To fix the backtracking problem, backtracking is removed with the ?= portion of the expression which changes it to a lookahead and the \\2 which prevents the backtracking. The modified example is:</xhtml:p></Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"Perl\">\n                        my $test_string = \"Bad characters: \\$\\@\\#\";<xhtml:br/>\n                        my $gdrslt = $test_string;<xhtml:br/>\n                         $gdrslt =~ /^((?=(\\w+))\\2\\s?)*$/i;\n                    </Example_Code>\n                    <Body_Text>Note that [REF-1164] has a more thorough (and lengthy) explanation of everything going on within the RegEx.</Body_Text>\n                "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2020-5243",
-      "description": "server allows ReDOS with crafted User-Agent strings, due to overlapping capture groups that cause excessive backtracking.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-5243"
-    },
-    {
-      "reference": "CVE-2021-21317",
-      "description": "npm package for user-agent parser prone to ReDoS due to overlapping capture groups",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2021-21317"
-    },
-    {
-      "reference": "CVE-2019-16215",
-      "description": "Markdown parser uses inefficient regex when processing a message, allowing users to cause CPU consumption and delay preventing processing of other messages.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2019-16215"
-    },
-    {
-      "reference": "CVE-2019-6785",
-      "description": "Long string in a version control product allows DoS due to an inefficient regex.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2019-6785"
-    },
-    {
-      "reference": "CVE-2019-12041",
-      "description": "Javascript code allows ReDoS via a long string due to excessive backtracking.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2019-12041"
-    },
-    {
-      "reference": "CVE-2015-8315",
-      "description": "ReDoS when parsing time.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2015-8315"
-    },
-    {
-      "reference": "CVE-2015-8854",
-      "description": "ReDoS when parsing documents.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2015-8854"
-    },
-    {
-      "reference": "CVE-2017-16021",
-      "description": "ReDoS when validating URL.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2017-16021"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-1180",
-      "author": [
-        "Scott A. Crosby"
-      ],
-      "title": "Regular Expression Denial of Service",
-      "url": "https://web.archive.org/web/20031120114522/http://www.cs.rice.edu/~scrosby/hash/slides/USENIX-RegexpWIP.2.ppt",
-      "publication_year": "2003",
-      "publication_month": "--08"
-    },
-    {
-      "reference_id": "REF-1162",
-      "author": [
-        "Jan Goyvaerts"
-      ],
-      "title": "Runaway Regular Expressions: Catastrophic Backtracking",
-      "url": "https://www.regular-expressions.info/catastrophic.html",
-      "publication_year": "2019",
-      "publication_month": "--12",
-      "publication_day": "---22"
-    },
-    {
-      "reference_id": "REF-1163",
-      "author": [
-        "Adar Weidman"
-      ],
-      "title": "Regular expression Denial of Service - ReDoS",
-      "url": "https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS"
-    },
-    {
-      "reference_id": "REF-1164",
-      "author": [
-        "Ilya Kantor"
-      ],
-      "title": "Catastrophic backtracking",
-      "url": "https://javascript.info/regexp-catastrophic-backtracking",
-      "publication_year": "2020",
-      "publication_month": "--12",
-      "publication_day": "---13"
-    },
-    {
-      "reference_id": "REF-1165",
-      "author": [
-        "Cristian-Alexandru Staicu",
-        "Michael Pradel"
-      ],
-      "title": "Freezing the Web: A Study of ReDoS Vulnerabilities in JavaScript-based Web Servers",
-      "url": "https://www.usenix.org/system/files/conference/usenixsecurity18/sec18-staicu.pdf",
-      "publication_year": "2018",
-      "publication_month": "--07",
-      "publication_day": "---11",
-      "publication": "USENIX Security Symposium"
-    },
-    {
-      "reference_id": "REF-1166",
-      "author": [
-        "James C. Davis",
-        "Christy A. Coghlan",
-        "Francisco Servant",
-        "Dongyoon Lee"
-      ],
-      "title": "The Impact of Regular Expression Denial of Service (ReDoS) in Practice: An Empirical Study at the Ecosystem Scale",
-      "url": "https://fservant.github.io/papers/Davis_Coghlan_Servant_Lee_ESECFSE18.pdf",
-      "publication_year": "2018",
-      "publication_month": "--08",
-      "publication_day": "---01",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-1167",
-      "author": [
-        "James Davis"
-      ],
-      "title": "The Regular Expression Denial of Service (ReDoS) cheat-sheet",
-      "url": "https://levelup.gitconnected.com/the-regular-expression-denial-of-service-redos-cheat-sheet-a78d0ed7d865",
-      "publication_year": "2020",
-      "publication_month": "--05",
-      "publication_day": "---23"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "Anonymous External Contributor",
-      "submission_date": "2021-01-17"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Observed_Examples, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Demonstrative_Examples, Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "ReDoS",
-      "description": "ReDoS is an abbreviation of \"Regular expression Denial of Service\"."
-    },
-    {
-      "term": "Regular Expression Denial of Service",
-      "description": "While this term is attack-focused, this is commonly used to describe the weakness."
-    },
-    {
-      "term": "Catastrophic backtracking",
-      "description": "This term is used to describe the behavior of the regular expression as a negative technical impact."
-    }
-  ],
-  "related_attack_patterns": [
-    "492"
-  ]
+	"id": "1333",
+	"name": "Inefficient Regular Expression Complexity",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product uses a regular expression with an inefficient, possibly exponential worst-case computational complexity that consumes excessive CPU cycles.",
+	"extended_description": "Some regular expression engines have a feature called \"backtracking\". If the token cannot match, the engine \"backtracks\" to a position that may result in a different token that can match.<xhtml:br/>\n                Backtracking becomes a weakness if all of these conditions are met:<xhtml:br/>\n                <xhtml:ul>\n                    <xhtml:li>The number of possible backtracking attempts are exponential relative to the length of the input.</xhtml:li>\n                    <xhtml:li>The input can fail to match the regular expression.</xhtml:li>\n                    <xhtml:li>The input can be long enough.</xhtml:li>\n                </xhtml:ul>\n\t\t<xhtml:p>\n\t\t  Attackers can create crafted inputs that\n\t\t  intentionally cause the regular expression to use\n\t\t  excessive backtracking in a way that causes the CPU\n\t\t  consumption to spike.\n\t\t</xhtml:p>\n            ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "407",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "407",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"A RegEx can be easy to create and read using unbounded matching characters, but the programmer might not consider the risk of  excessive backtracking."
+			]
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Resource Consumption (CPU)"
+			],
+			"likelihood": "High"
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Use regular expressions that do not support backtracking, e.g. by removing nested quantifiers."
+			],
+			"effectiveness": "High",
+			"effectiveness_notes": "This is one of the few effective solutions when using user-provided regular expressions."
+		},
+		{
+			"phase": [
+				"System Configuration"
+			],
+			"description": [
+				"Set backtracking limits in the configuration of the regular expression implementation, such as PHP's pcre.backtrack_limit. Also consider limits on execution time for the process."
+			],
+			"effectiveness": "Moderate"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Do not use regular expressions with untrusted input. If regular expressions must be used, avoid using backtracking in the expression."
+			],
+			"effectiveness": "High"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Limit the length of the input that the regular expression will process."
+			],
+			"effectiveness": "Moderate"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-158",
+			"text": "\n                    <Intro_Text>This example attempts to check if an input string is a \"sentence\" [REF-1164].</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n                        var test_string = \"Bad characters: $@#\";<xhtml:br/>\n                        var bad_pattern  = /^(\\w+\\s?)*$/i;<xhtml:br/>\n                        var result = test_string.search(bad_pattern);\n                     </Example_Code>\n                    <Body_Text><xhtml:p>The regular expression has a vulnerable backtracking clause inside (\\w+\\s?)*$ which can be triggered to cause a Denial of Service by processing particular phrases.</xhtml:p>\n\t\t    <xhtml:p>To fix the backtracking problem, backtracking is removed with the ?= portion of the expression which changes it to a lookahead and the \\2 which prevents the backtracking. The modified example is:</xhtml:p></Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"JavaScript\">\n                        var test_string = \"Bad characters: $@#\";<xhtml:br/>\n                        var good_pattern  = /^((?=(\\w+))\\2\\s?)*$/i;<xhtml:br/>\n                        var result = test_string.search(good_pattern);\n                    </Example_Code>\n                     <Body_Text>Note that [REF-1164] has a more thorough (and lengthy) explanation of everything going on within the RegEx.</Body_Text>\n               "
+		},
+		{
+			"text": "\n                    <Intro_Text>This example attempts to check if an input string is a \"sentence\" and is modified for Perl [REF-1164].</Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Perl\">\n                        my $test_string = \"Bad characters: \\$\\@\\#\";<xhtml:br/>\n                        my $bdrslt = $test_string;<xhtml:br/>\n                        $bdrslt =~ /^(\\w+\\s?)*$/i;\n                    </Example_Code>\n                    <Body_Text><xhtml:p>The regular expression has a vulnerable backtracking clause inside (\\w+\\s?)*$ which can be triggered to cause a Denial of Service by processing particular phrases.</xhtml:p>\n\t\t    <xhtml:p>To fix the backtracking problem, backtracking is removed with the ?= portion of the expression which changes it to a lookahead and the \\2 which prevents the backtracking. The modified example is:</xhtml:p></Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"Perl\">\n                        my $test_string = \"Bad characters: \\$\\@\\#\";<xhtml:br/>\n                        my $gdrslt = $test_string;<xhtml:br/>\n                         $gdrslt =~ /^((?=(\\w+))\\2\\s?)*$/i;\n                    </Example_Code>\n                    <Body_Text>Note that [REF-1164] has a more thorough (and lengthy) explanation of everything going on within the RegEx.</Body_Text>\n                "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2020-5243",
+			"description": "server allows ReDOS with crafted User-Agent strings, due to overlapping capture groups that cause excessive backtracking.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-5243"
+		},
+		{
+			"reference": "CVE-2021-21317",
+			"description": "npm package for user-agent parser prone to ReDoS due to overlapping capture groups",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-21317"
+		},
+		{
+			"reference": "CVE-2019-16215",
+			"description": "Markdown parser uses inefficient regex when processing a message, allowing users to cause CPU consumption and delay preventing processing of other messages.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-16215"
+		},
+		{
+			"reference": "CVE-2019-6785",
+			"description": "Long string in a version control product allows DoS due to an inefficient regex.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-6785"
+		},
+		{
+			"reference": "CVE-2019-12041",
+			"description": "Javascript code allows ReDoS via a long string due to excessive backtracking.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-12041"
+		},
+		{
+			"reference": "CVE-2015-8315",
+			"description": "ReDoS when parsing time.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2015-8315"
+		},
+		{
+			"reference": "CVE-2015-8854",
+			"description": "ReDoS when parsing documents.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2015-8854"
+		},
+		{
+			"reference": "CVE-2017-16021",
+			"description": "ReDoS when validating URL.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2017-16021"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1180",
+			"author": [
+				"Scott A. Crosby"
+			],
+			"title": "Regular Expression Denial of Service",
+			"url": "https://web.archive.org/web/20031120114522/http://www.cs.rice.edu/~scrosby/hash/slides/USENIX-RegexpWIP.2.ppt",
+			"publication_year": "2003",
+			"publication_month": "--08"
+		},
+		{
+			"reference_id": "REF-1162",
+			"author": [
+				"Jan Goyvaerts"
+			],
+			"title": "Runaway Regular Expressions: Catastrophic Backtracking",
+			"url": "https://www.regular-expressions.info/catastrophic.html",
+			"publication_year": "2019",
+			"publication_month": "--12",
+			"publication_day": "---22"
+		},
+		{
+			"reference_id": "REF-1163",
+			"author": [
+				"Adar Weidman"
+			],
+			"title": "Regular expression Denial of Service - ReDoS",
+			"url": "https://owasp.org/www-community/attacks/Regular_expression_Denial_of_Service_-_ReDoS"
+		},
+		{
+			"reference_id": "REF-1164",
+			"author": [
+				"Ilya Kantor"
+			],
+			"title": "Catastrophic backtracking",
+			"url": "https://javascript.info/regexp-catastrophic-backtracking",
+			"publication_year": "2020",
+			"publication_month": "--12",
+			"publication_day": "---13"
+		},
+		{
+			"reference_id": "REF-1165",
+			"author": [
+				"Cristian-Alexandru Staicu",
+				"Michael Pradel"
+			],
+			"title": "Freezing the Web: A Study of ReDoS Vulnerabilities in JavaScript-based Web Servers",
+			"url": "https://www.usenix.org/system/files/conference/usenixsecurity18/sec18-staicu.pdf",
+			"publication_year": "2018",
+			"publication_month": "--07",
+			"publication_day": "---11",
+			"publication": "USENIX Security Symposium"
+		},
+		{
+			"reference_id": "REF-1166",
+			"author": [
+				"James C. Davis",
+				"Christy A. Coghlan",
+				"Francisco Servant",
+				"Dongyoon Lee"
+			],
+			"title": "The Impact of Regular Expression Denial of Service (ReDoS) in Practice: An Empirical Study at the Ecosystem Scale",
+			"url": "https://fservant.github.io/papers/Davis_Coghlan_Servant_Lee_ESECFSE18.pdf",
+			"publication_year": "2018",
+			"publication_month": "--08",
+			"publication_day": "---01",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-1167",
+			"author": [
+				"James Davis"
+			],
+			"title": "The Regular Expression Denial of Service (ReDoS) cheat-sheet",
+			"url": "https://levelup.gitconnected.com/the-regular-expression-denial-of-service-redos-cheat-sheet-a78d0ed7d865",
+			"publication_year": "2020",
+			"publication_month": "--05",
+			"publication_day": "---23"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "Anonymous External Contributor",
+			"submission_date": "2021-01-17"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Observed_Examples, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "ReDoS",
+			"description": "ReDoS is an abbreviation of \"Regular expression Denial of Service\"."
+		},
+		{
+			"term": "Regular Expression Denial of Service",
+			"description": "While this term is attack-focused, this is commonly used to describe the weakness."
+		},
+		{
+			"term": "Catastrophic backtracking",
+			"description": "This term is used to describe the behavior of the regular expression as a negative technical impact."
+		}
+	],
+	"related_attack_patterns": [
+		"492"
+	]
 }

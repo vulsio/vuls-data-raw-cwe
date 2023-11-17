@@ -1,194 +1,194 @@
 {
-  "id": "1022",
-  "name": "Use of Web Link to Untrusted Target with window.opener Access",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The web application produces links to untrusted external sites outside of its sphere of control, but it does not properly prevent the external site from modifying  security-critical properties of the window.opener object, such as the location property.",
-  "extended_description": "When a user clicks a link to an external site (\"target\"), the target=\"_blank\" attribute causes the target site's contents to be opened in a new window or tab, which runs in the same process as the original page. The window.opener object records information about the original page that offered the link.  If an attacker can run script on the target page, then they could read or modify certain properties of the window.opener object, including the location property - even if the original and target site are not the same origin.  An attacker can modify the location property to automatically redirect the user to a malicious site, e.g. as part of a phishing attack. Since this redirect happens in the original window/tab - which is not necessarily visible, since the browser is focusing the display on the new target page - the user might not notice any suspicious redirection.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "266",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Often",
-        "name": "JavaScript"
-      }
-    ],
-    "technology": [
-      {
-        "class": "Web Based",
-        "prevalence": "Often"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "This weakness is introduced during the design of an application when the architect does not specify that a linked external document should not be able to alter the location of the calling page."
-      ]
-    },
-    {
-      "phase": "Implementation",
-      "note": [
-        "This weakness is introduced during the coding of an application when the developer does not include the noopener and/or noreferrer value for the rel attribute."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Alter Execution Logic"
-      ],
-      "note": "The user may be redirected to an untrusted page that contains undesired content or malicious script code."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Specify in the design that any linked external document must not be granted access to the location object of the calling page."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>When creating a link to an external document using the &lt;a&gt; tag with a defined target, for example \"_blank\" or a named frame, provide the rel attribute with a value \"noopener noreferrer\".</xhtml:p>\n                  <xhtml:p>If opening the external document in a new window via javascript, then reset the opener by setting it equal to null.</xhtml:p>\n               "
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Do not use \"_blank\" targets. However, this can affect the usability of the application.</xhtml:p>\n               "
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>In this example, the application opens a link in a named window/tab without taking precautions to prevent the called page from tampering with the calling page's location in the browser.</Intro_Text>\n               <Body_Text>There are two ways that this weakness is commonly seen. The first is when the application generates an &lt;a&gt; tag is with target=\"_blank\" to point to a target site:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"HTML\">\n                  <xhtml:div>&lt;a href=\"http://attacker-site.example.com/useful-page.html\" target=\"_blank\"&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the attacker offers a useful page on this link (or compromises a trusted, popular site), then a user may click on this link.  However, the attacker could use scripting code to modify the window.opener's location property to redirect the application to a malicious, attacker-controlled page - such as one that mimics the look and feel of the original application and convinces the user to re-enter authentication credentials, i.e. phishing:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"JavaScript\">\n                  <xhtml:div>window.opener.location = 'http://phishing.example.org/popular-bank-page';</xhtml:div>\n               </Example_Code>\n               <Body_Text>To mitigate this type of weakness, some browsers support the \"rel\" attribute with a value of \"noopener\", which sets the window.opener object equal to null. Another option is to use the \"rel\" attribute with a value of \"noreferrer\", which in essence does the same thing.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"HTML\">\n                  <xhtml:div>&lt;a href=\"http://attacker-site.example.com/useful-page.html\" target=\"_blank\" rel=\"noopener noreferrer\"&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>A second way that this weakness is commonly seen is when opening a new site directly within JavaScript. In this case, a new site is opened using the window.open() function.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n                  <xhtml:div>var newWindow = window.open(\"http://attacker-site.example.com/useful-page.html\", \"_blank\");</xhtml:div>\n               </Example_Code>\n               <Body_Text>To mitigate this, set the window.opener object to null.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"JavaScript\">\n                  <xhtml:div>var newWindow = window.open(\"http://attacker-site.example.com/useful-page.html\", \"_blank\");<xhtml:br/>newWindow.opener = null;</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-4927",
-      "description": "Library software does not use rel: \"noopener noreferrer\" setting, allowing tabnabbing attacks to redirect to a malicious page",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-4927"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-39",
-      "author": [
-        "Alex Yumashev"
-      ],
-      "title": "Target=\"_blank\" - the most underestimated vulnerability ever",
-      "url": "https://medium.com/@jitbit/target-blank-the-most-underestimated-vulnerability-ever-96e328301f4c",
-      "publication_year": "2016",
-      "publication_month": "--05",
-      "publication_day": "---04"
-    },
-    {
-      "reference_id": "REF-40",
-      "author": [
-        "Ben Halpern"
-      ],
-      "title": "The target=\"_blank\" vulnerability by example",
-      "url": "https://dev.to/ben/the-targetblank-vulnerability-by-example",
-      "publication_year": "2016",
-      "publication_month": "--09",
-      "publication_day": "---11"
-    },
-    {
-      "reference_id": "REF-958",
-      "author": [
-        "Mathias Bynens"
-      ],
-      "title": "About rel=noopener",
-      "url": "https://mathiasbynens.github.io/rel-noopener/",
-      "publication_year": "2016",
-      "publication_month": "--03",
-      "publication_day": "---15"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "David Deatherage",
-      "submission_organization": "Silicon Valley Bank",
-      "submission_date": "2017-09-26"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated Alternate_Terms, Demonstrative_Examples, Description, Modes_of_Introduction, Name, Potential_Mitigations, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Applicable_Platforms, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Observed_Examples"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Improper Restriction of Cross-Origin Permission to window.opener.location",
-        "date": "2018-03-27"
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "tabnabbing"
-    }
-  ],
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ]
+	"id": "1022",
+	"name": "Use of Web Link to Untrusted Target with window.opener Access",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The web application produces links to untrusted external sites outside of its sphere of control, but it does not properly prevent the external site from modifying  security-critical properties of the window.opener object, such as the location property.",
+	"extended_description": "When a user clicks a link to an external site (\"target\"), the target=\"_blank\" attribute causes the target site's contents to be opened in a new window or tab, which runs in the same process as the original page. The window.opener object records information about the original page that offered the link.  If an attacker can run script on the target page, then they could read or modify certain properties of the window.opener object, including the location property - even if the original and target site are not the same origin.  An attacker can modify the location property to automatically redirect the user to a malicious site, e.g. as part of a phishing attack. Since this redirect happens in the original window/tab - which is not necessarily visible, since the browser is focusing the display on the new target page - the user might not notice any suspicious redirection.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "266",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Often",
+				"name": "JavaScript"
+			}
+		],
+		"technology": [
+			{
+				"class": "Web Based",
+				"prevalence": "Often"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"This weakness is introduced during the design of an application when the architect does not specify that a linked external document should not be able to alter the location of the calling page."
+			]
+		},
+		{
+			"phase": "Implementation",
+			"note": [
+				"This weakness is introduced during the coding of an application when the developer does not include the noopener and/or noreferrer value for the rel attribute."
+			]
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Alter Execution Logic"
+			],
+			"note": "The user may be redirected to an untrusted page that contains undesired content or malicious script code."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Specify in the design that any linked external document must not be granted access to the location object of the calling page."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>When creating a link to an external document using the &lt;a&gt; tag with a defined target, for example \"_blank\" or a named frame, provide the rel attribute with a value \"noopener noreferrer\".</xhtml:p>\n                  <xhtml:p>If opening the external document in a new window via javascript, then reset the opener by setting it equal to null.</xhtml:p>\n               "
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>Do not use \"_blank\" targets. However, this can affect the usability of the application.</xhtml:p>\n               "
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>In this example, the application opens a link in a named window/tab without taking precautions to prevent the called page from tampering with the calling page's location in the browser.</Intro_Text>\n               <Body_Text>There are two ways that this weakness is commonly seen. The first is when the application generates an &lt;a&gt; tag is with target=\"_blank\" to point to a target site:</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"HTML\">\n                  <xhtml:div>&lt;a href=\"http://attacker-site.example.com/useful-page.html\" target=\"_blank\"&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the attacker offers a useful page on this link (or compromises a trusted, popular site), then a user may click on this link.  However, the attacker could use scripting code to modify the window.opener's location property to redirect the application to a malicious, attacker-controlled page - such as one that mimics the look and feel of the original application and convinces the user to re-enter authentication credentials, i.e. phishing:</Body_Text>\n               <Example_Code Nature=\"Attack\" Language=\"JavaScript\">\n                  <xhtml:div>window.opener.location = 'http://phishing.example.org/popular-bank-page';</xhtml:div>\n               </Example_Code>\n               <Body_Text>To mitigate this type of weakness, some browsers support the \"rel\" attribute with a value of \"noopener\", which sets the window.opener object equal to null. Another option is to use the \"rel\" attribute with a value of \"noreferrer\", which in essence does the same thing.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"HTML\">\n                  <xhtml:div>&lt;a href=\"http://attacker-site.example.com/useful-page.html\" target=\"_blank\" rel=\"noopener noreferrer\"&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>A second way that this weakness is commonly seen is when opening a new site directly within JavaScript. In this case, a new site is opened using the window.open() function.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n                  <xhtml:div>var newWindow = window.open(\"http://attacker-site.example.com/useful-page.html\", \"_blank\");</xhtml:div>\n               </Example_Code>\n               <Body_Text>To mitigate this, set the window.opener object to null.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"JavaScript\">\n                  <xhtml:div>var newWindow = window.open(\"http://attacker-site.example.com/useful-page.html\", \"_blank\");<xhtml:br/>newWindow.opener = null;</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-4927",
+			"description": "Library software does not use rel: \"noopener noreferrer\" setting, allowing tabnabbing attacks to redirect to a malicious page",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-4927"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-39",
+			"author": [
+				"Alex Yumashev"
+			],
+			"title": "Target=\"_blank\" - the most underestimated vulnerability ever",
+			"url": "https://medium.com/@jitbit/target-blank-the-most-underestimated-vulnerability-ever-96e328301f4c",
+			"publication_year": "2016",
+			"publication_month": "--05",
+			"publication_day": "---04"
+		},
+		{
+			"reference_id": "REF-40",
+			"author": [
+				"Ben Halpern"
+			],
+			"title": "The target=\"_blank\" vulnerability by example",
+			"url": "https://dev.to/ben/the-targetblank-vulnerability-by-example",
+			"publication_year": "2016",
+			"publication_month": "--09",
+			"publication_day": "---11"
+		},
+		{
+			"reference_id": "REF-958",
+			"author": [
+				"Mathias Bynens"
+			],
+			"title": "About rel=noopener",
+			"url": "https://mathiasbynens.github.io/rel-noopener/",
+			"publication_year": "2016",
+			"publication_month": "--03",
+			"publication_day": "---15"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "David Deatherage",
+			"submission_organization": "Silicon Valley Bank",
+			"submission_date": "2017-09-26"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated Alternate_Terms, Demonstrative_Examples, Description, Modes_of_Introduction, Name, Potential_Mitigations, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Applicable_Platforms, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Observed_Examples"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Improper Restriction of Cross-Origin Permission to window.opener.location",
+				"date": "2018-03-27"
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "tabnabbing"
+		}
+	],
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	]
 }

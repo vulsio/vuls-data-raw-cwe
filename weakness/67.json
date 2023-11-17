@@ -1,311 +1,311 @@
 {
-  "id": "67",
-  "name": "Improper Handling of Windows Device Names",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product constructs pathnames from user input, but it does not handle or incorrectly handles a pathname containing a Windows device name such as AUX or CON. This typically leads to denial of service or an information exposure when the application attempts to process the pathname as a regular file.",
-  "extended_description": "Not properly handling virtual filenames (e.g. AUX, CON, PRN, COM1, LPT1) can result in different types of vulnerabilities. In some cases an attacker can request a device via injection of a virtual filename in a URL, which may cause an error that leads to a denial of service or an error page that reveals sensitive information. A product that allows device names to bypass filtering runs the risk of an attacker injecting malicious code in a file with the name of a device.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "66",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "operating_system": [
-      {
-        "class": "Windows",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "background_details": [
-    "Historically, there was a bug in the Windows operating system that caused a blue screen of death. Even after that issue was fixed DOS device names continue to be a factor."
-  ],
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    },
-    {
-      "phase": "Operation"
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability",
-        "Confidentiality",
-        "Other"
-      ],
-      "impact": [
-        "DoS: Crash, Exit, or Restart",
-        "Read Application Data",
-        "Other"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Be familiar with the device names in the operating system where your system is deployed. Check input for these device names."
-      ]
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2002-0106",
-      "description": "Server allows remote attackers to cause a denial of service via a series of requests to .JSP files that contain an MS-DOS device name.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0106"
-    },
-    {
-      "reference": "CVE-2002-0200",
-      "description": "Server allows remote attackers to cause a denial of service via an HTTP request for an MS-DOS device name.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0200"
-    },
-    {
-      "reference": "CVE-2002-1052",
-      "description": "Product allows remote attackers to use MS-DOS device names in HTTP requests to cause a denial of service or obtain the physical path of the server.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1052"
-    },
-    {
-      "reference": "CVE-2001-0493",
-      "description": "Server allows remote attackers to cause a denial of service via a URL that contains an MS-DOS device name.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0493"
-    },
-    {
-      "reference": "CVE-2001-0558",
-      "description": "Server allows a remote attacker to create a denial of service via a URL request which includes a MS-DOS device name.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0558"
-    },
-    {
-      "reference": "CVE-2000-0168",
-      "description": "Microsoft Windows 9x operating systems allow an attacker to cause a denial of service via a pathname that includes file device names, aka the \"DOS Device in Path Name\" vulnerability.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-0168"
-    },
-    {
-      "reference": "CVE-2001-0492",
-      "description": "Server allows remote attackers to determine the physical path of the server via a URL containing MS-DOS device names.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2001-0492"
-    },
-    {
-      "reference": "CVE-2004-0552",
-      "description": "Product does not properly handle files whose names contain reserved MS-DOS device names, which can allow malicious code to bypass detection when it is installed, copied, or executed.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2004-0552"
-    },
-    {
-      "reference": "CVE-2005-2195",
-      "description": "Server allows remote attackers to cause a denial of service (application crash) via a URL with a filename containing a .cgi extension and an MS-DOS device name.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2005-2195"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-7",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc"
-      ],
-      "title": "Writing Secure Code",
-      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
-      "publication_year": "2002",
-      "publication_month": "--12",
-      "publication_day": "---04",
-      "publisher": "Microsoft Press",
-      "edition": "2nd Edition"
-    },
-    {
-      "section": "Chapter 11, \"Device Files\", Page 666",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Applicable_Platforms, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-03-10",
-        "modification_comment": "updated Description, Name"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Background_Details, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-09-13",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Observed_Examples, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Affected_Resources, Applicable_Platforms, Causal_Nature, Likelihood_of_Exploit, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Windows MS-DOS Device Names",
-        "date": "2008-04-11"
-      },
-      {
-        "text": "Failure to Handle Windows Device Names",
-        "date": "2009-03-10"
-      }
-    ]
-  },
-  "weakness_ordinalities": [
-    {
-      "ordinality": "Resultant"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Windows MS-DOS device names"
-    },
-    {
-      "taxonomy_name": "CERT C Secure Coding",
-      "entry_name": "Do not perform operations on devices that are only appropriate for files",
-      "entry_id": "FIO32-C",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not operate on files in shared directories",
-      "entry_id": "FIO00-J"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Path Traversal",
-      "entry_id": "SFP16"
-    }
-  ],
-  "affected_resources": [
-    "File or Directory"
-  ]
+	"id": "67",
+	"name": "Improper Handling of Windows Device Names",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product constructs pathnames from user input, but it does not handle or incorrectly handles a pathname containing a Windows device name such as AUX or CON. This typically leads to denial of service or an information exposure when the application attempts to process the pathname as a regular file.",
+	"extended_description": "Not properly handling virtual filenames (e.g. AUX, CON, PRN, COM1, LPT1) can result in different types of vulnerabilities. In some cases an attacker can request a device via injection of a virtual filename in a URL, which may cause an error that leads to a denial of service or an error page that reveals sensitive information. A product that allows device names to bypass filtering runs the risk of an attacker injecting malicious code in a file with the name of a device.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "66",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"operating_system": [
+			{
+				"class": "Windows",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"background_details": [
+		"Historically, there was a bug in the Windows operating system that caused a blue screen of death. Even after that issue was fixed DOS device names continue to be a factor."
+	],
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		},
+		{
+			"phase": "Operation"
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability",
+				"Confidentiality",
+				"Other"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart",
+				"Read Application Data",
+				"Other"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Be familiar with the device names in the operating system where your system is deployed. Check input for these device names."
+			]
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2002-0106",
+			"description": "Server allows remote attackers to cause a denial of service via a series of requests to .JSP files that contain an MS-DOS device name.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0106"
+		},
+		{
+			"reference": "CVE-2002-0200",
+			"description": "Server allows remote attackers to cause a denial of service via an HTTP request for an MS-DOS device name.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0200"
+		},
+		{
+			"reference": "CVE-2002-1052",
+			"description": "Product allows remote attackers to use MS-DOS device names in HTTP requests to cause a denial of service or obtain the physical path of the server.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1052"
+		},
+		{
+			"reference": "CVE-2001-0493",
+			"description": "Server allows remote attackers to cause a denial of service via a URL that contains an MS-DOS device name.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0493"
+		},
+		{
+			"reference": "CVE-2001-0558",
+			"description": "Server allows a remote attacker to create a denial of service via a URL request which includes a MS-DOS device name.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0558"
+		},
+		{
+			"reference": "CVE-2000-0168",
+			"description": "Microsoft Windows 9x operating systems allow an attacker to cause a denial of service via a pathname that includes file device names, aka the \"DOS Device in Path Name\" vulnerability.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-0168"
+		},
+		{
+			"reference": "CVE-2001-0492",
+			"description": "Server allows remote attackers to determine the physical path of the server via a URL containing MS-DOS device names.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2001-0492"
+		},
+		{
+			"reference": "CVE-2004-0552",
+			"description": "Product does not properly handle files whose names contain reserved MS-DOS device names, which can allow malicious code to bypass detection when it is installed, copied, or executed.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0552"
+		},
+		{
+			"reference": "CVE-2005-2195",
+			"description": "Server allows remote attackers to cause a denial of service (application crash) via a URL with a filename containing a .cgi extension and an MS-DOS device name.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2005-2195"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-7",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc"
+			],
+			"title": "Writing Secure Code",
+			"url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+			"publication_year": "2002",
+			"publication_month": "--12",
+			"publication_day": "---04",
+			"publisher": "Microsoft Press",
+			"edition": "2nd Edition"
+		},
+		{
+			"section": "Chapter 11, \"Device Files\", Page 666",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Applicable_Platforms, Relationships, Other_Notes, Taxonomy_Mappings, Weakness_Ordinalities"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-03-10",
+				"modification_comment": "updated Description, Name"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Background_Details, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-09-13",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Observed_Examples, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Affected_Resources, Applicable_Platforms, Causal_Nature, Likelihood_of_Exploit, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Windows MS-DOS Device Names",
+				"date": "2008-04-11"
+			},
+			{
+				"text": "Failure to Handle Windows Device Names",
+				"date": "2009-03-10"
+			}
+		]
+	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Resultant"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Windows MS-DOS device names"
+		},
+		{
+			"taxonomy_name": "CERT C Secure Coding",
+			"entry_name": "Do not perform operations on devices that are only appropriate for files",
+			"entry_id": "FIO32-C",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not operate on files in shared directories",
+			"entry_id": "FIO00-J"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Path Traversal",
+			"entry_id": "SFP16"
+		}
+	],
+	"affected_resources": [
+		"File or Directory"
+	]
 }

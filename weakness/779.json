@@ -1,178 +1,178 @@
 {
-  "id": "779",
-  "name": "Logging of Excessive Data",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product logs too much information, making log files hard to process and possibly hindering recovery efforts or forensic analysis after an attack.",
-  "extended_description": "While logging is a good practice in general, and very high levels of logging are appropriate for debugging stages of development, too much logging in a production environment might hinder a system administrator's ability to detect anomalous conditions. This can provide cover for an attacker while attempting to penetrate a system, clutter the audit trail for forensic analysis, or make it more difficult to debug problems in a production environment.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "400",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Operation",
-      "note": [
-        "REALIZATION: This weakness is caused during implementation of an architectural security tactic."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "Low",
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Resource Consumption (CPU)",
-        "DoS: Resource Consumption (Other)"
-      ],
-      "note": "Log files can become so large that they consume excessive resources, such as disk and CPU, which can hinder the performance of the system."
-    },
-    {
-      "scope": [
-        "Non-Repudiation"
-      ],
-      "impact": [
-        "Hide Activities"
-      ],
-      "note": "Logging too much information can make the log files of less use to forensics analysts and developers when trying to diagnose a problem or recover from an attack."
-    },
-    {
-      "scope": [
-        "Non-Repudiation"
-      ],
-      "impact": [
-        "Hide Activities"
-      ],
-      "note": "If system administrators are unable to effectively process log files, attempted attacks may go undetected, possibly leading to eventual system compromise."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Suppress large numbers of duplicate log messages and replace them with periodic summaries. For example, syslog may include an entry that states \"last message repeated X times\" when recording repeated events."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Support a maximum size for the log file that can be controlled by the administrator. If the maximum size is reached, the admin should be notified. Also, consider reducing functionality of the product. This may result in a denial-of-service to legitimate product users, but it will prevent the product from adversely impacting the entire system."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Adjust configurations appropriately when the product is transitioned from a debug state to production."
-      ]
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2007-0421",
-      "description": "server records a large amount of data to the server log when it receives malformed headers",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-0421"
-    },
-    {
-      "reference": "CVE-2002-1154",
-      "description": "chain: application does not restrict access to front-end for updates, which allows attacker to fill the error log",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-1154"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2009-07-02"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Likelihood_of_Exploit, Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
-        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
-        "contribution_date": "2023-04-25",
-        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR 7.2",
-      "entry_id": "Part 3-3"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SD-1",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SVV-3",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR 7.2",
-      "entry_id": "Part 4-2"
-    }
-  ]
+	"id": "779",
+	"name": "Logging of Excessive Data",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product logs too much information, making log files hard to process and possibly hindering recovery efforts or forensic analysis after an attack.",
+	"extended_description": "While logging is a good practice in general, and very high levels of logging are appropriate for debugging stages of development, too much logging in a production environment might hinder a system administrator's ability to detect anomalous conditions. This can provide cover for an attacker while attempting to penetrate a system, clutter the audit trail for forensic analysis, or make it more difficult to debug problems in a production environment.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "400",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Operation",
+			"note": [
+				"REALIZATION: This weakness is caused during implementation of an architectural security tactic."
+			]
+		}
+	],
+	"likelihood_of_exploit": "Low",
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Resource Consumption (CPU)",
+				"DoS: Resource Consumption (Other)"
+			],
+			"note": "Log files can become so large that they consume excessive resources, such as disk and CPU, which can hinder the performance of the system."
+		},
+		{
+			"scope": [
+				"Non-Repudiation"
+			],
+			"impact": [
+				"Hide Activities"
+			],
+			"note": "Logging too much information can make the log files of less use to forensics analysts and developers when trying to diagnose a problem or recover from an attack."
+		},
+		{
+			"scope": [
+				"Non-Repudiation"
+			],
+			"impact": [
+				"Hide Activities"
+			],
+			"note": "If system administrators are unable to effectively process log files, attempted attacks may go undetected, possibly leading to eventual system compromise."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Suppress large numbers of duplicate log messages and replace them with periodic summaries. For example, syslog may include an entry that states \"last message repeated X times\" when recording repeated events."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Support a maximum size for the log file that can be controlled by the administrator. If the maximum size is reached, the admin should be notified. Also, consider reducing functionality of the product. This may result in a denial-of-service to legitimate product users, but it will prevent the product from adversely impacting the entire system."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Adjust configurations appropriately when the product is transitioned from a debug state to production."
+			]
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2007-0421",
+			"description": "server records a large amount of data to the server log when it receives malformed headers",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-0421"
+		},
+		{
+			"reference": "CVE-2002-1154",
+			"description": "chain: application does not restrict access to front-end for updates, which allows attacker to fill the error log",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-1154"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2009-07-02"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Likelihood_of_Exploit, Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
+				"contribution_date": "2023-04-25",
+				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR 7.2",
+			"entry_id": "Part 3-3"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SD-1",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SVV-3",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR 7.2",
+			"entry_id": "Part 4-2"
+		}
+	]
 }

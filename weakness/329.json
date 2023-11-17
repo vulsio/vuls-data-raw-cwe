@@ -1,286 +1,286 @@
 {
-  "id": "329",
-  "name": "Generation of Predictable IV with CBC Mode",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product generates and uses a predictable initialization Vector (IV) with Cipher Block Chaining (CBC) Mode, which causes algorithms to be susceptible to dictionary attacks when they are encrypted under the same key.",
-  "extended_description": "\n\t   <xhtml:p>CBC mode eliminates a weakness of Electronic Code\n\t   Book (ECB) mode by allowing identical plaintext blocks to\n\t   be encrypted to different ciphertext blocks. This is\n\t   possible by the XOR-ing of an IV with the initial plaintext\n\t   block so that every plaintext block in the chain is XOR'd\n\t   with a different value before encryption. If IVs are\n\t   reused, then identical plaintexts would be encrypted to\n\t   identical ciphertexts. However, even if IVs are not\n\t   identical but are predictable, then they still break the\n\t   security of CBC mode against Chosen Plaintext Attacks\n\t   (CPA).</xhtml:p>\n\t ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "1204",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "573",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ],
-    "technology": [
-      {
-        "class": "ICS/OT",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "background_details": [
-    "\n\t      <xhtml:p>CBC mode is a commonly used mode of operation for a\n\t      block cipher. It works by XOR-ing an IV with the initial\n\t      block of a plaintext prior to encryption and then\n\t      XOR-ing each successive block of plaintext with the\n\t      previous block of ciphertext before encryption.</xhtml:p>\n\t      <xhtml:div style=\"margin-left:1em;\">\n\t\tC_0 = IV<xhtml:br/>\n\t\tC_i = E_k{M_i XOR C_{i-1}}\n\t      </xhtml:div>\n\t      <xhtml:p>\n\t\tWhen used properly, CBC mode provides security against\n\t\tchosen plaintext attacks. Having an unpredictable IV\n\t\tis a crucial underpinning of this. See [REF-1171].</xhtml:p>\n\t      "
-  ],
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation",
-      "note": [
-        "Developers might dismiss the importance of an unpredictable IV and choose an easier implementation to save effort, weakening the scheme in the process."
-      ]
-    }
-  ],
-  "likelihood_of_exploit": "Medium",
-  "common_consequences": [
-    {
-      "scope": [
-        "Confidentiality"
-      ],
-      "impact": [
-        "Read Application Data"
-      ],
-      "note": "If the IV is not properly initialized, data that is encrypted can be compromised and leak information."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "NIST recommends two methods of generating unpredictable IVs for CBC mode [REF-1172]. The first is to generate the IV randomly. The second method is to encrypt a nonce with the same key and cipher to be used to encrypt the plaintext. In this case the nonce must be unique but can be predictable, since the block cipher will act as a pseudo random permutation."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-143",
-      "text": "\n               <Intro_Text>In the following examples, CBC mode is used when encrypting data:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>EVP_CIPHER_CTX ctx;<xhtml:br/>char key[EVP_MAX_KEY_LENGTH];<xhtml:br/>char iv[EVP_MAX_IV_LENGTH];<xhtml:br/>RAND_bytes(key, b);<xhtml:br/>memset(iv,0,EVP_MAX_IV_LENGTH);<xhtml:br/>EVP_EncryptInit(&amp;ctx,EVP_bf_cbc(), key,iv);</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class SymmetricCipherTest {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>public static void main() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>byte[] text =\"Secret\".getBytes();<xhtml:br/>byte[] iv ={<xhtml:div style=\"margin-left:1em;\">0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00</xhtml:div>};<xhtml:br/>KeyGenerator kg = KeyGenerator.getInstance(\"DES\");<xhtml:br/>kg.init(56);<xhtml:br/>SecretKey key = kg.generateKey();<xhtml:br/>Cipher cipher = Cipher.getInstance(\"DES/CBC/PKCS5Padding\");<xhtml:br/>IvParameterSpec ips = new IvParameterSpec(iv);<xhtml:br/>cipher.init(Cipher.ENCRYPT_MODE, key, ips);<xhtml:br/>return cipher.doFinal(inpBytes);</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In both of these examples, the initialization vector (IV) is always a block of zeros. This makes the resulting cipher text much more predictable and susceptible to a dictionary attack.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2020-5408",
-      "description": "encryption functionality in an authentication framework uses a fixed null IV with CBC mode, allowing attackers to decrypt traffic in applications that use this functionality",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-5408"
-    },
-    {
-      "reference": "CVE-2017-17704",
-      "description": "messages for a door-unlocking product use a fixed IV in CBC mode, which is the same after each restart ",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2017-17704"
-    },
-    {
-      "reference": "CVE-2017-11133",
-      "description": "application uses AES in CBC mode, but the pseudo-random secret and IV are generated using math.random, which is not cryptographically strong.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2017-11133"
-    },
-    {
-      "reference": "CVE-2007-3528",
-      "description": "Blowfish-CBC implementation constructs an IV where each byte is calculated modulo 8 instead of modulo 256, resulting in less than 12 bits for the effective IV length, and less than 4096 possible IV values.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-3528"
-    },
-    {
-      "reference": "CVE-2011-3389",
-      "description": "BEAST attack in SSL 3.0 / TLS 1.0. In CBC mode, chained initialization vectors are non-random, allowing decryption of HTTPS traffic using a chosen plaintext attack.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2011-3389"
-    }
-  ],
-  "references": [
-    {
-      "section": "Chapter 2, \"Initialization Vectors\", Page 42",
-      "reference_id": "REF-62",
-      "author": [
-        "Mark Dowd",
-        "John McDonald",
-        "Justin Schuh"
-      ],
-      "title": "The Art of Software Security Assessment",
-      "publication_year": "2006",
-      "publisher": "Addison Wesley",
-      "edition": "1st Edition"
-    },
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    },
-    {
-      "reference_id": "REF-1171",
-      "author": [
-        "Matthew Green"
-      ],
-      "title": "Why IND-CPA implies randomized encryption",
-      "url": "https://blog.cryptographyengineering.com/why-ind-cpa-implies-randomized-encryption/",
-      "publication_year": "2018",
-      "publication_month": "--08",
-      "publication_day": "---24"
-    },
-    {
-      "section": "Appendix C",
-      "reference_id": "REF-1172",
-      "author": [
-        "NIST"
-      ],
-      "title": "Recommendation for Block Cipher Modes of Operation",
-      "url": "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf",
-      "publication_year": "2001",
-      "publication_month": "--12",
-      "url_date": "2023-04-07"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Background_Details, Common_Consequences, Functional_Areas, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-03-15",
-        "modification_comment": "updated Background_Details, Common_Consequences, Demonstrative_Examples, Description, Modes_of_Introduction, Name, Observed_Examples, Potential_Mitigations, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Description, Maintenance_Notes, Name, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Applicable_Platforms"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, Modes_of_Introduction, Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Not Using a Random IV with CBC Mode",
-        "date": "2021-03-15"
-      },
-      {
-        "text": "Not Using an Unpredictable IV with CBC Mode",
-        "date": "2021-07-20"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Not using a random IV with CBC mode"
-    }
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "As of CWE 4.5, terminology related to randomness, entropy, and\n\t   predictability can vary widely. Within the developer and other\n\t   communities, \"randomness\" is used heavily. However, within\n\t   cryptography, \"entropy\" is distinct, typically implied as a\n\t   measurement. There are no commonly-used definitions, even within\n\t   standards documents and cryptography papers. Future versions of\n\t   CWE will attempt to define these terms and, if necessary,\n\t   distinguish between them in ways that are appropriate for\n\t   different communities but do not reduce the usability of CWE for\n\t   mapping, understanding, or other scenarios."
-    }
-  ],
-  "functional_areas": [
-    "Cryptography"
-  ]
+	"id": "329",
+	"name": "Generation of Predictable IV with CBC Mode",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product generates and uses a predictable initialization Vector (IV) with Cipher Block Chaining (CBC) Mode, which causes algorithms to be susceptible to dictionary attacks when they are encrypted under the same key.",
+	"extended_description": "\n\t   <xhtml:p>CBC mode eliminates a weakness of Electronic Code\n\t   Book (ECB) mode by allowing identical plaintext blocks to\n\t   be encrypted to different ciphertext blocks. This is\n\t   possible by the XOR-ing of an IV with the initial plaintext\n\t   block so that every plaintext block in the chain is XOR'd\n\t   with a different value before encryption. If IVs are\n\t   reused, then identical plaintexts would be encrypted to\n\t   identical ciphertexts. However, even if IVs are not\n\t   identical but are predictable, then they still break the\n\t   security of CBC mode against Chosen Plaintext Attacks\n\t   (CPA).</xhtml:p>\n\t ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "1204",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "573",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		],
+		"technology": [
+			{
+				"class": "ICS/OT",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"background_details": [
+		"\n\t      <xhtml:p>CBC mode is a commonly used mode of operation for a\n\t      block cipher. It works by XOR-ing an IV with the initial\n\t      block of a plaintext prior to encryption and then\n\t      XOR-ing each successive block of plaintext with the\n\t      previous block of ciphertext before encryption.</xhtml:p>\n\t      <xhtml:div style=\"margin-left:1em;\">\n\t\tC_0 = IV<xhtml:br/>\n\t\tC_i = E_k{M_i XOR C_{i-1}}\n\t      </xhtml:div>\n\t      <xhtml:p>\n\t\tWhen used properly, CBC mode provides security against\n\t\tchosen plaintext attacks. Having an unpredictable IV\n\t\tis a crucial underpinning of this. See [REF-1171].</xhtml:p>\n\t      "
+	],
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation",
+			"note": [
+				"Developers might dismiss the importance of an unpredictable IV and choose an easier implementation to save effort, weakening the scheme in the process."
+			]
+		}
+	],
+	"likelihood_of_exploit": "Medium",
+	"common_consequences": [
+		{
+			"scope": [
+				"Confidentiality"
+			],
+			"impact": [
+				"Read Application Data"
+			],
+			"note": "If the IV is not properly initialized, data that is encrypted can be compromised and leak information."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"NIST recommends two methods of generating unpredictable IVs for CBC mode [REF-1172]. The first is to generate the IV randomly. The second method is to encrypt a nonce with the same key and cipher to be used to encrypt the plaintext. In this case the nonce must be unique but can be predictable, since the block cipher will act as a pseudo random permutation."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-143",
+			"text": "\n               <Intro_Text>In the following examples, CBC mode is used when encrypting data:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>EVP_CIPHER_CTX ctx;<xhtml:br/>char key[EVP_MAX_KEY_LENGTH];<xhtml:br/>char iv[EVP_MAX_IV_LENGTH];<xhtml:br/>RAND_bytes(key, b);<xhtml:br/>memset(iv,0,EVP_MAX_IV_LENGTH);<xhtml:br/>EVP_EncryptInit(&amp;ctx,EVP_bf_cbc(), key,iv);</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class SymmetricCipherTest {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>public static void main() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>byte[] text =\"Secret\".getBytes();<xhtml:br/>byte[] iv ={<xhtml:div style=\"margin-left:1em;\">0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00</xhtml:div>};<xhtml:br/>KeyGenerator kg = KeyGenerator.getInstance(\"DES\");<xhtml:br/>kg.init(56);<xhtml:br/>SecretKey key = kg.generateKey();<xhtml:br/>Cipher cipher = Cipher.getInstance(\"DES/CBC/PKCS5Padding\");<xhtml:br/>IvParameterSpec ips = new IvParameterSpec(iv);<xhtml:br/>cipher.init(Cipher.ENCRYPT_MODE, key, ips);<xhtml:br/>return cipher.doFinal(inpBytes);</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In both of these examples, the initialization vector (IV) is always a block of zeros. This makes the resulting cipher text much more predictable and susceptible to a dictionary attack.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2020-5408",
+			"description": "encryption functionality in an authentication framework uses a fixed null IV with CBC mode, allowing attackers to decrypt traffic in applications that use this functionality",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-5408"
+		},
+		{
+			"reference": "CVE-2017-17704",
+			"description": "messages for a door-unlocking product use a fixed IV in CBC mode, which is the same after each restart ",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2017-17704"
+		},
+		{
+			"reference": "CVE-2017-11133",
+			"description": "application uses AES in CBC mode, but the pseudo-random secret and IV are generated using math.random, which is not cryptographically strong.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2017-11133"
+		},
+		{
+			"reference": "CVE-2007-3528",
+			"description": "Blowfish-CBC implementation constructs an IV where each byte is calculated modulo 8 instead of modulo 256, resulting in less than 12 bits for the effective IV length, and less than 4096 possible IV values.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-3528"
+		},
+		{
+			"reference": "CVE-2011-3389",
+			"description": "BEAST attack in SSL 3.0 / TLS 1.0. In CBC mode, chained initialization vectors are non-random, allowing decryption of HTTPS traffic using a chosen plaintext attack.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2011-3389"
+		}
+	],
+	"references": [
+		{
+			"section": "Chapter 2, \"Initialization Vectors\", Page 42",
+			"reference_id": "REF-62",
+			"author": [
+				"Mark Dowd",
+				"John McDonald",
+				"Justin Schuh"
+			],
+			"title": "The Art of Software Security Assessment",
+			"publication_year": "2006",
+			"publisher": "Addison Wesley",
+			"edition": "1st Edition"
+		},
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		},
+		{
+			"reference_id": "REF-1171",
+			"author": [
+				"Matthew Green"
+			],
+			"title": "Why IND-CPA implies randomized encryption",
+			"url": "https://blog.cryptographyengineering.com/why-ind-cpa-implies-randomized-encryption/",
+			"publication_year": "2018",
+			"publication_month": "--08",
+			"publication_day": "---24"
+		},
+		{
+			"section": "Appendix C",
+			"reference_id": "REF-1172",
+			"author": [
+				"NIST"
+			],
+			"title": "Recommendation for Block Cipher Modes of Operation",
+			"url": "https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf",
+			"publication_year": "2001",
+			"publication_month": "--12",
+			"url_date": "2023-04-07"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Background_Details, Common_Consequences, Functional_Areas, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-03-15",
+				"modification_comment": "updated Background_Details, Common_Consequences, Demonstrative_Examples, Description, Modes_of_Introduction, Name, Observed_Examples, Potential_Mitigations, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Description, Maintenance_Notes, Name, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Applicable_Platforms"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, Modes_of_Introduction, Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Not Using a Random IV with CBC Mode",
+				"date": "2021-03-15"
+			},
+			{
+				"text": "Not Using an Unpredictable IV with CBC Mode",
+				"date": "2021-07-20"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Not using a random IV with CBC mode"
+		}
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "As of CWE 4.5, terminology related to randomness, entropy, and\n\t   predictability can vary widely. Within the developer and other\n\t   communities, \"randomness\" is used heavily. However, within\n\t   cryptography, \"entropy\" is distinct, typically implied as a\n\t   measurement. There are no commonly-used definitions, even within\n\t   standards documents and cryptography papers. Future versions of\n\t   CWE will attempt to define these terms and, if necessary,\n\t   distinguish between them in ways that are appropriate for\n\t   different communities but do not reduce the usability of CWE for\n\t   mapping, understanding, or other scenarios."
+		}
+	],
+	"functional_areas": [
+		"Cryptography"
+	]
 }

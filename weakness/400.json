@@ -1,611 +1,611 @@
 {
-  "id": "400",
-  "name": "Uncontrolled Resource Consumption",
-  "abstraction": "Class",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product does not properly control the allocation and maintenance of a limited resource, thereby enabling an actor to influence the amount of resources consumed, eventually leading to the exhaustion of available resources.",
-  "extended_description": "\n            <xhtml:p>Limited resources include memory, file system storage, database connection pool entries, and CPU. If an attacker can trigger the allocation of these limited resources, but the number or size of the resources is not controlled, then the attacker could cause a denial of service that consumes all available resources. This would prevent valid users from accessing the product, and it could potentially have an impact on the surrounding environment. For example, a memory exhaustion attack against an application could slow down the application as well as its host operating system.</xhtml:p>\n            <xhtml:p>There are at least three distinct scenarios which can commonly lead to resource exhaustion:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>Lack of throttling for the number of allocated resources</xhtml:li>\n                  <xhtml:li>Losing all references to a resource before reaching the shutdown stage</xhtml:li>\n                  <xhtml:li>Not closing/returning a resource after processing</xhtml:li>\n               </xhtml:ul>\n            <xhtml:p>Resource exhaustion problems are often result due to an incorrect implementation of the following situations:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>Error conditions and other exceptional circumstances.</xhtml:li>\n                  <xhtml:li>Confusion over which part of the program is responsible for releasing the resource.</xhtml:li>\n               </xhtml:ul>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "664",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Operation"
-    },
-    {
-      "phase": "Architecture and Design"
-    },
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "likelihood_of_exploit": "High",
-  "common_consequences": [
-    {
-      "scope": [
-        "Availability"
-      ],
-      "impact": [
-        "DoS: Crash, Exit, or Restart",
-        "DoS: Resource Consumption (CPU)",
-        "DoS: Resource Consumption (Memory)",
-        "DoS: Resource Consumption (Other)"
-      ],
-      "note": "The most common result of resource exhaustion is denial of service. The product may slow down, crash due to unhandled errors, or lock out legitimate users."
-    },
-    {
-      "scope": [
-        "Access Control",
-        "Other"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism",
-        "Other"
-      ],
-      "note": "In some cases it may be possible to force the product to \"fail open\" in the event of resource exhaustion. The state of the product -- and possibly the security functionality - may then be compromised."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Design throttling mechanisms into the system architecture. The best protection is to limit the amount of resources that an unauthorized user can cause to be expended. A strong authentication and access control model will help prevent such attacks from occurring in the first place. The login application should be protected against DoS attacks as much as possible. Limiting the database access, perhaps by caching result sets, can help minimize the resources expended. To further limit the potential for a DoS attack, consider tracking the rate of requests received from users and blocking requests that exceed a defined rate threshold."
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Mitigation of resource exhaustion attacks requires that the target system either:</xhtml:p>\n                     <xhtml:ul>\n                        <xhtml:li>recognizes the attack and denies that user further access for a given amount of time, or</xhtml:li>\n                        <xhtml:li>uniformly throttles all requests in order to make it more difficult to consume resources more quickly than they can again be freed.</xhtml:li>\n                     </xhtml:ul>\n                  <xhtml:p>The first of these solutions is an issue in itself though, since it may allow attackers to prevent the use of the system by a particular valid user. If the attacker impersonates the valid user, they may be able to prevent the user from accessing the server in question.</xhtml:p>\n                  <xhtml:p>The second solution is simply difficult to effectively institute -- and even when properly done, it does not provide a full solution. It simply makes the attack require more resources on the part of the attacker.</xhtml:p>\n               "
-      ]
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Ensure that protocols have specific limits of scale placed on them."
-      ]
-    },
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Ensure that all failures in resource allocation place the system into a safe posture."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>class Worker implements Executor {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>...<xhtml:br/>public void execute(Runnable r) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}<xhtml:br/>catch (InterruptedException ie) {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// postpone response</xhtml:i>\n                                       <xhtml:br/>Thread.currentThread().interrupt();</xhtml:div>\n                                 </xhtml:div>}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public Worker(Channel ch, int nworkers) {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>protected void activate() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>Runnable loop = new Runnable() {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>public void run() {<xhtml:div style=\"margin-left:1em;\">\n                                          <xhtml:div>\n                                             <xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">for (;;) {<xhtml:div style=\"margin-left:1em;\">Runnable r = ...;<xhtml:br/>r.run();</xhtml:div>}</xhtml:div>}<xhtml:br/>catch (InterruptedException ie) {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}</xhtml:div>\n                                       </xhtml:div>}</xhtml:div>\n                                 </xhtml:div>};<xhtml:br/>new Thread(loop).start();</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>There are no limits to runnables. Potentially an attacker could cause resource problems very quickly.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-25",
-      "text": "\n               <Intro_Text>This code allocates a socket and forks each time it receives a new connection.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>sock=socket(AF_INET, SOCK_STREAM, 0);<xhtml:br/>while (1) {<xhtml:div style=\"margin-left:1em;\">newsock=accept(sock, ...);<xhtml:br/>printf(\"A connection has been accepted\\n\");<xhtml:br/>pid = fork();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The program does not track how many connections have been made, and it does not limit the number of connections. Because forking is a relatively expensive operation, an attacker would be able to cause the system to run out of CPU, processes, or memory by making a large number of connections. Alternatively, an attacker could consume all available connections, preventing others from accessing the system remotely.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-50",
-      "text": "\n               <Intro_Text>In the following example a server socket connection is used to accept a request to store data on the local file system using a specified filename. The method openSocketConnection establishes a server socket to accept requests from a client. When a client establishes a connection to this service the getNextMessage method is first used to retrieve from the socket the name of the file to store the data, the openFileToWrite method will validate the filename and open a file to write to on the local file system. The getNextMessage is then used within a while loop to continuously read data from the socket and output the data to the file until there is no longer any data from the socket.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int writeDataFromSocketToFile(char *host, int port)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>char filename[FILENAME_SIZE];<xhtml:br/>char buffer[BUFFER_SIZE];<xhtml:br/>int socket = openSocketConnection(host, port);<xhtml:br/>\n                           <xhtml:br/>if (socket &lt; 0) {<xhtml:div style=\"margin-left:1em;\">printf(\"Unable to open socket connection\");<xhtml:br/>return(FAIL);</xhtml:div>}<xhtml:br/>if (getNextMessage(socket, filename, FILENAME_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if (openFileToWrite(filename) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>while (getNextMessage(socket, buffer, BUFFER_SIZE) &gt; 0){<xhtml:div style=\"margin-left:1em;\">if (!(writeToFile(buffer) &gt; 0))<xhtml:div style=\"margin-left:1em;\">break;</xhtml:div>\n                                       </xhtml:div>}</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>closeFile();</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>closeSocket(socket);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This example creates a situation where data can be dumped to a file on the local file system without any limits on the size of the file. This could potentially exhaust file or disk resources and/or limit other clients' ability to access the service.</Body_Text>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-51",
-      "text": "\n               <Intro_Text>In the following example, the processMessage method receives a two dimensional character array containing the message to be processed. The two-dimensional character array contains the length of the message in the first character array and the message body in the second character array. The getMessageLength method retrieves the integer value of the length from the first character array. After validating that the message length is greater than zero, the body character array pointer points to the start of the second character array of the two-dimensional character array and memory is allocated for the new body character array.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>/* process message accepts a two-dimensional character array of the form [length][body] containing the message to be processed */</xhtml:i>\n                     <xhtml:br/>int processMessage(char **message)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char *body;<xhtml:br/>\n                           <xhtml:br/>int length = getMessageLength(message[0]);<xhtml:br/>\n                           <xhtml:br/>if (length &gt; 0) {<xhtml:div style=\"margin-left:1em;\">body = &amp;message[1][0];<xhtml:br/>processMessageBody(body);<xhtml:br/>return(SUCCESS);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">printf(\"Unable to process message; invalid message length\");<xhtml:br/>return(FAIL);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This example creates a situation where the length of the body character array can be very large and will consume excessive memory, exhausting system resources. This can be avoided by restricting the length of the second character array with a maximum length check</Body_Text>\n               <Body_Text>Also, consider changing the type from 'int' to 'unsigned int', so that you are always guaranteed that the number is positive. This might not be possible if the protocol specifically requires allowing negative values, or if you cannot control the return value from getMessageLength(), but it could simplify the check to ensure the input is positive, and eliminate other errors such as signed-to-unsigned conversion errors (CWE-195) that may occur elsewhere in the code.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>unsigned int length = getMessageLength(message[0]);<xhtml:br/>if ((length &gt; 0) &amp;&amp; (length &lt; MAX_LENGTH)) {...}</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "demonstrative_example_id": "DX-52",
-      "text": "\n               <Intro_Text>In the following example, a server object creates a server socket and accepts client connections to the socket. For every client connection to the socket a separate thread object is generated using the ClientSocketThread class that handles request made by the client through the socket.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public void acceptConnections() {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">ServerSocket serverSocket = new ServerSocket(SERVER_PORT);<xhtml:br/>int counter = 0;<xhtml:br/>boolean hasConnections = true;<xhtml:br/>while (hasConnections) {<xhtml:div style=\"margin-left:1em;\">Socket client = serverSocket.accept();<xhtml:br/>Thread t = new Thread(new ClientSocketThread(client));<xhtml:br/>t.setName(client.getInetAddress().getHostName() + \":\" + counter++);<xhtml:br/>t.start();</xhtml:div>}<xhtml:br/>serverSocket.close();</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:br/>} catch (IOException ex) {...}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In this example there is no limit to the number of client connections and client threads that are created. Allowing an unlimited number of client connections and threads could potentially overwhelm the system and system resources.</Body_Text>\n               <Body_Text>The server should limit the number of client connections and the client threads that are created. This can be easily done by creating a thread pool object that limits the number of threads that are generated.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public static final int SERVER_PORT = 4444;<xhtml:br/>public static final int MAX_CONNECTIONS = 10;<xhtml:br/>...<xhtml:br/>\n                     <xhtml:br/>public void acceptConnections() {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">ServerSocket serverSocket = new ServerSocket(SERVER_PORT);<xhtml:br/>int counter = 0;<xhtml:br/>boolean hasConnections = true;<xhtml:br/>while (hasConnections) {<xhtml:div style=\"margin-left:1em;\">hasConnections = checkForMoreConnections();<xhtml:br/>Socket client = serverSocket.accept();<xhtml:br/>Thread t = new Thread(new ClientSocketThread(client));<xhtml:br/>t.setName(client.getInetAddress().getHostName() + \":\" + counter++);<xhtml:br/>ExecutorService pool = Executors.newFixedThreadPool(MAX_CONNECTIONS);<xhtml:br/>pool.execute(t);</xhtml:div>}<xhtml:br/>serverSocket.close();</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:br/>} catch (IOException ex) {...}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
-    },
-    {
-      "text": "\n               <Intro_Text>In the following example, the serve function receives an http request and an http response writer. It reads the entire request body.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Go\">\n                  <xhtml:div>func serve(w http.ResponseWriter, r *http.Request) {\n                     <xhtml:div style=\"margin-left:1em;\">\n                        var body []byte<xhtml:br/>\n                        if r.Body != nil {<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                           if data, err := io.ReadAll(r.Body); err == nil {<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                              body = data<xhtml:br/>\n                           </xhtml:div>\n                           }</xhtml:div>\n                        }</xhtml:div>\n                  }</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because ReadAll is defined to read from src until EOF, it does not treat an EOF from Read as an error to be reported. This example creates a situation where the length of the body supplied can be very large and will consume excessive memory, exhausting system resources. This can be avoided by ensuring the body does not exceed a predetermined length of bytes.</Body_Text>\n               <Body_Text>MaxBytesReader prevents clients from accidentally or maliciously sending a large request and wasting server resources. If possible, the code could be changed to tell ResponseWriter to close the connection after the limit has been reached.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Go\">\n                  <xhtml:div>func serve(w http.ResponseWriter, r *http.Request) {\n                     <xhtml:div style=\"margin-left:1em;\">\n                        var body []byte<xhtml:br/>\n                        const MaxRespBodyLength = 1e6<xhtml:br/>\n                        if r.Body != nil {<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                           r.Body = http.MaxBytesReader(w, r.Body, MaxRespBodyLength)<xhtml:br/>\n                           if data, err := io.ReadAll(r.Body); err == nil {<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                              body = data<xhtml:br/>\n                           </xhtml:div>\n                           }</xhtml:div>\n                        }</xhtml:div>\n                  }</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2022-21668",
-      "description": "Chain: Python library does not limit the resources used to process images that specify a very large number of bands (CWE-1284), leading to excessive memory consumption (CWE-789) or an integer overflow (CWE-190).",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2022-21668"
-    },
-    {
-      "reference": "CVE-2020-7218",
-      "description": "Go-based workload orchestrator does not limit resource usage with unauthenticated connections, allowing a DoS by flooding the service",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-7218"
-    },
-    {
-      "reference": "CVE-2020-3566",
-      "description": "Resource exhaustion in distributed OS because of \"insufficient\" IGMP queue management, as exploited in the wild per CISA KEV.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2020-3566"
-    },
-    {
-      "reference": "CVE-2009-2874",
-      "description": "Product allows attackers to cause a crash via a large number of connections.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2874"
-    },
-    {
-      "reference": "CVE-2009-1928",
-      "description": "Malformed request triggers uncontrolled recursion, leading to stack exhaustion.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-1928"
-    },
-    {
-      "reference": "CVE-2009-2858",
-      "description": "Chain: memory leak (CWE-404) leads to resource exhaustion.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2858"
-    },
-    {
-      "reference": "CVE-2009-2726",
-      "description": "Driver does not use a maximum width when invoking sscanf style functions, causing stack consumption.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2726"
-    },
-    {
-      "reference": "CVE-2009-2540",
-      "description": "Large integer value for a length property in an object causes a large amount of memory allocation.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2540"
-    },
-    {
-      "reference": "CVE-2009-2299",
-      "description": "Web application firewall consumes excessive memory when an HTTP request contains a large Content-Length value but no POST data.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2299"
-    },
-    {
-      "reference": "CVE-2009-2054",
-      "description": "Product allows exhaustion of file descriptors when processing a large number of TCP packets.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2054"
-    },
-    {
-      "reference": "CVE-2008-5180",
-      "description": "Communication product allows memory consumption with a large number of SIP requests, which cause many sessions to be created.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-5180"
-    },
-    {
-      "reference": "CVE-2008-2121",
-      "description": "TCP implementation allows attackers to consume CPU and prevent new connections using a TCP SYN flood attack.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2121"
-    },
-    {
-      "reference": "CVE-2008-2122",
-      "description": "Port scan triggers CPU consumption with processes that attempt to read data from closed sockets.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-2122"
-    },
-    {
-      "reference": "CVE-2008-1700",
-      "description": "Product allows attackers to cause a denial of service via a large number of directives, each of which opens a separate window.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2008-1700"
-    },
-    {
-      "reference": "CVE-2007-4103",
-      "description": "Product allows resource exhaustion via a large number of calls that do not complete a 3-way handshake.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-4103"
-    },
-    {
-      "reference": "CVE-2006-1173",
-      "description": "Mail server does not properly handle deeply nested multipart MIME messages, leading to stack exhaustion.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2006-1173"
-    },
-    {
-      "reference": "CVE-2007-0897",
-      "description": "Chain: anti-virus product encounters a malformed file but returns from a function without closing a file descriptor (CWE-775) leading to file descriptor consumption (CWE-400) and failed scans.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2007-0897"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-18",
-      "author": [
-        "Secure Software, Inc."
-      ],
-      "title": "The CLASP Application Security Process",
-      "url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-      "publication_year": "2005"
-    },
-    {
-      "reference_id": "REF-386",
-      "author": [
-        "Joao Antunes",
-        "Nuno Ferreira Neves",
-        "Paulo Verissimo"
-      ],
-      "title": "Detection and Prediction of Resource-Exhaustion Vulnerabilities",
-      "url": "http://homepages.di.fc.ul.pt/~nuno/PAPERS/ISSRE08.pdf",
-      "publication_year": "2008",
-      "publication_month": "--11",
-      "publication": "Proceedings of the IEEE International Symposium on Software Reliability Engineering (ISSRE)"
-    },
-    {
-      "reference_id": "REF-387",
-      "author": [
-        "D.J. Bernstein"
-      ],
-      "title": "Resource exhaustion",
-      "url": "http://cr.yp.to/docs/resources.html"
-    },
-    {
-      "reference_id": "REF-388",
-      "author": [
-        "Pascal Meunier"
-      ],
-      "title": "Resource exhaustion",
-      "url": "http://homes.cerias.purdue.edu/~pmeunier/secprog/sanitized/class1/6.resource%20exhaustion.ppt",
-      "publication_year": "2004",
-      "publication": "Secure Programming Educational Material"
-    },
-    {
-      "section": "Chapter 17, \"Protecting Against Denial of Service Attacks\" Page 517",
-      "reference_id": "REF-7",
-      "author": [
-        "Michael Howard",
-        "David LeBlanc"
-      ],
-      "title": "Writing Secure Code",
-      "url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
-      "publication_year": "2002",
-      "publication_month": "--12",
-      "publication_day": "---04",
-      "publisher": "Microsoft Press",
-      "edition": "2nd Edition"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CLASP",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Time_of_Introduction"
-      },
-      {
-        "modification_organization": "Veracode",
-        "modification_date": "2008-08-15",
-        "modification_comment": "Suggested OWASP Top Ten 2004 mapping"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-10-14",
-        "modification_comment": "updated Description, Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-01-12",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-05-27",
-        "modification_comment": "updated Name, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-07-27",
-        "modification_comment": "updated Description, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Common_Consequences, Demonstrative_Examples, Detection_Factors, Likelihood_of_Exploit, Observed_Examples, Other_Notes, Potential_Mitigations, References"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-02-16",
-        "modification_comment": "updated Detection_Factors, Potential_Mitigations, References, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-04-05",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-06-21",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2010-09-27",
-        "modification_comment": "updated Demonstrative_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2013-07-17",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2015-12-07",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-01-19",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Likelihood_of_Exploit, Potential_Mitigations, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2018-03-27",
-        "modification_comment": "updated References, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Alternate_Terms, Description, Name, Relationships, Taxonomy_Mappings, Theoretical_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-09-19",
-        "modification_comment": "updated Description, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Description, References, Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-06-25",
-        "modification_comment": "updated Description, Maintenance_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-04-28",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-06-28",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Observed_Examples, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Common_Consequences, Description, Detection_Factors, Maintenance_Notes, Related_Attack_Patterns, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Demonstrative_Examples, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Resource Exhaustion",
-        "date": "2008-10-14"
-      },
-      {
-        "text": "Uncontrolled Resource Consumption (aka 'Resource Exhaustion')",
-        "date": "2009-05-27"
-      },
-      {
-        "text": "Uncontrolled Resource Consumption ('Resource Exhaustion')",
-        "date": "2019-01-03"
-      }
-    ],
-    "contribution": [
-      {
-        "type": "Content",
-        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
-        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
-        "contribution_date": "2023-01-24",
-        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
-      },
-      {
-        "type": "Content",
-        "contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
-        "contribution_organization": "CWE-CAPEC ICS/OT SIG",
-        "contribution_date": "2023-04-25",
-        "contribution_comment": "Suggested mappings to ISA/IEC 62443."
-      }
-    ]
-  },
-  "alternate_terms": [
-    {
-      "term": "Resource Exhaustion"
-    }
-  ],
-  "detection_methods": [
-    {
-      "method": "Automated Static Analysis",
-      "description": "\n                  <xhtml:p>Automated static analysis typically has limited utility in recognizing resource exhaustion problems, except for program-independent system resources such as files, sockets, and processes. For system resources, automated static analysis may be able to detect circumstances in which resources are not released after they have expired. Automated analysis of configuration files may be able to detect settings that do not specify a maximum value.</xhtml:p>\n                  <xhtml:p>Automated static analysis tools will not be appropriate for detecting exhaustion of custom resources, such as an intended security policy in which a bulletin board user is only allowed to make a limited number of posts per day.</xhtml:p>\n               ",
-      "effectiveness": "Limited"
-    },
-    {
-      "method": "Automated Dynamic Analysis",
-      "description": "Certain automated dynamic analysis techniques may be effective in spotting resource exhaustion problems, especially with resources such as processes, memory, and connections. The technique may involve generating a large number of requests to the product within a short time frame.",
-      "effectiveness": "Moderate"
-    },
-    {
-      "method": "Fuzzing",
-      "description": "While fuzzing is typically geared toward finding low-level implementation bugs, it can inadvertently find resource exhaustion problems. This can occur when the fuzzer generates a large number of test cases but does not restart the targeted product in between test cases. If an individual test case produces a crash, but it does not do so reliably, then an inability to handle resource exhaustion may be the cause.",
-      "effectiveness": "Opportunistic"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "CLASP",
-      "entry_name": "Resource exhaustion (file descriptor, disk space, sockets, ...)"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2004",
-      "entry_name": "Denial of Service",
-      "entry_id": "A9",
-      "mapping_fit": "CWE More Specific"
-    },
-    {
-      "taxonomy_name": "WASC",
-      "entry_name": "Denial of Service",
-      "entry_id": "10"
-    },
-    {
-      "taxonomy_name": "WASC",
-      "entry_name": "XML Attribute Blowup",
-      "entry_id": "41"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Avoid memory and resource leaks during serialization",
-      "entry_id": "SER12-J"
-    },
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Do not exhaust heap space",
-      "entry_id": "MSC05-J"
-    },
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Unrestricted Consumption",
-      "entry_id": "SFP13"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR 7.1",
-      "entry_id": "Part 3-3"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SR 7.2",
-      "entry_id": "Part 3-3"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SI-1",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req SVV-3",
-      "entry_id": "Part 4-1"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR 7.1",
-      "entry_id": "Part 4-2"
-    },
-    {
-      "taxonomy_name": "ISA/IEC 62443",
-      "entry_name": "Req CR 7.2",
-      "entry_id": "Part 4-2"
-    }
-  ],
-  "related_attack_patterns": [
-    "147",
-    "227",
-    "492"
-  ],
-  "notes": [
-    {
-      "type": "Maintenance",
-      "text": "\"Resource consumption\" could be interpreted as a consequence instead of an insecure behavior, so this entry is being considered for modification.  It appears to be referenced too frequently when more precise mappings are available.  Some of its children, such as CWE-771, might be better considered as a chain."
-    },
-    {
-      "type": "Theoretical",
-      "text": "Vulnerability theory is largely about how behaviors and resources interact. \"Resource exhaustion\" can be regarded as either a consequence or an attack, depending on the perspective. This entry is an attempt to reflect the underlying weaknesses that enable these attacks (or consequences) to take place."
-    },
-    {
-      "type": "Other",
-      "text": "\n               <xhtml:p>Database queries that take a long time to process are good DoS targets. An attacker would have to write a few lines of Perl code to generate enough traffic to exceed the site's ability to keep up. This would effectively prevent authorized users from using the site at all. Resources can be exploited simply by ensuring that the target machine must do much more work and consume more resources in order to service a request than the attacker must do to initiate a request.</xhtml:p>\n               <xhtml:p>A prime example of this can be found in old switches that were vulnerable to \"macof\" attacks (so named for a tool developed by Dugsong). These attacks flooded a switch with random IP and MAC address combinations, therefore exhausting the switch's cache, which held the information of which port corresponded to which MAC addresses. Once this cache was exhausted, the switch would fail in an insecure way and would begin to act simply as a hub, broadcasting all traffic on all ports and allowing for basic sniffing attacks.</xhtml:p>\n            "
-    },
-    {
-      "type": "Maintenance",
-      "text": "The Taxonomy_Mappings to ISA/IEC 62443 were added in CWE 4.10, but they are still under review and might change in future CWE versions. These draft mappings were performed by members of the \"Mapping CWE to 62443\" subgroup of the CWE-CAPEC ICS/OT Special Interest Group (SIG), and their work is incomplete as of CWE 4.10. The mappings are included to facilitate discussion and review by the broader ICS/OT community, and they are likely to change in future CWE versions."
-    }
-  ]
+	"id": "400",
+	"name": "Uncontrolled Resource Consumption",
+	"abstraction": "Class",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product does not properly control the allocation and maintenance of a limited resource, thereby enabling an actor to influence the amount of resources consumed, eventually leading to the exhaustion of available resources.",
+	"extended_description": "\n            <xhtml:p>Limited resources include memory, file system storage, database connection pool entries, and CPU. If an attacker can trigger the allocation of these limited resources, but the number or size of the resources is not controlled, then the attacker could cause a denial of service that consumes all available resources. This would prevent valid users from accessing the product, and it could potentially have an impact on the surrounding environment. For example, a memory exhaustion attack against an application could slow down the application as well as its host operating system.</xhtml:p>\n            <xhtml:p>There are at least three distinct scenarios which can commonly lead to resource exhaustion:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>Lack of throttling for the number of allocated resources</xhtml:li>\n                  <xhtml:li>Losing all references to a resource before reaching the shutdown stage</xhtml:li>\n                  <xhtml:li>Not closing/returning a resource after processing</xhtml:li>\n               </xhtml:ul>\n            <xhtml:p>Resource exhaustion problems are often result due to an incorrect implementation of the following situations:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>Error conditions and other exceptional circumstances.</xhtml:li>\n                  <xhtml:li>Confusion over which part of the program is responsible for releasing the resource.</xhtml:li>\n               </xhtml:ul>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "664",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Operation"
+		},
+		{
+			"phase": "Architecture and Design"
+		},
+		{
+			"phase": "Implementation"
+		}
+	],
+	"likelihood_of_exploit": "High",
+	"common_consequences": [
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart",
+				"DoS: Resource Consumption (CPU)",
+				"DoS: Resource Consumption (Memory)",
+				"DoS: Resource Consumption (Other)"
+			],
+			"note": "The most common result of resource exhaustion is denial of service. The product may slow down, crash due to unhandled errors, or lock out legitimate users."
+		},
+		{
+			"scope": [
+				"Access Control",
+				"Other"
+			],
+			"impact": [
+				"Bypass Protection Mechanism",
+				"Other"
+			],
+			"note": "In some cases it may be possible to force the product to \"fail open\" in the event of resource exhaustion. The state of the product -- and possibly the security functionality - may then be compromised."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Design throttling mechanisms into the system architecture. The best protection is to limit the amount of resources that an unauthorized user can cause to be expended. A strong authentication and access control model will help prevent such attacks from occurring in the first place. The login application should be protected against DoS attacks as much as possible. Limiting the database access, perhaps by caching result sets, can help minimize the resources expended. To further limit the potential for a DoS attack, consider tracking the rate of requests received from users and blocking requests that exceed a defined rate threshold."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"\n                  <xhtml:p>Mitigation of resource exhaustion attacks requires that the target system either:</xhtml:p>\n                     <xhtml:ul>\n                        <xhtml:li>recognizes the attack and denies that user further access for a given amount of time, or</xhtml:li>\n                        <xhtml:li>uniformly throttles all requests in order to make it more difficult to consume resources more quickly than they can again be freed.</xhtml:li>\n                     </xhtml:ul>\n                  <xhtml:p>The first of these solutions is an issue in itself though, since it may allow attackers to prevent the use of the system by a particular valid user. If the attacker impersonates the valid user, they may be able to prevent the user from accessing the server in question.</xhtml:p>\n                  <xhtml:p>The second solution is simply difficult to effectively institute -- and even when properly done, it does not provide a full solution. It simply makes the attack require more resources on the part of the attacker.</xhtml:p>\n               "
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Ensure that protocols have specific limits of scale placed on them."
+			]
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Ensure that all failures in resource allocation place the system into a safe posture."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following example demonstrates the weakness.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>class Worker implements Executor {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>...<xhtml:br/>public void execute(Runnable r) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}<xhtml:br/>catch (InterruptedException ie) {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// postpone response</xhtml:i>\n                                       <xhtml:br/>Thread.currentThread().interrupt();</xhtml:div>\n                                 </xhtml:div>}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public Worker(Channel ch, int nworkers) {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>protected void activate() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>Runnable loop = new Runnable() {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>public void run() {<xhtml:div style=\"margin-left:1em;\">\n                                          <xhtml:div>\n                                             <xhtml:br/>try {<xhtml:div style=\"margin-left:1em;\">for (;;) {<xhtml:div style=\"margin-left:1em;\">Runnable r = ...;<xhtml:br/>r.run();</xhtml:div>}</xhtml:div>}<xhtml:br/>catch (InterruptedException ie) {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}</xhtml:div>\n                                       </xhtml:div>}</xhtml:div>\n                                 </xhtml:div>};<xhtml:br/>new Thread(loop).start();</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>There are no limits to runnables. Potentially an attacker could cause resource problems very quickly.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-25",
+			"text": "\n               <Intro_Text>This code allocates a socket and forks each time it receives a new connection.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>sock=socket(AF_INET, SOCK_STREAM, 0);<xhtml:br/>while (1) {<xhtml:div style=\"margin-left:1em;\">newsock=accept(sock, ...);<xhtml:br/>printf(\"A connection has been accepted\\n\");<xhtml:br/>pid = fork();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The program does not track how many connections have been made, and it does not limit the number of connections. Because forking is a relatively expensive operation, an attacker would be able to cause the system to run out of CPU, processes, or memory by making a large number of connections. Alternatively, an attacker could consume all available connections, preventing others from accessing the system remotely.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-50",
+			"text": "\n               <Intro_Text>In the following example a server socket connection is used to accept a request to store data on the local file system using a specified filename. The method openSocketConnection establishes a server socket to accept requests from a client. When a client establishes a connection to this service the getNextMessage method is first used to retrieve from the socket the name of the file to store the data, the openFileToWrite method will validate the filename and open a file to write to on the local file system. The getNextMessage is then used within a while loop to continuously read data from the socket and output the data to the file until there is no longer any data from the socket.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int writeDataFromSocketToFile(char *host, int port)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>char filename[FILENAME_SIZE];<xhtml:br/>char buffer[BUFFER_SIZE];<xhtml:br/>int socket = openSocketConnection(host, port);<xhtml:br/>\n                           <xhtml:br/>if (socket &lt; 0) {<xhtml:div style=\"margin-left:1em;\">printf(\"Unable to open socket connection\");<xhtml:br/>return(FAIL);</xhtml:div>}<xhtml:br/>if (getNextMessage(socket, filename, FILENAME_SIZE) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if (openFileToWrite(filename) &gt; 0) {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>while (getNextMessage(socket, buffer, BUFFER_SIZE) &gt; 0){<xhtml:div style=\"margin-left:1em;\">if (!(writeToFile(buffer) &gt; 0))<xhtml:div style=\"margin-left:1em;\">break;</xhtml:div>\n                                       </xhtml:div>}</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>closeFile();</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>closeSocket(socket);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This example creates a situation where data can be dumped to a file on the local file system without any limits on the size of the file. This could potentially exhaust file or disk resources and/or limit other clients' ability to access the service.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-51",
+			"text": "\n               <Intro_Text>In the following example, the processMessage method receives a two dimensional character array containing the message to be processed. The two-dimensional character array contains the length of the message in the first character array and the message body in the second character array. The getMessageLength method retrieves the integer value of the length from the first character array. After validating that the message length is greater than zero, the body character array pointer points to the start of the second character array of the two-dimensional character array and memory is allocated for the new body character array.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>/* process message accepts a two-dimensional character array of the form [length][body] containing the message to be processed */</xhtml:i>\n                     <xhtml:br/>int processMessage(char **message)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char *body;<xhtml:br/>\n                           <xhtml:br/>int length = getMessageLength(message[0]);<xhtml:br/>\n                           <xhtml:br/>if (length &gt; 0) {<xhtml:div style=\"margin-left:1em;\">body = &amp;message[1][0];<xhtml:br/>processMessageBody(body);<xhtml:br/>return(SUCCESS);</xhtml:div>}<xhtml:br/>else {<xhtml:div style=\"margin-left:1em;\">printf(\"Unable to process message; invalid message length\");<xhtml:br/>return(FAIL);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This example creates a situation where the length of the body character array can be very large and will consume excessive memory, exhausting system resources. This can be avoided by restricting the length of the second character array with a maximum length check</Body_Text>\n               <Body_Text>Also, consider changing the type from 'int' to 'unsigned int', so that you are always guaranteed that the number is positive. This might not be possible if the protocol specifically requires allowing negative values, or if you cannot control the return value from getMessageLength(), but it could simplify the check to ensure the input is positive, and eliminate other errors such as signed-to-unsigned conversion errors (CWE-195) that may occur elsewhere in the code.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>unsigned int length = getMessageLength(message[0]);<xhtml:br/>if ((length &gt; 0) &amp;&amp; (length &lt; MAX_LENGTH)) {...}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-52",
+			"text": "\n               <Intro_Text>In the following example, a server object creates a server socket and accepts client connections to the socket. For every client connection to the socket a separate thread object is generated using the ClientSocketThread class that handles request made by the client through the socket.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public void acceptConnections() {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">ServerSocket serverSocket = new ServerSocket(SERVER_PORT);<xhtml:br/>int counter = 0;<xhtml:br/>boolean hasConnections = true;<xhtml:br/>while (hasConnections) {<xhtml:div style=\"margin-left:1em;\">Socket client = serverSocket.accept();<xhtml:br/>Thread t = new Thread(new ClientSocketThread(client));<xhtml:br/>t.setName(client.getInetAddress().getHostName() + \":\" + counter++);<xhtml:br/>t.start();</xhtml:div>}<xhtml:br/>serverSocket.close();</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:br/>} catch (IOException ex) {...}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>In this example there is no limit to the number of client connections and client threads that are created. Allowing an unlimited number of client connections and threads could potentially overwhelm the system and system resources.</Body_Text>\n               <Body_Text>The server should limit the number of client connections and the client threads that are created. This can be easily done by creating a thread pool object that limits the number of threads that are generated.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public static final int SERVER_PORT = 4444;<xhtml:br/>public static final int MAX_CONNECTIONS = 10;<xhtml:br/>...<xhtml:br/>\n                     <xhtml:br/>public void acceptConnections() {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">ServerSocket serverSocket = new ServerSocket(SERVER_PORT);<xhtml:br/>int counter = 0;<xhtml:br/>boolean hasConnections = true;<xhtml:br/>while (hasConnections) {<xhtml:div style=\"margin-left:1em;\">hasConnections = checkForMoreConnections();<xhtml:br/>Socket client = serverSocket.accept();<xhtml:br/>Thread t = new Thread(new ClientSocketThread(client));<xhtml:br/>t.setName(client.getInetAddress().getHostName() + \":\" + counter++);<xhtml:br/>ExecutorService pool = Executors.newFixedThreadPool(MAX_CONNECTIONS);<xhtml:br/>pool.execute(t);</xhtml:div>}<xhtml:br/>serverSocket.close();</xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:br/>} catch (IOException ex) {...}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>In the following example, the serve function receives an http request and an http response writer. It reads the entire request body.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Go\">\n                  <xhtml:div>func serve(w http.ResponseWriter, r *http.Request) {\n                     <xhtml:div style=\"margin-left:1em;\">\n                        var body []byte<xhtml:br/>\n                        if r.Body != nil {<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                           if data, err := io.ReadAll(r.Body); err == nil {<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                              body = data<xhtml:br/>\n                           </xhtml:div>\n                           }</xhtml:div>\n                        }</xhtml:div>\n                  }</xhtml:div>\n               </Example_Code>\n               <Body_Text>Because ReadAll is defined to read from src until EOF, it does not treat an EOF from Read as an error to be reported. This example creates a situation where the length of the body supplied can be very large and will consume excessive memory, exhausting system resources. This can be avoided by ensuring the body does not exceed a predetermined length of bytes.</Body_Text>\n               <Body_Text>MaxBytesReader prevents clients from accidentally or maliciously sending a large request and wasting server resources. If possible, the code could be changed to tell ResponseWriter to close the connection after the limit has been reached.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Go\">\n                  <xhtml:div>func serve(w http.ResponseWriter, r *http.Request) {\n                     <xhtml:div style=\"margin-left:1em;\">\n                        var body []byte<xhtml:br/>\n                        const MaxRespBodyLength = 1e6<xhtml:br/>\n                        if r.Body != nil {<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                           r.Body = http.MaxBytesReader(w, r.Body, MaxRespBodyLength)<xhtml:br/>\n                           if data, err := io.ReadAll(r.Body); err == nil {<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                              body = data<xhtml:br/>\n                           </xhtml:div>\n                           }</xhtml:div>\n                        }</xhtml:div>\n                  }</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2022-21668",
+			"description": "Chain: Python library does not limit the resources used to process images that specify a very large number of bands (CWE-1284), leading to excessive memory consumption (CWE-789) or an integer overflow (CWE-190).",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2022-21668"
+		},
+		{
+			"reference": "CVE-2020-7218",
+			"description": "Go-based workload orchestrator does not limit resource usage with unauthenticated connections, allowing a DoS by flooding the service",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-7218"
+		},
+		{
+			"reference": "CVE-2020-3566",
+			"description": "Resource exhaustion in distributed OS because of \"insufficient\" IGMP queue management, as exploited in the wild per CISA KEV.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2020-3566"
+		},
+		{
+			"reference": "CVE-2009-2874",
+			"description": "Product allows attackers to cause a crash via a large number of connections.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2874"
+		},
+		{
+			"reference": "CVE-2009-1928",
+			"description": "Malformed request triggers uncontrolled recursion, leading to stack exhaustion.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-1928"
+		},
+		{
+			"reference": "CVE-2009-2858",
+			"description": "Chain: memory leak (CWE-404) leads to resource exhaustion.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2858"
+		},
+		{
+			"reference": "CVE-2009-2726",
+			"description": "Driver does not use a maximum width when invoking sscanf style functions, causing stack consumption.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2726"
+		},
+		{
+			"reference": "CVE-2009-2540",
+			"description": "Large integer value for a length property in an object causes a large amount of memory allocation.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2540"
+		},
+		{
+			"reference": "CVE-2009-2299",
+			"description": "Web application firewall consumes excessive memory when an HTTP request contains a large Content-Length value but no POST data.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2299"
+		},
+		{
+			"reference": "CVE-2009-2054",
+			"description": "Product allows exhaustion of file descriptors when processing a large number of TCP packets.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2054"
+		},
+		{
+			"reference": "CVE-2008-5180",
+			"description": "Communication product allows memory consumption with a large number of SIP requests, which cause many sessions to be created.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-5180"
+		},
+		{
+			"reference": "CVE-2008-2121",
+			"description": "TCP implementation allows attackers to consume CPU and prevent new connections using a TCP SYN flood attack.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-2121"
+		},
+		{
+			"reference": "CVE-2008-2122",
+			"description": "Port scan triggers CPU consumption with processes that attempt to read data from closed sockets.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-2122"
+		},
+		{
+			"reference": "CVE-2008-1700",
+			"description": "Product allows attackers to cause a denial of service via a large number of directives, each of which opens a separate window.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2008-1700"
+		},
+		{
+			"reference": "CVE-2007-4103",
+			"description": "Product allows resource exhaustion via a large number of calls that do not complete a 3-way handshake.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4103"
+		},
+		{
+			"reference": "CVE-2006-1173",
+			"description": "Mail server does not properly handle deeply nested multipart MIME messages, leading to stack exhaustion.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2006-1173"
+		},
+		{
+			"reference": "CVE-2007-0897",
+			"description": "Chain: anti-virus product encounters a malformed file but returns from a function without closing a file descriptor (CWE-775) leading to file descriptor consumption (CWE-400) and failed scans.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-0897"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-18",
+			"author": [
+				"Secure Software, Inc."
+			],
+			"title": "The CLASP Application Security Process",
+			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
+			"publication_year": "2005"
+		},
+		{
+			"reference_id": "REF-386",
+			"author": [
+				"Joao Antunes",
+				"Nuno Ferreira Neves",
+				"Paulo Verissimo"
+			],
+			"title": "Detection and Prediction of Resource-Exhaustion Vulnerabilities",
+			"url": "http://homepages.di.fc.ul.pt/~nuno/PAPERS/ISSRE08.pdf",
+			"publication_year": "2008",
+			"publication_month": "--11",
+			"publication": "Proceedings of the IEEE International Symposium on Software Reliability Engineering (ISSRE)"
+		},
+		{
+			"reference_id": "REF-387",
+			"author": [
+				"D.J. Bernstein"
+			],
+			"title": "Resource exhaustion",
+			"url": "http://cr.yp.to/docs/resources.html"
+		},
+		{
+			"reference_id": "REF-388",
+			"author": [
+				"Pascal Meunier"
+			],
+			"title": "Resource exhaustion",
+			"url": "http://homes.cerias.purdue.edu/~pmeunier/secprog/sanitized/class1/6.resource%20exhaustion.ppt",
+			"publication_year": "2004",
+			"publication": "Secure Programming Educational Material"
+		},
+		{
+			"section": "Chapter 17, \"Protecting Against Denial of Service Attacks\" Page 517",
+			"reference_id": "REF-7",
+			"author": [
+				"Michael Howard",
+				"David LeBlanc"
+			],
+			"title": "Writing Secure Code",
+			"url": "https://www.microsoftpressstore.com/store/writing-secure-code-9780735617223",
+			"publication_year": "2002",
+			"publication_month": "--12",
+			"publication_day": "---04",
+			"publisher": "Microsoft Press",
+			"edition": "2nd Edition"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CLASP",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Time_of_Introduction"
+			},
+			{
+				"modification_organization": "Veracode",
+				"modification_date": "2008-08-15",
+				"modification_comment": "Suggested OWASP Top Ten 2004 mapping"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Common_Consequences, Relationships, Other_Notes, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-10-14",
+				"modification_comment": "updated Description, Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-01-12",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-05-27",
+				"modification_comment": "updated Name, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-07-27",
+				"modification_comment": "updated Description, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Common_Consequences, Demonstrative_Examples, Detection_Factors, Likelihood_of_Exploit, Observed_Examples, Other_Notes, Potential_Mitigations, References"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-02-16",
+				"modification_comment": "updated Detection_Factors, Potential_Mitigations, References, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-04-05",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-06-21",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2010-09-27",
+				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2013-07-17",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2015-12-07",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-01-19",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Demonstrative_Examples, Likelihood_of_Exploit, Potential_Mitigations, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2018-03-27",
+				"modification_comment": "updated References, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Alternate_Terms, Description, Name, Relationships, Taxonomy_Mappings, Theoretical_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-09-19",
+				"modification_comment": "updated Description, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Description, References, Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-06-25",
+				"modification_comment": "updated Description, Maintenance_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-04-28",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-06-28",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Observed_Examples, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Common_Consequences, Description, Detection_Factors, Maintenance_Notes, Related_Attack_Patterns, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Demonstrative_Examples, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Resource Exhaustion",
+				"date": "2008-10-14"
+			},
+			{
+				"text": "Uncontrolled Resource Consumption (aka 'Resource Exhaustion')",
+				"date": "2009-05-27"
+			},
+			{
+				"text": "Uncontrolled Resource Consumption ('Resource Exhaustion')",
+				"date": "2019-01-03"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
+				"contribution_date": "2023-01-24",
+				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			},
+			{
+				"type": "Content",
+				"contribution_name": "\"Mapping CWE to 62443\" Sub-Working Group",
+				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
+				"contribution_date": "2023-04-25",
+				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			}
+		]
+	},
+	"alternate_terms": [
+		{
+			"term": "Resource Exhaustion"
+		}
+	],
+	"detection_methods": [
+		{
+			"method": "Automated Static Analysis",
+			"description": "\n                  <xhtml:p>Automated static analysis typically has limited utility in recognizing resource exhaustion problems, except for program-independent system resources such as files, sockets, and processes. For system resources, automated static analysis may be able to detect circumstances in which resources are not released after they have expired. Automated analysis of configuration files may be able to detect settings that do not specify a maximum value.</xhtml:p>\n                  <xhtml:p>Automated static analysis tools will not be appropriate for detecting exhaustion of custom resources, such as an intended security policy in which a bulletin board user is only allowed to make a limited number of posts per day.</xhtml:p>\n               ",
+			"effectiveness": "Limited"
+		},
+		{
+			"method": "Automated Dynamic Analysis",
+			"description": "Certain automated dynamic analysis techniques may be effective in spotting resource exhaustion problems, especially with resources such as processes, memory, and connections. The technique may involve generating a large number of requests to the product within a short time frame.",
+			"effectiveness": "Moderate"
+		},
+		{
+			"method": "Fuzzing",
+			"description": "While fuzzing is typically geared toward finding low-level implementation bugs, it can inadvertently find resource exhaustion problems. This can occur when the fuzzer generates a large number of test cases but does not restart the targeted product in between test cases. If an individual test case produces a crash, but it does not do so reliably, then an inability to handle resource exhaustion may be the cause.",
+			"effectiveness": "Opportunistic"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "CLASP",
+			"entry_name": "Resource exhaustion (file descriptor, disk space, sockets, ...)"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2004",
+			"entry_name": "Denial of Service",
+			"entry_id": "A9",
+			"mapping_fit": "CWE More Specific"
+		},
+		{
+			"taxonomy_name": "WASC",
+			"entry_name": "Denial of Service",
+			"entry_id": "10"
+		},
+		{
+			"taxonomy_name": "WASC",
+			"entry_name": "XML Attribute Blowup",
+			"entry_id": "41"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Avoid memory and resource leaks during serialization",
+			"entry_id": "SER12-J"
+		},
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Do not exhaust heap space",
+			"entry_id": "MSC05-J"
+		},
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Unrestricted Consumption",
+			"entry_id": "SFP13"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR 7.1",
+			"entry_id": "Part 3-3"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SR 7.2",
+			"entry_id": "Part 3-3"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SI-1",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req SVV-3",
+			"entry_id": "Part 4-1"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR 7.1",
+			"entry_id": "Part 4-2"
+		},
+		{
+			"taxonomy_name": "ISA/IEC 62443",
+			"entry_name": "Req CR 7.2",
+			"entry_id": "Part 4-2"
+		}
+	],
+	"related_attack_patterns": [
+		"147",
+		"227",
+		"492"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "\"Resource consumption\" could be interpreted as a consequence instead of an insecure behavior, so this entry is being considered for modification.  It appears to be referenced too frequently when more precise mappings are available.  Some of its children, such as CWE-771, might be better considered as a chain."
+		},
+		{
+			"type": "Theoretical",
+			"text": "Vulnerability theory is largely about how behaviors and resources interact. \"Resource exhaustion\" can be regarded as either a consequence or an attack, depending on the perspective. This entry is an attempt to reflect the underlying weaknesses that enable these attacks (or consequences) to take place."
+		},
+		{
+			"type": "Other",
+			"text": "\n               <xhtml:p>Database queries that take a long time to process are good DoS targets. An attacker would have to write a few lines of Perl code to generate enough traffic to exceed the site's ability to keep up. This would effectively prevent authorized users from using the site at all. Resources can be exploited simply by ensuring that the target machine must do much more work and consume more resources in order to service a request than the attacker must do to initiate a request.</xhtml:p>\n               <xhtml:p>A prime example of this can be found in old switches that were vulnerable to \"macof\" attacks (so named for a tool developed by Dugsong). These attacks flooded a switch with random IP and MAC address combinations, therefore exhausting the switch's cache, which held the information of which port corresponded to which MAC addresses. Once this cache was exhausted, the switch would fail in an insecure way and would begin to act simply as a hub, broadcasting all traffic on all ports and allowing for basic sniffing attacks.</xhtml:p>\n            "
+		},
+		{
+			"type": "Maintenance",
+			"text": "The Taxonomy_Mappings to ISA/IEC 62443 were added in CWE 4.10, but they are still under review and might change in future CWE versions. These draft mappings were performed by members of the \"Mapping CWE to 62443\" subgroup of the CWE-CAPEC ICS/OT Special Interest Group (SIG), and their work is incomplete as of CWE 4.10. The mappings are included to facilitate discussion and review by the broader ICS/OT community, and they are likely to change in future CWE versions."
+		}
+	]
 }

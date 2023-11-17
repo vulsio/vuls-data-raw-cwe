@@ -1,143 +1,143 @@
 {
-  "id": "575",
-  "name": "EJB Bad Practices: Use of AWT Swing",
-  "abstraction": "Variant",
-  "structure": "Simple",
-  "status": "Draft",
-  "description": "The product violates the Enterprise JavaBeans (EJB) specification by using AWT/Swing.",
-  "extended_description": "The Enterprise JavaBeans specification requires that every bean provider follow a set of programming guidelines designed to ensure that the bean will be portable and behave consistently in any EJB container. In this case, the product violates the following EJB guideline: \"An enterprise bean must not use the AWT functionality to attempt to output information to a display, or to input information from a keyboard.\" The specification justifies this requirement in the following way: \"Most servers do not allow direct interaction between an application program and a keyboard/display attached to the server system.\"",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "695",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "prevalence": "Undetermined",
-        "name": "Java"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Implementation"
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Other"
-      ],
-      "impact": [
-        "Quality Degradation"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Do not use AWT/Swing when writing EJBs."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>The following Java example is a simple converter class for converting US dollars to Yen. This converter class demonstrates the improper practice of using a stateless session Enterprise JavaBean that implements an AWT Component and AWT keyboard event listener to retrieve keyboard input from the user for the amount of the US dollars to convert to Yen.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class ConverterSessionBean extends Component implements KeyListener, ConverterSessionRemote {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>/* member variables for receiving keyboard input using AWT API */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>...<xhtml:br/>private StringBuffer enteredText = new StringBuffer();<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* conversion rate on US dollars to Yen */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>private BigDecimal yenRate = new BigDecimal(\"115.3100\");<xhtml:br/>\n                           <xhtml:br/>public ConverterSessionBean() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>super();<xhtml:br/>\n                                 <xhtml:i>/* method calls for setting up AWT Component for receiving keyboard input */</xhtml:i>\n                                 <xhtml:br/>\n                                 <xhtml:br/>...<xhtml:br/>addKeyListener(this);</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public BigDecimal dollarToYen(BigDecimal dollars) {<xhtml:div style=\"margin-left:1em;\">BigDecimal result = dollars.multiply(yenRate);<xhtml:br/>return result.setScale(2, BigDecimal.ROUND_DOWN);</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* member functions for implementing AWT KeyListener interface */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>public void keyTyped(KeyEvent event) {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public void keyPressed(KeyEvent e) {<xhtml:br/>}<xhtml:br/>\n                           <xhtml:br/>public void keyReleased(KeyEvent e) {<xhtml:br/>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* member functions for receiving keyboard input and displaying output */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>public void paint(Graphics g) {...}<xhtml:br/>\n                           <xhtml:br/>...</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This use of the AWT and Swing APIs within any kind of Enterprise JavaBean not only violates the restriction of the EJB specification against using AWT or Swing within an EJB but also violates the intended use of Enterprise JavaBeans to separate business logic from presentation logic.</Body_Text>\n               <Body_Text>The Stateless Session Enterprise JavaBean should contain only business logic. Presentation logic should be provided by some other mechanism such as Servlets or Java Server Pages (JSP) as in the following Java/JSP example.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class ConverterSessionBean implements ConverterSessionRemoteInterface {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>/* conversion rate on US dollars to Yen */</xhtml:i>\n                           <xhtml:br/>private BigDecimal yenRate = new BigDecimal(\"115.3100\");<xhtml:br/>\n                           <xhtml:br/>public ConverterSessionBean() {<xhtml:br/>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* remote method to convert US dollars to Yen */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>public BigDecimal dollarToYen(BigDecimal dollars) {<xhtml:div style=\"margin-left:1em;\">BigDecimal result = dollars.multiply(yenRate);<xhtml:br/>return result.setScale(2, BigDecimal.ROUND_DOWN);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Good\" Language=\"JSP\">\n                  <xhtml:div>&lt;%@ page import=\"converter.ejb.Converter, java.math.*, javax.naming.*\"%&gt;<xhtml:br/>&lt;%!<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>private Converter converter = null;<xhtml:br/>public void jspInit() {<xhtml:div style=\"margin-left:1em;\">try {<xhtml:div style=\"margin-left:1em;\">InitialContext ic = new InitialContext();<xhtml:br/>converter = (Converter) ic.lookup(Converter.class.getName());</xhtml:div>} catch (Exception ex) {<xhtml:div style=\"margin-left:1em;\">System.out.println(\"Couldn't create converter bean.\"+ ex.getMessage());</xhtml:div>}</xhtml:div>}<xhtml:br/>public void jspDestroy() {<xhtml:div style=\"margin-left:1em;\">converter = null;</xhtml:div>}</xhtml:div>\n                     </xhtml:div>\n                     <xhtml:br/>%&gt;<xhtml:br/>&lt;html&gt;<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>&lt;head&gt;&lt;title&gt;Converter&lt;/title&gt;&lt;/head&gt;<xhtml:br/>&lt;body bgcolor=\"white\"&gt;<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>&lt;h1&gt;Converter&lt;/h1&gt;<xhtml:br/>&lt;hr&gt;<xhtml:br/>&lt;p&gt;Enter an amount to convert:&lt;/p&gt;<xhtml:br/>&lt;form method=\"get\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;input type=\"text\" name=\"amount\" size=\"25\"&gt;&lt;br&gt;<xhtml:br/>&lt;p&gt;<xhtml:br/>&lt;input type=\"submit\" value=\"Submit\"&gt;<xhtml:br/>&lt;input type=\"reset\" value=\"Reset\"&gt;</xhtml:div>&lt;/form&gt;<xhtml:br/>&lt;%<xhtml:div style=\"margin-left:1em;\">String amount = request.getParameter(\"amount\");<xhtml:br/>if ( amount != null &amp;&amp; amount.length() &gt; 0 ) {<xhtml:div style=\"margin-left:1em;\">BigDecimal d = new BigDecimal(amount);<xhtml:br/>BigDecimal yenAmount = converter.dollarToYen(d);</xhtml:div>\n                                 </xhtml:div>\n                                 <xhtml:br/>%&gt;<xhtml:br/>&lt;p&gt;<xhtml:br/>&lt;%= amount %&gt; dollars are &lt;%= yenAmount %&gt; Yen.<xhtml:br/>&lt;p&gt;<xhtml:br/>&lt;%<xhtml:div style=\"margin-left:1em;\">}</xhtml:div>\n                                 <xhtml:br/>%&gt;</xhtml:div>\n                           </xhtml:div>&lt;/body&gt;</xhtml:div>\n                     </xhtml:div>&lt;/html&gt;</xhtml:div>\n               </Example_Code>\n            "
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Community",
-      "submission_date": "2006-12-15",
-      "submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
-    },
-    "modification": [
-      {
-        "modification_name": "Eric Dalci",
-        "modification_organization": "Cigital",
-        "modification_date": "2008-07-01",
-        "modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Relationships, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-10-29",
-        "modification_comment": "updated Description, Other_Notes"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2009-12-28",
-        "modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships, Time_of_Introduction"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "Software Fault Patterns",
-      "entry_name": "Use of an improper API",
-      "entry_id": "SFP3"
-    }
-  ]
+	"id": "575",
+	"name": "EJB Bad Practices: Use of AWT Swing",
+	"abstraction": "Variant",
+	"structure": "Simple",
+	"status": "Draft",
+	"description": "The product violates the Enterprise JavaBeans (EJB) specification by using AWT/Swing.",
+	"extended_description": "The Enterprise JavaBeans specification requires that every bean provider follow a set of programming guidelines designed to ensure that the bean will be portable and behave consistently in any EJB container. In this case, the product violates the following EJB guideline: \"An enterprise bean must not use the AWT functionality to attempt to output information to a display, or to input information from a keyboard.\" The specification justifies this requirement in the following way: \"Most servers do not allow direct interaction between an application program and a keyboard/display attached to the server system.\"",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "695",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"prevalence": "Undetermined",
+				"name": "Java"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Implementation"
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Quality Degradation"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Do not use AWT/Swing when writing EJBs."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The following Java example is a simple converter class for converting US dollars to Yen. This converter class demonstrates the improper practice of using a stateless session Enterprise JavaBean that implements an AWT Component and AWT keyboard event listener to retrieve keyboard input from the user for the amount of the US dollars to convert to Yen.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class ConverterSessionBean extends Component implements KeyListener, ConverterSessionRemote {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>/* member variables for receiving keyboard input using AWT API */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>...<xhtml:br/>private StringBuffer enteredText = new StringBuffer();<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* conversion rate on US dollars to Yen */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>private BigDecimal yenRate = new BigDecimal(\"115.3100\");<xhtml:br/>\n                           <xhtml:br/>public ConverterSessionBean() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>super();<xhtml:br/>\n                                 <xhtml:i>/* method calls for setting up AWT Component for receiving keyboard input */</xhtml:i>\n                                 <xhtml:br/>\n                                 <xhtml:br/>...<xhtml:br/>addKeyListener(this);</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public BigDecimal dollarToYen(BigDecimal dollars) {<xhtml:div style=\"margin-left:1em;\">BigDecimal result = dollars.multiply(yenRate);<xhtml:br/>return result.setScale(2, BigDecimal.ROUND_DOWN);</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* member functions for implementing AWT KeyListener interface */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>public void keyTyped(KeyEvent event) {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public void keyPressed(KeyEvent e) {<xhtml:br/>}<xhtml:br/>\n                           <xhtml:br/>public void keyReleased(KeyEvent e) {<xhtml:br/>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* member functions for receiving keyboard input and displaying output */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>public void paint(Graphics g) {...}<xhtml:br/>\n                           <xhtml:br/>...</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This use of the AWT and Swing APIs within any kind of Enterprise JavaBean not only violates the restriction of the EJB specification against using AWT or Swing within an EJB but also violates the intended use of Enterprise JavaBeans to separate business logic from presentation logic.</Body_Text>\n               <Body_Text>The Stateless Session Enterprise JavaBean should contain only business logic. Presentation logic should be provided by some other mechanism such as Servlets or Java Server Pages (JSP) as in the following Java/JSP example.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>@Stateless<xhtml:br/>public class ConverterSessionBean implements ConverterSessionRemoteInterface {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>/* conversion rate on US dollars to Yen */</xhtml:i>\n                           <xhtml:br/>private BigDecimal yenRate = new BigDecimal(\"115.3100\");<xhtml:br/>\n                           <xhtml:br/>public ConverterSessionBean() {<xhtml:br/>}<xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* remote method to convert US dollars to Yen */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>public BigDecimal dollarToYen(BigDecimal dollars) {<xhtml:div style=\"margin-left:1em;\">BigDecimal result = dollars.multiply(yenRate);<xhtml:br/>return result.setScale(2, BigDecimal.ROUND_DOWN);</xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Example_Code Nature=\"Good\" Language=\"JSP\">\n                  <xhtml:div>&lt;%@ page import=\"converter.ejb.Converter, java.math.*, javax.naming.*\"%&gt;<xhtml:br/>&lt;%!<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>private Converter converter = null;<xhtml:br/>public void jspInit() {<xhtml:div style=\"margin-left:1em;\">try {<xhtml:div style=\"margin-left:1em;\">InitialContext ic = new InitialContext();<xhtml:br/>converter = (Converter) ic.lookup(Converter.class.getName());</xhtml:div>} catch (Exception ex) {<xhtml:div style=\"margin-left:1em;\">System.out.println(\"Couldn't create converter bean.\"+ ex.getMessage());</xhtml:div>}</xhtml:div>}<xhtml:br/>public void jspDestroy() {<xhtml:div style=\"margin-left:1em;\">converter = null;</xhtml:div>}</xhtml:div>\n                     </xhtml:div>\n                     <xhtml:br/>%&gt;<xhtml:br/>&lt;html&gt;<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>&lt;head&gt;&lt;title&gt;Converter&lt;/title&gt;&lt;/head&gt;<xhtml:br/>&lt;body bgcolor=\"white\"&gt;<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>&lt;h1&gt;Converter&lt;/h1&gt;<xhtml:br/>&lt;hr&gt;<xhtml:br/>&lt;p&gt;Enter an amount to convert:&lt;/p&gt;<xhtml:br/>&lt;form method=\"get\"&gt;<xhtml:div style=\"margin-left:1em;\">&lt;input type=\"text\" name=\"amount\" size=\"25\"&gt;&lt;br&gt;<xhtml:br/>&lt;p&gt;<xhtml:br/>&lt;input type=\"submit\" value=\"Submit\"&gt;<xhtml:br/>&lt;input type=\"reset\" value=\"Reset\"&gt;</xhtml:div>&lt;/form&gt;<xhtml:br/>&lt;%<xhtml:div style=\"margin-left:1em;\">String amount = request.getParameter(\"amount\");<xhtml:br/>if ( amount != null &amp;&amp; amount.length() &gt; 0 ) {<xhtml:div style=\"margin-left:1em;\">BigDecimal d = new BigDecimal(amount);<xhtml:br/>BigDecimal yenAmount = converter.dollarToYen(d);</xhtml:div>\n                                 </xhtml:div>\n                                 <xhtml:br/>%&gt;<xhtml:br/>&lt;p&gt;<xhtml:br/>&lt;%= amount %&gt; dollars are &lt;%= yenAmount %&gt; Yen.<xhtml:br/>&lt;p&gt;<xhtml:br/>&lt;%<xhtml:div style=\"margin-left:1em;\">}</xhtml:div>\n                                 <xhtml:br/>%&gt;</xhtml:div>\n                           </xhtml:div>&lt;/body&gt;</xhtml:div>\n                     </xhtml:div>&lt;/html&gt;</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Community",
+			"submission_date": "2006-12-15",
+			"submission_comment": "Submitted by members of the CWE community to extend early CWE versions"
+		},
+		"modification": [
+			{
+				"modification_name": "Eric Dalci",
+				"modification_organization": "Cigital",
+				"modification_date": "2008-07-01",
+				"modification_comment": "updated Potential_Mitigations, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Relationships, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-10-29",
+				"modification_comment": "updated Description, Other_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2009-12-28",
+				"modification_comment": "updated Demonstrative_Examples, Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships, Time_of_Introduction"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "Software Fault Patterns",
+			"entry_name": "Use of an improper API",
+			"entry_id": "SFP3"
+		}
+	]
 }

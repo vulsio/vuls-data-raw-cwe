@@ -1,252 +1,252 @@
 {
-  "id": "838",
-  "name": "Inappropriate Encoding for Output Context",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "The product uses or specifies an encoding when generating output to a downstream component, but the specified encoding is not the same as the encoding that is expected by the downstream component.",
-  "extended_description": "\n            <xhtml:p>This weakness can cause the downstream component to use a decoding method that produces different data than what the product intended to send. When the wrong encoding is used - even if closely related - the downstream component could decode the data incorrectly. This can have security consequences when the provided boundaries between control and data are inadvertently broken, because the resulting data could introduce control characters or special elements that were not sent by the product. The resulting data could then be used to bypass protection mechanisms such as input validation, and enable injection attacks.</xhtml:p>\n            <xhtml:p>While using output encoding is essential for ensuring that communications between components are accurate, the use of the wrong encoding - even if closely related - could cause the downstream component to misinterpret the output.</xhtml:p>\n            <xhtml:p>For example, HTML entity encoding is used for elements in the HTML body of a web page. However, a programmer might use entity encoding when generating output for that is used within an attribute of an HTML tag, which could contain functional Javascript that is not affected by the HTML encoding.</xhtml:p>\n            <xhtml:p>While web applications have received the most attention for this problem, this weakness could potentially apply to any type of product that uses a communications stream that could support multiple encodings.</xhtml:p>\n         ",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "116",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "116",
-      "view_id": "1003",
-      "ordinal": "Primary"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "common_consequences": [
-    {
-      "scope": [
-        "Integrity",
-        "Confidentiality",
-        "Availability"
-      ],
-      "impact": [
-        "Modify Application Data",
-        "Execute Unauthorized Code or Commands"
-      ],
-      "note": "An attacker could modify the structure of the message or data being sent to the downstream component, possibly injecting commands."
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Implementation"
-      ],
-      "description": [
-        "Use context-aware encoding. That is, understand which encoding is being used by the downstream component, and ensure that this encoding is used. If an encoding can be specified, do so, instead of assuming that the default encoding is the same as the default being assumed by the downstream component."
-      ],
-      "strategy": "Output Encoding"
-    },
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Where possible, use communications protocols or data formats that provide strict boundaries between control and data. If this is not feasible, ensure that the protocols or formats allow the communicating components to explicitly state which encoding/decoding method is being used. Some template frameworks provide built-in support."
-      ],
-      "strategy": "Output Encoding"
-    },
-    {
-      "mitigation_id": "MIT-4.3",
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "\n                  <xhtml:p>Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>For example, consider using the ESAPI Encoding control [REF-45] or a similar tool, library, or framework. These will help the programmer encode outputs in a manner less prone to error.</xhtml:p>\n                  <xhtml:p>Note that some template mechanisms provide built-in support for the appropriate encoding.</xhtml:p>\n               "
-      ],
-      "strategy": "Libraries or Frameworks"
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "text": "\n               <Intro_Text>This code dynamically builds an HTML page using POST data:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$username = $_POST['username'];<xhtml:br/>$picSource = $_POST['picsource'];<xhtml:br/>$picAltText = $_POST['picalttext'];<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>echo \"&lt;title&gt;Welcome, \" . htmlentities($username) .\"&lt;/title&gt;\";<xhtml:br/>echo \"&lt;img src='\". htmlentities($picSource) .\" ' alt='\". htmlentities($picAltText) . '\" /&gt;';<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer attempts to avoid XSS exploits (CWE-79) by encoding the POST values so they will not be interpreted as valid HTML. However, the htmlentities() encoding is not appropriate when the data are used as HTML attributes, allowing more attributes to be injected.</Body_Text>\n               <Body_Text>For example, an attacker can set picAltText to:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>\"altTextHere' onload='alert(document.cookie)\"</xhtml:div>\n               </Example_Code>\n               <Body_Text>This will result in the generated HTML image tag:</Body_Text>\n               <Example_Code Nature=\"Result\" Language=\"HTML\">\n                  <xhtml:div>&lt;img src='pic.jpg' alt='altTextHere' onload='alert(document.cookie)' /&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>The attacker can inject arbitrary javascript into the tag due to this incorrect encoding.</Body_Text>\n            "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2009-2814",
-      "description": "Server does not properly handle requests that do not contain UTF-8 data; browser assumes UTF-8, allowing XSS.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2009-2814"
-    }
-  ],
-  "references": [
-    {
-      "reference_id": "REF-786",
-      "author": [
-        "Jim Manico"
-      ],
-      "title": "Injection-safe templating languages",
-      "url": "https://manicode.blogspot.com/2010/06/injection-safe-templating-languages_30.html",
-      "publication_year": "2010",
-      "publication_month": "--06",
-      "publication_day": "---30",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-787",
-      "author": [
-        "Dinis Cruz"
-      ],
-      "title": "Can we please stop saying that XSS is boring and easy to fix!",
-      "url": "http://diniscruz.blogspot.com/2010/09/can-we-please-stop-saying-that-xss-is.html",
-      "publication_year": "2010",
-      "publication_month": "--09",
-      "publication_day": "---25"
-    },
-    {
-      "reference_id": "REF-788",
-      "author": [
-        "Ivan Ristic"
-      ],
-      "title": "Canoe: XSS prevention via context-aware output encoding",
-      "url": "https://blog.ivanristic.com/2010/09/introducing-canoe-context-aware-output-encoding-for-xss-prevention.html",
-      "publication_year": "2010",
-      "publication_month": "--09",
-      "publication_day": "---24",
-      "url_date": "2023-04-07"
-    },
-    {
-      "reference_id": "REF-789",
-      "author": [
-        "Jim Manico"
-      ],
-      "title": "What is the Future of Automated XSS Defense Tools?",
-      "url": "http://software-security.sans.org/downloads/appsec-2011-files/manico-appsec-future-tools.pdf",
-      "publication_year": "2011",
-      "publication_month": "--03",
-      "publication_day": "---08"
-    },
-    {
-      "section": "Preventing XSS Attacks",
-      "reference_id": "REF-709",
-      "author": [
-        "Jeremiah Grossman",
-        "Robert \"RSnake\" Hansen",
-        "Petko \"pdp\" D. Petkov",
-        "Anton Rager",
-        "Seth Fogie"
-      ],
-      "title": "XSS Attacks",
-      "publication_year": "2007",
-      "publisher": "Syngress"
-    },
-    {
-      "reference_id": "REF-725",
-      "author": [
-        "OWASP"
-      ],
-      "title": "DOM based XSS Prevention Cheat Sheet",
-      "url": "http://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet"
-    },
-    {
-      "reference_id": "REF-45",
-      "author": [
-        "OWASP"
-      ],
-      "title": "OWASP Enterprise Security API (ESAPI) Project",
-      "url": "http://www.owasp.org/index.php/ESAPI"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "CWE Content Team",
-      "submission_organization": "MITRE",
-      "submission_date": "2011-03-24"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-27",
-        "modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Potential_Mitigations, References, Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated References, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-01-03",
-        "modification_comment": "updated Relationships, Taxonomy_Mappings"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2019-06-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-01-31",
-        "modification_comment": "updated Description"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Detection_Factors, References, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes"
-      }
-    ]
-  },
-  "detection_methods": [
-    {
-      "detection_method_id": "DM-14",
-      "method": "Automated Static Analysis",
-      "description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
-      "effectiveness": "High"
-    }
-  ],
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
-      "entry_name": "Use compatible encodings on both sides of file or network IO",
-      "entry_id": "IDS13-J"
-    }
-  ],
-  "related_attack_patterns": [
-    "468"
-  ]
+	"id": "838",
+	"name": "Inappropriate Encoding for Output Context",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "The product uses or specifies an encoding when generating output to a downstream component, but the specified encoding is not the same as the encoding that is expected by the downstream component.",
+	"extended_description": "\n            <xhtml:p>This weakness can cause the downstream component to use a decoding method that produces different data than what the product intended to send. When the wrong encoding is used - even if closely related - the downstream component could decode the data incorrectly. This can have security consequences when the provided boundaries between control and data are inadvertently broken, because the resulting data could introduce control characters or special elements that were not sent by the product. The resulting data could then be used to bypass protection mechanisms such as input validation, and enable injection attacks.</xhtml:p>\n            <xhtml:p>While using output encoding is essential for ensuring that communications between components are accurate, the use of the wrong encoding - even if closely related - could cause the downstream component to misinterpret the output.</xhtml:p>\n            <xhtml:p>For example, HTML entity encoding is used for elements in the HTML body of a web page. However, a programmer might use entity encoding when generating output for that is used within an attribute of an HTML tag, which could contain functional Javascript that is not affected by the HTML encoding.</xhtml:p>\n            <xhtml:p>While web applications have received the most attention for this problem, this weakness could potentially apply to any type of product that uses a communications stream that could support multiple encodings.</xhtml:p>\n         ",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "116",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "116",
+			"view_id": "1003",
+			"ordinal": "Primary"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"common_consequences": [
+		{
+			"scope": [
+				"Integrity",
+				"Confidentiality",
+				"Availability"
+			],
+			"impact": [
+				"Modify Application Data",
+				"Execute Unauthorized Code or Commands"
+			],
+			"note": "An attacker could modify the structure of the message or data being sent to the downstream component, possibly injecting commands."
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"Use context-aware encoding. That is, understand which encoding is being used by the downstream component, and ensure that this encoding is used. If an encoding can be specified, do so, instead of assuming that the default encoding is the same as the default being assumed by the downstream component."
+			],
+			"strategy": "Output Encoding"
+		},
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Where possible, use communications protocols or data formats that provide strict boundaries between control and data. If this is not feasible, ensure that the protocols or formats allow the communicating components to explicitly state which encoding/decoding method is being used. Some template frameworks provide built-in support."
+			],
+			"strategy": "Output Encoding"
+		},
+		{
+			"mitigation_id": "MIT-4.3",
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"\n                  <xhtml:p>Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.</xhtml:p>\n                  <xhtml:p>For example, consider using the ESAPI Encoding control [REF-45] or a similar tool, library, or framework. These will help the programmer encode outputs in a manner less prone to error.</xhtml:p>\n                  <xhtml:p>Note that some template mechanisms provide built-in support for the appropriate encoding.</xhtml:p>\n               "
+			],
+			"strategy": "Libraries or Frameworks"
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>This code dynamically builds an HTML page using POST data:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$username = $_POST['username'];<xhtml:br/>$picSource = $_POST['picsource'];<xhtml:br/>$picAltText = $_POST['picalttext'];<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>echo \"&lt;title&gt;Welcome, \" . htmlentities($username) .\"&lt;/title&gt;\";<xhtml:br/>echo \"&lt;img src='\". htmlentities($picSource) .\" ' alt='\". htmlentities($picAltText) . '\" /&gt;';<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer attempts to avoid XSS exploits (CWE-79) by encoding the POST values so they will not be interpreted as valid HTML. However, the htmlentities() encoding is not appropriate when the data are used as HTML attributes, allowing more attributes to be injected.</Body_Text>\n               <Body_Text>For example, an attacker can set picAltText to:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>\"altTextHere' onload='alert(document.cookie)\"</xhtml:div>\n               </Example_Code>\n               <Body_Text>This will result in the generated HTML image tag:</Body_Text>\n               <Example_Code Nature=\"Result\" Language=\"HTML\">\n                  <xhtml:div>&lt;img src='pic.jpg' alt='altTextHere' onload='alert(document.cookie)' /&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>The attacker can inject arbitrary javascript into the tag due to this incorrect encoding.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2009-2814",
+			"description": "Server does not properly handle requests that do not contain UTF-8 data; browser assumes UTF-8, allowing XSS.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2009-2814"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-786",
+			"author": [
+				"Jim Manico"
+			],
+			"title": "Injection-safe templating languages",
+			"url": "https://manicode.blogspot.com/2010/06/injection-safe-templating-languages_30.html",
+			"publication_year": "2010",
+			"publication_month": "--06",
+			"publication_day": "---30",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-787",
+			"author": [
+				"Dinis Cruz"
+			],
+			"title": "Can we please stop saying that XSS is boring and easy to fix!",
+			"url": "http://diniscruz.blogspot.com/2010/09/can-we-please-stop-saying-that-xss-is.html",
+			"publication_year": "2010",
+			"publication_month": "--09",
+			"publication_day": "---25"
+		},
+		{
+			"reference_id": "REF-788",
+			"author": [
+				"Ivan Ristic"
+			],
+			"title": "Canoe: XSS prevention via context-aware output encoding",
+			"url": "https://blog.ivanristic.com/2010/09/introducing-canoe-context-aware-output-encoding-for-xss-prevention.html",
+			"publication_year": "2010",
+			"publication_month": "--09",
+			"publication_day": "---24",
+			"url_date": "2023-04-07"
+		},
+		{
+			"reference_id": "REF-789",
+			"author": [
+				"Jim Manico"
+			],
+			"title": "What is the Future of Automated XSS Defense Tools?",
+			"url": "http://software-security.sans.org/downloads/appsec-2011-files/manico-appsec-future-tools.pdf",
+			"publication_year": "2011",
+			"publication_month": "--03",
+			"publication_day": "---08"
+		},
+		{
+			"section": "Preventing XSS Attacks",
+			"reference_id": "REF-709",
+			"author": [
+				"Jeremiah Grossman",
+				"Robert \"RSnake\" Hansen",
+				"Petko \"pdp\" D. Petkov",
+				"Anton Rager",
+				"Seth Fogie"
+			],
+			"title": "XSS Attacks",
+			"publication_year": "2007",
+			"publisher": "Syngress"
+		},
+		{
+			"reference_id": "REF-725",
+			"author": [
+				"OWASP"
+			],
+			"title": "DOM based XSS Prevention Cheat Sheet",
+			"url": "http://www.owasp.org/index.php/DOM_based_XSS_Prevention_Cheat_Sheet"
+		},
+		{
+			"reference_id": "REF-45",
+			"author": [
+				"OWASP"
+			],
+			"title": "OWASP Enterprise Security API (ESAPI) Project",
+			"url": "http://www.owasp.org/index.php/ESAPI"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "CWE Content Team",
+			"submission_organization": "MITRE",
+			"submission_date": "2011-03-24"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-27",
+				"modification_comment": "updated Demonstrative_Examples, Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Potential_Mitigations, References, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated References, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-01-03",
+				"modification_comment": "updated Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2019-06-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-01-31",
+				"modification_comment": "updated Description"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Detection_Factors, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes"
+			}
+		]
+	},
+	"detection_methods": [
+		{
+			"detection_method_id": "DM-14",
+			"method": "Automated Static Analysis",
+			"description": "Automated static analysis, commonly referred to as Static Application Security Testing (SAST), can find some instances of this weakness by analyzing source code (or binary/compiled code) without having to execute it. Typically, this is done by building a model of data flow and control flow, then searching for potentially-vulnerable patterns that connect \"sources\" (origins of input) with \"sinks\" (destinations where the data interacts with external components, a lower layer such as the OS, etc.)",
+			"effectiveness": "High"
+		}
+	],
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "The CERT Oracle Secure Coding Standard for Java (2011)",
+			"entry_name": "Use compatible encodings on both sides of file or network IO",
+			"entry_id": "IDS13-J"
+		}
+	],
+	"related_attack_patterns": [
+		"468"
+	]
 }

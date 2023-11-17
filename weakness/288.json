@@ -1,256 +1,256 @@
 {
-  "id": "288",
-  "name": "Authentication Bypass Using an Alternate Path or Channel",
-  "abstraction": "Base",
-  "structure": "Simple",
-  "status": "Incomplete",
-  "description": "A product requires authentication, but the product has an alternate path or channel that does not require authentication.",
-  "related_weaknesses": [
-    {
-      "nature": "ChildOf",
-      "cweid": "306",
-      "view_id": "1000",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "ChildOf",
-      "cweid": "284",
-      "view_id": "1340",
-      "ordinal": "Primary"
-    },
-    {
-      "nature": "PeerOf",
-      "cweid": "420",
-      "view_id": "1000"
-    }
-  ],
-  "applicable_platforms": {
-    "language": [
-      {
-        "class": "Not Language-Specific",
-        "prevalence": "Undetermined"
-      }
-    ]
-  },
-  "modes_of_introduction": [
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
-      ]
-    },
-    {
-      "phase": "Architecture and Design",
-      "note": [
-        "This is often seen in web applications that assume that access to a particular CGI program can only be obtained through a \"front\" screen, when the supporting programs are directly accessible. But this problem is not just in web apps."
-      ]
-    }
-  ],
-  "common_consequences": [
-    {
-      "scope": [
-        "Access Control"
-      ],
-      "impact": [
-        "Bypass Protection Mechanism"
-      ]
-    }
-  ],
-  "potential_mitigations": [
-    {
-      "phase": [
-        "Architecture and Design"
-      ],
-      "description": [
-        "Funnel all access through a single choke point to simplify how users can access a resource. For every access, perform a check to determine if the user has permissions to access the resource."
-      ]
-    }
-  ],
-  "demonstrative_examples": [
-    {
-      "demonstrative_example_id": "DX-176",
-      "text": "\n             <Intro_Text>\n               <xhtml:p>\n                 Register SECURE_ME is located at address 0xF00. A\n                 mirror of this register called COPY_OF_SECURE_ME is\n                 at location 0x800F00. The register SECURE_ME is\n                 protected from malicious agents and only allows\n                 access to select, while COPY_OF_SECURE_ME is not. \n               </xhtml:p>\n               <xhtml:p>\n                 Access control is implemented using an allowlist (as\n                 indicated by acl_oh_allowlist). The identity of the\n                 initiator of the transaction is indicated by the\n                 one hot input, incoming_id. This is checked against\n                 the acl_oh_allowlist (which contains a list of\n                 initiators that are allowed to access the asset). \n               </xhtml:p>\n               <xhtml:p>\n                 Though this example is shown in Verilog, it will\n                 apply to VHDL as well. \n               </xhtml:p>\n             </Intro_Text>\n             <Example_Code Nature=\"Informative\" Language=\"Verilog\">\n               module foo_bar(data_out, data_in, incoming_id, address, clk, rst_n);<xhtml:br/>\n               output [31:0] data_out;<xhtml:br/>\n               input [31:0] data_in, incoming_id, address;<xhtml:br/>\n               input clk, rst_n;<xhtml:br/>\n               wire write_auth, addr_auth;<xhtml:br/>\n               reg [31:0] data_out, acl_oh_allowlist, q;<xhtml:br/>\n               assign write_auth = | (incoming_id &amp; acl_oh_allowlist) ? 1 : 0; <xhtml:br/>\n               always @*<xhtml:br/>\n               <xhtml:div style=\"margin-left:1em;\">\n                 acl_oh_allowlist &lt;= 32'h8312; <xhtml:br/>\n               </xhtml:div>\n               assign addr_auth = (address == 32'hF00) ? 1: 0;<xhtml:br/>\n               always @ (posedge clk or negedge rst_n)<xhtml:br/>\n               <xhtml:div style=\"margin-left:1em;\">\n                 if (!rst_n)<xhtml:br/>\n                 <xhtml:div style=\"margin-left:1em;\">\n                   begin<xhtml:br/>\n                   <xhtml:div style=\"margin-left:1em;\">\n                     q &lt;= 32'h0;<xhtml:br/>\n                     data_out &lt;= 32'h0;<xhtml:br/>\n                   </xhtml:div>\n                   end<xhtml:br/>\n                 </xhtml:div>\n                 else<xhtml:br/>\n                 <xhtml:div style=\"margin-left:1em;\">\n                   begin<xhtml:br/>\n                   <xhtml:div style=\"margin-left:1em;\">\n                     q &lt;= (addr_auth &amp; write_auth) ? data_in: q;<xhtml:br/>\n                     data_out &lt;= q;<xhtml:br/>\n                   </xhtml:div>\n                   end<xhtml:br/>\n                 </xhtml:div>\n                 end<xhtml:br/>\n               </xhtml:div>\n               endmodule<xhtml:br/>\n             </Example_Code>\n\t\t\t <Example_Code Nature=\"Bad\" Language=\"Verilog\">assign addr_auth = (address == 32'hF00) ? 1: 0;</Example_Code>\n             <Body_Text>The bugged line of code is repeated in the Bad\n             example above. Weakness arises from the fact that the\n             SECURE_ME register can be modified by writing to the\n             shadow register COPY_OF_SECURE_ME, the address of\n             COPY_OF_SECURE_ME should also be included in the check.\n             That buggy line of code should instead be replaced as\n             shown in the Good Code Snippet below. \n             </Body_Text>\n\t\t\t <Example_Code Nature=\"Good\" Language=\"Verilog\">assign addr_auth = (address == 32'hF00 || address == 32'h800F00) ? 1: 0;</Example_Code>\n\t\t   "
-    }
-  ],
-  "observed_examples": [
-    {
-      "reference": "CVE-2000-1179",
-      "description": "Router allows remote attackers to read system logs without authentication by directly connecting to the login screen and typing certain control characters.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2000-1179"
-    },
-    {
-      "reference": "CVE-1999-1454",
-      "description": "Attackers with physical access to the machine may bypass the password prompt by pressing the ESC (Escape) key.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1454"
-    },
-    {
-      "reference": "CVE-1999-1077",
-      "description": "OS allows local attackers to bypass the password protection of idled sessions via the programmer's switch or CMD-PWR keyboard sequence, which brings up a debugger that the attacker can use to disable the lock.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-1999-1077"
-    },
-    {
-      "reference": "CVE-2003-0304",
-      "description": "Direct request of installation file allows attacker to create administrator accounts.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-0304"
-    },
-    {
-      "reference": "CVE-2002-0870",
-      "description": "Attackers may gain additional privileges by directly requesting the web management URL.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0870"
-    },
-    {
-      "reference": "CVE-2002-0066",
-      "description": "Bypass authentication via direct request to named pipe.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2002-0066"
-    },
-    {
-      "reference": "CVE-2003-1035",
-      "description": "User can avoid lockouts by using an API instead of the GUI to conduct brute force password guessing.",
-      "link": "https://www.cve.org/CVERecord?id=CVE-2003-1035"
-    }
-  ],
-  "content_history": {
-    "submission": {
-      "submission_name": "PLOVER",
-      "submission_date": "2006-07-19"
-    },
-    "modification": [
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-09-08",
-        "modification_comment": "updated Description, Modes_of_Introduction, Name, Relationships, Observed_Example, Relationship_Notes, Taxonomy_Mappings, Type"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2008-11-24",
-        "modification_comment": "updated Observed_Examples"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-03-29",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2011-06-01",
-        "modification_comment": "updated Common_Consequences"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-05-11",
-        "modification_comment": "updated Observed_Examples, Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2012-10-30",
-        "modification_comment": "updated Potential_Mitigations"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2014-07-30",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-05-03",
-        "modification_comment": "updated Related_Attack_Patterns, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2017-11-08",
-        "modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-02-24",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-08-20",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2020-12-10",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-07-20",
-        "modification_comment": "updated Related_Attack_Patterns"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2021-10-28",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2022-10-13",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-04-27",
-        "modification_comment": "updated Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-06-29",
-        "modification_comment": "updated Mapping_Notes, Relationships"
-      },
-      {
-        "modification_name": "CWE Content Team",
-        "modification_organization": "MITRE",
-        "modification_date": "2023-10-26",
-        "modification_comment": "updated Demonstrative_Examples"
-      }
-    ],
-    "previous_entry_name": [
-      {
-        "text": "Authentication Bypass by Alternate Path/Channel",
-        "date": "2008-09-09"
-      }
-    ]
-  },
-  "taxonomy_mappings": [
-    {
-      "taxonomy_name": "PLOVER",
-      "entry_name": "Authentication Bypass by Alternate Path/Channel"
-    },
-    {
-      "taxonomy_name": "OWASP Top Ten 2007",
-      "entry_name": "Failure to Restrict URL Access",
-      "entry_id": "A10",
-      "mapping_fit": "CWE More Specific"
-    }
-  ],
-  "related_attack_patterns": [
-    "127",
-    "665"
-  ],
-  "notes": [
-    {
-      "type": "Relationship",
-      "text": "overlaps Unprotected Alternate Channel"
-    }
-  ]
+	"id": "288",
+	"name": "Authentication Bypass Using an Alternate Path or Channel",
+	"abstraction": "Base",
+	"structure": "Simple",
+	"status": "Incomplete",
+	"description": "A product requires authentication, but the product has an alternate path or channel that does not require authentication.",
+	"related_weaknesses": [
+		{
+			"nature": "ChildOf",
+			"cweid": "306",
+			"view_id": "1000",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "ChildOf",
+			"cweid": "284",
+			"view_id": "1340",
+			"ordinal": "Primary"
+		},
+		{
+			"nature": "PeerOf",
+			"cweid": "420",
+			"view_id": "1000"
+		}
+	],
+	"applicable_platforms": {
+		"language": [
+			{
+				"class": "Not Language-Specific",
+				"prevalence": "Undetermined"
+			}
+		]
+	},
+	"modes_of_introduction": [
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"COMMISSION: This weakness refers to an incorrect design related to an architectural security tactic."
+			]
+		},
+		{
+			"phase": "Architecture and Design",
+			"note": [
+				"This is often seen in web applications that assume that access to a particular CGI program can only be obtained through a \"front\" screen, when the supporting programs are directly accessible. But this problem is not just in web apps."
+			]
+		}
+	],
+	"common_consequences": [
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			]
+		}
+	],
+	"potential_mitigations": [
+		{
+			"phase": [
+				"Architecture and Design"
+			],
+			"description": [
+				"Funnel all access through a single choke point to simplify how users can access a resource. For every access, perform a check to determine if the user has permissions to access the resource."
+			]
+		}
+	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-176",
+			"text": "\n             <Intro_Text>\n               <xhtml:p>\n                 Register SECURE_ME is located at address 0xF00. A\n                 mirror of this register called COPY_OF_SECURE_ME is\n                 at location 0x800F00. The register SECURE_ME is\n                 protected from malicious agents and only allows\n                 access to select, while COPY_OF_SECURE_ME is not. \n               </xhtml:p>\n               <xhtml:p>\n                 Access control is implemented using an allowlist (as\n                 indicated by acl_oh_allowlist). The identity of the\n                 initiator of the transaction is indicated by the\n                 one hot input, incoming_id. This is checked against\n                 the acl_oh_allowlist (which contains a list of\n                 initiators that are allowed to access the asset). \n               </xhtml:p>\n               <xhtml:p>\n                 Though this example is shown in Verilog, it will\n                 apply to VHDL as well. \n               </xhtml:p>\n             </Intro_Text>\n             <Example_Code Nature=\"Informative\" Language=\"Verilog\">\n               module foo_bar(data_out, data_in, incoming_id, address, clk, rst_n);<xhtml:br/>\n               output [31:0] data_out;<xhtml:br/>\n               input [31:0] data_in, incoming_id, address;<xhtml:br/>\n               input clk, rst_n;<xhtml:br/>\n               wire write_auth, addr_auth;<xhtml:br/>\n               reg [31:0] data_out, acl_oh_allowlist, q;<xhtml:br/>\n               assign write_auth = | (incoming_id &amp; acl_oh_allowlist) ? 1 : 0; <xhtml:br/>\n               always @*<xhtml:br/>\n               <xhtml:div style=\"margin-left:1em;\">\n                 acl_oh_allowlist &lt;= 32'h8312; <xhtml:br/>\n               </xhtml:div>\n               assign addr_auth = (address == 32'hF00) ? 1: 0;<xhtml:br/>\n               always @ (posedge clk or negedge rst_n)<xhtml:br/>\n               <xhtml:div style=\"margin-left:1em;\">\n                 if (!rst_n)<xhtml:br/>\n                 <xhtml:div style=\"margin-left:1em;\">\n                   begin<xhtml:br/>\n                   <xhtml:div style=\"margin-left:1em;\">\n                     q &lt;= 32'h0;<xhtml:br/>\n                     data_out &lt;= 32'h0;<xhtml:br/>\n                   </xhtml:div>\n                   end<xhtml:br/>\n                 </xhtml:div>\n                 else<xhtml:br/>\n                 <xhtml:div style=\"margin-left:1em;\">\n                   begin<xhtml:br/>\n                   <xhtml:div style=\"margin-left:1em;\">\n                     q &lt;= (addr_auth &amp; write_auth) ? data_in: q;<xhtml:br/>\n                     data_out &lt;= q;<xhtml:br/>\n                   </xhtml:div>\n                   end<xhtml:br/>\n                 </xhtml:div>\n                 end<xhtml:br/>\n               </xhtml:div>\n               endmodule<xhtml:br/>\n             </Example_Code>\n\t\t\t <Example_Code Nature=\"Bad\" Language=\"Verilog\">assign addr_auth = (address == 32'hF00) ? 1: 0;</Example_Code>\n             <Body_Text>The bugged line of code is repeated in the Bad\n             example above. Weakness arises from the fact that the\n             SECURE_ME register can be modified by writing to the\n             shadow register COPY_OF_SECURE_ME, the address of\n             COPY_OF_SECURE_ME should also be included in the check.\n             That buggy line of code should instead be replaced as\n             shown in the Good Code Snippet below. \n             </Body_Text>\n\t\t\t <Example_Code Nature=\"Good\" Language=\"Verilog\">assign addr_auth = (address == 32'hF00 || address == 32'h800F00) ? 1: 0;</Example_Code>\n\t\t   "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2000-1179",
+			"description": "Router allows remote attackers to read system logs without authentication by directly connecting to the login screen and typing certain control characters.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2000-1179"
+		},
+		{
+			"reference": "CVE-1999-1454",
+			"description": "Attackers with physical access to the machine may bypass the password prompt by pressing the ESC (Escape) key.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-1454"
+		},
+		{
+			"reference": "CVE-1999-1077",
+			"description": "OS allows local attackers to bypass the password protection of idled sessions via the programmer's switch or CMD-PWR keyboard sequence, which brings up a debugger that the attacker can use to disable the lock.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-1999-1077"
+		},
+		{
+			"reference": "CVE-2003-0304",
+			"description": "Direct request of installation file allows attacker to create administrator accounts.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-0304"
+		},
+		{
+			"reference": "CVE-2002-0870",
+			"description": "Attackers may gain additional privileges by directly requesting the web management URL.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0870"
+		},
+		{
+			"reference": "CVE-2002-0066",
+			"description": "Bypass authentication via direct request to named pipe.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2002-0066"
+		},
+		{
+			"reference": "CVE-2003-1035",
+			"description": "User can avoid lockouts by using an API instead of the GUI to conduct brute force password guessing.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2003-1035"
+		}
+	],
+	"content_history": {
+		"submission": {
+			"submission_name": "PLOVER",
+			"submission_date": "2006-07-19"
+		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-09-08",
+				"modification_comment": "updated Description, Modes_of_Introduction, Name, Relationships, Observed_Example, Relationship_Notes, Taxonomy_Mappings, Type"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2008-11-24",
+				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-03-29",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2011-06-01",
+				"modification_comment": "updated Common_Consequences"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-05-11",
+				"modification_comment": "updated Observed_Examples, Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2012-10-30",
+				"modification_comment": "updated Potential_Mitigations"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2014-07-30",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-05-03",
+				"modification_comment": "updated Related_Attack_Patterns, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2017-11-08",
+				"modification_comment": "updated Applicable_Platforms, Modes_of_Introduction, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-02-24",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-08-20",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2020-12-10",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-07-20",
+				"modification_comment": "updated Related_Attack_Patterns"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2021-10-28",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2022-10-13",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-04-27",
+				"modification_comment": "updated Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-06-29",
+				"modification_comment": "updated Mapping_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2023-10-26",
+				"modification_comment": "updated Demonstrative_Examples"
+			}
+		],
+		"previous_entry_name": [
+			{
+				"text": "Authentication Bypass by Alternate Path/Channel",
+				"date": "2008-09-09"
+			}
+		]
+	},
+	"taxonomy_mappings": [
+		{
+			"taxonomy_name": "PLOVER",
+			"entry_name": "Authentication Bypass by Alternate Path/Channel"
+		},
+		{
+			"taxonomy_name": "OWASP Top Ten 2007",
+			"entry_name": "Failure to Restrict URL Access",
+			"entry_id": "A10",
+			"mapping_fit": "CWE More Specific"
+		}
+	],
+	"related_attack_patterns": [
+		"127",
+		"665"
+	],
+	"notes": [
+		{
+			"type": "Relationship",
+			"text": "overlaps Unprotected Alternate Channel"
+		}
+	]
 }
