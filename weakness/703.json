@@ -47,7 +47,22 @@
 			]
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-7",
+			"text": "\n               <Intro_Text>Consider the following code segment:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char buf[10], cp_buf[10];<xhtml:br/>fgets(buf, 10, stdin);<xhtml:br/>strcpy(cp_buf, buf);</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer expects that when fgets() returns, buf will contain a null-terminated string of length 9 or less. But if an I/O error occurs, fgets() will not null-terminate buf. Furthermore, if the end of the file is reached before any characters are read, fgets() returns without writing anything to buf. In both of these situations, fgets() signals that something unusual has happened by returning NULL, but in this code, the warning will not be noticed. The lack of a null terminator in buf can result in a buffer overflow in the subsequent call to strcpy().</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-198",
+			"text": "\n               <Intro_Text>The following method throws three types of exceptions.</Intro_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public void doExchange() throws IOException, InvocationTargetException, SQLException {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>While it might seem tidier to write</Body_Text>\n               <Example_Code Nature=\"Bad\">\n                  <xhtml:div>public void doExchange() throws Exception {<xhtml:div style=\"margin-left:1em;\">...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>doing so hampers the caller's ability to understand and handle the exceptions that occur. Further, if a later revision of doExchange() introduces a new type of exception that should be treated differently than previous exceptions, there is no easy way to enforce this requirement.</Body_Text>\n            "
+		}
+	],
 	"observed_examples": [
+		{
+			"reference": "[REF-1374]",
+			"description": "Chain: JavaScript-based cryptocurrency library can fall back to the insecure Math.random() function instead of reporting a failure (CWE-392), thus reducing the entropy (CWE-332) and leading to generation of non-unique cryptographic keys for Bitcoin wallets (CWE-1391)",
+			"link": "https://www.unciphered.com/blog/randstorm-you-cant-patch-a-house-of-cards"
+		},
 		{
 			"reference": "CVE-2022-22224",
 			"description": "Chain: an operating system does not properly process malformed Open Shortest Path First (OSPF) Type/Length/Value Identifiers (TLV) (CWE-703), which can cause the process to enter an infinite loop (CWE-835)",
@@ -91,6 +106,18 @@
 			"title": "24 Deadly Sins of Software Security",
 			"publication_year": "2010",
 			"publication": "McGraw-Hill"
+		},
+		{
+			"reference_id": "REF-1374",
+			"author": [
+				"Unciphered"
+			],
+			"title": "Randstorm: You Can't Patch a House of Cards",
+			"url": "https://www.unciphered.com/blog/randstorm-you-cant-patch-a-house-of-cards",
+			"publication_year": "2023",
+			"publication_month": "--11",
+			"publication_day": "---14",
+			"url_date": "2023-11-15"
 		}
 	],
 	"content_history": {
@@ -250,6 +277,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples, References, Relationships"
 			}
 		],
 		"previous_entry_name": [

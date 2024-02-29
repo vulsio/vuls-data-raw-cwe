@@ -107,6 +107,25 @@
 		{
 			"demonstrative_example_id": "DX-146",
 			"text": "\n\t\t\t\t\t<Intro_Text>\n\t\t\t\t\t\t<xhtml:p>A System-on-Chip (SOC) implements a Root-of-Trust (RoT) in ROM to boot secure code. However, at times this ROM code might have security vulnerabilities and need to be patched. Since ROM is immutable, it can be impossible to patch.</xhtml:p>\n\t\t\t\t\t</Intro_Text>\n\t\t\t\t\t<Body_Text>ROM does not have built-in application-programming interfaces (APIs) to patch if the code is vulnerable. Implement mechanisms to patch the vulnerable ROM code.</Body_Text>\n\t\t\t\t"
+		},
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>The example code is taken from the SoC peripheral wrapper inside the buggy OpenPiton SoC of HACK@DAC'21. The wrapper is used for connecting the communications between SoC peripherals, such as crypto-engines, direct memory access (DMA), reset controllers, JTAG, etc. The secure implementation of the SoC wrapper should allow users to boot from a ROM for Linux (i_bootrom_linux) or from a patchable ROM (i_bootrom_patch) if the Linux bootrom has security or functional issues.The example code is taken from the SoC peripheral wrapper inside the buggy OpenPiton SoC of HACK@DAC'21. The wrapper is used for connecting the communications between SoC peripherals, such as crypto-engines, direct memory access (DMA), reset controllers, JTAG, etc. The secure implementation of the SoC wrapper should allow users to boot from a ROM for Linux (i_bootrom_linux) or from a patchable ROM (i_bootrom_patch) if the Linux bootrom has security or functional issues.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\tbootrom i_bootrom_patch (<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t.clk_i                   ,<xhtml:br/>\n\t\t\t\t\t\t\t.req_i      ( rom_req   ),<xhtml:br/>\n\t\t\t\t\t\t\t.addr_i     ( rom_addr  ),<xhtml:br/>\n\t\t\t\t\t\t\t.rdata_o    ( rom_rdata_patch )<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t);<xhtml:br/>\n\t\t\t\t\t\tbootrom_linux i_bootrom_linux (<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t.clk_i                   ,<xhtml:br/>\n\t\t\t\t\t\t\t.req_i      ( rom_req   ),<xhtml:br/>\n\t\t\t\t\t\t\t.addr_i     ( rom_addr  ),<xhtml:br/>\n\t\t\t\t\t\t\t.rdata_o    ( rom_rdata_linux )<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t);<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t<xhtml:b>assign rom_rdata = (ariane_boot_sel_i) ? rom_rdata_linux : rom_rdata_linux;</xhtml:b><xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text><xhtml:p>The above implementation causes the ROM data to be hardcoded for the linux system (rom_rdata_linux) regardless of the value of ariane_boot_sel_i. Therefore, the data (rom_rdata_patch) from the patchable ROM code is never used [REF-1396].</xhtml:p>\n\t\t\t\t\t<xhtml:p>This weakness disables the ROM's ability to be patched. If attackers uncover security vulnerabilities in the ROM, the users must replace the entire device. Otherwise, the weakness exposes the system to a vulnerable state forever.</xhtml:p>\n\t\t\t\t\t<xhtml:p>A fix to this issue is to enable rom_rdata to be selected from the patchable rom (rom_rdata_patch) [REF-1397].</xhtml:p></Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\tbootrom i_bootrom_patch (<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t.clk_i                   ,<xhtml:br/>\n\t\t\t\t\t\t\t.req_i      ( rom_req   ),<xhtml:br/>\n\t\t\t\t\t\t\t.addr_i     ( rom_addr  ),<xhtml:br/>\n\t\t\t\t\t\t\t.rdata_o    ( rom_rdata_patch )<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t);<xhtml:br/>\n\t\t\t\t\t\tbootrom_linux i_bootrom_linux (<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t.clk_i                   ,<xhtml:br/>\n\t\t\t\t\t\t\t.req_i      ( rom_req   ),<xhtml:br/>\n\t\t\t\t\t\t\t.addr_i     ( rom_addr  ),<xhtml:br/>\n\t\t\t\t\t\t\t.rdata_o    ( rom_rdata_linux )<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t);<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t<xhtml:b>assign rom_rdata = (ariane_boot_sel_i) ? rom_rdata_patch : rom_rdata_linux;</xhtml:b><xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1396",
+			"title": "riscv_peripherals.sv line 534",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/75e5c0700b5a02e744f006fe8a09ff3c2ccdd32d/piton/design/chip/tile/ariane/openpiton/riscv_peripherals.sv#L534",
+			"publication_year": "2021",
+			"url_date": "2024-02-12"
+		},
+		{
+			"reference_id": "REF-1397",
+			"title": "Fix for riscv_peripherals.sv line 534",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/cwe_1310_riscv_peripheral/piton/design/chip/tile/ariane/openpiton/riscv_peripherals.sv#L534",
+			"publication_year": "2021",
+			"url_date": "2024-02-12"
 		}
 	],
 	"content_history": {
@@ -151,6 +170,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, References"
 			}
 		],
 		"contribution": [
@@ -160,6 +185,20 @@
 				"contribution_organization": "Intel",
 				"contribution_date": "2022-09-07",
 				"contribution_comment": "suggested removal of incorrect references"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen, Rahul Kande, Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-11-29",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitouni, Mohamadreza Rostami, Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-11-29",
+				"contribution_comment": "suggested demonstrative example"
 			}
 		]
 	},

@@ -91,6 +91,9 @@
 	"demonstrative_examples": [
 		{
 			"text": "\n\t\t\t\t\t<Intro_Text>Suppose a hardware IP for implementing an encryption routine works as expected, but it leaves the intermediate results in some registers that can be accessed. Exactly why this access happens is immaterial - it might be unintentional or intentional, where the designer wanted a \"quick fix\" for something.  </Intro_Text>\n\t\t\t\t"
+		},
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>The example code below [REF-1379] is taken from the SHA256 Interface/wrapper controller module of the HACK@DAC'21 buggy OpenPiton SoC. Within the wrapper module there are a set of 16 memory-mapped registers referenced data[0] to data[15]. These registers are 32 bits in size and are used to store the data received on the AXI Lite interface for hashing. Once both the message to be hashed and a request to start the hash computation are received, the values of these registers will be forwarded to the underlying SHA256 module for processing. Once forwarded, the values in these registers no longer need to be retained. In fact, if not cleared or overwritten, these sensitive values can be read over the AXI Lite interface, potentially compromising any previously confidential data stored therein.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t// Implement SHA256 I/O memory map interface<xhtml:br/>\n\t\t\t\t\t\t// Write side<xhtml:br/>\n\t\t\t\t\t\talways @(posedge clk_i)<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tif(~(rst_ni &amp;&amp; ~rst_3))<xhtml:br/>\n\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\tstartHash &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tnewMessage &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tdata[0] &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tdata[1] &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tdata[2] &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tdata[14] &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tdata[15] &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>In the previous code snippet [REF-1379] there is the lack of a data clearance mechanism for the memory-mapped I/O registers after their utilization. These registers get cleared only when a reset condition is met. This condition is met when either the global negative-edge reset input signal (rst_ni) or the dedicated reset input signal for SHA256 peripheral (rst_3) is active. In other words, if either of these reset signals is true, the registers will be cleared. However, in cases where there is not a reset condition these registers retain their values until the next hash operation. It is during the time between an old hash operation and a new hash operation that that data is open to unauthorized disclosure.</Body_Text>\n\t\t\t\t\t<Body_Text>To correct the issue of data persisting between hash operations, the memory mapped I/O registers need to be cleared once the values written in these registers are propagated to the SHA256 module. This could be done for example by adding a new condition to zeroize the memory mapped I/O registers once the hash value is computed, i.e., hashValid signal asserted, as shown in the good code example below [REF-1380]. This fix will clear the memory-mapped I/O registers after the data has been provided as input to the SHA engine.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t// Implement SHA256 I/O memory map interface<xhtml:br/>\n\t\t\t\t\t\t// Write side<xhtml:br/>\n\t\t\t\t\t\talways @(posedge clk_i)<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tif(~(rst_ni &amp;&amp; ~rst_3))<xhtml:br/>\n\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\tstartHash &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tnewMessage &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tdata[0] &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tdata[1] &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tdata[2] &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tdata[14] &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tdata[15] &lt;= 0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t<xhtml:b>else if(hashValid &amp;&amp; ~hashValid_r)</xhtml:b>\n\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t<xhtml:b>begin</xhtml:b>\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t<xhtml:b>data[0] &lt;= 0;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:b>data[1] &lt;= 0;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:b>data[2] &lt;= 0;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:b>...</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:b>data[14] &lt;= 0;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:b>data[15] &lt;= 0;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
 		}
 	],
 	"references": [
@@ -116,6 +119,20 @@
 			"publication_year": "2001",
 			"publication_month": "--08",
 			"publication": "10th USENIX Security Symposium"
+		},
+		{
+			"reference_id": "REF-1379",
+			"title": "sha256_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/b9ecdf6068445d76d6bee692d163fededf7a9d9b/piton/design/chip/tile/ariane/src/sha256/sha256_wrapper.sv#L94-L116",
+			"publication_year": "2021",
+			"url_date": "2023-12-13"
+		},
+		{
+			"reference_id": "REF-1380",
+			"title": "Fix for sha256_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/e8ba396b5c7cec9031e0e0e18ac547f32cd0ed50/piton/design/chip/tile/ariane/src/sha256/sha256_wrapper.sv#L98C1-L139C18",
+			"publication_year": "2021",
+			"url_date": "2023-12-13"
 		}
 	],
 	"content_history": {
@@ -148,6 +165,28 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, References"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen, Rahul Kande, Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-11-07",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitouni, Mohamadreza Rostami, Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-11-07",
+				"contribution_comment": "suggested demonstrative example"
 			}
 		]
 	},

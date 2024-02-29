@@ -78,6 +78,13 @@
 			"text": "\n               <Intro_Text>This code attempts to allocate memory for 4 integers and checks if the allocation succeeds.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>tmp = malloc(sizeof(int) * 4);<xhtml:br/>if (tmp &lt; 0 ) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>perror(\"Failure\");<xhtml:br/>\n                           <xhtml:i>//should have checked if the call returned 0</xhtml:i>\n                           <xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code assumes that only a negative return value would indicate an error, but malloc() may return a null pointer when there is an error. The value of tmp could then be equal to 0, and the error would be missed.</Body_Text>\n            "
 		}
 	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2023-49286",
+			"description": "Chain: function in web caching proxy does not correctly check a return value (CWE-253) leading to a reachable assertion (CWE-617)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2023-49286"
+		}
+	],
 	"references": [
 		{
 			"section": "Chapter 7, \"Return Value Testing and Interpretation\", Page 340",
@@ -191,6 +198,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Observed_Examples"
 			}
 		],
 		"previous_entry_name": [

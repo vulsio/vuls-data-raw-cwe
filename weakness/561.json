@@ -66,7 +66,8 @@
 	],
 	"demonstrative_examples": [
 		{
-			"text": "\n               <Intro_Text>The condition for the second if statement is impossible to satisfy. It requires that the variables be non-null, while on the only path where s can be assigned a non-null value there is a return statement.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>String s = null;<xhtml:br/>if (b) {<xhtml:div style=\"margin-left:1em;\">s = \"Yes\";<xhtml:br/>return;</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>if (s != null) {<xhtml:div style=\"margin-left:1em;\">Dead();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+			"demonstrative_example_id": "DX-217",
+			"text": "\n               <Intro_Text>The condition for the second if statement is impossible to satisfy. It requires that the variables be non-null. However, on the only path where s can be assigned a non-null value, there is a return statement.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C++\">\n                  <xhtml:div>String s = null;<xhtml:br/>if (b) {<xhtml:div style=\"margin-left:1em;\">s = \"Yes\";<xhtml:br/>return;</xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>if (s != null) {<xhtml:div style=\"margin-left:1em;\">Dead();</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
 		},
 		{
 			"text": "\n               <Intro_Text>In the following class, two private methods call each other, but since neither one is ever invoked from anywhere else, they are both dead code.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class DoubleDead {<xhtml:div style=\"margin-left:1em;\">private void doTweedledee() {<xhtml:div style=\"margin-left:1em;\">doTweedledumb();</xhtml:div>}<xhtml:br/>private void doTweedledumb() {<xhtml:div style=\"margin-left:1em;\">doTweedledee();</xhtml:div>}<xhtml:br/>public static void main(String[] args) {<xhtml:div style=\"margin-left:1em;\">System.out.println(\"running DoubleDead\");</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>(In this case it is a good thing that the methods are dead: invoking either one would cause an infinite loop.)</Body_Text>\n            "
@@ -233,6 +234,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		]
 	},

@@ -73,6 +73,9 @@
 	"demonstrative_examples": [
 		{
 			"text": "\n\t\t\t\t\t<Intro_Text>The code below shows a 2x1 multiplexor using logic gates. Though the code shown below results in the minimum gate solution, it is disjoint and causes glitches.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t\t// 2x1 Multiplexor using logic-gates<xhtml:br/>\n                        <xhtml:br/>\n\t\t\t\t\t\tmodule glitchEx(<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\tinput wire in0, in1, sel,<xhtml:br/>\n\t\t\t\t\t\t\toutput wire z<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t);<xhtml:br/>\n                        <xhtml:br/>\n\t\t\t\t\t\twire not_sel;<xhtml:br/>\n\t\t\t\t\t\twire and_out1, and_out2;<xhtml:br/>\n\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\tassign not_sel = ~sel;<xhtml:br/>\n\t\t\t\t\t\tassign and_out1 = not_sel &amp; in0;<xhtml:br/>\n\t\t\t\t\t\tassign and_out2 = sel &amp; in1;<xhtml:br/>\n                        <xhtml:br/>\n\t\t\t\t\t\t// Buggy line of code:<xhtml:br/>\n\t\t\t\t\t\tassign z = and_out1 | and_out2; // glitch in signal z<xhtml:br/>\n\t\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\t\tendmodule<xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>The buggy line of code, commented above, results in signal 'z' periodically changing to an unwanted state. Thus, any logic that references signal 'z' may access it at a time when it is in this unwanted state. This line should be replaced with the line shown below in the Good Code Snippet which results in signal 'z' remaining in a continuous, known, state. Reference for the above code, along with waveforms for simulation can be found in the references below.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\t\tassign z &lt;= and_out1 or and_out2 or (in0 and in1);\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>This line of code removes the glitch in signal z.</Body_Text>\n\t\t\t\t"
+		},
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text><xhtml:p>The example code is taken from the DMA (Direct Memory Access) module of the buggy OpenPiton SoC of HACK@DAC'21. The DMA contains a finite-state machine (FSM) for accessing the permissions using the physical memory protection (PMP) unit.</xhtml:p>\n\t\t\t\t\t<xhtml:p>PMP provides secure regions of physical memory against unauthorized access. It allows an operating system or a hypervisor to define a series of physical memory regions and then set permissions for those regions, such as read, write, and execute permissions. When a user tries to access a protected memory area (e.g., through DMA), PMP checks the access of a PMP address (e.g., pmpaddr_i) against its configuration (pmpcfg_i). If the access violates the defined permissions (e.g., CTRL_ABORT), the PMP can trigger a fault or an interrupt. This access check is implemented in the pmp parametrized module in the below code snippet. The below code assumes that the state of the pmpaddr_i and pmpcfg_i signals will not change during the different DMA states (i.e., CTRL_IDLE to CTRL_DONE) while processing a DMA request (via dma_ctrl_reg). The DMA state machine is implemented using a case statement (not shown in the code snippet).</xhtml:p>\n\t\t\t\t\t</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\tmodule dma # (...)(...);<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\tinput [7:0] [16-1:0] pmpcfg_i;<xhtml:br/>\n\t\t\t\t\t\tinput logic [16-1:0][53:0]     pmpaddr_i;<xhtml:br/>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t//// Save the input command<xhtml:br/>\n  \t\t\t\t\t\talways @ (posedge clk_i or negedge rst_ni)<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\tbegin: save_inputs<xhtml:br/>\n\t\t\t\t\t\t\tif (!rst_ni)<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\telse<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\tif (dma_ctrl_reg == CTRL_IDLE || dma_ctrl_reg == CTRL_DONE)<xhtml:br/>\n\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\tend // save_inputs<xhtml:br/>\n\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t// Load/store PMP check<xhtml:br/>\n\t\t\t\t\t\t\tpmp #(<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t.XLEN       ( 64                     ),<xhtml:br/>\n\t\t\t\t\t\t\t\t.PMP_LEN    ( 54                     ),<xhtml:br/>\n\t\t\t\t\t\t\t\t.NR_ENTRIES ( 16           )<xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t) i_pmp_data (<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t.addr_i        ( pmp_addr_reg        ),<xhtml:br/>\n\t\t\t\t\t\t\t\t.priv_lvl_i    ( riscv::PRIV_LVL_U   ),<xhtml:br/>\n\t\t\t\t\t\t\t\t.access_type_i ( pmp_access_type_reg ),<xhtml:br/>\n\t\t\t\t\t\t\t\t// Configuration<xhtml:br/>\n\t\t\t\t\t\t\t\t.conf_addr_i   ( <xhtml:b>pmpaddr_i</xhtml:b>           ),<xhtml:br/>\n\t\t\t\t\t\t\t\t.conf_i        ( <xhtml:b>pmpcfg_i</xhtml:b>            ),<xhtml:br/>\n\t\t\t\t\t\t\t\t.allow_o       ( pmp_data_allow      )<xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t);<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\tendmodule\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text><xhtml:p>However, the above code [REF-1394] allows the values of pmpaddr_i and pmpcfg_i to be changed through DMA's input ports. This causes a race condition and will enable attackers to access sensitive addresses that the configuration is not associated with.</xhtml:p>\n\t\t\t\t\t<xhtml:p>Attackers can initialize the DMA access process (CTRL_IDLE) using pmpcfg_i for a non-privileged PMP address (pmpaddr_i). Then during the loading state (CTRL_LOAD), attackers can replace the non-privileged address in pmpaddr_i with a privileged address without the requisite authorized access configuration.</xhtml:p>\n\t\t\t\t\t<xhtml:p>To fix this issue (see [REF-1395]), the value of the pmpaddr_i and pmpcfg_i signals should be stored in local registers (pmpaddr_reg and pmpcfg_reg at the start of the DMA access process and the pmp module should reference those registers instead of the signals directly. The values of the registers can only be updated at the start (CTRL_IDLE) or the end (CTRL_DONE) of the DMA access process, which prevents attackers from changing the PMP address in the middle of the DMA access process.</xhtml:p></Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\tmodule dma # (...)(...);<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\tinput [7:0] [16-1:0] pmpcfg_i;   <xhtml:br/>\n\t\t\t\t\t\tinput logic [16-1:0][53:0]     pmpaddr_i;<xhtml:br/>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:b>reg [7:0] [16-1:0] pmpcfg_reg;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t<xhtml:b>reg [16-1:0][53:0] pmpaddr_reg;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t//// Save the input command<xhtml:br/>\n\t\t\t\t\t\talways @ (posedge clk_i or negedge rst_ni)<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\tbegin: save_inputs<xhtml:br/>\n\t\t\t\t\t\t\tif (!rst_ni)<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:b>pmpaddr_reg &lt;= 'b0 ;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:b>pmpcfg_reg &lt;= 'b0 ;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\telse <xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\tif (dma_ctrl_reg == CTRL_IDLE || dma_ctrl_reg == CTRL_DONE) <xhtml:br/>\n\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t\t\t<xhtml:b>pmpaddr_reg &lt;= pmpaddr_i;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t<xhtml:b>pmpcfg_reg &lt;= pmpcfg_i;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\tend <xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\tend // save_inputs<xhtml:br/>\n\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t// Load/store PMP check<xhtml:br/>\n\t\t\t\t\t\t\tpmp #(<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t.XLEN       ( 64                     ),<xhtml:br/>\n\t\t\t\t\t\t\t\t.PMP_LEN    ( 54                     ),<xhtml:br/>\n\t\t\t\t\t\t\t\t.NR_ENTRIES ( 16           )<xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t) i_pmp_data (<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t.addr_i        ( pmp_addr_reg        ),<xhtml:br/>\n\t\t\t\t\t\t\t\t.priv_lvl_i    ( riscv::PRIV_LVL_U   ), // we intend to apply filter on<xhtml:br/>\n\t\t\t\t\t\t\t\t// DMA always, so choose the least privilege\n\t\t\t\t\t\t\t\t.access_type_i ( pmp_access_type_reg ),<xhtml:br/>\n\t\t\t\t\t\t\t\t// Configuration<xhtml:br/>\n\t\t\t\t\t\t\t\t.conf_addr_i   ( <xhtml:b>pmpaddr_reg</xhtml:b>           ),<xhtml:br/>\n\t\t\t\t\t\t\t\t.conf_i        ( <xhtml:b>pmpcfg_reg</xhtml:b>            ),<xhtml:br/>\n\t\t\t\t\t\t\t\t.allow_o       ( pmp_data_allow      )<xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t);<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\tendmodule\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
 		}
 	],
 	"references": [
@@ -92,6 +95,20 @@
 			"title": "Non-Blocking Assignments in Verilog Synthesis, Coding Styles that Kill!",
 			"url": "http://www.sunburst-design.com/papers/CummingsSNUG2000SJ_NBA.pdf",
 			"publication_year": "2000"
+		},
+		{
+			"reference_id": "REF-1394",
+			"title": "dma.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/main/piton/design/chip/tile/ariane/src/dma/dma.sv",
+			"publication_year": "2021",
+			"url_date": "2024-02-09"
+		},
+		{
+			"reference_id": "REF-1395",
+			"title": "Fix for dma.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/cwe_1298_in_dma/piton/design/chip/tile/ariane/src/dma/dma.sv",
+			"publication_year": "2021",
+			"url_date": "2024-02-09"
 		}
 	],
 	"content_history": {
@@ -118,6 +135,28 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, References"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen, Rahul Kande, Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-11-29",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitouni, Mohamadreza Rostami, Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-11-29",
+				"contribution_comment": "suggested demonstrative example"
 			}
 		]
 	},

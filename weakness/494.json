@@ -23,11 +23,6 @@
 			"cweid": "669",
 			"view_id": "1003",
 			"ordinal": "Primary"
-		},
-		{
-			"nature": "PeerOf",
-			"cweid": "79",
-			"view_id": "1000"
 		}
 	],
 	"applicable_platforms": {
@@ -126,6 +121,7 @@
 			"text": "\n               <Intro_Text>This example loads an external class from a local subdirectory.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>URL[] classURLs= new URL[]{<xhtml:div style=\"margin-left:1em;\">new URL(\"file:subdir/\")</xhtml:div>};<xhtml:br/>URLClassLoader loader = new URLClassLoader(classURLs);<xhtml:br/>Class loadedClass = Class.forName(\"loadMe\", true, loader);</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code does not ensure that the class loaded is the intended one, for example by verifying the class's checksum. An attacker may be able to modify the class file to execute malicious code.</Body_Text>\n            "
 		},
 		{
+			"demonstrative_example_id": "DX-219",
 			"text": "\n               <Intro_Text>This code includes an external script to get database credentials, then authenticates a user against the database, allowing access to the application.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>\n                     <xhtml:i>//assume the password is already encrypted, avoiding CWE-312</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>function authenticate($username,$password){<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:br/>include(\"http://external.example.com/dbInfo.php\");<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i>//dbInfo.php makes $dbhost, $dbuser, $dbpass, $dbname available</xhtml:i>\n                        <xhtml:br/>mysql_connect($dbhost, $dbuser, $dbpass) or die ('Error connecting to mysql');<xhtml:br/>mysql_select_db($dbname);<xhtml:br/>$query = 'Select * from users where username='.$username.' And password='.$password;<xhtml:br/>$result = mysql_query($query);<xhtml:br/>\n                        <xhtml:br/>if(mysql_numrows($result) == 1){<xhtml:div style=\"margin-left:1em;\">mysql_close();<xhtml:br/>return true;</xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">mysql_close();<xhtml:br/>return false;</xhtml:div>}</xhtml:div>\n                     <xhtml:br/>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code does not verify that the external domain accessed is the intended one. An attacker may somehow cause the external domain name to resolve to an attack server, which would provide the information for a false database. The attacker may then steal the usernames and encrypted passwords from real user login attempts, or simply allow themself to access the application without a real user account.</Body_Text>\n               <Body_Text>This example is also vulnerable to an Adversary-in-the-Middle AITM (CWE-300) attack.</Body_Text>\n            "
 		}
 	],
@@ -434,6 +430,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, Relationships"
 			}
 		],
 		"previous_entry_name": [

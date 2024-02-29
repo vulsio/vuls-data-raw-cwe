@@ -73,6 +73,7 @@
 	],
 	"demonstrative_examples": [
 		{
+			"demonstrative_example_id": "DX-204",
 			"text": "\n          <Intro_Text>In this example a mistake exists in the code where the exit condition contained in flg is never called. This results in the function calling itself over and over again until the stack is exhausted.\n          </Intro_Text>\n          <Example_Code Nature=\"Bad\" Language=\"C\">\n\t    void do_something_recursive (int flg)<xhtml:br/>\n\t    {<xhtml:br/>\n\t    <xhtml:div style=\"margin-left:1em;\">\n\t      ... // Do some real work here, but the value of flg is unmodified<xhtml:br/>\n\t      if (flg) { do_something_recursive (flg); }    // flg is never modified so it is always TRUE - this call will continue until the stack explodes<xhtml:br/>\n\t    </xhtml:div>\n\t    }<xhtml:br/>\n\t    int flag = 1; // Set to TRUE<xhtml:br/>\n\t    do_something_recursive (flag);\n          </Example_Code>\n          <Body_Text>Note that the only difference between the Good and Bad examples is that the recursion flag will change value and cause the recursive call to return.</Body_Text>\n          <Example_Code Nature=\"Good\" Language=\"C\">\n\t    void do_something_recursive (int flg)<xhtml:br/>\n\t    {<xhtml:br/>\n\t    <xhtml:div style=\"margin-left:1em;\">\n\t      ... // Do some real work here<xhtml:br/>\n\t      // Modify value of flg on done condition<xhtml:br/>\n\t      if (flg) { do_something_recursive (flg); }    // returns when flg changes to 0<xhtml:br/>\n\t    </xhtml:div>\n\t    }<xhtml:br/>\n\t    int flag = 1; // Set to TRUE<xhtml:br/>\n\t    do_something_recursive (flag);<xhtml:br/>\n          </Example_Code>\n        "
 		}
 	],
@@ -242,6 +243,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		]
 	},

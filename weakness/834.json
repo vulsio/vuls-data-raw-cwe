@@ -29,6 +29,16 @@
 			"note": "Excessive looping will cause unexpected consumption of resources, such as CPU cycles or memory. The product's operation may slow down, or cause a long time to respond. If limited resources such as memory are consumed for each iteration, the loop may eventually cause a crash or program exit due to exhaustion of resources, such as an out-of-memory error."
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-204",
+			"text": "\n             <Intro_Text>In this example a mistake exists in the code where the exit condition contained in flg is never called. This results in the function calling itself over and over again until the stack is exhausted.\n             </Intro_Text>\n             <Example_Code Nature=\"Bad\" Language=\"C\">\n\t       void do_something_recursive (int flg)<xhtml:br/>\n\t       {<xhtml:br/>\n\t       <xhtml:div style=\"margin-left:1em;\">\n\t\t ... // Do some real work here, but the value of flg is unmodified<xhtml:br/>\n\t\t if (flg) { do_something_recursive (flg); }    // flg is never modified so it is always TRUE - this call will continue until the stack explodes<xhtml:br/>\n\t       </xhtml:div>\n\t       }<xhtml:br/>\n\t       int flag = 1; // Set to TRUE<xhtml:br/>\n\t       do_something_recursive (flag);\n             </Example_Code>\n             <Body_Text>Note that the only difference between the Good and Bad examples is that the recursion flag will change value and cause the recursive call to return.</Body_Text>\n             <Example_Code Nature=\"Good\" Language=\"C\">\n\t       void do_something_recursive (int flg)<xhtml:br/>\n\t       {<xhtml:br/>\n\t       <xhtml:div style=\"margin-left:1em;\">\n\t\t ... // Do some real work here<xhtml:br/>\n\t\t // Modify value of flg on done condition<xhtml:br/>\n\t\t if (flg) { do_something_recursive (flg); }    // returns when flg changes to 0<xhtml:br/>\n\t       </xhtml:div>\n\t       }<xhtml:br/>\n\t       int flag = 1; // Set to TRUE<xhtml:br/>\n\t       do_something_recursive (flag);<xhtml:br/>\n             </Example_Code>\n           "
+		},
+		{
+			"demonstrative_example_id": "DX-205",
+			"text": "\n             <Intro_Text>For this example, the method isReorderNeeded is part of a bookstore application that determines if a particular book needs to be reordered based on the current inventory count and the rate at which the book is being sold.</Intro_Text>\n             <Example_Code Nature=\"Bad\" Language=\"Java\">\n               <xhtml:div>public boolean isReorderNeeded(String bookISBN, int rateSold) {<xhtml:div style=\"margin-left:1em;\">\n               <xhtml:div>\n                 <xhtml:br/>boolean isReorder = false;<xhtml:br/>\n                 <xhtml:br/>int minimumCount = 10;<xhtml:br/>int days = 0;<xhtml:br/>\n                 <xhtml:br/>\n                 <xhtml:i>// get inventory count for book</xhtml:i>\n                 <xhtml:br/>int inventoryCount = inventory.getIventoryCount(bookISBN);<xhtml:br/>\n                 <xhtml:br/>\n                 <xhtml:i>// find number of days until inventory count reaches minimum</xhtml:i>\n                 <xhtml:br/>while (inventoryCount &gt; minimumCount) {<xhtml:div style=\"margin-left:1em;\">\n                 <xhtml:div>\n                   <xhtml:br/>inventoryCount = inventoryCount - rateSold;<xhtml:br/>days++;<xhtml:br/>\n                 </xhtml:div>\n                 </xhtml:div>}<xhtml:br/>\n                 <xhtml:br/>\n                 <xhtml:i>// if number of days within reorder timeframe</xhtml:i>\n                 <xhtml:br/>\n                 <xhtml:br/>\n                 <xhtml:i>// set reorder return boolean to true</xhtml:i>\n                 <xhtml:br/>if (days &gt; 0 &amp;&amp; days &lt; 5) {<xhtml:div style=\"margin-left:1em;\">isReorder = true;</xhtml:div>}<xhtml:br/>\n               <xhtml:br/>return isReorder;</xhtml:div>\n               </xhtml:div>}</xhtml:div>\n             </Example_Code>\n             <Body_Text>However, the while loop will become an infinite loop if the rateSold input parameter has a value of zero since the inventoryCount will never fall below the minimumCount. In this case the input parameter should be validated to ensure that a value of zero does not cause an infinite loop, as in the following code.</Body_Text>\n             <Example_Code Nature=\"Good\" Language=\"Java\">\n               <xhtml:div>public boolean isReorderNeeded(String bookISBN, int rateSold) {<xhtml:div style=\"margin-left:1em;\">\n               <xhtml:div>...<xhtml:br/>\n               <xhtml:br/>\n               <xhtml:i>// validate rateSold variable</xhtml:i>\n               <xhtml:br/>if (rateSold &lt; 1) {<xhtml:div style=\"margin-left:1em;\">return isReorder;</xhtml:div>}<xhtml:br/>\n               <xhtml:br/>...</xhtml:div>\n               </xhtml:div>}</xhtml:div>\n             </Example_Code>\n           "
+		}
+	],
 	"observed_examples": [
 		{
 			"reference": "CVE-2011-1027",
@@ -134,6 +144,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, Mapping_Notes"
 			}
 		]
 	},

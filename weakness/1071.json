@@ -25,6 +25,16 @@
 			]
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-213",
+			"text": "\n               <Intro_Text>In the following Java example, the code catches an ArithmeticException.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class Main {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">public static void main(String[] args) {\n                        <xhtml:div style=\"margin-left:1em;\">int a = 1;\n                        <xhtml:br/>int b = 0;\n                        <xhtml:br/>int c = 0;<xhtml:br/>\n                        <xhtml:br/>try {\n                           <xhtml:div style=\"margin-left:1em;\">c = a / b;</xhtml:div>\n                        <xhtml:br/>} catch(ArithmeticException ae) {\n                        <xhtml:br/>}</xhtml:div>\n                     <xhtml:br/>}</xhtml:div>\n                  <xhtml:br/>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Since the exception block is empty, no action is taken.</Body_Text>\n               <Body_Text>In the code below the exception has been logged and the bad execution has been handled in the desired way allowing the program to continue in an expected way.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Java\">\n                  <xhtml:div>public class Main {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">public static void main(String[] args) {\n                        <xhtml:div style=\"margin-left:1em;\">int a = 1;\n                        <xhtml:br/>int b = 0;\n                        <xhtml:br/>int c = 0;<xhtml:br/>\n                        <xhtml:br/>try {\n                           <xhtml:div style=\"margin-left:1em;\">c = a / b;</xhtml:div>\n                        <xhtml:br/>} catch(ArithmeticException ae) {\n                           <xhtml:div style=\"margin-left:1em;\">log.error(\"Divided by zero detected, setting to -1.\");\n                           <xhtml:br/>c = -1;</xhtml:div>\n                        <xhtml:br/>}</xhtml:div>\n                     <xhtml:br/>}</xhtml:div>\n                  <xhtml:br/>}</xhtml:div>\n               </Example_Code>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-214",
+			"text": "\n               <Intro_Text>The following code attempts to synchronize on an object, but does not execute anything in the synchronized block. This does not actually accomplish anything and may be a sign that a programmer is wrestling with synchronization but has not yet achieved the result they intend.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>synchronized(this) { }</xhtml:div>\n               </Example_Code>\n               <Body_Text>Instead, in a correct usage, the synchronized statement should contain procedures that access or modify data that is exposed to multiple threads. For example, consider a scenario in which several threads are accessing student records at the same time. The method which sets the student ID to a new value will need to make sure that nobody else is accessing this data at the same time and will require synchronization.</Body_Text>\n               <Example_Code Nature=\"Good\">\n                  <xhtml:div>public void setID(int ID){<xhtml:div style=\"margin-left:1em;\">synchronized(this){<xhtml:div style=\"margin-left:1em;\">this.ID = ID;</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
 	"content_history": {
 		"submission": {
 			"submission_name": "CWE Content Team",
@@ -49,6 +59,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		]
 	},

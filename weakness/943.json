@@ -46,6 +46,20 @@
 			]
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-209",
+			"text": "\n             <Intro_Text>The following code dynamically constructs and executes a SQL query that searches for items matching a specified name. The query restricts the items displayed to those where owner matches the user name of the currently-authenticated user.</Intro_Text>\n             <Example_Code Nature=\"Bad\" Language=\"C#\">\n               <xhtml:div>...<xhtml:br/>string userName = ctx.getAuthenticatedUserName();<xhtml:br/>string query = \"SELECT * FROM items WHERE owner = '\" + userName + \"' AND itemname = '\" + ItemName.Text + \"'\";<xhtml:br/>sda = new SqlDataAdapter(query, conn);<xhtml:br/>DataTable dt = new DataTable();<xhtml:br/>sda.Fill(dt);<xhtml:br/>...</xhtml:div>\n             </Example_Code>\n             <Body_Text>The query that this code intends to execute follows:</Body_Text>\n             <Example_Code Nature=\"Informative\">\n               <xhtml:div>SELECT * FROM items WHERE owner = &lt;userName&gt; AND itemname = &lt;itemName&gt;;</xhtml:div>\n             </Example_Code>\n             <Body_Text>However, because the query is constructed dynamically by concatenating a constant base query string and a user input string, the query only behaves correctly if itemName does not contain a single-quote character. If an attacker with the user name wiley enters the string:</Body_Text>\n             <Example_Code Nature=\"Attack\">\n               <xhtml:div>name' OR 'a'='a</xhtml:div>\n             </Example_Code>\n             <Body_Text>for itemName, then the query becomes the following:</Body_Text>\n             <Example_Code Nature=\"Attack\">\n               <xhtml:div>SELECT * FROM items WHERE owner = 'wiley' AND itemname = 'name' OR 'a'='a';</xhtml:div>\n             </Example_Code>\n             <Body_Text>The addition of the:</Body_Text>\n             <Example_Code Nature=\"Attack\">\n               <xhtml:div>OR 'a'='a</xhtml:div>\n             </Example_Code>\n             <Body_Text>condition causes the WHERE clause to always evaluate to true, so the query becomes logically equivalent to the much simpler query:</Body_Text>\n             <Example_Code Nature=\"Attack\">\n               <xhtml:div>SELECT * FROM items;</xhtml:div>\n             </Example_Code>\n             <Body_Text>This simplification of the query allows the attacker to bypass the requirement that the query only return items owned by the authenticated user; the query now returns all entries stored in the items table, regardless of their specified owner.</Body_Text>\n           "
+		},
+		{
+			"demonstrative_example_id": "DX-210",
+			"text": "\n             <Intro_Text>The code below constructs an LDAP query using user input address data:</Intro_Text>\n             <Example_Code Nature=\"Bad\" Language=\"Java\">\n               <xhtml:div>context = new InitialDirContext(env);<xhtml:br/>String searchFilter = \"StreetAddress=\" + address;<xhtml:br/>NamingEnumeration answer = context.search(searchBase, searchFilter, searchCtls);</xhtml:div>\n             </Example_Code>\n             <Body_Text>Because the code fails to neutralize the address string used to construct the query, an attacker can supply an address that includes additional LDAP queries.</Body_Text>\n           "
+		},
+		{
+			"demonstrative_example_id": "DX-211",
+			"text": "\n             <Intro_Text>Consider the following simple XML document that stores authentication information and a snippet of Java code that uses XPath query to retrieve authentication information:</Intro_Text>\n             <Example_Code Nature=\"Informative\" Language=\"XML\">\n               <xhtml:div>&lt;users&gt;<xhtml:div style=\"margin-left:1em;\">&lt;user&gt;<xhtml:div style=\"margin-left:1em;\">&lt;login&gt;john&lt;/login&gt;<xhtml:br/>&lt;password&gt;abracadabra&lt;/password&gt;<xhtml:br/>&lt;home_dir&gt;/home/john&lt;/home_dir&gt;</xhtml:div>&lt;/user&gt;<xhtml:br/>&lt;user&gt;<xhtml:div style=\"margin-left:1em;\">&lt;login&gt;cbc&lt;/login&gt;<xhtml:br/>&lt;password&gt;1mgr8&lt;/password&gt;<xhtml:br/>&lt;home_dir&gt;/home/cbc&lt;/home_dir&gt;</xhtml:div>&lt;/user&gt;</xhtml:div>&lt;/users&gt;</xhtml:div>\n             </Example_Code>\n             <Body_Text>The Java code used to retrieve the home directory based on the provided credentials is:</Body_Text>\n             <Example_Code Nature=\"Bad\" Language=\"Java\">\n               <xhtml:div>XPath xpath = XPathFactory.newInstance().newXPath();<xhtml:br/>XPathExpression xlogin = xpath.compile(\"//users/user[login/text()='\" + login.getUserName() + \"' and password/text() = '\" + login.getPassword() + \"']/home_dir/text()\");<xhtml:br/>Document d = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(new File(\"db.xml\"));<xhtml:br/>String homedir = xlogin.evaluate(d);</xhtml:div>\n             </Example_Code>\n             <Body_Text>Assume that user \"john\" wishes to leverage XPath Injection and login without a valid password. By providing a username \"john\" and password \"' or ''='\" the XPath expression now becomes</Body_Text>\n             <Example_Code Nature=\"Attack\">\n               <xhtml:div>//users/user[login/text()='john' or ''='' and password/text() = '' or ''='']/home_dir/text()</xhtml:div>\n             </Example_Code>\n             <Body_Text>This lets user \"john\" login without a valid password, thus bypassing authentication.</Body_Text>\n           "
+		}
+	],
 	"observed_examples": [
 		{
 			"reference": "CVE-2014-2503",
@@ -124,6 +138,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		]
 	},

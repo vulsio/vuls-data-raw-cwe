@@ -70,6 +70,7 @@
 	],
 	"demonstrative_examples": [
 		{
+			"demonstrative_example_id": "DX-189",
 			"text": "\n               <Intro_Text>Windows provides the MultiByteToWideChar(), WideCharToMultiByte(), UnicodeToBytes(), and BytesToUnicode() functions to convert between arbitrary multibyte (usually ANSI) character strings and Unicode (wide character) strings. The size arguments to these functions are specified in different units, (one in bytes, the other in characters) making their use prone to error.</Intro_Text>\n               <Body_Text>In a multibyte character string, each character occupies a varying number of bytes, and therefore the size of such strings is most easily specified as a total number of bytes. In Unicode, however, characters are always a fixed size, and string lengths are typically given by the number of characters they contain. Mistakenly specifying the wrong units in a size argument can lead to a buffer overflow.</Body_Text>\n               <Body_Text>The following function takes a username specified as a multibyte string and a pointer to a structure for user information and populates the structure with information about the specified user. Since Windows authentication uses Unicode for usernames, the username argument is first converted from a multibyte string to a Unicode string.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void getUserInfo(char *username, struct _USER_INFO_2 info){<xhtml:div style=\"margin-left:1em;\">WCHAR unicodeUser[UNLEN+1];<xhtml:br/>MultiByteToWideChar(CP_ACP, 0, username, -1, unicodeUser, sizeof(unicodeUser));<xhtml:br/>NetUserGetInfo(NULL, unicodeUser, 2, (LPBYTE *)&amp;info);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This function incorrectly passes the size of unicodeUser in bytes instead of characters. The call to MultiByteToWideChar() can therefore write up to (UNLEN+1)*sizeof(WCHAR) wide characters, or (UNLEN+1)*sizeof(WCHAR)*sizeof(WCHAR) bytes, to the unicodeUser array, which has only (UNLEN+1)*sizeof(WCHAR) bytes allocated.</Body_Text>\n               <Body_Text>If the username string contains more than UNLEN characters, the call to MultiByteToWideChar() will overflow the buffer unicodeUser.</Body_Text>\n            "
 		}
 	],
@@ -230,6 +231,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		],
 		"previous_entry_name": [

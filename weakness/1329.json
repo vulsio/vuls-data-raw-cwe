@@ -141,6 +141,9 @@
 		{
 			"demonstrative_example_id": "DX-146",
 			"text": "\n\t\t\t\t\t<Intro_Text>\n\t\t\t\t\t\t<xhtml:p>A System-on-Chip (SOC) implements a Root-of-Trust (RoT) in ROM to boot secure code. However, at times this ROM code might have security vulnerabilities and need to be patched. Since ROM is immutable, it can be impossible to patch.</xhtml:p>\n\t\t\t\t\t</Intro_Text>\n\t\t\t\t\t<Body_Text>ROM does not have built-in application-programming interfaces (APIs) to patch if the code is vulnerable. Implement mechanisms to patch the vulnerable ROM code.</Body_Text>\n\t\t\t\t"
+		},
+		{
+			"text": "\n\t\t\t\t\t<Intro_Text>The example code is taken from the JTAG module of the buggy OpenPiton SoC of HACK@DAC'21. JTAG is protected with a password checker. Access to JTAG operations will be denied unless the correct password is provided by the user. This user-provided password is first sent to the HMAC module where it is hashed with a secret crypto key. This user password hash (pass_hash) is then compared with the hash of the correct password (exp_hash).  If they match, JTAG will then be unlocked.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\tmodule dmi_jtag(...)(...);<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tPassChkValid: begin<xhtml:br/>\n\t\t\t\t\t\t\t\tif(hashValid) begin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\tif(exp_hash == pass_hash) begin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\"> \n\t\t\t\t\t\t\t\t\t\t\tpass_check = 1'b1;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\tend else begin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\tpass_check = 1'b0;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\tstate_d = Idle;<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\tend else begin<xhtml:br/>\n\t\t\t\t\t\t\t\t\tstate_d = PassChkValid;<xhtml:br/>\n\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\thmac hmac(<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t<xhtml:b>.key_i(256'h24e6fa2254c2ff632a41b...),</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t);<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\tendmodule\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>However, the SoC's crypto key is hardcoded into the design and cannot be updated [REF-1387]. Therefore, if the key is leaked somehow, there is no way to reprovision the key without having the device replaced.</Body_Text>\n\t\t\t\t\t<Body_Text>To fix this issue, a local register should be used (hmac_key_reg) to store the crypto key. If designers need to update the key, they can upload the new key through an input port (hmac_key_i) to the local register by enabling the patching signal (hmac_patch_en) [REF-1388].</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\tmodule dmi_jtag(...<xhtml:br/>\n\t\t\t\t\t) (<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t<xhtml:b>input logic [255:0] hmac_key_i,</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t<xhtml:b>input logic         hmac_patch_en,</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t... <xhtml:br/>\n\t\t\t\t\t\t<xhtml:b>reg [255:0] hmac_key_reg;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t);<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\talways_ff @(posedge tck_i or negedge trst_ni) begin<xhtml:br/>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:b>if (hmac_patch_en)</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t<xhtml:b>hmac_key_reg &lt;= hmac_key_i;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\thmac hmac(<xhtml:br/>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:b>.key_i(hmac_key_reg),</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t);<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\tendmodule\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
 		}
 	],
 	"observed_examples": [
@@ -172,6 +175,20 @@
 			"publication_year": "2020",
 			"publication_month": "--03",
 			"publication_day": "---20"
+		},
+		{
+			"reference_id": "REF-1387",
+			"title": "dmi_jtag.sv line 324",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/main/piton/design/chip/tile/ariane/src/riscv-dbg/src/dmi_jtag.sv#L324C9-L324C87",
+			"publication_year": "2021",
+			"url_date": "2024-01-16"
+		},
+		{
+			"reference_id": "REF-1388",
+			"title": "Fix for dmi_jtag.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/commit/c94ce5f9487a41c77ede0bbc8daf4da66c39f42a",
+			"publication_year": "2021",
+			"url_date": "2024-01-16"
 		}
 	],
 	"content_history": {
@@ -210,6 +227,28 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, References"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen, Rahul Kande, Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitouni, Mohamadreza Rostami, Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
 			}
 		]
 	},

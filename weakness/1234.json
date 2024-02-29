@@ -76,6 +76,25 @@
 	"demonstrative_examples": [
 		{
 			"text": "\n       <Intro_Text>\n         For example, consider the example Locked_override_register example. This register module supports a lock mode that blocks any writes after lock is set to 1.\n        <xhtml:br/>\n         However, it also allows override of the lock protection when scan_mode or debug_unlocked modes are active.\n       </Intro_Text>\n        <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n          module Locked_register_example<xhtml:br/>\n          (<xhtml:br/>\n\t\t  input [15:0] Data_in,<xhtml:br/>\n\t\t  input Clk,<xhtml:br/>\n\t\t  input resetn,<xhtml:br/>\n\t\t  input write,<xhtml:br/>\n\t\t  input Lock,<xhtml:br/>\n\t\t  input scan_mode,<xhtml:br/>\n\t\t  input debug_unlocked,<xhtml:br/>\n\t\t  output reg [15:0] Data_out<xhtml:br/>\n\t\t  );<xhtml:br/>\n          <xhtml:br/>\n          reg lock_status;<xhtml:br/>\n          <xhtml:br/>\n          always @(posedge Clk or negedge resetn)<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\tif (~resetn) // Register is reset resetn<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  lock_status &lt;= 1'b0;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (Lock)<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  lock_status &lt;= 1'b1;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (~Lock)<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  lock_status &lt;= lock_status<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t  </xhtml:div>\n\t\t  always @(posedge Clk or negedge resetn)<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\tif (~resetn) // Register is reset resetn<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  Data_out &lt;= 16'h0000;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (write &amp; (~lock_status | scan_mode | debug_unlocked) ) // Register protected by Lock bit input, overrides supported for scan_mode &amp; debug_unlocked<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  Data_out &lt;= Data_in;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t\telse if (~write)<xhtml:br/>\n\t\t\tbegin<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  Data_out &lt;= Data_out;<xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tend<xhtml:br/>\n\t\t  </xhtml:div>\n\t\t  endmodule<xhtml:br/>\n\t\t</Example_Code>\n        <Body_Text>If either the scan_mode or the debug_unlocked modes can be triggered by software, then the lock protection may be bypassed.</Body_Text>\n        <Example_Code Nature=\"Good\">\n          Either remove the debug and scan mode overrides or protect enabling of these modes so that only trusted and authorized users may enable these modes.\n       </Example_Code>\n     "
+		},
+		{
+			"text": "\n\t \t<Intro_Text>The following example code [REF-1375] is taken from the register lock security peripheral of the HACK@DAC'21 buggy OpenPiton SoC. It demonstrates how to lock read or write access to security-critical hardware registers (e.g., crypto keys, system integrity code, etc.). The configuration to lock all the sensitive registers in the SoC is managed through the reglk_mem registers. These reglk_mem registers are reset when the hardware powers up and configured during boot up. Malicious users, even with kernel-level software privilege, do not get access to the sensitive contents that are locked down. Hence, the security of the entire system can potentially be compromised if the register lock configurations are corrupted or if the register locks are disabled.</Intro_Text>\n\t \t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t...<xhtml:br/>\n\t\talways @(posedge clk_i)<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\tbegin<xhtml:br/>\n\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t<xhtml:b>if(~(rst_ni &amp;&amp; ~jtag_unlock &amp;&amp; ~rst_9))</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\tfor (j=0; j &lt; 6; j=j+1) begin<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\treglk_mem[j] &lt;= 'h0;<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t</xhtml:div>\n\t\t\t</xhtml:div>\n\t\t...<xhtml:br/>\n\t\t</Example_Code>\n\t\t<Body_Text>The example code [REF-1375] illustrates an instance of a vulnerable implementation of register locks in the SoC. In this flawed implementation [REF-1375], the reglk_mem registers are also being reset when the system enters debug mode (indicated by the jtag_unlock signal). Consequently, users can simply put the processor in debug mode to access sensitive contents that are supposed to be protected by the register lock feature.</Body_Text>\n\t \t<Body_Text>This can be mitigated by excluding debug mode signals from the reset logic of security-critical register locks as demonstrated in the following code snippet [REF-1376].</Body_Text>\n\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t...<xhtml:br/>\n\t\talways @(posedge clk_i)<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\tbegin<xhtml:br/>\n\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t<xhtml:b>if(~(rst_ni &amp;&amp; ~rst_9))</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\tfor (j=0; j &lt; 6; j=j+1) begin<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\treglk_mem[j] &lt;= 'h0;<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t</xhtml:div>\n\t\t\t</xhtml:div>\n\t\t...<xhtml:br/>\n\t\t</Example_Code>\n\t "
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1375",
+			"title": "reglk_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/cde1d9d6888bffab21d4b405ccef61b19c58dd3c/piton/design/chip/tile/ariane/src/reglk/reglk_wrapper.sv#L80C1-L80C48",
+			"publication_year": "2021",
+			"url_date": "2023-12-13"
+		},
+		{
+			"reference_id": "REF-1376",
+			"title": "Fix for reglk_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/20238068b385d7ab704cabfb95ff95dd6e56e1c2/piton/design/chip/tile/ariane/src/reglk/reglk_wrapper.sv#L80",
+			"publication_year": "2021",
+			"url_date": "2023-12-13"
 		}
 	],
 	"content_history": {
@@ -114,6 +133,28 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, References"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen, Rahul Kande, Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-11-07",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitouni, Mohamadreza Rostami, Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-11-07",
+				"contribution_comment": "suggested demonstrative example"
 			}
 		]
 	},

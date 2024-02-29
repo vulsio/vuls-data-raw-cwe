@@ -118,6 +118,12 @@
 			"strategy": "Refactoring"
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-206",
+			"text": "\n\t     <Intro_Text>This function sets object attributes based on a dot-separated path.</Intro_Text>\n\t     <Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n\n\t       <xhtml:div>function setValueByPath (object, path, value) {<xhtml:br/>\n\t       <xhtml:div style=\"margin-left:1em;\">\n\t\t const pathArray = path.split(\".\");<xhtml:br/>\n\t\t const attributeToSet = pathArray.pop();<xhtml:br/>\n\t\t let objectToModify = object;<xhtml:br/>\n\t\t for (const attr of pathArray) {<xhtml:br/>\n\t\t <xhtml:div style=\"margin-left:1em;\">if (typeof objectToModify[attr] !== 'object') {<xhtml:br/>\n\t\t <xhtml:div style=\"margin-left:1em;\">objectToModify[attr] = {};<xhtml:br/>\n\t\t }</xhtml:div><xhtml:br/>\n\t\t objectToModify = objectToModify[attr];<xhtml:br/>\n\t\t }</xhtml:div><xhtml:br/>\n\t\t objectToModify[attributeToSet] = value;<xhtml:br/>\n\t\t return object;<xhtml:br/>\n\t\t }<xhtml:br/>\n\t       </xhtml:div>\n\t       </xhtml:div>\n\t     </Example_Code>\n\t     <Body_Text>This function does not check if the attribute resolves to the object prototype. These codes can be used to add \"isAdmin: true\" to the object prototype.</Body_Text>\n\t     <Example_Code Nature=\"Bad\" Language=\"JavaScript\">\n\t       <xhtml:div>\n\t\t setValueByPath({}, \"__proto__.isAdmin\", true)<xhtml:br/>\n\t\t setValueByPath({}, \"constructor.prototype.isAdmin\", true)<xhtml:br/>\n\t       </xhtml:div>\n\t     </Example_Code>\n\t     <Body_Text>By using a denylist of dangerous attributes, this weakness can be eliminated.</Body_Text>\n\t     <Example_Code Nature=\"Good\" Language=\"JavaScript\">\n\t       <xhtml:div>\n\t\t function setValueByPath (object, path, value) {<xhtml:br/>\n\t\t <xhtml:div style=\"margin-left:1em;\">\n\t\t   const pathArray = path.split(\".\");<xhtml:br/>\n\t\t   const attributeToSet = pathArray.pop();<xhtml:br/>\n\t\t   let objectToModify = object;<xhtml:br/>\n\t\t   for (const attr of pathArray) {<xhtml:br/>\n\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t     <xhtml:i>// Ignore attributes which resolve to object prototype</xhtml:i><xhtml:br/>\n\t\t     if (attr === \"__proto__\" || attr === \"constructor\" || attr === \"prototype\") {<xhtml:br/>\n\t\t     <xhtml:div style=\"margin-left:1em;\">\n\t\t       continue;<xhtml:br/>\n\t\t       }<xhtml:br/>\n\t\t     </xhtml:div>\n\t\t     if (typeof objectToModify[attr] !== \"object\") {<xhtml:br/>\n\t\t     <xhtml:div style=\"margin-left:1em;\">\n\t\t       objectToModify[attr] = {};<xhtml:br/>\n\t\t       }<xhtml:br/>\n\t\t     </xhtml:div>\n\t\t     objectToModify = objectToModify[attr];<xhtml:br/>\n\t\t     }<xhtml:br/>\n\t\t   </xhtml:div>\n\t\t   objectToModify[attributeToSet] = value;<xhtml:br/>\n\t\t   return object;<xhtml:br/>\n\t\t   }<xhtml:br/>\n\t\t </xhtml:div>\n\t       </xhtml:div>\n\t     </Example_Code>\n\t   "
+		}
+	],
 	"observed_examples": [
 		{
 			"reference": "CVE-2012-2054",
@@ -413,6 +419,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		],
 		"contribution": [

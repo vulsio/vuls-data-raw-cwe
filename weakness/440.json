@@ -49,6 +49,11 @@
 			]
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"text": "\n               <Intro_Text>The provided code is extracted from the Control and Status Register (CSR), csr_regfile, module within the Hack@DAC'21 OpenPiton System-on-Chip (SoC). This module is designed to implement CSR registers in accordance with the RISC-V specification. The mie (machine interrupt enable) register is a 64-bit register [REF-1384], where bits correspond to different interrupt sources. As the name suggests, mie is a machine-level register that determines which interrupts are enabled. Note that in the example below the mie_q and mie_d registers represent the conceptual mie reigster in the RISC-V specification. The mie_d register is the value to be stored in the mie register while the mie_q register holds the current value of the mie register [REF-1385].</Intro_Text>\n               <Body_Text>The mideleg (machine interrupt delegation) register, also 64-bit wide, enables the delegation of specific interrupt sources from machine privilege mode to lower privilege levels. By setting specific bits in the mideleg register, the handling of certain interrupts can be delegated to lower privilege levels without engaging the machine-level privilege mode. For example, in supervisor mode, the mie register is limited to a specific register called the sie (supervisor interrupt enable) register. If delegated, an interrupt becomes visible in the sip (supervisor interrupt pending) register and can be enabled or blocked using the sie register. If no delegation occurs, the related bits in sip and sie are set to zero.</Body_Text>\n               <Body_Text>The sie register value is computed based on the current value of mie register, i.e., mie_q, and the mideleg register.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                  module csr_regfile #(...)(...);<xhtml:br/>\n                  ...<xhtml:br/>\n                  // ---------------------------<xhtml:br/>\n                  // CSR Write and update logic<xhtml:br/>\n                  // ---------------------------<xhtml:br/>\n                  ...<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                     if (csr_we) begin<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        unique case (csr_addr.address)<xhtml:br/>\n                        ...<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                           riscv::CSR_SIE: begin<xhtml:br/>\n                                 <xhtml:div style=\"margin-left:1em;\">\n                                 // the mideleg makes sure only delegate-able register<xhtml:br/>\n                                 //(and therefore also only implemented registers) are written<xhtml:br/>\n                                 <xhtml:b>mie_d = (mie_q &amp; ~mideleg_q) | (csr_wdata &amp; mideleg_q) | utval_q;</xhtml:b><xhtml:br/>\n                                 </xhtml:div>\n                           end<xhtml:br/>\n                           ...<xhtml:br/>\n                           </xhtml:div>\n                        endcase<xhtml:br/>\n                        </xhtml:div>\n                     end<xhtml:br/>\n                     </xhtml:div>\n                  endmodule\n               </Example_Code>\n               <Body_Text>The above code snippet illustrates an instance of a vulnerable implementation of the sie register update logic, where users can tamper with the mie_d register value through the utval (user trap value) register. This behavior violates the RISC-V specification.</Body_Text>\n               <Body_Text>The code shows that the value of utval, among other signals, is used in updating the mie_d value within the sie update logic. While utval is a register accessible to users, it should not influence or compromise the integrity of sie. Through manipulation of the utval register, it becomes feasible to manipulate the sie register's value. This opens the door for potential attacks, as an adversary can gain control over or corrupt the sie value. Consequently, such manipulation empowers an attacker to enable or disable critical supervisor-level interrupts, resulting in various security risks such as privilege escalation or denial-of-service attacks.</Body_Text>\n               <Body_Text>A fix to this issue is to remove the utval from the right-hand side of the assignment. That is the value of the mie_d should be updated as shown in the good code example [REF-1386].</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Verilog\">\n               module csr_regfile #(...)(...);<xhtml:br/>\n               ...<xhtml:br/>\n               // ---------------------------<xhtml:br/>\n               // CSR Write and update logic<xhtml:br/>\n               // ---------------------------<xhtml:br/>\n               ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                  if (csr_we) begin<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                     unique case (csr_addr.address)<xhtml:br/>\n                     ...<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        riscv::CSR_SIE: begin<xhtml:br/>\n                              <xhtml:div style=\"margin-left:1em;\">\n                              // the mideleg makes sure only delegate-able register<xhtml:br/>\n                              //(and therefore also only implemented registers) are written<xhtml:br/>\t\n                              <xhtml:b>mie_d = (mie_q &amp; ~mideleg_q) | (csr_wdata &amp; mideleg_q);</xhtml:b><xhtml:br/>\n                              </xhtml:div>\n                        end<xhtml:br/>\n                        ...<xhtml:br/>\n                        </xhtml:div>\n                     endcase<xhtml:br/>\n                     </xhtml:div>\n                  end<xhtml:br/>\n                  </xhtml:div>\n               endmodule\n               </Example_Code>\n            "
+		}
+	],
 	"observed_examples": [
 		{
 			"reference": "CVE-2003-0187",
@@ -64,6 +69,29 @@
 			"reference": "CVE-2005-3265",
 			"description": "Buffer overflow in product stems the use of a third party library function that is expected to have internal protection against overflows, but doesn't.",
 			"link": "https://www.cve.org/CVERecord?id=CVE-2005-3265"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1384",
+			"title": "The RISC-V Instruction Set Manual Volume II: Privileged Architecture page 28",
+			"url": "https://riscv.org/wp-content/uploads/2017/05/riscv-privileged-v1.10.pdf",
+			"publication_year": "2021",
+			"url_date": "2024-01-16"
+		},
+		{
+			"reference_id": "REF-1385",
+			"title": "csr_regfile.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/b9ecdf6068445d76d6bee692d163fededf7a9d9b/piton/design/chip/tile/ariane/src/csr_regfile.sv",
+			"publication_year": "2021",
+			"url_date": "2024-01-16"
+		},
+		{
+			"reference_id": "REF-1386",
+			"title": "Fix for csr_regfile.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/2341c625a28d2fb87d370e32c45b68bd711cc43b/piton/design/chip/tile/ariane/src/csr_regfile.sv#L519C4-L522C20",
+			"publication_year": "2021",
+			"url_date": "2024-01-16"
 		}
 	],
 	"content_history": {
@@ -155,6 +183,28 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, References"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen, Rahul Kande, Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitouni, Mohamadreza Rostami, Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
 			}
 		]
 	},

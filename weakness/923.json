@@ -42,6 +42,16 @@
 			"note": "If an attacker can spoof the endpoint, the attacker gains all the privileges that were intended for the original endpoint."
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-208",
+			"text": "\n               <Intro_Text>These cross-domain policy files mean to allow Flash and Silverlight applications hosted on other domains to access its data:</Intro_Text>\n               <Body_Text>Flash crossdomain.xml :</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;cross-domain-policy xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"<xhtml:br/>xsi:noNamespaceSchemaLocation=\"http://www.adobe.com/xml/schemas/PolicyFile.xsd\"&gt;<xhtml:br/>&lt;allow-access-from domain=\"*.example.com\"/&gt;<xhtml:br/>&lt;allow-access-from domain=\"*\"/&gt;<xhtml:br/>&lt;/cross-domain-policy&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>Silverlight clientaccesspolicy.xml :</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"XML\">\n                  <xhtml:div>&lt;?xml version=\"1.0\" encoding=\"utf-8\"?&gt;<xhtml:br/>&lt;access-policy&gt;<xhtml:br/>&lt;cross-domain-access&gt;<xhtml:br/>&lt;policy&gt;<xhtml:br/>&lt;allow-from http-request-headers=\"SOAPAction\"&gt;<xhtml:br/>&lt;domain uri=\"*\"/&gt;<xhtml:br/>&lt;/allow-from&gt;<xhtml:br/>&lt;grant-to&gt;<xhtml:br/>&lt;resource path=\"/\" include-subpaths=\"true\"/&gt;<xhtml:br/>&lt;/grant-to&gt;<xhtml:br/>&lt;/policy&gt;<xhtml:br/>&lt;/cross-domain-access&gt;<xhtml:br/>&lt;/access-policy&gt;</xhtml:div>\n               </Example_Code>\n               <Body_Text>These entries are far too permissive, allowing any Flash or Silverlight application to send requests. A malicious application hosted on any other web site will be able to send requests on behalf of any user tricked into executing it.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-112",
+			"text": "\n               <Intro_Text>This Android application will remove a user account when it receives an intent to do so:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>IntentFilter filter = new IntentFilter(\"com.example.RemoveUser\");<xhtml:br/>MyReceiver receiver = new MyReceiver();<xhtml:br/>registerReceiver(receiver, filter);<xhtml:br/>\n                     <xhtml:br/>public class DeleteReceiver extends BroadcastReceiver {<xhtml:div style=\"margin-left:1em;\">@Override<xhtml:br/>public void onReceive(Context context, Intent intent) {<xhtml:div style=\"margin-left:1em;\">int userID = intent.getIntExtra(\"userID\");<xhtml:br/>destroyUserData(userID);</xhtml:div>}</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>This application does not check the origin of the intent, thus allowing any malicious application to remove a user. Always check the origin of an intent, or create an allowlist of trusted applications using the manifest.xml file.</Body_Text>\n            "
+		}
+	],
 	"observed_examples": [
 		{
 			"reference": "CVE-2022-30319",
@@ -145,6 +155,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		],
 		"previous_entry_name": [

@@ -5,7 +5,7 @@
 	"structure": "Simple",
 	"status": "Draft",
 	"description": "The product uses an algorithm that produces a digest (output value) that does not meet security expectations for a hash function that allows an adversary to reasonably determine the original input (preimage attack), find another input that can produce the same hash (2nd preimage attack), or find multiple inputs that evaluate to the same hash (birthday attack).",
-	"extended_description": "\n\t   <xhtml:p>A hash function is defined as an algorithm that maps arbitrarily sized data into a fixed-sized digest (output) such that the following properties hold:</xhtml:p>\n\t   <xhtml:ul>\n\t     <xhtml:li>1. The algorithm is not invertible (also called \"one-way\" or \"not reversible\")</xhtml:li>\n\t     <xhtml:li>2. The algorithm is deterministic; the same input produces the same digest every time</xhtml:li>\n\t   </xhtml:ul>\n\t   <xhtml:p>\n\t     Building on this definition, a cryptographic hash function must also ensure that a malicious actor cannot leverage the hash function to have a reasonable chance of success at determining any of the following:</xhtml:p>\n\t   <xhtml:ul>\n\t     <xhtml:li>1. the original input (preimage attack), given only the digest</xhtml:li>\n\t     <xhtml:li>2. another input that can produce the same digest (2nd preimage attack), given the original input</xhtml:li>\n\t     <xhtml:li>3. a set of two or more inputs that evaluate to the same digest (birthday attack), given the actor can arbitrarily choose the inputs to be hashed and can do so a reasonable amount of times</xhtml:li>\n\t   </xhtml:ul>\n\t   <xhtml:p>What is regarded as \"reasonable\" varies by context and threat model, but in general, \"reasonable\" could cover any attack that is more efficient than brute force (i.e., on average, attempting half of all possible combinations). Note that some attacks might be more efficient than brute force but are still not regarded as achievable in the real world.</xhtml:p>\n\t   <xhtml:p>Any algorithm does not meet the above conditions will generally be considered weak for general use in hashing.</xhtml:p>\n\t   <xhtml:p>In addition to algorithmic weaknesses, a hash function can be made weak by using the hash in a security context that breaks its security guarantees. For example, using a hash function without a salt for storing passwords (that are sufficiently short) could enable an adversary to create a \"rainbow table\" [REF-637] to recover the password under certain conditions; this attack works against such hash functions as MD5, SHA-1, and SHA-2.</xhtml:p>\n\t ",
+	"extended_description": "\n\t   <xhtml:p>A hash function is defined as an algorithm that maps arbitrarily sized data into a fixed-sized digest (output) such that the following properties hold:</xhtml:p>\n\t   <xhtml:ol>\n\t     <xhtml:li>The algorithm is not invertible (also called \"one-way\" or \"not reversible\")</xhtml:li>\n\t     <xhtml:li>The algorithm is deterministic; the same input produces the same digest every time</xhtml:li>\n\t   </xhtml:ol>\n\t   <xhtml:p>\n\t     Building on this definition, a cryptographic hash function must also ensure that a malicious actor cannot leverage the hash function to have a reasonable chance of success at determining any of the following:</xhtml:p>\n\t   <xhtml:ol>\n\t     <xhtml:li>the original input (preimage attack), given only the digest</xhtml:li>\n\t     <xhtml:li>another input that can produce the same digest (2nd preimage attack), given the original input</xhtml:li>\n\t     <xhtml:li>a set of two or more inputs that evaluate to the same digest (birthday attack), given the actor can arbitrarily choose the inputs to be hashed and can do so a reasonable amount of times</xhtml:li>\n\t   </xhtml:ol>\n\t   <xhtml:p>What is regarded as \"reasonable\" varies by context and threat model, but in general, \"reasonable\" could cover any attack that is more efficient than brute force (i.e., on average, attempting half of all possible combinations). Note that some attacks might be more efficient than brute force but are still not regarded as achievable in the real world.</xhtml:p>\n\t   <xhtml:p>Any algorithm that does not meet the above conditions will generally be considered weak for general use in hashing.</xhtml:p>\n\t   <xhtml:p>In addition to algorithmic weaknesses, a hash function can be made weak by using the hash in a security context that breaks its security guarantees. For example, using a hash function without a salt for storing passwords (that are sufficiently short) could enable an adversary to create a \"rainbow table\" [REF-637] to recover the password under certain conditions; this attack works against such hash functions as MD5, SHA-1, and SHA-2.</xhtml:p>\n\t ",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -71,6 +71,9 @@
 		{
 			"demonstrative_example_id": "DX-153",
 			"text": "\n\t            <Intro_Text>In 2022, the OT:ICEFALL study examined products by 10 different Operational Technology (OT) vendors. The researchers reported 56 vulnerabilities and said that the products were \"insecure by design\" [REF-1283]. If exploited, these vulnerabilities often allowed adversaries to change how the products operated, ranging from denial of service to changing the code that the products executed. Since these products were often used in industries such as power, electrical, water, and others, there could even be safety implications.</Intro_Text>\n\t            <Body_Text>At least one OT product used weak hashes.</Body_Text>\n\t         "
+		},
+		{
+			"text": "\n               <Intro_Text>The example code below is taken from the JTAG access control mechanism of the Hack@DAC'21 buggy OpenPiton SoC [REF-1360]. Access to JTAG allows users to access sensitive information in the system. Hence, access to JTAG is controlled using cryptographic authentication of the users. In this example (see the vulnerable code source), the password checker uses HMAC-SHA256 for authentication. It takes a 512-bit secret message from the user, hashes it using HMAC, and compares its output with the expected output to determine the authenticity of the user. \n               </Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n               ...<xhtml:br/>\n               <xhtml:b>logic [31:0] data_d,</xhtml:b> data_q<xhtml:br/>\n               <xhtml:b>logic [512-1:0] pass_data;</xhtml:b><xhtml:br/>\n               ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                  Write: begin<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                     ...<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        if (pass_mode) begin<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                           <xhtml:b>pass_data = { {60{8'h00}}, data_d};</xhtml:b><xhtml:br/>\n                           state_d = PassChk;<xhtml:br/>\n                           pass_mode = 1'b0;<xhtml:br/>\n                           </xhtml:div>\n                        ...<xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>\n                  end<xhtml:br/>\n                  </xhtml:div>\n               ...<xhtml:br/>\n               </Example_Code>\n\t       <Body_Text>The vulnerable code shows an incorrect implementation of the HMAC authentication where it only uses the least significant 32 bits of the secret message for the authentication (the remaining 480 bits are hard coded as zeros). As a result, the system is susceptible to brute-force attacks where the attacker only needs to determine 32 bits of the secret message instead of 512 bits, weakening the cryptographic protocol.</Body_Text>\n               <Body_Text>To mitigate, remove the zero padding and use all 512 bits of the secret message for HMAC authentication [REF-1361].</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Verilog\">\n               ...<xhtml:br/>\n               <xhtml:b>logic [512-1:0] data_d,</xhtml:b> data_q<xhtml:br/>\n               logic [512-1:0] pass_data;<xhtml:br/>\n               ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                  Write: begin<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                     ...<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        if (pass_mode) begin<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                           <xhtml:b>pass_data = data_d;</xhtml:b><xhtml:br/>\n                           state_d = PassChk;<xhtml:br/>\n                           pass_mode = 1'b0;<xhtml:br/>\n                           </xhtml:div>\n                        ...<xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>\n                  end<xhtml:br/>\n                  </xhtml:div>\n               ...<xhtml:br/>\n               </Example_Code>\n            "
 		}
 	],
 	"observed_examples": [
@@ -263,6 +266,20 @@
 			"publication_year": "2022",
 			"publication_month": "--06",
 			"publication_day": "---20"
+		},
+		{
+			"reference_id": "REF-1360",
+			"title": "dmi_jtag.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/71103971e8204de6a61afc17d3653292517d32bf/piton/design/chip/tile/ariane/src/riscv-dbg/src/dmi_jtag.sv#L82",
+			"publication_year": "2021",
+			"url_date": "2023-07-15"
+		},
+		{
+			"reference_id": "REF-1361",
+			"title": "fix cwe_1205 in dmi_jtag.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/c4f4b832218b50c406dbf9f425d3b654117c1355/piton/design/chip/tile/ariane/src/riscv-dbg/src/dmi_jtag.sv#L82",
+			"publication_year": "2021",
+			"url_date": "2023-07-22"
 		}
 	],
 	"content_history": {
@@ -378,6 +395,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, Description, References"
 			}
 		],
 		"previous_entry_name": [

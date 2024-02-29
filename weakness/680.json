@@ -41,7 +41,18 @@
 			]
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-33",
+			"text": "\n               <Intro_Text>The following image processing code allocates a table for images.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>img_t table_ptr; /*struct containing img data, 10kB each*/<xhtml:br/>int num_imgs;<xhtml:br/>...<xhtml:br/>num_imgs = get_num_imgs();<xhtml:br/>table_ptr = (img_t*)malloc(sizeof(img_t)*num_imgs);<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>This code intends to allocate a table of size num_imgs, however as num_imgs grows large, the calculation determining the size of the list will eventually overflow (CWE-190). This will result in a very small list to be allocated instead. If the subsequent code operates on the list as if it were num_imgs long, it may result in many types of out-of-bounds problems (CWE-119).</Body_Text>\n            "
+		}
+	],
 	"observed_examples": [
+		{
+			"reference": "CVE-2021-43537",
+			"description": "Chain: in a web browser, an unsigned 64-bit integer is forcibly cast to a 32-bit integer (CWE-681) and potentially leading to an integer overflow (CWE-190). If an integer overflow occurs, this can cause heap memory corruption (CWE-122)",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2021-43537"
+		},
 		{
 			"reference": "CVE-2017-1000121",
 			"description": "chain: unchecked message size metadata allows integer overflow (CWE-190) leading to buffer overflow (CWE-119).",
@@ -108,6 +119,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
 			}
 		]
 	},

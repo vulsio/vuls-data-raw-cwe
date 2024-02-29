@@ -24,7 +24,7 @@
 	"demonstrative_examples": [
 		{
 			"demonstrative_example_id": "DX-163",
-			"text": "\n\t\t\t\t<Intro_Text>This code attempts to login a user using credentials from a POST request:</Intro_Text>\n\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>\n                    <xhtml:br/>\n                    <xhtml:i>// $user and $pass automatically set from POST request</xhtml:i>\n                    <xhtml:br/>if (login_user($user,$pass)) {<xhtml:div style=\"margin-left:1em;\">$authorized = true;</xhtml:div>}<xhtml:br/>\n                    <xhtml:i>...</xhtml:i>\n                    <xhtml:br/>\n                  <xhtml:br/>if ($authorized) {<xhtml:div style=\"margin-left:1em;\">generatePage();</xhtml:div>}</xhtml:div>\n\t\t\t\t</Example_Code>\n\t\t\t\t<Body_Text>Because the $authorized variable is never initialized, PHP will automatically set $authorized to any value included in the POST request if register_globals is enabled. An attacker can send a POST request with an unexpected third value 'authorized' set to 'true' and gain authorized status without supplying valid credentials.</Body_Text>\n\t\t\t\t<Body_Text>Here is a fixed version:</Body_Text>\n\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>$user = $_POST['user'];<xhtml:br/>$pass = $_POST['pass'];<xhtml:br/>$authorized = false;<xhtml:br/>if (login_user($user,$pass)) {<xhtml:div style=\"margin-left:1em;\">$authorized = true;</xhtml:div>}<xhtml:br/>\n                  <xhtml:i>...</xhtml:i>\n                  <xhtml:br/>\n                  </xhtml:div>\n\t\t\t\t</Example_Code>\n\t\t\t\t<Body_Text>This code avoids the issue by initializing the $authorized variable to false and explicitly retrieving the login credentials from the $_POST variable. Regardless, register_globals should never be enabled and is disabled by default in current versions of PHP.</Body_Text>\n              "
+			"text": "\n\t\t\t\t<Intro_Text>This code attempts to login a user using credentials from a POST request:</Intro_Text>\n\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>\n                    <xhtml:br/>\n                    <xhtml:i>// $user and $pass automatically set from POST request</xhtml:i>\n                    <xhtml:br/>if (login_user($user,$pass)) {<xhtml:div style=\"margin-left:1em;\">$authorized = true;</xhtml:div>}<xhtml:br/>\n                    <xhtml:i>...</xhtml:i>\n                    <xhtml:br/>\n                  <xhtml:br/>if ($authorized) {<xhtml:div style=\"margin-left:1em;\">generatePage();</xhtml:div>}</xhtml:div>\n\t\t\t\t</Example_Code>\n\t\t\t\t<Body_Text>Because the $authorized variable is never initialized, PHP will automatically set $authorized to any value included in the POST request if register_globals is enabled. An attacker can send a POST request with an unexpected third value 'authorized' set to 'true' and gain authorized status without supplying valid credentials.</Body_Text>\n\t\t\t\t<Body_Text>Here is a fixed version:</Body_Text>\n\t\t\t\t<Example_Code Nature=\"Good\" Language=\"PHP\">\n                  <xhtml:div>$user = $_POST['user'];<xhtml:br/>$pass = $_POST['pass'];<xhtml:br/>$authorized = false;<xhtml:br/>if (login_user($user,$pass)) {<xhtml:div style=\"margin-left:1em;\">$authorized = true;</xhtml:div>}<xhtml:br/>\n                  <xhtml:i>...</xhtml:i>\n                  <xhtml:br/>\n                  </xhtml:div>\n\t\t\t\t</Example_Code>\n\t\t\t\t<Body_Text>This code avoids the issue by initializing the $authorized variable to false and explicitly retrieving the login credentials from the $_POST variable. Regardless, register_globals should never be enabled and is disabled by default in current versions of PHP.</Body_Text>\n              "
 		}
 	],
 	"observed_examples": [
@@ -87,6 +87,14 @@
 			{
 				"text": "Insecure Default Initialization of Resource",
 				"date": "2023-10-26"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Anonymous External Contributor",
+				"contribution_date": "2023-10-13",
+				"contribution_comment": "Suggested name change for clarity"
 			}
 		]
 	},

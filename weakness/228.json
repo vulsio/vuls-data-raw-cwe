@@ -44,6 +44,13 @@
 			"text": "\n               <Intro_Text>This Android application has registered to handle a URL when sent an intent:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>IntentFilter filter = new IntentFilter(\"com.example.URLHandler.openURL\");<xhtml:br/>MyReceiver receiver = new MyReceiver();<xhtml:br/>registerReceiver(receiver, filter);<xhtml:br/>\n                     <xhtml:i>...</xhtml:i>\n                     <xhtml:br/>\n                     <xhtml:br/>public class UrlHandlerReceiver extends BroadcastReceiver {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>@Override<xhtml:br/>public void onReceive(Context context, Intent intent) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if(\"com.example.URLHandler.openURL\".equals(intent.getAction())) {<xhtml:div style=\"margin-left:1em;\">String URL = intent.getStringExtra(\"URLToOpen\");<xhtml:br/>int length = URL.length();</xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>...</xhtml:i>\n                                 <xhtml:br/>}</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The application assumes the URL will always be included in the intent. When the URL is not present, the call to getStringExtra() will return null, thus causing a null pointer exception when length() is called.</Body_Text>\n            "
 		}
 	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2004-0270",
+			"description": "Anti-virus product has assert error when line length is non-numeric.",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2004-0270"
+		}
+	],
 	"content_history": {
 		"submission": {
 			"submission_name": "PLOVER",
@@ -133,6 +140,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Observed_Examples, Relationships"
 			}
 		],
 		"previous_entry_name": [

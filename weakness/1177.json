@@ -30,6 +30,28 @@
 			]
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-5",
+			"text": "\n               <Intro_Text>The code below calls the gets() function to read in data from the command line.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>\n                     <xhtml:div style=\"margin-left:1em;\">char buf[24];<xhtml:br/>printf(\"Please enter your name and press &lt;Enter&gt;\\n\");<xhtml:br/>gets(buf);<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, gets() is inherently unsafe, because it copies all input from STDIN to the buffer without checking size. This allows the user to provide a string that is larger than the buffer size, resulting in an overflow condition.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-6",
+			"text": "\n               <Intro_Text>The following code attempts to create a local copy of a buffer to perform some manipulations to the data.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void manipulate_string(char * string){<xhtml:div style=\"margin-left:1em;\">char buf[24];<xhtml:br/>strcpy(buf, string);<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the programmer does not ensure that the size of the data pointed to by string will fit in the local buffer and copies the data with the potentially dangerous strcpy() function. This may result in a buffer overflow condition if an attacker can influence the contents of the string parameter.</Body_Text>\n            "
+		}
+	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2007-1470",
+			"description": "Library has multiple buffer overflows using sprintf() and strcpy()",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-1470"
+		},
+		{
+			"reference": "CVE-2007-4004",
+			"description": "FTP client uses inherently insecure gets() function and is setuid root on some systems, allowing buffer overflow",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2007-4004"
+		}
+	],
 	"references": [
 		{
 			"reference_id": "REF-1009",
@@ -85,6 +107,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
 			}
 		]
 	},

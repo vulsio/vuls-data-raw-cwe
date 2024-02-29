@@ -144,6 +144,15 @@
 				"Run the code in an environment that performs automatic taint propagation and prevents any command execution that uses tainted variables, such as Perl's \"-T\" switch. This will force the program to perform validation steps that remove the taint, although you must be careful to correctly validate your inputs so that you do not accidentally mark dangerous inputs as untainted (see CWE-183 and CWE-184)."
 			],
 			"strategy": "Environment Hardening"
+		},
+		{
+			"phase": [
+				"Implementation"
+			],
+			"description": [
+				"\n                  <xhtml:p>For Python programs, it is frequently encouraged to use the ast.literal_eval() function instead of eval, since it is intentionally designed to avoid executing code. However, an adversary could still cause excessive memory or stack consumption via deeply nested structures [REF-1372], so the python documentation discourages use of ast.literal_eval() on untrusted data [REF-1373].</xhtml:p>\n               "
+			],
+			"effectiveness": "Discouraged Common Practice"
 		}
 	],
 	"demonstrative_examples": [
@@ -157,7 +166,7 @@
 		},
 		{
 			"demonstrative_example_id": "DX-156",
-			"text": "\n              <Intro_Text>This simple script asks a user to supply a list of numbers as input and adds them together.</Intro_Text>\n              <Example_Code Nature=\"Bad\" Language=\"Python\">\n                <xhtml:div>\n                  def main():<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                    sum = 0<xhtml:br/>\n                    numbers = eval(input(\"Enter a space-separated list of numbers: \"))<xhtml:br/>\n                    for num in numbers:<xhtml:br/>\n                    <xhtml:div style=\"margin-left:1em;\">\n                      sum = sum + num<xhtml:br/>\n                    </xhtml:div>\n                    print(f\"Sum of {numbers} = {sum}\")\n                  </xhtml:div>\n                  main()\n                </xhtml:div>\n              </Example_Code>\n              <Body_Text>The eval() function can take the user-supplied list and convert it into a Python list object, therefore allowing the programmer to use list comprehension methods to work with the data. However, if code is supplied to the eval() function, it will execute that code. For example, a malicious user could supply the following string:</Body_Text>\n              <Example_Code Nature=\"Attack\">\n                <xhtml:div>__import__('subprocess').getoutput('rm -r *')</xhtml:div>\n              </Example_Code>\n              <Body_Text>This would delete all the files in the current directory. For this reason, it is not recommended to use eval() with untrusted input.</Body_Text>\n\t      <Body_Text>A way to accomplish this without the use of eval() is to apply an integer conversion on the input within a try/except block. If the user-supplied input is not numeric, this will raise a ValueError. By avoiding eval(), there is no opportunity for the input string to be executed as code.</Body_Text>\n              <Example_Code Nature=\"Good\" Language=\"Python\">\n                <xhtml:div>\n                  def main():<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                    sum = 0<xhtml:br/>\n                    numbers = input(\"Enter a space-separated list of numbers: \").split(\" \")<xhtml:br/>\n                    try:<xhtml:br/>\n                    <xhtml:div style=\"margin-left:1em;\">\n                      for num in numbers:<xhtml:br/>\n                      <xhtml:div style=\"margin-left:1em;\">\n                        sum = sum + int(num)<xhtml:br/>\n                      </xhtml:div>\n                      print(f\"Sum of {numbers} = {sum}\")\n                    </xhtml:div>\n                    except ValueError:<xhtml:br/>\n                    <xhtml:div style=\"margin-left:1em;\">\n                      print(\"Error: invalid input\")<xhtml:br/>\n                    </xhtml:div>\n                  </xhtml:div>\n                  main()\n                </xhtml:div>\n              </Example_Code>\n              <Body_Text>An alternative option is to use the ast.literal_eval() function from Python's ast module. This function considers only Python literals as valid data types and will not execute any code contained within the user input.</Body_Text>\n            "
+			"text": "\n              <Intro_Text>This simple script asks a user to supply a list of numbers as input and adds them together.</Intro_Text>\n              <Example_Code Nature=\"Bad\" Language=\"Python\">\n                <xhtml:div>\n                  def main():<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                    sum = 0<xhtml:br/>\n                    numbers = eval(input(\"Enter a space-separated list of numbers: \"))<xhtml:br/>\n                    for num in numbers:<xhtml:br/>\n                    <xhtml:div style=\"margin-left:1em;\">\n                      sum = sum + num<xhtml:br/>\n                    </xhtml:div>\n                    print(f\"Sum of {numbers} = {sum}\")\n                  </xhtml:div>\n                  main()\n                </xhtml:div>\n              </Example_Code>\n              <Body_Text>The eval() function can take the user-supplied list and convert it into a Python list object, therefore allowing the programmer to use list comprehension methods to work with the data. However, if code is supplied to the eval() function, it will execute that code. For example, a malicious user could supply the following string:</Body_Text>\n              <Example_Code Nature=\"Attack\">\n                <xhtml:div>__import__('subprocess').getoutput('rm -r *')</xhtml:div>\n              </Example_Code>\n              <Body_Text>This would delete all the files in the current directory. For this reason, it is not recommended to use eval() with untrusted input.</Body_Text>\n\t      <Body_Text>A way to accomplish this without the use of eval() is to apply an integer conversion on the input within a try/except block. If the user-supplied input is not numeric, this will raise a ValueError. By avoiding eval(), there is no opportunity for the input string to be executed as code.</Body_Text>\n              <Example_Code Nature=\"Good\" Language=\"Python\">\n                <xhtml:div>\n                  def main():<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                    sum = 0<xhtml:br/>\n                    numbers = input(\"Enter a space-separated list of numbers: \").split(\" \")<xhtml:br/>\n                    try:<xhtml:br/>\n                    <xhtml:div style=\"margin-left:1em;\">\n                      for num in numbers:<xhtml:br/>\n                      <xhtml:div style=\"margin-left:1em;\">\n                        sum = sum + int(num)<xhtml:br/>\n                      </xhtml:div>\n                      print(f\"Sum of {numbers} = {sum}\")\n                    </xhtml:div>\n                    except ValueError:<xhtml:br/>\n                    <xhtml:div style=\"margin-left:1em;\">\n                      print(\"Error: invalid input\")<xhtml:br/>\n                    </xhtml:div>\n                  </xhtml:div>\n                  main()\n                </xhtml:div>\n              </Example_Code>\n              <Body_Text>An alternative, commonly-cited mitigation for this kind of weakness is to use the ast.literal_eval() function, since it is intentionally designed to avoid executing code. However, an adversary could still cause excessive memory or stack consumption via deeply nested structures [REF-1372], so the python documentation discourages use of ast.literal_eval() on untrusted data [REF-1373].</Body_Text>\n            "
 		}
 	],
 	"observed_examples": [
@@ -269,6 +278,27 @@
 			"title": "24 Deadly Sins of Software Security",
 			"publication_year": "2010",
 			"publication": "McGraw-Hill"
+		},
+		{
+			"reference_id": "REF-1372",
+			"title": "How ast.literal_eval can cause memory exhaustion",
+			"url": "https://www.reddit.com/r/learnpython/comments/zmbhcf/how_astliteral_eval_can_cause_memory_exhaustion/",
+			"publication_year": "2022",
+			"publication_month": "--12",
+			"publication_day": "---14",
+			"publisher": "Reddit",
+			"url_date": "2023-11-03"
+		},
+		{
+			"section": "ast.literal_eval(node_or_string)",
+			"reference_id": "REF-1373",
+			"title": "ast - Abstract Syntax Trees",
+			"url": "https://docs.python.org/3/library/ast.html#ast.literal_eval",
+			"publication_year": "2023",
+			"publication_month": "--11",
+			"publication_day": "---02",
+			"publisher": "Python",
+			"url_date": "2023-11-03"
 		}
 	],
 	"content_history": {
@@ -450,6 +480,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, Potential_Mitigations, References"
 			}
 		],
 		"previous_entry_name": [

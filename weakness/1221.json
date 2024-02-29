@@ -86,14 +86,14 @@
 			"text": "\n                    <Intro_Text>Consider example design module system verilog code shown below. The register_example module is an example parameterized module that defines two parameters, REGISTER_WIDTH and REGISTER_DEFAULT. Register_example module defines a Secure_mode setting, which when set makes the register content read-only and not modifiable by software writes. register_top module instantiates two registers, Insecure_Device_ID_1 and Insecure_Device_ID_2. Generally, registers containing device identifier values are required to be read only to prevent any possibility of software modifying these values. </Intro_Text>\n                    <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                        // Parameterized Register module example <xhtml:br/>\n\t\t\t// Secure_mode : REGISTER_DEFAULT[0] : When set to 1 register is read only and not writable// <xhtml:br/>\n\t\t\tmodule register_example <xhtml:br/>\n\t\t\t#( <xhtml:br/>\n\t\t\tparameter REGISTER_WIDTH = 8, // Parameter defines width of register, default 8 bits <xhtml:br/>\n\t\t\tparameter [REGISTER_WIDTH-1:0] REGISTER_DEFAULT = 2**REGISTER_WIDTH -2 // Default value of register computed from Width. Sets all bits to 1s except bit 0 (Secure _mode) <xhtml:br/>\n\t\t\t) <xhtml:br/>\n\t\t\t( <xhtml:br/>\n\t\t\tinput [REGISTER_WIDTH-1:0] Data_in, <xhtml:br/>\n\t\t\tinput Clk, <xhtml:br/>\n\t\t\tinput resetn, <xhtml:br/>\n\t\t\tinput write, <xhtml:br/>\n\t\t\toutput reg [REGISTER_WIDTH-1:0] Data_out <xhtml:br/>\n\t\t\t); <xhtml:br/>\n\t\t\t<xhtml:br/>\n\t\t\treg Secure_mode; <xhtml:br/>\n\t\t\t<xhtml:br/>\n\t\t\talways @(posedge Clk or negedge resetn) <xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  if (~resetn) <xhtml:br/>\n\t\t\t  begin <xhtml:br/>\n\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t    Data_out &lt;= REGISTER_DEFAULT; // Register content set to Default at reset <xhtml:br/>\n\t\t\t    Secure_mode &lt;= REGISTER_DEFAULT[0]; // Register Secure_mode set at reset <xhtml:br/>\n\t\t\t  </xhtml:div>\n\t\t\t  end <xhtml:br/>\n\t\t\t  else if (write &amp; ~Secure_mode) <xhtml:br/>\n\t\t\t  begin <xhtml:br/>\n\t\t\t  <xhtml:div style=\"margin-left:1em;\">\n\t\t\t    Data_out &lt;= Data_in; <xhtml:br/>\n\t\t\t  </xhtml:div>\n\t\t\t  end <xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\tendmodule <xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:br/>\n\t\t\tmodule register_top <xhtml:br/>\n\t\t\t( <xhtml:br/>\n\t\t\tinput Clk, <xhtml:br/>\n\t\t\tinput resetn, <xhtml:br/>\n\t\t\tinput write, <xhtml:br/>\n\t\t\tinput [31:0] Data_in, <xhtml:br/>\n\t\t\toutput reg [31:0] Secure_reg, <xhtml:br/>\n\t\t\toutput reg [31:0] Insecure_reg <xhtml:br/>\n\t\t\t); <xhtml:br/>\n\t\t\t<xhtml:br/>\n\t\t\tregister_example #( <xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  .REGISTER_WIDTH (32), <xhtml:br/>\n\t\t\t  .REGISTER_DEFAULT (1224) // Incorrect Default value used bit 0 is 0. <xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\t) Insecure_Device_ID_1 ( <xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  .Data_in (Data_in), <xhtml:br/>\n\t\t\t  .Data_out (Secure_reg), <xhtml:br/>\n\t\t\t  .Clk (Clk), <xhtml:br/>\n\t\t\t  .resetn (resetn), <xhtml:br/>\n\t\t\t  .write (write) <xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\t); <xhtml:br/>\n                        <xhtml:br/>\n\t\t\tregister_example #(<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  .REGISTER_WIDTH (32) // Default not defined 2^32-2 value will be used as default. <xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\t) Insecure_Device_ID_2 ( <xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  .Data_in (Data_in), <xhtml:br/>\n\t\t\t  .Data_out (Insecure_reg), <xhtml:br/>\n\t\t\t  .Clk (Clk), <xhtml:br/>\n\t\t\t  .resetn (resetn), <xhtml:br/>\n\t\t\t  .write (write) <xhtml:br/>\n\t\t\t</xhtml:div>\n\t\t\t); <xhtml:br/>\n                        <xhtml:br/>\n\t\t\tendmodule <xhtml:br/>\n                    </Example_Code>\n                    <Body_Text>These example instantiations show how, in a hardware design, it would be possible to instantiate the register module with insecure defaults and parameters.</Body_Text>\n                    <Body_Text>In the example design, both registers will be software writable since Secure_mode is defined as zero. </Body_Text>\n                    <Example_Code Nature=\"Good\" Language=\"Verilog\">\n                      register_example #( <xhtml:br/>\n\t\t      <xhtml:div style=\"margin-left:1em;\">\n\t\t\t.REGISTER_WIDTH (32), <xhtml:br/>\n\t\t\t.REGISTER_DEFAULT (1225) // Correct default value set, to enable Secure_mode <xhtml:br/>\n\t\t      </xhtml:div>\n\t\t      ) Secure_Device_ID_example ( <xhtml:br/>\n\t\t      <xhtml:div style=\"margin-left:1em;\">\n\t\t\t.Data_in (Data_in), <xhtml:br/>\n\t\t\t.Data_out (Secure_reg), <xhtml:br/>\n\t\t\t.Clk (Clk), <xhtml:br/>\n\t\t\t.resetn (resetn), <xhtml:br/>\n\t\t\t.write (write) <xhtml:br/>\n\t\t      </xhtml:div>\n\t\t      );\n                    </Example_Code>\n                "
 		},
 		{
-			"text": "\n\t\t\t\t\t<Intro_Text>The example code is taken from the fuse memory inside the buggy OpenPiton SoC of HACK@DAC'21 [REF-1356]. Fuse memory is used to store keys/passwords and most configuration information. For example, the keys of JTAG and HMAC are stored in the fuse memory. During the firmware setup phase, the data in the Fuse memory is transferred into the registers of corresponding SoC peripherals for initialization. However, if the offset to access keys is set incorrectly, programs cannot access the correct keys from the fuse memory, breaking the functionalities of peripherals and even exposing sensitive information through other peripherals.</Intro_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t<xhtml:b>parameter  MEM_SIZE = 100;</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:b>localparam JTAG_OFFSET = 81;</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\tconst logic [MEM_SIZE-1:0][31:0] mem = {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t// JTAG expected hamc hash<xhtml:br/>\n\t\t\t\t\t\t32'h49ac13af, 32'h1276f1b8, 32'h6703193a, 32'h65eb531b,<xhtml:br/>\n\t\t\t\t\t\t32'h3025ccca, 32'h3e8861f4, 32'h329edfe5, 32'h98f763b4,<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\tassign jtag_hash_o = {mem[JTAG_OFFSET-1],mem[JTAG_OFFSET-2],mem[JTAG_OFFSET-3],<xhtml:br/>\n\t\t\t\t\tmem[JTAG_OFFSET-4],mem[JTAG_OFFSET-5],mem[JTAG_OFFSET-6],mem[JTAG_OFFSET-7],mem[JTAG_OFFSET-8]};<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>The following vulnerable code accesses the JTAG key from the fuse memory. However, the JTAG_OFFSET is incorrect, and the fuse memory outputs the wrong values to jtag_hash_o. Moreover, setting incorrect offset gives the ability to attackers to access JTAG by knowing other low-privileged peripherals' passwords.</Body_Text>\n\t\t\t\t\t<Body_Text>To mitigate this, change JTAG_OFFSET to the correct address of the JTAG key [REF-1357].<xhtml:br/></Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\tparameter  MEM_SIZE = 100;<xhtml:br/>\n\t\t\t\t\t<xhtml:b>localparam JTAG_OFFSET = 100;</xhtml:b><xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
+			"text": "\n\t\t\t\t\t<Intro_Text>The example code is taken from the fuse memory inside the buggy OpenPiton SoC of HACK@DAC'21 [REF-1356]. Fuse memory can be used to store key hashes, password hashes, and configuration information. For example, the password hashes of JTAG and HMAC are stored in the fuse memory in the OpenPiton design.</Intro_Text>\n\t\t\t\t\t<Body_Text>During the firmware setup phase, data in the Fuse memory are transferred into the registers of the corresponding SoC peripherals for initialization. However, if the offset to access the password hash is set incorrectly, programs cannot access the correct password hash from the fuse memory, breaking the functionalities of the peripherals and even exposing sensitive information through other peripherals.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t<xhtml:b>parameter  MEM_SIZE = 100;</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:b>localparam JTAG_OFFSET = 81;</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\tconst logic [MEM_SIZE-1:0][31:0] mem = {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t// JTAG expected hamc hash<xhtml:br/>\n\t\t\t\t\t\t32'h49ac13af, 32'h1276f1b8, 32'h6703193a, 32'h65eb531b,<xhtml:br/>\n\t\t\t\t\t\t32'h3025ccca, 32'h3e8861f4, 32'h329edfe5, 32'h98f763b4,<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\tassign jtag_hash_o = {mem[JTAG_OFFSET-1],mem[JTAG_OFFSET-2],mem[JTAG_OFFSET-3],<xhtml:br/>\n\t\t\t\t\tmem[JTAG_OFFSET-4],mem[JTAG_OFFSET-5],mem[JTAG_OFFSET-6],mem[JTAG_OFFSET-7],mem[JTAG_OFFSET-8]};<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>The following vulnerable code accesses the JTAG password hash from the fuse memory. However, the JTAG_OFFSET is incorrect, and the fuse memory outputs the wrong values to jtag_hash_o. Moreover, setting incorrect offset gives the ability to attackers to access JTAG by knowing other low-privileged peripherals' passwords.</Body_Text>\n\t\t\t\t\t<Body_Text>To mitigate this, change JTAG_OFFSET to the correct address of the JTAG key [REF-1357].<xhtml:br/></Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\tparameter  MEM_SIZE = 100;<xhtml:br/>\n\t\t\t\t\t<xhtml:b>localparam JTAG_OFFSET = 100;</xhtml:b><xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
 		}
 	],
 	"references": [
 		{
 			"reference_id": "REF-1356",
 			"title": "fuse_mem.sv",
-			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/main/piton/design/chip/tile/ariane/src/fuse_mem/fuse_mem.sv#L14-L15 ",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/main/piton/design/chip/tile/ariane/src/fuse_mem/fuse_mem.sv#L14-L15",
 			"publication_year": "2021",
 			"url_date": "2023-07-15"
 		},
@@ -147,47 +147,25 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Demonstrative_Examples, Description, References, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		],
 		"contribution": [
 			{
 				"type": "Content",
-				"contribution_name": "Chen Chen",
+				"contribution_name": "Chen Chen, Rahul Kande, Jeyavijayan Rajendran",
 				"contribution_organization": "Texas A&M University",
 				"contribution_date": "2023-06-21",
 				"contribution_comment": "suggested demonstrative example"
 			},
 			{
 				"type": "Content",
-				"contribution_name": "Rahul Kande",
-				"contribution_organization": "Texas A&M University",
-				"contribution_date": "2023-06-21",
-				"contribution_comment": "suggested demonstrative example"
-			},
-			{
-				"type": "Content",
-				"contribution_name": "Jeyavijayan Rajendran",
-				"contribution_organization": "Texas A&M University",
-				"contribution_date": "2023-06-21",
-				"contribution_comment": "suggested demonstrative example"
-			},
-			{
-				"type": "Content",
-				"contribution_name": "Shaza Zeitoni",
-				"contribution_organization": "Technical University of Darmstadt",
-				"contribution_date": "2023-06-21",
-				"contribution_comment": "suggested demonstrative example"
-			},
-			{
-				"type": "Content",
-				"contribution_name": "Mohamadreza Rostami",
-				"contribution_organization": "Technical University of Darmstadt",
-				"contribution_date": "2023-06-21",
-				"contribution_comment": "suggested demonstrative example"
-			},
-			{
-				"type": "Content",
-				"contribution_name": "Ahmad-Reza Sadeghi",
+				"contribution_name": "Shaza Zeitouni, Mohamadreza Rostami, Ahmad-Reza Sadeghi",
 				"contribution_organization": "Technical University of Darmstadt",
 				"contribution_date": "2023-06-21",
 				"contribution_comment": "suggested demonstrative example"

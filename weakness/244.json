@@ -55,6 +55,13 @@
 			"text": "\n               <Intro_Text>The following code calls realloc() on a buffer containing sensitive data:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>cleartext_buffer = get_secret();...<xhtml:br/>cleartext_buffer = realloc(cleartext_buffer, 1024);<xhtml:br/>...<xhtml:br/>scrub_memory(cleartext_buffer, 1024);</xhtml:div>\n               </Example_Code>\n               <Body_Text>There is an attempt to scrub the sensitive data from memory, but realloc() is used, so it could return a pointer to a different part of memory. The memory that was originally allocated for cleartext_buffer could still contain an uncleared copy of the data.</Body_Text>\n            "
 		}
 	],
+	"observed_examples": [
+		{
+			"reference": "CVE-2019-3733",
+			"description": "Cryptography library does not clear heap memory before release",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-3733"
+		}
+	],
 	"references": [
 		{
 			"reference_id": "REF-6",
@@ -172,6 +179,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Observed_Examples"
 			}
 		],
 		"previous_entry_name": [

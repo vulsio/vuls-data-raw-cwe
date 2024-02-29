@@ -48,6 +48,7 @@
 	],
 	"demonstrative_examples": [
 		{
+			"demonstrative_example_id": "DX-191",
 			"text": "\n               <Intro_Text>In the following Java example the class InputFileRead enables an input file to be read using a FileReader object. In the constructor of this class a default input file path is set to some directory on the local file system and the method setInputFile must be called to set the name of the input file to be read in the default directory. The method readInputFile will create the FileReader object and will read the contents of the file. If the method setInputFile is not called prior to calling the method readInputFile then the File object will remain null when initializing the FileReader object. A Java RuntimeException will be raised, and an error message will be output to the user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>public class InputFileRead {<xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>private File readFile = null;<xhtml:br/>private FileReader reader = null;<xhtml:br/>private String inputFilePath = null;<xhtml:br/>private final String DEFAULT_FILE_PATH = \"c:\\\\somedirectory\\\\\";<xhtml:br/>\n                           <xhtml:br/>public InputFileRead() {<xhtml:div style=\"margin-left:1em;\">inputFilePath = DEFAULT_FILE_PATH;</xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public void setInputFile(String inputFile) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>/* Assume appropriate validation / encoding is used and privileges / permissions are preserved */</xhtml:i>\n                                 <xhtml:br/>\n                              </xhtml:div>\n                           </xhtml:div>}<xhtml:br/>\n                           <xhtml:br/>public void readInputFile() {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>try {<xhtml:div style=\"margin-left:1em;\">reader = new FileReader(readFile);<xhtml:br/>...</xhtml:div>} catch (RuntimeException rex) {<xhtml:div style=\"margin-left:1em;\">System.err.println(\"Error: Cannot open input file in the directory \" + inputFilePath);<xhtml:br/>System.err.println(\"Input file has not been set, call setInputFile method before calling readInputFile\");</xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:br/>} catch (FileNotFoundException ex) {...}<xhtml:br/>\n                              </xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, the error message output to the user contains information regarding the default directory on the local file system. This information can be exploited and may lead to unauthorized access or use of the system. Any Java RuntimeExceptions that are handled should not expose sensitive information to the user.</Body_Text>\n            "
 		},
 		{
@@ -131,6 +132,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		],
 		"previous_entry_name": [

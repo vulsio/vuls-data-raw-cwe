@@ -70,6 +70,12 @@
 			]
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-207",
+			"text": "\n               <Intro_Text>In this example, a new user provides a new username and password to create an account. The program hashes the new user's password then stores it in a database.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Python\">\n                  <xhtml:div>def storePassword(userName,Password):<xhtml:div style=\"margin-left:1em;\">hasher = hashlib.new('md5')<xhtml:br/>hasher.update(Password)<xhtml:br/>hashedPassword = hasher.digest()<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i># UpdateUserLogin returns True on success, False otherwise</xhtml:i>\n                        <xhtml:br/>return updateUserLogin(userName,hashedPassword)</xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>While it is good to avoid storing a cleartext password, the program does not provide a salt to the hashing function, thus increasing the chances of an attacker being able to reverse the hash and discover the original password if the database is compromised.</Body_Text>\n               <Body_Text>Fixing this is as simple as providing a salt to the hashing function on initialization:</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Python\">\n                  <xhtml:div>def storePassword(userName,Password):<xhtml:div style=\"margin-left:1em;\">hasher = hashlib.new('md5',b'SaltGoesHere')<xhtml:br/>hasher.update(Password)<xhtml:br/>hashedPassword = hasher.digest()<xhtml:br/>\n                        <xhtml:br/>\n                        <xhtml:i># UpdateUserLogin returns True on success, False otherwise</xhtml:i>\n                        <xhtml:br/>return updateUserLogin(userName,hashedPassword)</xhtml:div>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>Note that regardless of the usage of a salt, the md5 hash is no longer considered secure, so this example still exhibits CWE-327.</Body_Text>\n            "
+		}
+	],
 	"observed_examples": [
 		{
 			"reference": "CVE-2008-1526",
@@ -330,6 +336,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		]
 	},

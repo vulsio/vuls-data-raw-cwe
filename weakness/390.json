@@ -77,6 +77,7 @@
 	],
 	"demonstrative_examples": [
 		{
+			"demonstrative_example_id": "DX-201",
 			"text": "\n               <Intro_Text>The following example attempts to allocate memory for a character. After the call to malloc, an if statement is used to check whether the malloc function failed.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>foo=malloc(sizeof(char)); //the next line checks to see if malloc failed<xhtml:br/>if (foo==NULL) {<xhtml:div style=\"margin-left:1em;\">//We do nothing so we just ignore the error.</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The conditional successfully detects a NULL return value from malloc indicating a failure, however it does not do anything to handle the problem. Unhandled errors may have unexpected results and may cause the program to crash or terminate.</Body_Text>\n               <Body_Text>Instead, the if block should contain statements that either attempt to fix the problem or notify the user that an error has occurred and continue processing or perform some cleanup and gracefully terminate the program. The following example notifies the user that the malloc function did not allocate the required memory resources and returns an error code.</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"C\">\n                  <xhtml:div>foo=malloc(sizeof(char)); //the next line checks to see if malloc failed<xhtml:br/>if (foo==NULL) {<xhtml:div style=\"margin-left:1em;\">printf(\"Malloc failed to allocate memory resources\");<xhtml:br/>return -1;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
 		},
 		{
@@ -235,6 +236,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		],
 		"previous_entry_name": [

@@ -99,6 +99,12 @@
 			]
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-195",
+			"text": "\n               <Intro_Text>The following code uses a parameterized statement, which escapes metacharacters and prevents SQL injection vulnerabilities, to construct and execute a SQL query that searches for an invoice matching the specified identifier [1]. The identifier is selected from a list of all invoices associated with the current authenticated user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C#\">\n                  <xhtml:div>...<xhtml:br/>\n\t\t  conn = new SqlConnection(_ConnectionString);<xhtml:br/>\n\t\t  conn.Open();<xhtml:br/>\n\t\t  int16 id = System.Convert.ToInt16(invoiceID.Text);<xhtml:br/>\n\t\t  SqlCommand query = new SqlCommand( \"SELECT * FROM invoices WHERE id = @id\", conn);<xhtml:br/>\n\t\t  query.Parameters.AddWithValue(\"@id\", id);<xhtml:br/>\n\t\t  SqlDataReader objReader = objCommand.ExecuteReader();<xhtml:br/>\n\t\t  ...\n\t\t  </xhtml:div>\n               </Example_Code>\n               <Body_Text>The problem is that the developer has not considered all of the possible values of id. Although the interface generates a list of invoice identifiers that belong to the current user, an attacker can bypass this interface to request any desired invoice. Because the code in this example does not check to ensure that the user has permission to access the requested invoice, it will display any invoice, even if it does not belong to the current user.</Body_Text>\n            "
+		}
+	],
 	"observed_examples": [
 		{
 			"reference": "CVE-2021-36539",
@@ -250,6 +256,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		],
 		"previous_entry_name": [

@@ -83,9 +83,17 @@
 		{
 			"demonstrative_example_id": "DX-148",
 			"text": "\n         <Intro_Text>The following code calls realloc() on a buffer containing sensitive data:</Intro_Text>\n         <Example_Code Nature=\"Bad\" Language=\"C\">\n           <xhtml:div>cleartext_buffer = get_secret();...<xhtml:br/>cleartext_buffer = realloc(cleartext_buffer, 1024);<xhtml:br/>...<xhtml:br/>scrub_memory(cleartext_buffer, 1024);</xhtml:div>\n         </Example_Code>\n         <Body_Text>There is an attempt to scrub the sensitive data from memory, but realloc() is used, so it could return a pointer to a different part of memory. The memory that was originally allocated for cleartext_buffer could still contain an uncleared copy of the data.</Body_Text>\n       "
+		},
+		{
+			"text": "\n\t\t <Intro_Text><xhtml:p>The following example code is excerpted from the AES wrapper/interface, aes0_wrapper, module of \n\t\t one of the AES engines (AES0) in the Hack@DAC'21 buggy OpenPiton System-on-Chip (SoC). Note that \n\t\t this SoC contains three distinct AES engines. Within this wrapper module, four 32-bit registers are \n\t\t utilized to store the message intended for encryption, referred to as p_c[i]. Using the AXI Lite \n\t\t interface, these registers are filled with the 128-bit message to be encrypted.</xhtml:p>\n\t\t </Intro_Text>\n\t\t <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t   <xhtml:br/>\n\t\t   module aes0_wrapper #(...)(...);<xhtml:br/>\n\t\t   ...<xhtml:br/>\n\t\t   always @(posedge clk_i)<xhtml:br/>\n\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t begin<xhtml:br/>\n\t\t\t <xhtml:div style=\"margin-left:1em;\">\n\t\t\t   if(~(rst_ni &amp;&amp; ~rst_1)) //clear p_c[i] at reset<xhtml:br/>\n\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t begin<xhtml:br/>\n\t\t\t\t <xhtml:div style=\"margin-left:1em;\">\n                   start &lt;= 0;<xhtml:br/>\n                   p_c[0] &lt;= 0;<xhtml:br/>\n                   p_c[1] &lt;= 0;<xhtml:br/>\n                   p_c[2] &lt;= 0;<xhtml:br/>\n                   p_c[3] &lt;= 0;<xhtml:br/>\n                   ...<xhtml:br/>\n\t\t\t\t </xhtml:div>\n\t\t\t\t end<xhtml:br/>\n\t\t\t   </xhtml:div>\n\t\t\t   else if(en &amp;&amp; we)<xhtml:br/>\n\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t case(address[8:3])<xhtml:br/>\n\t\t\t\t <xhtml:div style=\"margin-left:1em;\">\n                   0:<xhtml:br/>\n\t\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n                     start  &lt;= reglk_ctrl_i[1] ? start  : wdata[0];<xhtml:br/>\n\t\t\t\t   </xhtml:div>\n                   1:<xhtml:br/>\n\t\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:b>p_c[3] &lt;= reglk_ctrl_i[3] ? p_c[3] : wdata[31:0];</xhtml:b><xhtml:br/>\n\t\t\t\t   </xhtml:div>\n                   2:<xhtml:br/>\n\t\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:b>p_c[2] &lt;= reglk_ctrl_i[3] ? p_c[2] : wdata[31:0];</xhtml:b><xhtml:br/>\n\t\t\t\t   </xhtml:div>\n                   3:<xhtml:br/>\n\t\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:b>p_c[1] &lt;= reglk_ctrl_i[3] ? p_c[1] : wdata[31:0];</xhtml:b><xhtml:br/>\n\t\t\t\t   </xhtml:div>\n                   4:<xhtml:br/>\n\t\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n                     <xhtml:b>p_c[0] &lt;= reglk_ctrl_i[3] ? p_c[0] : wdata[31:0];</xhtml:b><xhtml:br/>\n\t\t\t\t   </xhtml:div>\n                   ...<xhtml:br/>\n\t\t\t\t </xhtml:div>\n\t\t\t\t endcase<xhtml:br/>\n\t\t\t   </xhtml:div>\n\t\t\t   end // always @ (posedge wb_clk_i)<xhtml:br/>\n\t\t\t </xhtml:div>\n\t\t\t endmodule<xhtml:br/>\n\t\t   </xhtml:div>\n\t\t </Example_Code>\n\t\t <Body_Text><xhtml:p>The above code snippet [REF-1402] illustrates an instance of a vulnerable implementation of the AES\n\t\t wrapper module, where p_c[i] registers are cleared at reset. Otherwise, p_c[i]registers either\n\t\t maintain their old values (if reglk_ctrl_i[3]is true) or get filled through the AXI signal wdata. Note\n\t\t that p_c[i]registers can be read through the AXI Lite interface (not shown in snippet). However,\n\t\t p_c[i] registers are never cleared after their usage once the AES engine has completed the encryption\n\t\t process of the message. In a multi-user or multi-process environment, not clearing registers may result\n\t\t in the attacker process accessing data left by the victim, leading to data leakage or unintentional\n\t\t information disclosure.</xhtml:p>\n\t\t <xhtml:p>To fix this issue, it is essential to ensure that these internal registers are cleared in a timely manner after\n\t\t their usage, i.e., the encryption process is complete. This is illustrated below by monitoring the assertion\n\t\t of the cipher text valid signal, ct_valid [REF-1403].</xhtml:p>\n\t\t </Body_Text>\n\t\t <Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t   <xhtml:br/>\n\t\t   module aes0_wrapper #(...)(...);<xhtml:br/>\n\t\t   ...<xhtml:br/>\n\t\t   always @(posedge clk_i)<xhtml:br/>\n\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t begin<xhtml:br/>\n\t\t\t <xhtml:div style=\"margin-left:1em;\">\n\t\t\t   if(~(rst_ni &amp;&amp; ~rst_1)) //clear p_c[i] at reset<xhtml:br/>\n\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t ...<xhtml:br/>\n\t\t\t   </xhtml:div>\n\t\t\t   <xhtml:b>else if(ct_valid) //encryption process complete, clear p_c[i]</xhtml:b><xhtml:br/>\n\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t <xhtml:b>begin</xhtml:b><xhtml:br/>\n\t\t\t\t <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t   <xhtml:b>p_c[0] &lt;= 0;</xhtml:b><xhtml:br/>\n\t\t\t\t   <xhtml:b>p_c[1] &lt;= 0;</xhtml:b><xhtml:br/>\n\t\t\t\t   <xhtml:b>p_c[2] &lt;= 0;</xhtml:b><xhtml:br/>\n\t\t\t\t   <xhtml:b>p_c[3] &lt;= 0;</xhtml:b><xhtml:br/>\n\t\t\t\t </xhtml:div>\n\t\t\t\t <xhtml:b>end</xhtml:b><xhtml:br/>\n\t\t\t   </xhtml:div>\n\t\t\t   else if(en &amp;&amp; we)<xhtml:br/>\n\t\t\t   <xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t case(address[8:3])<xhtml:br/>\n\t\t\t\t ...<xhtml:br/>\n\t\t\t\t endcase<xhtml:br/>\n\t\t\t   </xhtml:div>\n\t\t\t   end // always @ (posedge wb_clk_i)<xhtml:br/>\n\t\t\t </xhtml:div>\n\t\t\t endmodule<xhtml:br/>\n\t\t\t <xhtml:br/>\n\t\t   </xhtml:div>\n\t\t </Example_Code>\n\t   "
 		}
 	],
 	"observed_examples": [
+		{
+			"reference": "CVE-2019-3733",
+			"description": "Cryptography library does not clear heap memory before release",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-3733"
+		},
 		{
 			"reference": "CVE-2003-0001",
 			"description": "Ethernet NIC drivers do not pad frames with null bytes, leading to infoleak from malformed packets.",
@@ -120,6 +128,24 @@
 			"reference": "CVE-2002-2077",
 			"description": "Memory not properly cleared before reuse.",
 			"link": "https://www.cve.org/CVERecord?id=CVE-2002-2077"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1402",
+			"title": "aes0_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/65d0ffdab7426da4509c98d62e163bcce642f651/piton/design/chip/tile/ariane/src/aes0/aes0_wrapper.sv#L84C2-L90C29>",
+			"publication_year": "2021",
+			"url_date": "2024-02-14"
+		},
+		{
+			"reference_id": "REF-1403",
+			"title": "Fix for aes0_wrapper",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/0034dff6852365a8c4e36590a47ea8b088d725ae/piton/design/chip/tile/ariane/src/aes0/aes0_wrapper.sv#L96C1-L102C16",
+			"publication_year": "2023",
+			"publication_month": "--11",
+			"publication_day": "---29",
+			"url_date": "2024-02-14"
 		}
 	],
 	"content_history": {
@@ -247,6 +273,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples, References"
 			}
 		],
 		"previous_entry_name": [
@@ -261,6 +293,22 @@
 			{
 				"text": "Sensitive Information Uncleared in Resource Before Release for Reuse",
 				"date": "2020-08-20"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Rahul Kande, Chen Chen, Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-11-29",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Mohamadreza Rostami, Shaza Zeitouni, Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-11-29",
+				"contribution_comment": "suggested demonstrative example"
 			}
 		]
 	},

@@ -196,6 +196,7 @@
 			"text": "\n               <Intro_Text>In 2008, a large number of web servers were compromised using the same SQL injection attack string. This single string worked against many different programs. The SQL injection was then used to modify the web sites to serve malicious code.</Intro_Text>\n            "
 		},
 		{
+			"demonstrative_example_id": "DX-209",
 			"text": "\n               <Intro_Text>The following code dynamically constructs and executes a SQL query that searches for items matching a specified name. The query restricts the items displayed to those where owner matches the user name of the currently-authenticated user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C#\">\n                  <xhtml:div>...<xhtml:br/>string userName = ctx.getAuthenticatedUserName();<xhtml:br/>string query = \"SELECT * FROM items WHERE owner = '\" + userName + \"' AND itemname = '\" + ItemName.Text + \"'\";<xhtml:br/>sda = new SqlDataAdapter(query, conn);<xhtml:br/>DataTable dt = new DataTable();<xhtml:br/>sda.Fill(dt);<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The query that this code intends to execute follows:</Body_Text>\n               <Example_Code Nature=\"Informative\">\n                  <xhtml:div>SELECT * FROM items WHERE owner = &lt;userName&gt; AND itemname = &lt;itemName&gt;;</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, because the query is constructed dynamically by concatenating a constant base query string and a user input string, the query only behaves correctly if itemName does not contain a single-quote character. If an attacker with the user name wiley enters the string:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>name' OR 'a'='a</xhtml:div>\n               </Example_Code>\n               <Body_Text>for itemName, then the query becomes the following:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>SELECT * FROM items WHERE owner = 'wiley' AND itemname = 'name' OR 'a'='a';</xhtml:div>\n               </Example_Code>\n               <Body_Text>The addition of the:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>OR 'a'='a</xhtml:div>\n               </Example_Code>\n               <Body_Text>condition causes the WHERE clause to always evaluate to true, so the query becomes logically equivalent to the much simpler query:</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>SELECT * FROM items;</xhtml:div>\n               </Example_Code>\n               <Body_Text>This simplification of the query allows the attacker to bypass the requirement that the query only return items owned by the authenticated user; the query now returns all entries stored in the items table, regardless of their specified owner.</Body_Text>\n            "
 		},
 		{
@@ -212,6 +213,11 @@
 		}
 	],
 	"observed_examples": [
+		{
+			"reference": "CVE-2023-32530",
+			"description": "SQL injection in security product dashboard using crafted certificate fields",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2023-32530"
+		},
 		{
 			"reference": "CVE-2021-42258",
 			"description": "SQL injection in time and billing software, as exploited in the wild per CISA KEV.",
@@ -713,6 +719,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
 			}
 		],
 		"previous_entry_name": [

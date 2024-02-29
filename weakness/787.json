@@ -180,7 +180,7 @@
 		},
 		{
 			"demonstrative_example_id": "DX-88",
-			"text": "\n               <Intro_Text>The following code may result in a buffer underwrite, if find() returns a negative value to indicate that ch is not found in srcBuf:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int main() {<xhtml:div style=\"margin-left:1em;\">...<xhtml:br/>strncpy(destBuf, &amp;srcBuf[find(srcBuf, ch)], 1024);<xhtml:br/>...</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If the index to srcBuf is somehow under user control, this is an arbitrary write-what-where condition.</Body_Text>\n            "
+			"text": "\n               <Intro_Text>The following is an example of code that may result in a buffer underwrite. This code is attempting to replace the substring \"Replace Me\" in destBuf with the string stored in srcBuf. It does so by using the function strstr(), which returns a pointer to the found substring in destBuf.  Using pointer arithmetic, the starting index of the substring is found.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int main() {\n                     <xhtml:div style=\"margin-left:1em;\">...<xhtml:br/>\n                     char *result = strstr(destBuf, \"Replace Me\");<xhtml:br/>\n                     int idx = result - destBuf;<xhtml:br/>\n                     strcpy(&amp;destBuf[idx], srcBuf);<xhtml:br/>\n                     ...</xhtml:div>}\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>In the case where the substring is not found in destBuf, strstr() will return NULL, causing the pointer arithmetic to be undefined, potentially setting the value of idx to a negative number.  If idx is negative, this will result in a buffer underwrite of destBuf.</Body_Text>\n            "
 		}
 	],
 	"observed_examples": [
@@ -584,6 +584,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		],
 		"contribution": [

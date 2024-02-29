@@ -56,6 +56,12 @@
 			]
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-176",
+			"text": "\n             <Intro_Text>\n               <xhtml:p>\n                 Register SECURE_ME is located at address 0xF00. A\n                 mirror of this register called COPY_OF_SECURE_ME is\n                 at location 0x800F00. The register SECURE_ME is\n                 protected from malicious agents and only allows\n                 access to select, while COPY_OF_SECURE_ME is not. \n               </xhtml:p>\n               <xhtml:p>\n                 Access control is implemented using an allowlist (as\n                 indicated by acl_oh_allowlist). The identity of the\n                 initiator of the transaction is indicated by the\n                 one hot input, incoming_id. This is checked against\n                 the acl_oh_allowlist (which contains a list of\n                 initiators that are allowed to access the asset). \n               </xhtml:p>\n               <xhtml:p>\n                 Though this example is shown in Verilog, it will\n                 apply to VHDL as well. \n               </xhtml:p>\n             </Intro_Text>\n             <Example_Code Nature=\"Informative\" Language=\"Verilog\">\n               module foo_bar(data_out, data_in, incoming_id, address, clk, rst_n);<xhtml:br/>\n               output [31:0] data_out;<xhtml:br/>\n               input [31:0] data_in, incoming_id, address;<xhtml:br/>\n               input clk, rst_n;<xhtml:br/>\n               wire write_auth, addr_auth;<xhtml:br/>\n               reg [31:0] data_out, acl_oh_allowlist, q;<xhtml:br/>\n               assign write_auth = | (incoming_id &amp; acl_oh_allowlist) ? 1 : 0; <xhtml:br/>\n               always @*<xhtml:br/>\n               <xhtml:div style=\"margin-left:1em;\">\n                 acl_oh_allowlist &lt;= 32'h8312; <xhtml:br/>\n               </xhtml:div>\n               assign addr_auth = (address == 32'hF00) ? 1: 0;<xhtml:br/>\n               always @ (posedge clk or negedge rst_n)<xhtml:br/>\n               <xhtml:div style=\"margin-left:1em;\">\n                 if (!rst_n)<xhtml:br/>\n                 <xhtml:div style=\"margin-left:1em;\">\n                   begin<xhtml:br/>\n                   <xhtml:div style=\"margin-left:1em;\">\n                     q &lt;= 32'h0;<xhtml:br/>\n                     data_out &lt;= 32'h0;<xhtml:br/>\n                   </xhtml:div>\n                   end<xhtml:br/>\n                 </xhtml:div>\n                 else<xhtml:br/>\n                 <xhtml:div style=\"margin-left:1em;\">\n                   begin<xhtml:br/>\n                   <xhtml:div style=\"margin-left:1em;\">\n                     q &lt;= (addr_auth &amp; write_auth) ? data_in: q;<xhtml:br/>\n                     data_out &lt;= q;<xhtml:br/>\n                   </xhtml:div>\n                   end<xhtml:br/>\n                 </xhtml:div>\n                 end<xhtml:br/>\n               </xhtml:div>\n               endmodule<xhtml:br/>\n             </Example_Code>\n\t\t\t <Example_Code Nature=\"Bad\" Language=\"Verilog\">assign addr_auth = (address == 32'hF00) ? 1: 0;</Example_Code>\n             <Body_Text>The bugged line of code is repeated in the Bad\n             example above. The weakness arises from the fact that the\n             SECURE_ME register can be modified by writing to the\n             shadow register COPY_OF_SECURE_ME. The address of\n             COPY_OF_SECURE_ME should also be included in the check.\n             That buggy line of code should instead be replaced as\n             shown in the Good Code Snippet below. \n             </Body_Text>\n\t\t\t <Example_Code Nature=\"Good\" Language=\"Verilog\">assign addr_auth = (address == 32'hF00 || address == 32'h800F00) ? 1: 0;</Example_Code>\n\t\t   "
+		}
+	],
 	"observed_examples": [
 		{
 			"reference": "CVE-2020-8004",
@@ -182,6 +188,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		]
 	},

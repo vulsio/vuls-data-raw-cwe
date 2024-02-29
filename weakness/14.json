@@ -5,7 +5,7 @@
 	"structure": "Simple",
 	"status": "Draft",
 	"description": "Sensitive memory is cleared according to the source code, but compiler optimizations leave the memory untouched when it is not read from again, aka \"dead store removal.\"",
-	"extended_description": "\n            <xhtml:p>This compiler optimization error occurs when:</xhtml:p>\n            <xhtml:ul>\n               <xhtml:li>1. Secret data are stored in memory.</xhtml:li>\n               <xhtml:li>2. The secret data are scrubbed from memory by overwriting its contents.</xhtml:li>\n               <xhtml:li>3. The source code is compiled using an optimizing compiler, which identifies and removes the function that overwrites the contents as a dead store because the memory is not used subsequently.</xhtml:li>\n            </xhtml:ul>\n         ",
+	"extended_description": "\n            <xhtml:p>This compiler optimization error occurs when:</xhtml:p>\n            <xhtml:ol>\n               <xhtml:li>Secret data are stored in memory.</xhtml:li>\n               <xhtml:li>The secret data are scrubbed from memory by overwriting its contents.</xhtml:li>\n               <xhtml:li>The source code is compiled using an optimizing compiler, which identifies and removes the function that overwrites the contents as a dead store because the memory is not used subsequently.</xhtml:li>\n            </xhtml:ol>\n         ",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -75,6 +75,7 @@
 	],
 	"demonstrative_examples": [
 		{
+			"demonstrative_example_id": "DX-200",
 			"text": "\n               <Intro_Text>The following code reads a password from the user, uses the password to connect to a back-end mainframe and then attempts to scrub the password from memory using memset().</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>void GetData(char *MFAddr) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>char pwd[64];<xhtml:br/>if (GetPasswordFromUser(pwd, sizeof(pwd))) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>if (ConnectToMainframe(MFAddr, pwd)) {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// Interaction with mainframe</xhtml:i>\n                                       <xhtml:br/>\n                                    </xhtml:div>\n                                 </xhtml:div>}</xhtml:div>\n                           </xhtml:div>}<xhtml:br/>memset(pwd, 0, sizeof(pwd));</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The code in the example will behave correctly if it is executed verbatim, but if the code is compiled using an optimizing compiler, such as Microsoft Visual C++ .NET or GCC 3.x, then the call to memset() will be removed as a dead store because the buffer pwd is not used after its value is overwritten [18]. Because the buffer pwd contains a sensitive value, the application may be vulnerable to attack if the data are left memory resident. If attackers are able to access the correct region of memory, they may use the recovered password to gain control of the system.</Body_Text>\n               <Body_Text>It is common practice to overwrite sensitive data manipulated in memory, such as passwords or cryptographic keys, in order to prevent attackers from learning system secrets. However, with the advent of optimizing compilers, programs do not always behave as their source code alone would suggest. In the example, the compiler interprets the call to memset() as dead code because the memory being written to is not subsequently used, despite the fact that there is clearly a security motivation for the operation to occur. The problem here is that many compilers, and in fact many programming languages, do not take this and other security concerns into consideration in their efforts to improve efficiency.</Body_Text>\n               <Body_Text>Attackers typically exploit this type of vulnerability by using a core dump or runtime mechanism to access the memory used by a particular application and recover the secret information. Once an attacker has access to the secret information, it is relatively straightforward to further exploit the system and possibly compromise other resources with which the application interacts.</Body_Text>\n            "
 		}
 	],
@@ -249,6 +250,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, Description"
 			}
 		],
 		"previous_entry_name": [

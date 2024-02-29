@@ -102,10 +102,16 @@
 	],
 	"demonstrative_examples": [
 		{
+			"demonstrative_example_id": "DX-220",
 			"text": "\n               <Intro_Text>This code either generates a public HTML user information page or a JSON response containing the same user information.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>\n                     <xhtml:br/>\n                     <xhtml:i>// API flag, output JSON if set</xhtml:i>\n                     <xhtml:br/>$json = $_GET['json']<xhtml:br/>$username = $_GET['user']<xhtml:br/>if(!$json)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>$record = getUserRecord($username);<xhtml:br/>foreach($record as $fieldName =&gt; $fieldValue)<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>if($fieldName == \"email_address\") {<xhtml:div style=\"margin-left:1em;\">\n                                    <xhtml:div>\n                                       <xhtml:br/>\n                                       <xhtml:i>// skip displaying user emails</xhtml:i>\n                                       <xhtml:br/>continue;</xhtml:div>\n                                 </xhtml:div>}<xhtml:br/>else{<xhtml:div style=\"margin-left:1em;\">writeToHtmlPage($fieldName,$fieldValue);</xhtml:div>}</xhtml:div>\n                           </xhtml:div>}</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>else<xhtml:br/>{<xhtml:div style=\"margin-left:1em;\">$record = getUserRecord($username);<xhtml:br/>echo json_encode($record);</xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The programmer is careful to not display the user's e-mail address when displaying the public HTML page. However, the e-mail address is not removed from the JSON response, exposing the user's e-mail address.</Body_Text>\n            "
 		}
 	],
 	"observed_examples": [
+		{
+			"reference": "CVE-2019-3733",
+			"description": "Cryptography library does not clear heap memory before release",
+			"link": "https://www.cve.org/CVERecord?id=CVE-2019-3733"
+		},
 		{
 			"reference": "CVE-2005-0406",
 			"description": "Some image editors modify a JPEG image, but the original EXIF thumbnail image is left intact within the JPEG. (Also an interaction error).",
@@ -254,6 +260,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
 			}
 		],
 		"previous_entry_name": [

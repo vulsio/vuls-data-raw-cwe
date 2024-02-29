@@ -25,6 +25,16 @@
 			]
 		}
 	],
+	"demonstrative_examples": [
+		{
+			"demonstrative_example_id": "DX-192",
+			"text": "\n               <Intro_Text>This code assumes a particular function will always be found at a particular address. It assigns a pointer to that address and calls the function.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>int (*pt2Function) (float, char, char)=0x08040000;<xhtml:br/>int result2 = (*pt2Function) (12, 'a', 'b');<xhtml:br/>\n                     <xhtml:i>// Here we can inject code to execute.</xhtml:i>\n                     <xhtml:br/>\n                  </xhtml:div>\n               </Example_Code>\n               <Body_Text>The same function may not always be found at the same memory address. This could lead to a crash, or an attacker may alter the memory at the expected address, leading to arbitrary code execution.</Body_Text>\n            "
+		},
+		{
+			"demonstrative_example_id": "DX-203",
+			"text": "\n               <Intro_Text>The following function returns a stack address.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>char* getName() {<xhtml:div style=\"margin-left:1em;\">char name[STR_MAX];<xhtml:br/>fillInName(name);<xhtml:br/>return name;</xhtml:div>}</xhtml:div>\n               </Example_Code>\n            "
+		}
+	],
 	"observed_examples": [
 		{
 			"reference": "CVE-2006-1902",
@@ -110,6 +120,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		]
 	},

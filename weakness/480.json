@@ -59,6 +59,9 @@
 		{
 			"demonstrative_example_id": "DX-103",
 			"text": "\n               <Intro_Text>The following C/C++ example shows a simple implementation of a stack that includes methods for adding and removing integer values from the stack. The example uses pointers to add and remove integer values to the stack array variable.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#define SIZE 50<xhtml:br/>int *tos, *p1, stack[SIZE];<xhtml:br/>\n                     <xhtml:br/>void push(int i) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>p1++;<xhtml:br/>if(p1==(tos+SIZE)) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>// Print stack overflow error message and exit</xhtml:i>\n                                 <xhtml:br/>\n                              </xhtml:div>\n                           </xhtml:div>}<xhtml:br/>*p1 == i;</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int pop(void) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>if(p1==tos) {<xhtml:div style=\"margin-left:1em;\">\n                              <xhtml:div>\n                                 <xhtml:br/>\n                                 <xhtml:i>// Print stack underflow error message and exit</xhtml:i>\n                                 <xhtml:br/>\n                              </xhtml:div>\n                           </xhtml:div>}<xhtml:br/>p1--;<xhtml:br/>return *(p1+1);</xhtml:div>\n                     </xhtml:div>}<xhtml:br/>\n                     <xhtml:br/>int main(int argc, char *argv[]) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>// initialize tos and p1 to point to the top of stack</xhtml:i>\n                           <xhtml:br/>tos = stack;<xhtml:br/>p1 = stack;<xhtml:br/>\n                           <xhtml:i>// code to add and remove items from stack</xhtml:i>\n                           <xhtml:br/>...<xhtml:br/>return 0;</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>The push method includes an expression to assign the integer value to the location in the stack pointed to by the pointer variable.</Body_Text>\n               <Body_Text>However, this expression uses the comparison operator \"==\" rather than the assignment operator \"=\". The result of using the comparison operator instead of the assignment operator causes erroneous values to be entered into the stack and can cause unexpected results.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>The example code below is taken from the CVA6 processor core of the HACK@DAC'21 buggy OpenPiton SoC. Debug access allows users to access internal hardware registers that are otherwise not exposed for user access or restricted access through access control protocols. Hence, requests to enter debug mode are checked and authorized only if the processor has sufficient privileges. In addition, debug accesses are also locked behind password checkers. Thus, the processor enters debug mode only when the privilege level requirement is met, and the correct debug password is provided.</Intro_Text>\n               <Body_Text>The following code [REF-1377] illustrates an instance of a vulnerable implementation of debug mode. The core correctly checks if the debug requests have sufficient privileges and enables the debug_mode_d and debug_mode_q signals. It also correctly checks for debug password and enables umode_i signal.</Body_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n               module csr_regfile #(<xhtml:br/>\n               ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                  // check that we actually want to enter debug depending on the privilege level we are currently in<xhtml:br/>\n                  unique case (priv_lvl_o)<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        riscv::PRIV_LVL_M: begin<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                           debug_mode_d = dcsr_q.ebreakm;<xhtml:br/>\n                           </xhtml:div>\n                        </xhtml:div>\n                  </xhtml:div>\n               ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div style=\"margin-left:1em;\">\n                        riscv::PRIV_LVL_U: begin<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                           debug_mode_d = dcsr_q.ebreaku;<xhtml:br/>\n                           </xhtml:div>\n                        </xhtml:div>\n                  </xhtml:div>\n               ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                  <xhtml:b>assign priv_lvl_o = (debug_mode_q || umode_i) ?  riscv::PRIV_LVL_M : priv_lvl_q;</xhtml:b><xhtml:br/>\n                  </xhtml:div>\n               ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                  debug_mode_q  &lt;= debug_mode_d;<xhtml:br/>\n                  </xhtml:div>\n               ...<xhtml:br/>\n               </Example_Code>\n               <Body_Text>However, it grants debug access and changes the privilege level, priv_lvl_o, even when one of the two checks is satisfied and the other is not. Because of this, debug access can be granted by simply requesting with sufficient privileges (i.e., debug_mode_q is enabled) and failing the password check (i.e., umode_i is disabled). This allows an attacker to bypass the debug password checking and gain debug access to the core, compromising the security of the processor.</Body_Text>\n               <Body_Text>A fix to this issue is to only change the privilege level of the processor when both checks are satisfied, i.e., the request has enough privileges (i.e., debug_mode_q is enabled) and the password checking is successful (i.e., umode_i is enabled) [REF-1378].</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Verilog\">\n               module csr_regfile #(<xhtml:br/>\n               ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                  // check that we actually want to enter debug depending on the privilege level we are currently in<xhtml:br/>\n                  unique case (priv_lvl_o)<xhtml:br/>\n                        <xhtml:div style=\"margin-left:1em;\">\n                        riscv::PRIV_LVL_M: begin<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                           debug_mode_d = dcsr_q.ebreakm;<xhtml:br/>\n                           </xhtml:div>\n                        </xhtml:div>\n                  </xhtml:div>\n               ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div style=\"margin-left:1em;\">\n                        riscv::PRIV_LVL_U: begin<xhtml:br/>\n                           <xhtml:div style=\"margin-left:1em;\">\n                           debug_mode_d = dcsr_q.ebreaku;<xhtml:br/>\n                           </xhtml:div>\n                        </xhtml:div>\n                  </xhtml:div>\n               ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                  assign priv_lvl_o = <xhtml:b>(debug_mode_q &amp;&amp; umode_i) ? riscv::PRIV_LVL_M : priv_lvl_q;</xhtml:b><xhtml:br/>\n                  </xhtml:div>\n               ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                  debug_mode_q  &lt;= debug_mode_d;<xhtml:br/>\n                  </xhtml:div>\n               ...<xhtml:br/>\n               </Example_Code>\n            "
 		}
 	],
 	"observed_examples": [
@@ -95,6 +98,20 @@
 			"publication_year": "2006",
 			"publisher": "Addison Wesley",
 			"edition": "1st Edition"
+		},
+		{
+			"reference_id": "REF-1377",
+			"title": "csr_regile.sv line 938",
+			"url": "https://github.com/HACK-EVENT/hackatdac19/blob/57e7b2109c1ea2451914878df2e6ca740c2dcf34/src/csr_regfile.sv#L938",
+			"publication_year": "2021",
+			"url_date": "2023-12-13"
+		},
+		{
+			"reference_id": "REF-1378",
+			"title": "Fix for csr_regfile.sv line 938",
+			"url": "https://github.com/HACK-EVENT/hackatdac19/blob/a7b61209e56c48eec585eeedea8413997ec71e4a/src/csr_regfile.sv#L938C31-L938C56",
+			"publication_year": "2021",
+			"url_date": "2023-12-13"
 		}
 	],
 	"content_history": {
@@ -216,12 +233,34 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-02-29",
+				"modification_comment": "updated Demonstrative_Examples, References"
 			}
 		],
 		"previous_entry_name": [
 			{
 				"text": "Using the Wrong Operator",
 				"date": "2008-04-11"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen, Rahul Kande, Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-11-07",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitouni, Mohamadreza Rostami, Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-11-07",
+				"contribution_comment": "suggested demonstrative example"
 			}
 		]
 	},
