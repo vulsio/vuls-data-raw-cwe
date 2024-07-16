@@ -4,8 +4,7 @@
 	"abstraction": "Base",
 	"structure": "Simple",
 	"status": "Stable",
-	"description": "A NULL pointer dereference occurs when the application dereferences a pointer that it expects to be valid, but is NULL, typically causing a crash or exit.",
-	"extended_description": "NULL pointer dereference issues can occur through a number of flaws, including race conditions, and simple programming omissions.",
+	"description": "The product dereferences a pointer that it expects to be valid but is NULL.",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -68,8 +67,7 @@
 		{
 			"scope": [
 				"Integrity",
-				"Confidentiality",
-				"Availability"
+				"Confidentiality"
 			],
 			"impact": [
 				"Execute Unauthorized Code or Commands",
@@ -85,7 +83,7 @@
 				"Implementation"
 			],
 			"description": [
-				"If all pointers that could have been modified are sanity-checked previous to use, nearly all NULL pointer dereferences can be prevented."
+				"If all pointers that could have been modified are checked for NULL before use, nearly all NULL pointer dereferences can be prevented."
 			]
 		},
 		{
@@ -93,7 +91,7 @@
 				"Requirements"
 			],
 			"description": [
-				"The choice could be made to use a language that is not susceptible to these issues."
+				"Select a programming language that is not susceptible to these issues."
 			]
 		},
 		{
@@ -119,21 +117,13 @@
 				"Implementation"
 			],
 			"description": [
-				"Explicitly initialize all your variables and other data stores, either during declaration or just before the first usage."
-			]
-		},
-		{
-			"phase": [
-				"Testing"
-			],
-			"description": [
-				"Use automated static analysis tools that target this type of weakness. Many modern techniques use data flow analysis to minimize the number of false positives. This is not a perfect solution, since 100% accuracy and coverage are not feasible."
+				"Explicitly initialize all variables and other data stores, either during declaration or just before the first usage."
 			]
 		}
 	],
 	"demonstrative_examples": [
 		{
-			"text": "\n               <Intro_Text>While there are no complete fixes aside from conscientious programming, the following steps will go a long way to ensure that NULL pointer dereferences do not occur.</Intro_Text>\n               <Example_Code Nature=\"Good\">\n                  <xhtml:div>if (pointer1 != NULL) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>/* make use of pointer1 */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:br/>\n                           <xhtml:i>/* ... */</xhtml:i>\n                           <xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>If you are working with a multithreaded or otherwise asynchronous environment, ensure that proper locking APIs are used to lock before the if statement; and unlock when it has finished.</Body_Text>\n            "
+			"text": "\n               <Intro_Text>While there are no complete fixes aside from conscientious programming, the following steps will go a long way to ensure that NULL pointer dereferences do not occur.</Intro_Text>\n               <Example_Code Nature=\"Good\">\n                  <xhtml:div>if (pointer1 != NULL) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>\n                           <xhtml:i>/* make use of pointer1 */</xhtml:i>\n                           <xhtml:br/>\n                           <xhtml:i>/* ... */</xhtml:i>\n                           <xhtml:br/>\n                        </xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>When working with a multithreaded or otherwise asynchronous environment, ensure that proper locking APIs are used to lock before the if statement; and unlock when it has finished.</Body_Text>\n            "
 		},
 		{
 			"demonstrative_example_id": "DX-1",
@@ -537,21 +527,41 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-07-16",
+				"modification_comment": "updated Alternate_Terms, Demonstrative_Examples, Description, Diagram, Potential_Mitigations, Relationships, Weakness_Ordinalities"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Abhi Balakrishnan",
+				"contribution_date": "2024-02-29",
+				"contribution_comment": "Provided diagram to improve CWE usability"
 			}
 		]
 	},
 	"weakness_ordinalities": [
 		{
 			"ordinality": "Resultant",
-			"description": "NULL pointer dereferences are frequently resultant from rarely encountered error conditions, since these are most likely to escape detection during the testing phases."
+			"description": "NULL pointer dereferences are frequently resultant from rarely encountered error conditions and race conditions, since these are most likely to escape detection during the testing phases."
 		}
 	],
 	"alternate_terms": [
 		{
-			"term": "NPD"
+			"term": "NPD",
+			"description": "Common abbreviation for Null Pointer Dereference"
 		},
 		{
-			"term": "null deref"
+			"term": "null deref",
+			"description": "Common abbreviation for Null Pointer Dereference"
+		},
+		{
+			"term": "NPE",
+			"description": "Common abbreviation for Null Pointer Exception"
 		},
 		{
 			"term": "nil pointer dereference",

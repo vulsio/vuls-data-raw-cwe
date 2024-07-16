@@ -87,6 +87,10 @@
 		},
 		{
 			"text": "\n\t\t\t\t\t<Intro_Text>The example code is taken from the fuse memory inside the buggy OpenPiton SoC of HACK@DAC'21 [REF-1356]. Fuse memory can be used to store key hashes, password hashes, and configuration information. For example, the password hashes of JTAG and HMAC are stored in the fuse memory in the OpenPiton design.</Intro_Text>\n\t\t\t\t\t<Body_Text>During the firmware setup phase, data in the Fuse memory are transferred into the registers of the corresponding SoC peripherals for initialization. However, if the offset to access the password hash is set incorrectly, programs cannot access the correct password hash from the fuse memory, breaking the functionalities of the peripherals and even exposing sensitive information through other peripherals.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t<xhtml:b>parameter  MEM_SIZE = 100;</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:b>localparam JTAG_OFFSET = 81;</xhtml:b><xhtml:br/>\n\t\t\t\t\t<xhtml:br/>\n\t\t\t\t\tconst logic [MEM_SIZE-1:0][31:0] mem = {<xhtml:br/>\n\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t// JTAG expected hamc hash<xhtml:br/>\n\t\t\t\t\t\t32'h49ac13af, 32'h1276f1b8, 32'h6703193a, 32'h65eb531b,<xhtml:br/>\n\t\t\t\t\t\t32'h3025ccca, 32'h3e8861f4, 32'h329edfe5, 32'h98f763b4,<xhtml:br/>\n\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\tassign jtag_hash_o = {mem[JTAG_OFFSET-1],mem[JTAG_OFFSET-2],mem[JTAG_OFFSET-3],<xhtml:br/>\n\t\t\t\t\tmem[JTAG_OFFSET-4],mem[JTAG_OFFSET-5],mem[JTAG_OFFSET-6],mem[JTAG_OFFSET-7],mem[JTAG_OFFSET-8]};<xhtml:br/>\n\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>The following vulnerable code accesses the JTAG password hash from the fuse memory. However, the JTAG_OFFSET is incorrect, and the fuse memory outputs the wrong values to jtag_hash_o. Moreover, setting incorrect offset gives the ability to attackers to access JTAG by knowing other low-privileged peripherals' passwords.</Body_Text>\n\t\t\t\t\t<Body_Text>To mitigate this, change JTAG_OFFSET to the correct address of the JTAG key [REF-1357].<xhtml:br/></Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\tparameter  MEM_SIZE = 100;<xhtml:br/>\n\t\t\t\t\t<xhtml:b>localparam JTAG_OFFSET = 100;</xhtml:b><xhtml:br/>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
+		},
+		{
+			"demonstrative_example_id": "DX-222",
+			"text": "\n\t\t\t\t\t<Intro_Text>The following example code is excerpted from the Access Control module, acct_wrapper, in the Hack@DAC'21 buggy OpenPiton System-on-Chip (SoC). Within this module, a set of memory-mapped I/O registers, referred to as acct_mem, each 32-bit wide, is utilized to store access control permissions for peripherals [REF-1437]. Access control registers are typically used to define and enforce permissions and access rights for various system resources.</Intro_Text>\n\t\t\t\t\t<Body_Text>However, in the buggy SoC, these registers are all enabled at reset, i.e., essentially granting unrestricted access to all system resources [REF-1438]. This will introduce security vulnerabilities and risks to the system, such as privilege escalation or exposing sensitive information to unauthorized users or processes.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t\tmodule acct_wrapper #(<xhtml:br/>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\talways @(posedge clk_i)<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\tif(~(rst_ni &amp;&amp; ~rst_6))<xhtml:br/>\n\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\tfor (j=0; j &lt; AcCt_MEM_SIZE; j=j+1)<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t<xhtml:b>acct_mem[j] &lt;= 32'hffffffff;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>To fix this issue, the access control registers must be properly initialized during the reset phase of the SoC. Correct initialization values should be established to maintain the system's integrity, security, predictable behavior, and allow proper control of peripherals. The specifics of what values should be set depend on the SoC's design and the requirements of the system. To address the problem depicted in the bad code example [REF-1438], the default value for \"acct_mem\" should be set to 32'h00000000 (see good code example [REF-1439]). This ensures that during startup or after any reset, access to protected data is restricted until the system setup is complete and security procedures properly configure the access control settings.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\t\tmodule acct_wrapper #(<xhtml:br/>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\talways @(posedge clk_i)<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\tif(~(rst_ni &amp;&amp; ~rst_6))\n\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\tfor (j=0; j &lt; AcCt_MEM_SIZE; j=j+1)<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t<xhtml:b>acct_mem[j] &lt;= 32'h00000000;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
 		}
 	],
 	"references": [
@@ -103,6 +107,24 @@
 			"url": "https://github.com/HACK-EVENT/hackatdac21/compare/main...cwe_1221_in_fuse_mem#diff-d7275edeac22f76691a31c83f005d0177359ad710ad6549ece3d069ed043ef21",
 			"publication_year": "2021",
 			"url_date": "2023-07-24"
+		},
+		{
+			"reference_id": "REF-1437",
+			"title": "acct_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/65d0ffdab7426da4509c98d62e163bcce642f651/piton/design/chip/tile/ariane/src/acct/acct_wrapper.sv#L39",
+			"publication_year": "2021"
+		},
+		{
+			"reference_id": "REF-1438",
+			"title": "Bad Code acct_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/65d0ffdab7426da4509c98d62e163bcce642f651/piton/design/chip/tile/ariane/src/acct/acct_wrapper.sv#L79C1-L86C16",
+			"publication_year": "2021"
+		},
+		{
+			"reference_id": "REF-1439",
+			"title": "Good Code acct_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/062de4f25002d2dcbdb0a82af36b80a517592612/piton/design/chip/tile/ariane/src/acct/acct_wrapper.sv#L84",
+			"publication_year": "2021"
 		}
 	],
 	"content_history": {
@@ -153,6 +175,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2024-02-29",
 				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-07-16",
+				"modification_comment": "updated Demonstrative_Examples, References"
 			}
 		],
 		"contribution": [
@@ -168,6 +196,20 @@
 				"contribution_name": "Shaza Zeitouni, Mohamadreza Rostami, Ahmad-Reza Sadeghi",
 				"contribution_organization": "Technical University of Darmstadt",
 				"contribution_date": "2023-06-21",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen, Rahul Kande, Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-11-07",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitouni, Mohamadreza Rostami, Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-11-07",
 				"contribution_comment": "suggested demonstrative example"
 			}
 		]

@@ -5,7 +5,7 @@
 	"structure": "Simple",
 	"status": "Stable",
 	"description": "The product constructs all or part of an OS command using externally-influenced input from an upstream component, but it does not neutralize or incorrectly neutralizes special elements that could modify the intended OS command when it is sent to a downstream component.",
-	"extended_description": "\n            <xhtml:p>This could allow attackers to execute unexpected, dangerous commands directly on the operating system. This weakness can lead to a vulnerability in environments in which the attacker does not have direct access to the operating system, such as in web applications. Alternately, if the weakness occurs in a privileged program, it could allow the attacker to specify commands that normally would not be accessible, or to call alternate commands with privileges that the attacker does not have. The problem is exacerbated if the compromised process does not follow the principle of least privilege, because the attacker-controlled commands may run with special system privileges that increases the amount of damage.</xhtml:p>\n            <xhtml:p>There are at least two subtypes of OS command injection:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>The application intends to execute a single, fixed program that is under its own control. It intends to use externally-supplied inputs as arguments to that program. For example, the program might use system(\"nslookup [HOSTNAME]\") to run nslookup and allow the user to supply a HOSTNAME, which is used as an argument. Attackers cannot prevent nslookup from executing. However, if the program does not remove command separators from the HOSTNAME argument, attackers could place the separators into the arguments, which allows them to execute their own program after nslookup has finished executing.</xhtml:li>\n                  <xhtml:li>The application accepts an input that it uses to fully select which program to run, as well as which commands to use. The application simply redirects this entire command to the operating system. For example, the program might use \"exec([COMMAND])\" to execute the [COMMAND] that was supplied by the user. If the COMMAND is under attacker control, then the attacker can execute arbitrary commands or programs. If the command is being executed using functions like exec() and CreateProcess(), the attacker might not be able to combine multiple commands together in the same line.</xhtml:li>\n               </xhtml:ul>\n            <xhtml:p>From a weakness standpoint, these variants represent distinct programmer errors. In the first variant, the programmer clearly intends that input from untrusted parties will be part of the arguments in the command to be executed. In the second variant, the programmer does not intend for the command to be accessible to any untrusted party, but the programmer probably has not accounted for alternate ways in which malicious attackers can provide input.</xhtml:p>\n         ",
+	"extended_description": "\n\t\t   <xhtml:p>This weakness can lead to a vulnerability in environments in which the attacker does not have direct access to the operating system, such as in web applications. Alternately, if the weakness occurs in a privileged program, it could allow the attacker to specify commands that normally would not be accessible, or to call alternate commands with privileges that the attacker does not have. The problem is exacerbated if the compromised process does not follow the principle of least privilege, because the attacker-controlled commands may run with special system privileges that increases the amount of damage.</xhtml:p>\n            <xhtml:p>There are at least two subtypes of OS command injection:</xhtml:p>\n               <xhtml:ul>\n\t\t\t\t <xhtml:li>The application intends to execute a single, fixed program that is under its own control. It intends to use externally-supplied inputs as arguments to that program. For example, the program might use system(\"nslookup [HOSTNAME]\") to run nslookup and allow the user to supply a HOSTNAME, which is used as an argument. Attackers cannot prevent nslookup from executing. However, if the program does not remove command separators from the HOSTNAME argument, attackers could place the separators into the arguments, which allows them to execute their own program after nslookup has finished executing.</xhtml:li>\n\t\t\t\t <xhtml:li>The application accepts an input that it uses to fully select which program to run, as well as which commands to use. The application simply redirects this entire command to the operating system. For example, the program might use \"exec([COMMAND])\" to execute the [COMMAND] that was supplied by the user. If the COMMAND is under attacker control, then the attacker can execute arbitrary commands or programs. If the command is being executed using functions like exec() and CreateProcess(), the attacker might not be able to combine multiple commands together in the same line.</xhtml:li>\n               </xhtml:ul>\n            <xhtml:p>From a weakness standpoint, these variants represent distinct programmer errors. In the first variant, the programmer clearly intends that input from untrusted parties will be part of the arguments in the command to be executed. In the second variant, the programmer does not intend for the command to be accessible to any untrusted party, but the programmer probably has not accounted for alternate ways in which malicious attackers can provide input.</xhtml:p>\n         ",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -71,7 +71,7 @@
 				"Modify Application Data",
 				"Hide Activities"
 			],
-			"note": "Attackers could execute unauthorized commands, which could then be used to disable the product, or read and modify data for which the attacker does not have permissions to access directly. Since the targeted application is directly executing the commands instead of the attacker, any malicious activities may appear to come from the application or the application's owner."
+			"note": "Attackers could execute unauthorized operating system commands, which could then be used to disable the product, or read and modify data for which the attacker does not have permissions to access directly. Since the targeted application is directly executing the commands instead of the attacker, any malicious activities may appear to come from the application or the application's owner."
 		}
 	],
 	"potential_mitigations": [
@@ -266,6 +266,9 @@
 		{
 			"demonstrative_example_id": "DX-28",
 			"text": "\n               <Intro_Text>The following code is from an administrative web application designed to allow users to kick off a backup of an Oracle database using a batch-file wrapper around the rman utility and then run a cleanup.bat script to delete some temporary files. The script rmanDB.bat accepts a single command line parameter, which specifies what type of backup to perform. Because access to the database is restricted, the application runs the backup as a privileged user.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>...<xhtml:br/>String btype = request.getParameter(\"backuptype\");<xhtml:br/>String cmd = new String(\"cmd.exe /K \\\"<xhtml:div style=\"margin-left:1em;\">c:\\\\util\\\\rmanDB.bat \"<xhtml:br/>+btype+<xhtml:br/>\"&amp;&amp;c:\\\\utl\\\\cleanup.bat\\\"\")</xhtml:div>\n                     <xhtml:br/>System.Runtime.getRuntime().exec(cmd);<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The problem here is that the program does not do any validation on the backuptype parameter read from the user. Typically the Runtime.exec() function will not execute multiple commands, but in this case the program first runs the cmd.exe shell in order to run multiple commands with a single call to Runtime.exec(). Once the shell is invoked, it will happily execute multiple commands separated by two ampersands. If an attacker passes a string of the form \"&amp; del c:\\\\dbms\\\\*.*\", then the application will execute this command along with the others specified by the program. Because of the nature of the application, it runs with the privileges necessary to interact with the database, which means whatever command the attacker injects will run with those privileges as well.</Body_Text>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>The following code is a wrapper around the UNIX command cat which prints the contents of a file to standard out. It is also injectable:</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"C\">\n                  <xhtml:div>#include &lt;stdio.h&gt;<xhtml:br/>#include &lt;unistd.h&gt;<xhtml:br/>\n                     <xhtml:br/>int main(int argc, char **argv) {<xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:div>\n                           <xhtml:br/>char cat[] = \"cat \";<xhtml:br/>char *command;<xhtml:br/>size_t commandLength;<xhtml:br/>\n                           <xhtml:br/>commandLength = strlen(cat) + strlen(argv[1]) + 1;<xhtml:br/>command = (char *) malloc(commandLength);<xhtml:br/>strncpy(command, cat, commandLength);<xhtml:br/>strncat(command, argv[1], (commandLength - strlen(cat)) );<xhtml:br/>\n                           <xhtml:br/>system(command);<xhtml:br/>return (0);</xhtml:div>\n                     </xhtml:div>}</xhtml:div>\n               </Example_Code>\n               <Body_Text>Used normally, the output is simply the contents of the file requested, such as Story.txt:</Body_Text>\n               <Example_Code Nature=\"Informative\">\n                  <xhtml:div>./catWrapper Story.txt</xhtml:div>\n               </Example_Code>\n\t\t\t   <Example_Code Nature=\"Result\">\n\t\t\t\t <xhtml:div>\n\t\t\t\t When last we left our heroes...\n\t\t\t\t </xhtml:div>\n\t\t\t   </Example_Code>\n               <Body_Text>However, if the provided argument includes a semicolon and another command, such as:</Body_Text>\n\t\t\t   <Example_Code Nature=\"Attack\">\n\t\t\t\t <xhtml:div>Story.txt; ls</xhtml:div>\n\t\t\t   </Example_Code>\n\t\t\t   <Body_Text>Then the \"ls\" command is executed by catWrapper with no complaint:</Body_Text>\n               <Example_Code Nature=\"Result\">\n\t\t\t\t <xhtml:div>./catWrapper Story.txt; ls</xhtml:div>\n\t\t\t   </Example_Code>\n\t\t\t   <Body_Text>Two commands would then be executed: catWrapper, then ls. The result might look like:</Body_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>When last we left our heroes...<xhtml:br/>\n\t\t\t\t  Story.txt<xhtml:br/>\n\t\t\t\t  SensitiveFile.txt<xhtml:br/>\n\t\t\t\t  PrivateData.db<xhtml:br/>\n\t\t\t\t  a.out*</xhtml:div>\n               </Example_Code>\n               <Body_Text>If catWrapper had been set to have a higher privilege level than the standard user, arbitrary commands could be executed with that higher privilege.</Body_Text>\n            "
 		}
 	],
 	"observed_examples": [
@@ -465,6 +468,18 @@
 			"url": "http://www.omg.org/spec/ASCSM/1.0/",
 			"publication_year": "2016",
 			"publication_month": "--01"
+		},
+		{
+			"reference_id": "REF-1449",
+			"author": [
+				"Cybersecurity and Infrastructure Security Agency"
+			],
+			"title": "Secure by Design Alert: Eliminating OS Command Injection Vulnerabilities",
+			"url": "https://www.cisa.gov/resources-tools/resources/secure-design-alert-eliminating-os-command-injection-vulnerabilities",
+			"publication_year": "2024",
+			"publication_month": "--07",
+			"publication_day": "---10",
+			"url_date": "2024-07-14"
 		}
 	],
 	"content_history": {
@@ -745,6 +760,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-07-16",
+				"modification_comment": "updated Alternate_Terms, Common_Consequences, Demonstrative_Examples, Description, Diagram, References"
 			}
 		],
 		"previous_entry_name": [
@@ -768,6 +789,14 @@
 				"text": "Improper Sanitization of Special Elements used in an OS Command ('OS Command Injection')",
 				"date": "2010-06-21"
 			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Abhi Balakrishnan",
+				"contribution_date": "2024-02-29",
+				"contribution_comment": "Provided diagram to improve CWE usability"
+			}
 		]
 	},
 	"alternate_terms": [
@@ -776,6 +805,9 @@
 		},
 		{
 			"term": "Shell metacharacters"
+		},
+		{
+			"term": "OS Command Injection"
 		}
 	],
 	"detection_methods": [

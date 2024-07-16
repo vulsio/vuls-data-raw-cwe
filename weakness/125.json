@@ -5,7 +5,6 @@
 	"structure": "Simple",
 	"status": "Draft",
 	"description": "The product reads data past the end, or before the beginning, of the intended buffer.",
-	"extended_description": "Typically, this can allow attackers to read sensitive information from other memory locations or cause a crash.  A crash can occur when the code reads a variable amount of data and assumes that a sentinel exists to stop the read operation, such as a NUL in a string.  The expected sentinel might not be located in the out-of-bounds memory, causing excessive data to be read, leading to a segmentation fault or a buffer overflow.  The product may modify an index or perform pointer arithmetic that references a memory location that is outside of the boundaries of the buffer.  A subsequent read operation then produces undefined or unexpected results.",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -62,7 +61,8 @@
 			],
 			"impact": [
 				"Read Memory"
-			]
+			],
+			"note": "An attacker could get secret values such as cryptographic keys, PII, memory addresses, or other information that could be used in additional attacks."
 		},
 		{
 			"scope": [
@@ -71,7 +71,25 @@
 			"impact": [
 				"Bypass Protection Mechanism"
 			],
-			"note": "By reading out-of-bounds memory, an attacker might be able to get secret values, such as memory addresses, which can be bypass protection mechanisms such as ASLR in order to improve the reliability and likelihood of exploiting a separate weakness to achieve code execution instead of just denial of service."
+			"note": "Out-of-bounds memory could contain memory addresses or other information that can be used to bypass ASLR and other protection mechanisms in order to improve the reliability of exploiting a separate weakness for code execution."
+		},
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart"
+			],
+			"note": "An attacker could cause a segmentation fault or crash by causing memory to be read outside of the bounds of the buffer. This is especially likely when the code reads a variable amount of data and assumes that a sentinel exists to stop the read operation, such as a NUL in a string."
+		},
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Varies by Context"
+			],
+			"note": "The read operation could produce other undefined or unexpected results."
 		}
 	],
 	"potential_mitigations": [
@@ -366,12 +384,36 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-07-16",
+				"modification_comment": "updated Alternate_Terms, Common_Consequences, Description, Diagram, Weakness_Ordinalities"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Abhi Balakrishnan",
+				"contribution_date": "2024-02-29",
+				"contribution_comment": "Provided diagram to improve CWE usability"
 			}
 		]
 	},
 	"weakness_ordinalities": [
 		{
+			"ordinality": "Resultant",
+			"description": "When an out-of-bounds read occurs, typically the product has already made a separate mistake, such as modifying an index or performing pointer arithmetic that produces an out-of-bounds address."
+		},
+		{
 			"ordinality": "Primary"
+		}
+	],
+	"alternate_terms": [
+		{
+			"term": "OOB read",
+			"description": "Shorthand for \"Out of bounds\" read"
 		}
 	],
 	"detection_methods": [

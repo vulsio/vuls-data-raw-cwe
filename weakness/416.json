@@ -4,8 +4,7 @@
 	"abstraction": "Variant",
 	"structure": "Simple",
 	"status": "Stable",
-	"description": "Referencing memory after it has been freed can cause a program to crash, use unexpected values, or execute code.",
-	"extended_description": "\n            <xhtml:p>The use of previously-freed memory can have any number of adverse consequences, ranging from the corruption of valid data to the execution of arbitrary code, depending on the instantiation and timing of the flaw. The simplest way data corruption may occur involves the system's reuse of the freed memory. Use-after-free errors have two common and sometimes overlapping causes:</xhtml:p>\n               <xhtml:ul>\n                  <xhtml:li>Error conditions and other exceptional circumstances.</xhtml:li>\n                  <xhtml:li>Confusion over which part of the program is responsible for freeing the memory.</xhtml:li>\n               </xhtml:ul>\n            <xhtml:p>In this scenario, the memory in question is allocated to another pointer validly at some point after it has been freed. The original pointer to the freed memory is used again and points to somewhere within the new allocation. As the data is changed, it corrupts the validly used memory; this induces undefined behavior in the process.</xhtml:p>\n            <xhtml:p>If the newly allocated data happens to hold a class, in C++ for example, various function pointers may be scattered within the heap data. If one of these function pointers is overwritten with an address to valid shellcode, execution of arbitrary code can be achieved.</xhtml:p>\n         ",
+	"description": "The product reuses or references memory after it has been freed. At some point afterward, the memory may be allocated again and saved in another pointer, while the original pointer references a location somewhere within the new allocation. Any operations using the original pointer are no longer valid because the memory \"belongs\" to the code that operates on the new pointer.",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -88,7 +87,7 @@
 			"impact": [
 				"Execute Unauthorized Code or Commands"
 			],
-			"note": "If malicious data is entered before chunk consolidation can take place, it may be possible to take advantage of a write-what-where primitive to execute arbitrary code."
+			"note": "If malicious data is entered before chunk consolidation can take place, it may be possible to take advantage of a write-what-where primitive to execute arbitrary code. If the newly allocated data happens to hold a class, in C++ for example, various function pointers may be scattered within the heap data. If one of these function pointers is overwritten with an address to valid shellcode, execution of arbitrary code can be achieved."
 		}
 	],
 	"potential_mitigations": [
@@ -98,7 +97,8 @@
 			],
 			"description": [
 				"Choose a language that provides automatic memory management."
-			]
+			],
+			"strategy": "Language Selection"
 		},
 		{
 			"phase": [
@@ -106,7 +106,10 @@
 			],
 			"description": [
 				"When freeing pointers, be sure to set them to NULL once they are freed. However, the utilization of multiple or complex data structures may lower the usefulness of this strategy."
-			]
+			],
+			"effectiveness": "Defense in Depth",
+			"effectiveness_notes": "If a bug causes an attempted access of this pointer, then a NULL dereference could still lead to a crash or other unexpected behavior, but it will reduce or eliminate the risk of code execution.",
+			"strategy": "Attack Surface Reduction"
 		}
 	],
 	"demonstrative_examples": [
@@ -494,6 +497,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2024-02-29",
 				"modification_comment": "updated Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-07-16",
+				"modification_comment": "updated Alternate_Terms, Common_Consequences, Description, Diagram, Potential_Mitigations, Relationships, Weakness_Ordinalities"
 			}
 		],
 		"contribution": [
@@ -508,12 +517,29 @@
 				"contribution_name": "participants in the CWE ICS/OT SIG 62443 Mapping Fall Workshop",
 				"contribution_date": "2023-11-14",
 				"contribution_comment": "Contributed or reviewed taxonomy mappings for ISA/IEC 62443"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Abhi Balakrishnan",
+				"contribution_date": "2024-02-29",
+				"contribution_comment": "Provided diagram to improve CWE usability"
 			}
 		]
 	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Resultant",
+			"description": "If the product accesses a previously-freed pointer, then it means that a separate weakness or error already occurred previously, such as a race condition, an unexpected or poorly handled error condition, confusion over which part of the program is responsible for freeing the memory, performing the free too soon, etc."
+		}
+	],
 	"alternate_terms": [
 		{
-			"term": "Dangling pointer"
+			"term": "Dangling pointer",
+			"description": "a pointer that no longer points to valid memory, often after it has been freed"
+		},
+		{
+			"term": "UAF",
+			"description": "commonly used acronym for Use After Free"
 		},
 		{
 			"term": "Use-After-Free"

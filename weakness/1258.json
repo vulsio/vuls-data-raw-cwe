@@ -84,6 +84,9 @@
 	"demonstrative_examples": [
 		{
 			"text": "\n               <Intro_Text>A cryptographic core in a System-On-a-Chip (SoC) is used for cryptographic acceleration and implements several cryptographic operations (e.g., computation of AES encryption and decryption, SHA-256, HMAC, etc.). The keys for these operations or the intermediate values are stored in registers internal to the cryptographic core. These internal registers are in the Memory Mapped Input Output (MMIO) space and are blocked from access by software and other untrusted agents on the SoC. These registers are accessible through the debug and test interface.</Intro_Text>\n\n                <Example_Code Nature=\"Bad\" Language=\"Other\">In the above scenario, registers that store keys and intermediate values of cryptographic operations are not cleared when system enters debug mode. An untrusted actor running a debugger may read the contents of these registers and gain access to secret keys and other sensitive cryptographic information.</Example_Code>\n\n                <Example_Code Nature=\"Good\" Language=\"Other\">Whenever the chip enters debug mode, all registers containing security-sensitive data are be cleared rendering them unreadable.</Example_Code>\n            "
+		},
+		{
+			"text": "\n               <Intro_Text>\n                  <xhtml:p>The following code example is extracted from the AES wrapper module, aes1_wrapper, of the Hack@DAC'21 buggy OpenPiton System-on-Chip (SoC). Within this wrapper module are four memory-mapped registers: core_key, core_key0, core_key1, and core_key2. Core_key0, core_key1, and core_key2 hold encryption/decryption keys. The core_key register selects a key and sends it to the underlying AES module to execute encryption/decryption operations.</xhtml:p>\n                  <xhtml:p>Debug mode in processors and SoCs facilitates design debugging by granting access to internal signal/register values, including physical pin values of peripherals/core, fabric bus data transactions, and inter-peripheral registers. Debug mode allows users to gather detailed, low-level information about the design to diagnose potential issues. While debug mode is beneficial for diagnosing processors or SoCs, it also introduces a new attack surface for potential attackers. For instance, if an attacker gains access to debug mode, they could potentially read any content transmitted through the fabric bus or access encryption/decryption keys stored in cryptographic peripherals.</xhtml:p>\n                  <xhtml:p>Therefore, it is crucial to clear the contents of secret registers upon entering debug mode. In the provided example of flawed code below, when debug_mode_i is activated, the register core_key0 is set to zero to prevent AES key leakage during debugging. However, this protective measure is not applied to the core_key1 register [REF-1435], leaving its contents uncleared during debug mode. This oversight enables a debugger to access sensitive information. Failing to clear sensitive data during debug mode may lead to unauthorized access to secret keys and compromise system security.</xhtml:p>\n               </Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                  module aes1_wrapper #(<xhtml:br/>\n                  ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     assign core_key0 = debug_mode_i ? 'b0 : { <xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        key_reg0[7],<xhtml:br/>\n                        key_reg0[6],<xhtml:br/>\n                        key_reg0[5],<xhtml:br/>\n                        key_reg0[4],<xhtml:br/>\n                        key_reg0[3],<xhtml:br/>\n                        key_reg0[2],<xhtml:br/>\n                        key_reg0[1],<xhtml:br/>\n                        key_reg0[0]};<xhtml:br/>\n                     </xhtml:div>\n                     <xhtml:b>assign core_key1 = { </xhtml:b><xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        <xhtml:b>key_reg1[7],</xhtml:b><xhtml:br/>\n                        <xhtml:b>key_reg1[6],</xhtml:b><xhtml:br/>\n                        <xhtml:b>key_reg1[5],</xhtml:b><xhtml:br/>\n                        <xhtml:b>key_reg1[4],</xhtml:b><xhtml:br/>\n                        <xhtml:b>key_reg1[3],</xhtml:b><xhtml:br/>\n                        <xhtml:b>key_reg1[2],</xhtml:b><xhtml:br/>\n                        <xhtml:b>key_reg1[1],</xhtml:b><xhtml:br/>\n                        <xhtml:b>key_reg1[0]};</xhtml:b><xhtml:br/>\n                     </xhtml:div>\n                  </xhtml:div>\n                  ...<xhtml:br/>\n                  endmodule<xhtml:br/>\n               </Example_Code>\n               <Body_Text>To address the issue, it is essential to ensure that the register is cleared and zeroized after activating debug mode on the SoC. In the correct implementation illustrated in the good code below, core_keyx registers are set to zero when debug mode is activated [REF-1436].</Body_Text>\n               <Example_Code Nature=\"Good\" Language=\"Verilog\">\n                  module aes1_wrapper #(<xhtml:br/>\n                  ...<xhtml:br/>\n                  <xhtml:div style=\"margin-left:1em;\">\n                     assign core_key0 = debug_mode_i ? 'b0 : { <xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        key_reg0[7],<xhtml:br/>\n                        key_reg0[6],<xhtml:br/>\n                        key_reg0[5],<xhtml:br/>\n                        key_reg0[4],<xhtml:br/>\n                        key_reg0[3],<xhtml:br/>\n                        key_reg0[2],<xhtml:br/>\n                        key_reg0[1],<xhtml:br/>\n                        key_reg0[0]};<xhtml:br/>\n                     </xhtml:div>\n                     assign core_key1 = <xhtml:b>debug_mode_i ? 'b0 :</xhtml:b> { <xhtml:br/>\n                     <xhtml:div style=\"margin-left:1em;\">\n                        key_reg1[7],<xhtml:br/>\n                        key_reg1[6],<xhtml:br/>\n                        key_reg1[5],<xhtml:br/>\n                        key_reg1[4],<xhtml:br/>\n                        key_reg1[3],<xhtml:br/>\n                        key_reg1[2],<xhtml:br/>\n                        key_reg1[1],<xhtml:br/>\n                        key_reg1[0]};<xhtml:br/>\n                     </xhtml:div>\n                  </xhtml:div>\n                  ...<xhtml:br/>\n                  endmodule<xhtml:br/>\n               </Example_Code>\n            "
 		}
 	],
 	"observed_examples": [
@@ -96,6 +99,20 @@
 			"reference": "CVE-2022-31162",
 			"description": "Rust library leaks Oauth client details in application debug logs",
 			"link": "https://www.cve.org/CVERecord?id=CVE-2022-31162"
+		}
+	],
+	"references": [
+		{
+			"reference_id": "REF-1435",
+			"title": "Bad Code aes1_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/bcae7aba7f9daee8ad2cfd47b997ac7ad6611034/piton/design/chip/tile/ariane/src/aes1/aes1_wrapper.sv#L149:L155",
+			"publication_year": "2021"
+		},
+		{
+			"reference_id": "REF-1436",
+			"title": "Good Code aes1_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/e3234bb15f07f213de08ec91a9ec08d2a16b5714/piton/design/chip/tile/ariane/src/aes1/aes1_wrapper.sv#L149:L155",
+			"publication_year": "2021"
 		}
 	],
 	"content_history": {
@@ -128,12 +145,34 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-07-16",
+				"modification_comment": "updated Demonstrative_Examples, References"
 			}
 		],
 		"previous_entry_name": [
 			{
 				"text": "Sensitive Information Uncleared During Hardware Debug Flows",
 				"date": "2020-08-20"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Mohamadreza Rostami, Shaza Zeitouni, Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-11-07",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Rahul Kande, Chen Chen, Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-11-07",
+				"contribution_comment": "suggested demonstrative example"
 			}
 		]
 	},

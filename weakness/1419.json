@@ -130,6 +130,10 @@
 		{
 			"demonstrative_example_id": "DX-163",
 			"text": "\n\t\t\t\t<Intro_Text>This code attempts to login a user using credentials from a POST request:</Intro_Text>\n\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"PHP\">\n                  <xhtml:div>\n                    <xhtml:br/>\n                    <xhtml:i>// $user and $pass automatically set from POST request</xhtml:i>\n                    <xhtml:br/>if (login_user($user,$pass)) {<xhtml:div style=\"margin-left:1em;\">$authorized = true;</xhtml:div>}<xhtml:br/>\n                    <xhtml:i>...</xhtml:i>\n                    <xhtml:br/>\n                  <xhtml:br/>if ($authorized) {<xhtml:div style=\"margin-left:1em;\">generatePage();</xhtml:div>}</xhtml:div>\n\t\t\t\t</Example_Code>\n\t\t\t\t<Body_Text>Because the $authorized variable is never initialized, PHP will automatically set $authorized to any value included in the POST request if register_globals is enabled. An attacker can send a POST request with an unexpected third value 'authorized' set to 'true' and gain authorized status without supplying valid credentials.</Body_Text>\n\t\t\t\t<Body_Text>Here is a fixed version:</Body_Text>\n\t\t\t\t<Example_Code Nature=\"Good\" Language=\"PHP\">\n                  <xhtml:div>$user = $_POST['user'];<xhtml:br/>$pass = $_POST['pass'];<xhtml:br/>$authorized = false;<xhtml:br/>if (login_user($user,$pass)) {<xhtml:div style=\"margin-left:1em;\">$authorized = true;</xhtml:div>}<xhtml:br/>\n                  <xhtml:i>...</xhtml:i>\n                  <xhtml:br/>\n                  </xhtml:div>\n\t\t\t\t</Example_Code>\n\t\t\t\t<Body_Text>This code avoids the issue by initializing the $authorized variable to false and explicitly retrieving the login credentials from the $_POST variable. Regardless, register_globals should never be enabled and is disabled by default in current versions of PHP.</Body_Text>\n              "
+		},
+		{
+			"demonstrative_example_id": "DX-222",
+			"text": "\n\t\t\t\t\t<Intro_Text>The following example code is excerpted from the Access Control module, acct_wrapper, in the Hack@DAC'21 buggy OpenPiton System-on-Chip (SoC). Within this module, a set of memory-mapped I/O registers, referred to as acct_mem, each 32-bit wide, is utilized to store access control permissions for peripherals [REF-1437]. Access control registers are typically used to define and enforce permissions and access rights for various system resources.</Intro_Text>\n\t\t\t\t\t<Body_Text>However, in the buggy SoC, these registers are all enabled at reset, i.e., essentially granting unrestricted access to all system resources [REF-1438]. This will introduce security vulnerabilities and risks to the system, such as privilege escalation or exposing sensitive information to unauthorized users or processes.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Bad\" Language=\"Verilog\">\n\t\t\t\t\t\tmodule acct_wrapper #(<xhtml:br/>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\talways @(posedge clk_i)<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\tif(~(rst_ni &amp;&amp; ~rst_6))<xhtml:br/>\n\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\tfor (j=0; j &lt; AcCt_MEM_SIZE; j=j+1)<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t\t<xhtml:b>acct_mem[j] &lt;= 32'hffffffff;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t\t<Body_Text>To fix this issue, the access control registers must be properly initialized during the reset phase of the SoC. Correct initialization values should be established to maintain the system's integrity, security, predictable behavior, and allow proper control of peripherals. The specifics of what values should be set depend on the SoC's design and the requirements of the system. To address the problem depicted in the bad code example [REF-1438], the default value for \"acct_mem\" should be set to 32'h00000000 (see good code example [REF-1439]). This ensures that during startup or after any reset, access to protected data is restricted until the system setup is complete and security procedures properly configure the access control settings.</Body_Text>\n\t\t\t\t\t<Example_Code Nature=\"Good\" Language=\"Verilog\">\n\t\t\t\t\t\tmodule acct_wrapper #(<xhtml:br/>\n\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\talways @(posedge clk_i)<xhtml:br/>\n\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\tif(~(rst_ni &amp;&amp; ~rst_6))\n\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\tfor (j=0; j &lt; AcCt_MEM_SIZE; j=j+1)<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\t\tbegin<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t\t\t\t\t\t\t\t\t\t\t<xhtml:b>acct_mem[j] &lt;= 32'h00000000;</xhtml:b><xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t\t\tend<xhtml:br/>\n\t\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t\t\t...<xhtml:br/>\n\t\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t\t</xhtml:div>\n\t\t\t\t\t</Example_Code>\n\t\t\t\t"
 		}
 	],
 	"observed_examples": [
@@ -159,12 +163,40 @@
 			"link": "https://www.cve.org/CVERecord?id=CVE-2015-7763"
 		}
 	],
+	"references": [
+		{
+			"reference_id": "REF-1437",
+			"title": "acct_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/65d0ffdab7426da4509c98d62e163bcce642f651/piton/design/chip/tile/ariane/src/acct/acct_wrapper.sv#L39",
+			"publication_year": "2021"
+		},
+		{
+			"reference_id": "REF-1438",
+			"title": "Bad Code acct_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/65d0ffdab7426da4509c98d62e163bcce642f651/piton/design/chip/tile/ariane/src/acct/acct_wrapper.sv#L79C1-L86C16",
+			"publication_year": "2021"
+		},
+		{
+			"reference_id": "REF-1439",
+			"title": "Good Code acct_wrapper.sv",
+			"url": "https://github.com/HACK-EVENT/hackatdac21/blob/062de4f25002d2dcbdb0a82af36b80a517592612/piton/design/chip/tile/ariane/src/acct/acct_wrapper.sv#L84",
+			"publication_year": "2021"
+		}
+	],
 	"content_history": {
 		"submission": {
 			"submission_name": "CWE Content Team",
 			"submission_organization": "MITRE",
 			"submission_date": "2023-10-11"
 		},
+		"modification": [
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-07-16",
+				"modification_comment": "updated Demonstrative_Examples, References"
+			}
+		],
 		"contribution": [
 			{
 				"type": "Content",
@@ -178,6 +210,20 @@
 				"contribution_organization": "NVIDIA",
 				"contribution_date": "2023-10-13",
 				"contribution_comment": "Provided HW specific comments for Extended Description"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Chen Chen, Rahul Kande, Jeyavijayan Rajendran",
+				"contribution_organization": "Texas A&M University",
+				"contribution_date": "2023-11-07",
+				"contribution_comment": "suggested demonstrative example"
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Shaza Zeitouni, Mohamadreza Rostami, Ahmad-Reza Sadeghi",
+				"contribution_organization": "Technical University of Darmstadt",
+				"contribution_date": "2023-11-07",
+				"contribution_comment": "suggested demonstrative example"
 			}
 		]
 	}

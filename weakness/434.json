@@ -4,7 +4,7 @@
 	"abstraction": "Base",
 	"structure": "Simple",
 	"status": "Draft",
-	"description": "The product allows the attacker to upload or transfer files of dangerous types that can be automatically processed within the product's environment.",
+	"description": "The product allows the upload or transfer of dangerous file types that are automatically processed within its environment.",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -78,7 +78,7 @@
 			"impact": [
 				"Execute Unauthorized Code or Commands"
 			],
-			"note": "Arbitrary code execution is possible if an uploaded file is interpreted and executed as code by the recipient. This is especially true for .asp and .php extensions uploaded to web servers because these file types are often treated as automatically executable, even when file system permissions do not specify execution. For example, in Unix environments, programs typically cannot run unless the execute bit is set, but PHP programs may be executed by the web server without directly invoking them on the operating system."
+			"note": "Arbitrary code execution is possible if an uploaded file is interpreted and executed as code by the recipient. This is especially true for web-server extensions such as .asp and .php because these file types are often treated as automatically executable, even when file system permissions do not specify execution. For example, in Unix environments, programs typically cannot run unless the execute bit is set, but PHP programs may be executed by the web server without directly invoking them on the operating system."
 		}
 	],
 	"potential_mitigations": [
@@ -542,6 +542,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2024-02-29",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-07-16",
+				"modification_comment": "updated Common_Consequences, Description, Diagram, Weakness_Ordinalities"
 			}
 		],
 		"previous_entry_name": [
@@ -549,16 +555,24 @@
 				"text": "Unrestricted File Upload",
 				"date": "2010-02-16"
 			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Abhi Balakrishnan",
+				"contribution_date": "2024-02-29",
+				"contribution_comment": "Provided diagram to improve CWE usability"
+			}
 		]
 	},
 	"weakness_ordinalities": [
 		{
 			"ordinality": "Primary",
-			"description": "This can be primary when there is no check at all."
+			"description": "This can be primary when there is no check for the file type at all."
 		},
 		{
 			"ordinality": "Resultant",
-			"description": "This is frequently resultant when use of double extensions (e.g. \".php.gif\") bypasses a sanity check."
+			"description": "This can be resultant when use of double extensions (e.g. \".php.gif\") bypasses a check."
 		},
 		{
 			"ordinality": "Resultant",

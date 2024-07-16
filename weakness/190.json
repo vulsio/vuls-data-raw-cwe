@@ -4,8 +4,7 @@
 	"abstraction": "Base",
 	"structure": "Simple",
 	"status": "Stable",
-	"description": "The product performs a calculation that can produce an integer overflow or wraparound, when the logic assumes that the resulting value will always be larger than the original value. This can introduce other weaknesses when the calculation is used for resource management or execution control.",
-	"extended_description": "An integer overflow or wraparound occurs when an integer value is incremented to a value that is too large to store in the associated representation. When this occurs, the value may wrap to become a very small or negative number. While this may be intended behavior in circumstances that rely on wrapping, it can have security consequences if the wrap is unexpected. This is especially the case if the integer overflow can be triggered using user-supplied inputs. This becomes security-critical when the result is used to control looping, make a security decision, or determine the offset or size in behaviors such as memory allocation, copying, concatenation, etc.",
+	"description": "The product performs a calculation that can\n         produce an integer overflow or wraparound when the logic\n         assumes that the resulting value will always be larger than\n         the original value. This occurs when an integer value is\n         incremented to a value that is too large to store in the\n         associated representation. When this occurs, the value may\n         become a very small or negative number.",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -42,7 +41,10 @@
 	},
 	"modes_of_introduction": [
 		{
-			"phase": "Implementation"
+			"phase": "Implementation",
+			"note": [
+				"This weakness may become security critical when determining the offset or size in behaviors such as memory allocation, copying, and concatenation."
+			]
 		}
 	],
 	"likelihood_of_exploit": "Medium",
@@ -53,11 +55,10 @@
 			],
 			"impact": [
 				"DoS: Crash, Exit, or Restart",
-				"DoS: Resource Consumption (CPU)",
 				"DoS: Resource Consumption (Memory)",
 				"DoS: Instability"
 			],
-			"note": "This weakness will generally lead to undefined behavior and therefore crashes. In the case of overflows involving loop index variables, the likelihood of infinite loops is also high."
+			"note": "This weakness can generally lead to undefined behavior and therefore crashes. When the calculated result is used for resource allocation, this weakness can cause too many (or too few) resources to be allocated, possibly enabling crashes if the product requests more resources than can be provided."
 		},
 		{
 			"scope": [
@@ -66,7 +67,7 @@
 			"impact": [
 				"Modify Memory"
 			],
-			"note": "If the value in question is important to data (as opposed to flow), simple data corruption has occurred. Also, if the wrap around results in other conditions such as buffer overflows, further memory corruption may occur."
+			"note": "If the value in question is important to data (as opposed to flow), simple data corruption has occurred. Also, if the overflow/wraparound results in other conditions such as buffer overflows, further memory corruption may occur. "
 		},
 		{
 			"scope": [
@@ -78,7 +79,28 @@
 				"Execute Unauthorized Code or Commands",
 				"Bypass Protection Mechanism"
 			],
-			"note": "This weakness can sometimes trigger buffer overflows which can be used to execute arbitrary code. This is usually outside the scope of a program's implicit security policy."
+			"note": "This weakness can sometimes trigger buffer overflows, which can be used to execute arbitrary code. This is usually outside the scope of the product's implicit security policy."
+		},
+		{
+			"scope": [
+				"Availability",
+				"Other"
+			],
+			"impact": [
+				"Alter Execution Logic",
+				"DoS: Crash, Exit, or Restart",
+				"DoS: Resource Consumption (CPU)"
+			],
+			"note": "If the overflow/wraparound occurs in a loop index variable, this could cause the loop to terminate at the wrong time - too early, too late, or not at all (i.e., infinite loops). With too many iterations, some loops could consume too many resources such as memory, file handles, etc., possibly leading to a crash or other DoS."
+		},
+		{
+			"scope": [
+				"Access Control"
+			],
+			"impact": [
+				"Bypass Protection Mechanism"
+			],
+			"note": "If integer values are used in security-critical decisions, such as calculating quotas or allocation limits, integer overflows can be used to cause an incorrect security decision."
 		}
 	],
 	"potential_mitigations": [
@@ -332,6 +354,17 @@
 			"publication_year": "2006",
 			"publisher": "Addison Wesley",
 			"edition": "1st Edition"
+		},
+		{
+			"section": "Definition variations and ambiguity",
+			"reference_id": "REF-1440",
+			"title": "Integer overflow",
+			"url": "https://en.wikipedia.org/wiki/Integer_overflow",
+			"publication_year": "2024",
+			"publication_month": "--06",
+			"publication_day": "---11",
+			"publisher": "Wikipedia",
+			"url_date": "2024-06-30"
 		}
 	],
 	"content_history": {
@@ -555,6 +588,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2024-02-29",
 				"modification_comment": "updated Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-07-16",
+				"modification_comment": "updated Alternate_Terms, Common_Consequences, Description, Diagram, Mapping_Notes, Modes_of_Introduction, Other_Notes, References, Relationship_Notes, Terminology_Notes"
 			}
 		],
 		"previous_entry_name": [
@@ -570,9 +609,29 @@
 				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
 				"contribution_date": "2023-04-25",
 				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Abhi Balakrishnan",
+				"contribution_date": "2024-02-29",
+				"contribution_comment": "Provided diagram to improve CWE usability"
 			}
 		]
 	},
+	"alternate_terms": [
+		{
+			"term": "Overflow",
+			"description": "The terms \"overflow\" and \"wraparound\" are\n               used interchangeably by some people, but they can have\n               more precise distinctions by others. See Terminology\n               Notes."
+		},
+		{
+			"term": "Wraparound",
+			"description": "The terms \"overflow\" and \"wraparound\" are\n               used interchangeably by some people, but they can have\n               more precise distinctions by others. See Terminology\n               Notes."
+		},
+		{
+			"term": "wrap, wrap-around, wrap around",
+			"description": "Alternate spellings of \"wraparound\""
+		}
+	],
 	"detection_methods": [
 		{
 			"detection_method_id": "DM-1",
@@ -724,11 +783,15 @@
 	"notes": [
 		{
 			"type": "Relationship",
-			"text": "Integer overflows can be primary to buffer overflows."
+			"text": "Integer overflows can be primary to buffer overflows when they cause less memory to be allocated than expected."
 		},
 		{
 			"type": "Terminology",
-			"text": "\"Integer overflow\" is sometimes used to cover several types of errors, including signedness errors, or buffer overflows that involve manipulation of integer data types instead of characters. Part of the confusion results from the fact that 0xffffffff is -1 in a signed context. Other confusion also arises because of the role that integer overflows have in chains."
+			"text": "\n\n\t\t\t  <xhtml:p>\"Integer overflow\" is\n            sometimes used to cover several types of errors, including\n            signedness errors, or buffer overflows that involve\n            manipulation of integer data types instead of\n            characters. Part of the confusion results from the fact\n            that 0xffffffff is -1 in a signed context. Other confusion\n            also arises because of the role that integer overflows\n            have in chains.</xhtml:p>\n\n\t\t\t<xhtml:p>A \"wraparound\" is a well-defined, standard\n\t\t\tbehavior that follows specific rules for how to handle\n\t\t\tsituations when the intended numeric value is too large or\n\t\t\ttoo small to be represented, as specified in standards\n\t\t\tsuch as C11.</xhtml:p>\n\t\t\t\n            <xhtml:p>\"Overflow\" is sometimes conflated with\n            \"wraparound\" but typically indicates a non-standard or\n            undefined behavior.</xhtml:p>\n\n\t\t\t<xhtml:p>The \"overflow\" term is sometimes used to indicate\n\t\t\tcases where either the maximum or the minimum is exceeded,\n\t\t\tbut others might only use \"overflow\" to indicate exceeding\n\t\t\tthe maximum while using \"underflow\" for exceeding the\n\t\t\tminimum.</xhtml:p>\n\n\t\t\t<xhtml:p>Some people use \"overflow\" to mean any value\n\t\t\toutside the representable range - whether greater than the\n\t\t\tmaximum, or less than the minimum - but CWE uses\n\t\t\t\"underflow\" for cases in which the intended result is less\n\t\t\tthan the minimum.</xhtml:p>\n\t\t\t\n\t\t\t<xhtml:p>See [REF-1440] for additional explanation of the\n\t\t\tambiguity of terminology.</xhtml:p>\n\t\t  "
+		},
+		{
+			"type": "Other",
+			"text": "While there may be circumstances in\n            which the logic intentionally relies on wrapping - such as\n            with modular arithmetic in timers or counters - it can\n            have security consequences if the wrap is unexpected.\n            This is especially the case if the integer overflow can be\n            triggered using user-supplied inputs."
 		}
 	],
 	"functional_areas": [

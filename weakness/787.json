@@ -5,7 +5,6 @@
 	"structure": "Simple",
 	"status": "Draft",
 	"description": "The product writes data past the end, or before the beginning, of the intended buffer.",
-	"extended_description": "Typically, this can result in corruption of data, a crash, or code execution.  The product may modify an index or perform pointer arithmetic that references a memory location that is outside of the boundaries of the buffer.  A subsequent write operation then produces undefined or unexpected results.",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -63,14 +62,31 @@
 	"common_consequences": [
 		{
 			"scope": [
-				"Integrity",
-				"Availability"
+				"Integrity"
 			],
 			"impact": [
 				"Modify Memory",
-				"DoS: Crash, Exit, or Restart",
 				"Execute Unauthorized Code or Commands"
-			]
+			],
+			"note": "Write operations could cause memory corruption. In some cases, an adversary can modify control data such as return addresses in order to execute unexpected code."
+		},
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart"
+			],
+			"note": "Attempting to access out-of-range, invalid, or unauthorized memory could cause the product to crash."
+		},
+		{
+			"scope": [
+				"Other"
+			],
+			"impact": [
+				"Unexpected State"
+			],
+			"note": "Subsequent write operations can produce undefined or unexpected results."
 		}
 	],
 	"potential_mitigations": [
@@ -127,7 +143,7 @@
 				"\n\t\t <xhtml:p>Run or compile the software using features or extensions that randomly arrange the positions of a program's executable and libraries in memory. Because this makes the addresses unpredictable, it can prevent an attacker from reliably jumping to exploitable code. </xhtml:p> \n\t\t <xhtml:p> Examples include Address Space Layout Randomization (ASLR) [REF-58] [REF-60] and Position-Independent Executables (PIE) [REF-64]. Imported modules may be similarly realigned if their default memory addresses conflict with other modules, in a process known as \"rebasing\" (for Windows) and \"prelinking\" (for Linux) [REF-1332] using randomly generated addresses. ASLR for libraries cannot be used in conjunction with prelink since it would require relocating the libraries at run-time, defeating the whole purpose of prelinking. </xhtml:p> \n\t\t <xhtml:p> For more information on these techniques see D3-SAOR (Segment Address Offset Randomization) from D3FEND [REF-1335]. </xhtml:p>\n\t       "
 			],
 			"effectiveness": "Defense in Depth",
-			"effectiveness_notes": "These techniques do not provide a complete solution.  For instance, exploits frequently use a bug that discloses memory addresses in order to maximize reliability of code execution [REF-1337]. It has also been shown that a side-channel attack can bypass ASLR [REF-1333]",
+			"effectiveness_notes": "These techniques do not provide a complete solution.  For instance, exploits frequently use a bug that discloses memory addresses in order to maximize reliability of code execution [REF-1337]. It has also been shown that a side-channel attack can bypass ASLR [REF-1333].",
 			"strategy": "Environment Hardening"
 		},
 		{
@@ -590,6 +606,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2024-02-29",
 				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-07-16",
+				"modification_comment": "updated Alternate_Terms, Common_Consequences, Description, Diagram, Weakness_Ordinalities"
 			}
 		],
 		"contribution": [
@@ -599,13 +621,25 @@
 				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
 				"contribution_date": "2023-04-25",
 				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Abhi Balakrishnan",
+				"contribution_date": "2024-02-29",
+				"contribution_comment": "Provided diagram to improve CWE usability"
 			}
 		]
 	},
+	"weakness_ordinalities": [
+		{
+			"ordinality": "Resultant",
+			"description": "At the point when the product writes data to an invalid location, it is likely that a separate weakness already occurred earlier. For example, the product might alter an index, perform incorrect pointer arithmetic, initialize or release memory incorrectly, etc., thus referencing a memory location outside the buffer."
+		}
+	],
 	"alternate_terms": [
 		{
 			"term": "Memory Corruption",
-			"description": "Often used to describe the consequences of writing to memory outside the bounds of a buffer, or to memory that is invalid, when the root cause is something other than a sequential copy of excessive data from a fixed starting location. This may include issues such as incorrect pointer arithmetic, accessing invalid pointers due to incomplete initialization or memory release, etc."
+			"description": "Often used to describe the consequences of writing to memory outside the bounds of a buffer, or to memory that is otherwise invalid."
 		}
 	],
 	"detection_methods": [

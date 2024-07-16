@@ -4,8 +4,7 @@
 	"abstraction": "Base",
 	"structure": "Simple",
 	"status": "Stable",
-	"description": "The product constructs all or part of an SQL command using externally-influenced input from an upstream component, but it does not neutralize or incorrectly neutralizes special elements that could modify the intended SQL command when it is sent to a downstream component.",
-	"extended_description": "\n            <xhtml:p>Without sufficient removal or quoting of SQL syntax in user-controllable inputs, the generated SQL query can cause those inputs to be interpreted as SQL instead of ordinary user data. This can be used to alter query logic to bypass security checks, or to insert additional statements that modify the back-end database, possibly including execution of system commands.</xhtml:p>\n            <xhtml:p>SQL injection has become a common issue with database-driven web sites. The flaw is easily detected, and easily exploited, and as such, any site or product package with even a minimal user base is likely to be subject to an attempted attack of this kind. This flaw depends on the fact that SQL makes no real distinction between the control and data planes.</xhtml:p>\n         ",
+	"description": "The product constructs all or part of an SQL command using externally-influenced input from an upstream component, but it does not neutralize or incorrectly neutralizes special elements that could modify the intended SQL command when it is sent to a downstream component. Without sufficient removal or quoting of SQL syntax in user-controllable inputs, the generated SQL query can cause those inputs to be interpreted as SQL instead of ordinary user data.",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -52,6 +51,17 @@
 	"common_consequences": [
 		{
 			"scope": [
+				"Confidentiality",
+				"Integrity",
+				"Availability"
+			],
+			"impact": [
+				"Execute Unauthorized Code or Commands"
+			],
+			"note": "Adversaries could execute system commands, typically by changing the SQL statement to redirect output to a file that can then be executed."
+		},
+		{
+			"scope": [
 				"Confidentiality"
 			],
 			"impact": [
@@ -61,12 +71,13 @@
 		},
 		{
 			"scope": [
-				"Access Control"
+				"Authentication"
 			],
 			"impact": [
+				"Gain Privileges or Assume Identity",
 				"Bypass Protection Mechanism"
 			],
-			"note": "If poor SQL commands are used to check user names and passwords, it may be possible to connect to a system as another user with no previous knowledge of the password."
+			"note": "If poor SQL commands are used to check user names and passwords or perform other kinds of authentication, it may be possible to connect to the product as another user with no previous knowledge of the password."
 		},
 		{
 			"scope": [
@@ -84,7 +95,7 @@
 			"impact": [
 				"Modify Application Data"
 			],
-			"note": "Just as it may be possible to read sensitive information, it is also possible to make changes or even delete this information with a SQL injection attack."
+			"note": "Just as it may be possible to read sensitive information, it is also possible to modify or even delete this information with a SQL injection attack."
 		}
 	],
 	"potential_mitigations": [
@@ -457,6 +468,18 @@
 			"url": "http://www.omg.org/spec/ASCSM/1.0/",
 			"publication_year": "2016",
 			"publication_month": "--01"
+		},
+		{
+			"reference_id": "REF-1447",
+			"author": [
+				"Cybersecurity and Infrastructure Security Agency"
+			],
+			"title": "Secure by Design Alert: Eliminating SQL Injection Vulnerabilities in Software",
+			"url": "https://www.cisa.gov/resources-tools/resources/secure-design-alert-eliminating-sql-injection-vulnerabilities-software",
+			"publication_year": "2024",
+			"publication_month": "--03",
+			"publication_day": "---25",
+			"url_date": "2024-07-14"
 		}
 	],
 	"content_history": {
@@ -725,6 +748,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2024-02-29",
 				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-07-16",
+				"modification_comment": "updated Alternate_Terms, Common_Consequences, Description, Diagram, References"
 			}
 		],
 		"previous_entry_name": [
@@ -752,8 +781,26 @@
 				"text": "Improper Sanitization of Special Elements used in an SQL Command ('SQL Injection')",
 				"date": "2010-06-21"
 			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Abhi Balakrishnan",
+				"contribution_date": "2024-02-29",
+				"contribution_comment": "Provided diagram to improve CWE usability"
+			}
 		]
 	},
+	"alternate_terms": [
+		{
+			"term": "SQL injection",
+			"description": "a common attack-oriented phrase"
+		},
+		{
+			"term": "SQLi",
+			"description": "a common abbreviation for \"SQL injection\""
+		}
+	],
 	"detection_methods": [
 		{
 			"detection_method_id": "DM-1",
