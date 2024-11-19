@@ -74,12 +74,6 @@
 			]
 		}
 	],
-	"demonstrative_examples": [
-		{
-			"demonstrative_example_id": "DX-173",
-			"text": "\n                <Intro_Text>Consider an example hardware module that checks a user-provided password to grant access to a user. The user-provided password is compared against a golden value in a byte-by-byte manner.</Intro_Text>\n                <Example_Code Nature=\"Bad\" Language=\"Verilog\">\n                    always_comb @ (posedge clk)<xhtml:br/>\n                    <xhtml:br/>\n                    begin<xhtml:br/>\n\t\t    <xhtml:div style=\"margin-left:1em;\">\n                      assign check_pass[3:0] = 4'b0;<xhtml:br/>\n                      for (i = 0; i &lt; 4; i++) begin<xhtml:br/>\n\t\t      <xhtml:div style=\"margin-left:1em;\">\n                    \tif (entered_pass[(i*8 - 1) : i] eq golden_pass([i*8 - 1) : i])<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n\t\t\t  assign check_pass[i] = 1;<xhtml:br/>\n                    \t  continue;<xhtml:br/>\n\t\t\t</xhtml:div>\n                    \telse<xhtml:br/>\n\t\t\t<xhtml:div style=\"margin-left:1em;\">\n                    \t  assign check_pass[i] = 0;<xhtml:br/>\n                    \t  break;<xhtml:br/>\n\t\t\t</xhtml:div>\n                    \tend<xhtml:br/>\n\t\t      </xhtml:div>\n                      assign grant_access = (check_pass == 4'b1111) ? 1'b1: 1'b0;<xhtml:br/>\n\t\t    </xhtml:div>\n                    end<xhtml:br/>\n\t\t</Example_Code>\n                <Body_Text>Since the code breaks on an incorrect entry of password, an attacker can guess the correct password for that byte-check iteration with few repeat attempts.</Body_Text>\n\t\t<Body_Text>To fix this weakness, either the comparison of the entire string should be done all at once, or the attacker is not given an indication whether pass or fail happened by allowing the comparison to run through all bits before the grant_access signal is set.</Body_Text>\n                <Example_Code Nature=\"Good\">\n                  always_comb @ (posedge clk)<xhtml:br/>\n\t\t  begin<xhtml:br/>\n\t\t  <xhtml:div style=\"margin-left:1em;\">\n                    assign check_pass[3:0] = 4'b0;<xhtml:br/>\n               \t    for (i = 0; i &lt; 4; i++) begin<xhtml:br/>\n\t\t    <xhtml:div style=\"margin-left:1em;\">\n               \t      if (entered_pass[(i*8 - 1) : i] eq golden_pass([i*8 -1) : i])<xhtml:br/>\n\t\t      <xhtml:div style=\"margin-left:1em;\">\n               \t\tassign check_pass[i] = 1;<xhtml:br/>\n               \t\tcontinue;<xhtml:br/>\n\t\t      </xhtml:div>\n               \t      else<xhtml:br/>\n\t\t      <xhtml:div style=\"margin-left:1em;\">\n               \t\tassign check_pass[i] = 0;<xhtml:br/>\n               \t\tcontinue;<xhtml:br/>\n\t\t      </xhtml:div>\n               \t      end<xhtml:br/>\n\t\t    </xhtml:div>\n               \t    assign grant_access = (check_pass == 4'b1111) ? 1'b1: 1'b0;<xhtml:br/>\n\t\t  </xhtml:div>\n\t\t  end<xhtml:br/>\n\t\t</Example_Code>\n            "
-		}
-	],
 	"observed_examples": [
 		{
 			"reference": "CVE-2019-10482",
@@ -149,10 +143,31 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-10-26",
 				"modification_comment": "updated Demonstrative_Examples, Observed_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-11-19",
+				"modification_comment": "updated Demonstrative_Examples, Maintenance_Notes"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Feedback",
+				"contribution_name": "Anders Nordstrom",
+				"contribution_organization": "Cycuity Inc.",
+				"contribution_date": "2024-01-09",
+				"contribution_comment": "reported problems with the Verilog demonstrative example, leading to its removal from this entry"
 			}
 		]
 	},
 	"related_attack_patterns": [
 		"26"
+	],
+	"notes": [
+		{
+			"type": "Maintenance",
+			"text": "CWE 4.16 removed a demonstrative example for a hardware module because it was inaccurate and unable to be adapted. The CWE team is developing an alternative."
+		}
 	]
 }

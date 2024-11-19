@@ -4,8 +4,7 @@
 	"abstraction": "Base",
 	"structure": "Simple",
 	"status": "Draft",
-	"description": "The product deserializes untrusted data without sufficiently verifying that the resulting data will be valid.",
-	"extended_description": "\n            <xhtml:p>It is often convenient to serialize objects for communication or to save them for later use. However, deserialized data or code can often be modified without using the provided accessor functions if it does not use cryptography to protect itself. Furthermore, any cryptography would still be client-side security -- which is a dangerous security assumption.</xhtml:p>\n            <xhtml:p>Data that is untrusted can not be trusted to be well-formed.</xhtml:p>\n            <xhtml:p>When developers place no restrictions on \"gadget chains,\" or series of instances and method invocations that can self-execute during the deserialization process (i.e., before the object is returned to the caller), it is sometimes possible for attackers to leverage them to perform unauthorized actions, like generating a shell.</xhtml:p>\n         ",
+	"description": "The product deserializes untrusted data without sufficiently ensuring that the resulting data will be valid.",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -79,7 +78,7 @@
 				"Modify Application Data",
 				"Unexpected State"
 			],
-			"note": "Attackers can modify unexpected objects or data that was assumed to be safe from modification."
+			"note": "Attackers can modify unexpected objects or data that was assumed to be safe from modification. Deserialized data or code could be modified without using the provided accessor functions, or unexpected functions could be invoked."
 		},
 		{
 			"scope": [
@@ -97,7 +96,7 @@
 			"impact": [
 				"Varies by Context"
 			],
-			"note": "The consequences can vary widely, because it depends on which objects or methods are being deserialized, and how they are used. Making an assumption that the code in the deserialized object is valid is dangerous and can enable exploitation."
+			"note": "The consequences can vary widely, because it depends on which objects or methods are being deserialized, and how they are used. Making an assumption that the code in the deserialized object is valid is dangerous and can enable exploitation. One example is attackers using gadget chains to perform unauthorized actions, such as generating a shell."
 		}
 	],
 	"potential_mitigations": [
@@ -140,7 +139,16 @@
 				"Implementation"
 			],
 			"description": [
-				"Avoid having unnecessary types or gadgets available that can be leveraged for malicious ends. This limits the potential for unintended or unauthorized types and gadgets to be leveraged by the attacker. Add only acceptable classes to an allowlist. Note: new gadgets are constantly being discovered, so this alone is not a sufficient mitigation."
+				"Avoid having unnecessary types or gadgets (a sequence of instances and method invocations that can self-execute during the deserialization process, often found in libraries) available that can be leveraged for malicious ends. This limits the potential for unintended or unauthorized types and gadgets to be leveraged by the attacker. Add only acceptable classes to an allowlist. Note: new gadgets are constantly being discovered, so this alone is not a sufficient mitigation."
+			]
+		},
+		{
+			"phase": [
+				"Architecture and Design",
+				"Implementation"
+			],
+			"description": [
+				"Employ cryptography of the data or code for protection. However, it's important to note that it would still be client-side security. This is risky because if the client is compromised then the security implemented on the client (the cryptography) can be bypassed."
 			]
 		}
 	],
@@ -212,7 +220,8 @@
 			],
 			"title": "The CLASP Application Security Process",
 			"url": "https://cwe.mitre.org/documents/sources/TheCLASPApplicationSecurityProcess.pdf",
-			"publication_year": "2005"
+			"publication_year": "2005",
+			"url_date": "2024-11-17"
 		},
 		{
 			"reference_id": "REF-461",
@@ -472,6 +481,20 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes, Relationships"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-11-19",
+				"modification_comment": "updated Common_Consequences, Description, Diagram, Potential_Mitigations, Relationships"
+			}
+		],
+		"contribution": [
+			{
+				"type": "Content",
+				"contribution_name": "Abhi Balakrishnan",
+				"contribution_date": "2024-02-29",
+				"contribution_comment": "Contributed usability diagram concepts used by the CWE team"
 			}
 		]
 	},

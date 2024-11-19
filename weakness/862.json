@@ -5,7 +5,6 @@
 	"structure": "Simple",
 	"status": "Incomplete",
 	"description": "The product does not perform an authorization check when an actor attempts to access a resource or perform an action.",
-	"extended_description": "\n            <xhtml:p>Assuming a user with a given identity, authorization is the process of determining whether that user can access a given resource, based on the user's privileges and any permissions or other access-control specifications that apply to the resource.</xhtml:p>\n            <xhtml:p>When access control checks are not applied, users are able to access data or perform actions that they should not be allowed to perform. This can lead to a wide range of problems, including information exposures, denial of service, and arbitrary code execution.</xhtml:p>\n         ",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -89,6 +88,18 @@
 				"Bypass Protection Mechanism"
 			],
 			"note": "An attacker could gain privileges by modifying or reading critical data directly, or by accessing privileged functionality."
+		},
+		{
+			"scope": [
+				"Availability"
+			],
+			"impact": [
+				"DoS: Crash, Exit, or Restart",
+				"DoS: Resource Consumption (CPU)",
+				"DoS: Resource Consumption (Memory)",
+				"DoS: Resource Consumption (Other)"
+			],
+			"note": "An attacker could gain unauthorized access to resources on the system and excessively consume those resources, leading to a denial of service."
 		}
 	],
 	"potential_mitigations": [
@@ -459,6 +470,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes, Relationships, Taxonomy_Mappings"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-11-19",
+				"modification_comment": "updated Common_Consequences, Description, Diagram, Relationships, Terminology_Notes"
 			}
 		],
 		"contribution": [
@@ -468,6 +485,12 @@
 				"contribution_organization": "CWE-CAPEC ICS/OT SIG",
 				"contribution_date": "2023-04-25",
 				"contribution_comment": "Suggested mappings to ISA/IEC 62443."
+			},
+			{
+				"type": "Content",
+				"contribution_name": "Abhi Balakrishnan",
+				"contribution_date": "2024-02-29",
+				"contribution_comment": "Provided diagram to improve CWE usability"
 			}
 		]
 	},
@@ -544,5 +567,11 @@
 	],
 	"related_attack_patterns": [
 		"665"
+	],
+	"notes": [
+		{
+			"type": "Terminology",
+			"text": "Assuming a user with a given identity, authorization is the process of determining whether that user can access a given resource, based on the user's privileges and any permissions or other access-control specifications that apply to the resource."
+		}
 	]
 }

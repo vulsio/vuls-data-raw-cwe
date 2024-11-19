@@ -64,6 +64,10 @@
 	],
 	"demonstrative_examples": [
 		{
+			"demonstrative_example_id": "DX-224",
+			"text": "\n               <Intro_Text>The following code segment reads the name of the author of a weblog entry, author, from an HTTP request and sets it in a cookie header of an HTTP response.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>String author = request.getParameter(AUTHOR_PARAM);<xhtml:br/>...<xhtml:br/>Cookie cookie = new Cookie(\"author\", author);<xhtml:br/>cookie.setMaxAge(cookieExpiration);<xhtml:br/>response.addCookie(cookie);</xhtml:div>\n               </Example_Code>\n               <Body_Text>Assuming a string consisting of standard alpha-numeric characters, such as \"Jane Smith\", is submitted in the request the HTTP response including this cookie might take the following form:</Body_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>HTTP/1.1 200 OK<xhtml:br/>...<xhtml:br/>Set-Cookie: author=Jane Smith<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>However, because the value of the cookie is composed of unvalidated user input, the response will only maintain this form if the value submitted for AUTHOR_PARAM does not contain any CR and LF characters. If an attacker submits a malicious string, such as</Body_Text>\n               <Example_Code Nature=\"Attack\">\n                  <xhtml:div>Wiley Hacker\\r\\nHTTP/1.1 200 OK\\r\\n</xhtml:div>\n               </Example_Code>\n               <Body_Text>then the HTTP response would be split into two responses of the following form:</Body_Text>\n               <Example_Code Nature=\"Result\">\n                  <xhtml:div>HTTP/1.1 200 OK<xhtml:br/>...<xhtml:br/>Set-Cookie: author=Wiley Hacker<xhtml:br/>HTTP/1.1 200 OK<xhtml:br/>...</xhtml:div>\n               </Example_Code>\n               <Body_Text>The second response is completely controlled by the attacker and can be constructed with any header and body content desired. The ability to construct arbitrary HTTP responses permits a variety of resulting attacks, including:</Body_Text>\n               <Body_Text>\n                  <xhtml:ul>\n                     <xhtml:li>\n                        <xhtml:div>cross-user defacement</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>web and browser cache poisoning</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>cross-site scripting</xhtml:div>\n                     </xhtml:li>\n                     <xhtml:li>\n                        <xhtml:div>page hijacking</xhtml:div>\n                     </xhtml:li>\n                  </xhtml:ul>\n               </Body_Text>\n            "
+		},
+		{
 			"text": "\n               <Intro_Text>If user input data that eventually makes it to a log message isn't checked for CRLF characters, it may be possible for an attacker to forge entries in a log file.</Intro_Text>\n               <Example_Code Nature=\"Bad\" Language=\"Java\">\n                  <xhtml:div>logger.info(\"User's street address: \" + request.getParameter(\"streetAddress\"));</xhtml:div>\n               </Example_Code>\n            "
 		}
 	],
@@ -262,6 +266,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2023-06-29",
 				"modification_comment": "updated Mapping_Notes"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-11-19",
+				"modification_comment": "updated Demonstrative_Examples"
 			}
 		],
 		"previous_entry_name": [

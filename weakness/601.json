@@ -4,8 +4,7 @@
 	"abstraction": "Base",
 	"structure": "Simple",
 	"status": "Draft",
-	"description": "A web application accepts a user-controlled input that specifies a link to an external site, and uses that link in a Redirect. This simplifies phishing attacks.",
-	"extended_description": "An http parameter may contain a URL value and could cause the web application to redirect the request to the specified URL. By modifying the URL value to a malicious site, an attacker may successfully launch a phishing scam and steal user credentials. Because the server name in the modified link is identical to the original site, phishing attempts have a more trustworthy appearance. Whether this issue poses a vulnerability will be subject to the intended behavior of the application. For example, a search engine might intentionally provide redirects to arbitrary URLs.",
+	"description": "The web application accepts a user-controlled input that specifies a link to an external site, and uses that link in a redirect.",
 	"related_weaknesses": [
 		{
 			"nature": "ChildOf",
@@ -71,7 +70,7 @@
 				"Gain Privileges or Assume Identity",
 				"Other"
 			],
-			"note": "The user may be subjected to phishing attacks by being redirected to an untrusted page. The phishing attack may point to an attacker controlled web page that appears to be a trusted web site. The phishers may then steal the user's credentials and then use these credentials to access the legitimate web site."
+			"note": "By modifying the URL value to a malicious site, an attacker may successfully launch a phishing scam. The user may be subjected to phishing attacks by being redirected to an untrusted page. The phishing attack may point to an attacker controlled web page that appears to be a trusted web site. The phishers may then steal the user's credentials and then use these credentials to access the legitimate web site. Because the server name in the modified link is identical to the original site, phishing attempts have a more trustworthy appearance."
 		}
 	],
 	"potential_mitigations": [
@@ -404,6 +403,12 @@
 				"modification_organization": "MITRE",
 				"modification_date": "2024-02-29",
 				"modification_comment": "updated Demonstrative_Examples"
+			},
+			{
+				"modification_name": "CWE Content Team",
+				"modification_organization": "MITRE",
+				"modification_date": "2024-11-19",
+				"modification_comment": "updated Alternate_Terms, Common_Consequences, Description, Diagram, Other_Notes"
 			}
 		],
 		"previous_entry_name": [
@@ -430,6 +435,9 @@
 		},
 		{
 			"term": "Cross-domain Redirect"
+		},
+		{
+			"term": "Unvalidated Redirect"
 		}
 	],
 	"detection_methods": [
@@ -498,5 +506,11 @@
 	],
 	"related_attack_patterns": [
 		"178"
+	],
+	"notes": [
+		{
+			"type": "Other",
+			"text": "Whether this issue poses a vulnerability will be subject to the intended behavior of the application. For example, a search engine might intentionally provide redirects to arbitrary URLs.\n\t   "
+		}
 	]
 }
